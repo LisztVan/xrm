@@ -1,0 +1,5 @@
+add_executable(xrm_group_bindings_tests group_bindings_tests.cpp)
+target_link_libraries(xrm_group_bindings_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+include(CTest)
+include(Catch)
+catch_discover_tests(xrm_group_bindings_tests)
