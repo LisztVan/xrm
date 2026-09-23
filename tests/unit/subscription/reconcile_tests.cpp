@@ -1,4 +1,5 @@
 #include "subscription/reconcile.hpp"
+#include "subscription/parser.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -109,4 +110,63 @@ TEST_CASE("SUB-04 duplicate identities are treated as ambiguous and complete ref
   CHECK(partial->report.missing == 0);
   CHECK(std::none_of(partial->changes.upserts.begin(), partial->changes.upserts.end(),
                      [](const xrm::Node& node) { return node.source_missing; }));
+}
+
+TEST_CASE("SUB-03 partial parse accepts valid entries without marking absent nodes missing") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::Node old;
+  old.id = "old-node";
+  old.source_id = source.id;
+  old.original_name = "no longer listed";
+  old.settings = vless("no longer listed", "old.example", "old-secret").settings;
+
+  const auto parsed = xrm::parse_subscription(
+      "vless://00000000-0000-4000-8000-000000000001@new.example:443#new\n"
+      "vmess://opaque\n"
+      "vless://malformed");
+  REQUIRE(parsed.has_value());
+  REQUIRE(parsed->nodes.size() == 1);
+  REQUIRE(parsed->issues.size() == 2);
+  CHECK_FALSE(parsed->structurally_complete);
+
+  auto result = xrm::reconcile({source, {old}, *parsed}, [] { return "new-node"; });
+  REQUIRE(result.has_value());
+  CHECK(result->report.added == 1);
+  CHECK(result->report.malformed == 1);
+  CHECK(result->report.unsupported == 1);
+  CHECK(result->report.partial);
+  CHECK(result->report.missing == 0);
+  REQUIRE(result->changes.upserts.size() == 1);
+  CHECK(result->changes.upserts.front().id == "new-node");
+
+  const auto html = xrm::parse_subscription("<html><form>login</form></html>");
+  REQUIRE(html.has_value());
+  CHECK(html->nodes.empty());
+  auto empty = xrm::reconcile({source, {old}, *html}, [] { return "unused"; });
+  REQUIRE(empty.has_value());
+  CHECK(empty->changes.upserts.empty());
+  CHECK(empty->report.missing == 0);
+}
+
+TEST_CASE("SUB-04 explicit upstream identity takes precedence over changed connection fields") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::Node old;
+  old.id = "stable-id";
+  old.source_id = source.id;
+  old.upstream_id = "source-row-7";
+  old.original_name = "before";
+  old.settings = vless("before", "old.example", "old-secret").settings;
+
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {vless("after", "new.example", "new-secret", "source-row-7")};
+  auto result = xrm::reconcile({source, {old}, parsed}, [] { return "unexpected-new"; });
+  REQUIRE(result.has_value());
+  CHECK(result->report.added == 0);
+  CHECK(result->report.updated == 1);
+  REQUIRE(result->changes.upserts.size() == 1);
+  CHECK(result->changes.upserts.front().id == old.id);
+  CHECK(result->changes.upserts.front().upstream_id == old.upstream_id);
 }
