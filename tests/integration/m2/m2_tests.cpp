@@ -99,6 +99,7 @@ class Server {
     args.insert(args.begin(), {"--socket", socket_.string(), "--json"});
     return run(XRM_TEST_MANAGER, root_, args);
   }
+  const std::filesystem::path& socket_path() const { return socket_; }
   bool stop() {
     if (pid_ < 0) return true;
     ::kill(pid_, SIGTERM);
@@ -123,6 +124,21 @@ class Server {
 xrm::Json parsed(const Captured& result) {
   if (result.code != 0) return {};
   try { return xrm::Json::parse(result.out); } catch (...) { return {}; }
+}
+
+int send_rpc_without_reading(const std::filesystem::path& socket, const xrm::Json& request) {
+  const int fd = ::socket(AF_UNIX, SOCK_STREAM, 0);
+  if (fd < 0) return -1;
+  sockaddr_un address{};
+  address.sun_family = AF_UNIX;
+  const auto path = socket.string();
+  if (path.size() >= sizeof(address.sun_path)) { ::close(fd); return -1; }
+  std::copy(path.begin(), path.end(), address.sun_path);
+  if (::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) { ::close(fd); return -1; }
+  const auto frame = request.dump() + "\n";
+  const auto count = ::send(fd, frame.data(), frame.size(), MSG_NOSIGNAL);
+  if (count != static_cast<ssize_t>(frame.size())) { ::close(fd); return -1; }
+  return fd;
 }
 
 class SubscriptionHttpFixture {
@@ -151,6 +167,7 @@ class SubscriptionHttpFixture {
   }
   bool valid() const { return fd_ >= 0; }
   const std::string& url() const { return url_; }
+  std::size_t requests() const { return requests_.load(); }
   void set(std::string body, int status = 200) {
     std::lock_guard lock(mutex_);
     body_ = std::move(body);
@@ -163,6 +180,7 @@ class SubscriptionHttpFixture {
       if (::poll(&readiness, 1, 100) <= 0) continue;
       const int peer = ::accept(fd_, nullptr, nullptr);
       if (peer < 0) continue;
+      ++requests_;
       char request[4096];
       (void)::recv(peer, request, sizeof(request), 0);
       std::string body;
@@ -187,6 +205,7 @@ class SubscriptionHttpFixture {
   }
   int fd_ = -1;
   std::atomic<bool> running_{true};
+  std::atomic<std::size_t> requests_{0};
   std::string url_;
   std::string body_ = "";
   int status_ = 200;
@@ -205,7 +224,7 @@ std::map<std::string, std::string> directory_bytes(const std::filesystem::path& 
 
 }  // namespace
 
-TEST_CASE("CLI-01 subscription add/list/show/edit/remove and node ownership actions", "[CLI-01][DB-03][RPC-04]") {
+TEST_CASE("CLI-01 subscription add/list/show/edit/remove and node ownership actions", "[CLI-01][DB-03]") {
   TempDirectory temp;
   Server server(temp);
   REQUIRE(server.start());
@@ -239,6 +258,40 @@ TEST_CASE("CLI-01 subscription add/list/show/edit/remove and node ownership acti
   CHECK(parsed(server.cli({"node", "show", parsed(copied).at("id").get<std::string>()}))
             .at("settings").dump().find("secret-id") != std::string::npos);
   REQUIRE(server.cli({"sub", "remove", source_id, "--keep-nodes"}).code == 0);
+}
+
+TEST_CASE("RPC-04 an accepted subscription refresh is queried, never replayed", "[RPC-04]") {
+  TempDirectory temp;
+  SubscriptionHttpFixture fixture;
+  REQUIRE(fixture.valid());
+  fixture.set("vless://33333333-3333-4333-8333-333333333333@rpc.invalid:443?encryption=none#RPC");
+  Server server(temp);
+  REQUIRE(server.start());
+  auto source = parsed(server.cli({"sub", "add", "--name", "rpc fixture", "--url", fixture.url(), "--paused"}));
+  REQUIRE(source.contains("id"));
+  const auto info = parsed(server.cli({"server", "info"}));
+  REQUIRE(info.contains("boot_id"));
+  const auto request = xrm::Json{{"v", 1}, {"id", 71}, {"method", "subscription.refresh"},
+      {"params", {{"source_ids", xrm::Json::array({source.at("id")})}}}};
+  const int client_fd = send_rpc_without_reading(server.socket_path(), request);
+  REQUIRE(client_fd >= 0);
+  const auto request_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+  while (fixture.requests() == 0 && std::chrono::steady_clock::now() < request_deadline) ::poll(nullptr, 0, 10);
+  REQUIRE(fixture.requests() == 1);
+  ::shutdown(client_fd, SHUT_RDWR);
+  ::close(client_fd);
+  const auto operation = info.at("boot_id").get<std::string>() + ":1";
+  xrm::Json status;
+  for (int attempt = 0; attempt < 100; ++attempt) {
+    auto result = parsed(server.cli({"operation", "get", operation}));
+    if (result.is_object()) status = std::move(result);
+    if (status.value("status", "") == "succeeded" || status.value("status", "") == "failed") break;
+    ::poll(nullptr, 0, 20);
+  }
+  REQUIRE(status.value("status", "") == "succeeded");
+  CHECK(fixture.requests() == 1);
+  CHECK(parsed(server.cli({"node", "list"})).at("total") == 1);
+  REQUIRE(server.stop());
 }
 
 TEST_CASE("TUI exposes separate Subscriptions and Nodes views with missing source state", "[UI-02]") {
