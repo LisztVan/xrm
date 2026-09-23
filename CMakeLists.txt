@@ -38,6 +38,11 @@ FetchContent_Declare(nlohmann_json
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 FetchContent_MakeAvailable(nlohmann_json)
 
+FetchContent_Declare(CLI11
+  URL https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.5.0.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+FetchContent_MakeAvailable(CLI11)
+
 if(XRM_BUILD_TESTING)
   FetchContent_Declare(Catch2
     URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.7.1.tar.gz
@@ -56,11 +61,31 @@ target_link_libraries(xrm_contract PUBLIC xrm_model)
 
 add_library(xrm_server_lib STATIC
   src/infra/process.cpp
+  src/server/application.cpp
+  src/server/api_router.cpp
+  src/server/rpc_server.cpp
   src/infra/store.cpp
   src/model/json_models.cpp
   src/xray/process_adapter.cpp)
 target_include_directories(xrm_server_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(xrm_server_lib PUBLIC xrm_model SQLite3::SQLite3 uv_a)
+target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract SQLite3::SQLite3 uv_a)
+
+add_library(xrm_client_lib STATIC src/client/rpc_client.cpp)
+target_include_directories(xrm_client_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(xrm_client_lib PUBLIC xrm_contract uv_a)
+
+add_executable(xrmd apps/xrmd_main.cpp)
+target_link_libraries(xrmd PRIVATE xrm_server_lib CLI11::CLI11)
+target_compile_definitions(xrmd PRIVATE XRM_VERSION="${PROJECT_VERSION}")
+
+add_executable(xrm
+  apps/xrm_main.cpp
+  src/cli/commands.cpp
+  src/cli/node_commands.cpp
+  src/cli/core_commands.cpp
+  src/cli/print.cpp)
+target_include_directories(xrm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(xrm PRIVATE xrm_client_lib CLI11::CLI11)
 
 if(XRM_BUILD_TESTING)
   add_subdirectory(tests)

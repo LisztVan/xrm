@@ -1,0 +1,4 @@
+add_executable(xrm_rpc_transport_tests rpc_transport_tests.cpp)
+target_link_libraries(xrm_rpc_transport_tests PRIVATE
+  xrm_client_lib xrm_server_lib Catch2::Catch2WithMain)
+catch_discover_tests(xrm_rpc_transport_tests)

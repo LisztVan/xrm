@@ -18,3 +18,5 @@ add_executable(xrm_fake_core support/fake_core.cpp)
 
 add_subdirectory(integration/store)
 add_subdirectory(integration/process)
+add_subdirectory(integration/rpc_transport)
+add_subdirectory(integration/m0)

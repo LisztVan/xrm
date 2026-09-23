@@ -4,6 +4,7 @@
 #include "infra/store.hpp"
 
 #include <filesystem>
+#include <chrono>
 #include <string>
 
 namespace {
@@ -12,8 +13,9 @@ class TempDatabase {
  public:
   TempDatabase() {
     path_ = std::filesystem::temp_directory_path() /
-            ("xrm-store-test-" + std::to_string(++sequence_) + ".sqlite");
-    std::filesystem::remove(path_);
+            ("xrm-store-test-" + std::to_string(
+                 std::chrono::steady_clock::now().time_since_epoch().count()) +
+             "-" + std::to_string(++sequence_) + ".sqlite");
   }
   ~TempDatabase() {
     std::error_code ignored;
@@ -86,4 +88,24 @@ TEST_CASE("Node storage JSON preserves nullable and unknown native values", "[CT
   REQUIRE(decoded.source_id == source.source_id);
   REQUIRE(decoded.outbound == source.outbound);
   REQUIRE(encoded.at("source_id").is_null());
+}
+
+TEST_CASE("DB-01 core registrations and Profile paths are persistent indexes", "[DB-01]") {
+  TempDatabase database;
+  {
+    auto opened = xrm::Store::open(database.path());
+    REQUIRE(opened);
+    REQUIRE((*opened)->put_core({"core-1", "system", "/usr/bin/xray", "Xray fixture", false}));
+    REQUIRE((*opened)->register_profile("profile-1", "/tmp/xrm-profile-fixture"));
+  }
+  auto reopened = xrm::Store::open(database.path());
+  REQUIRE(reopened);
+  const auto cores = (*reopened)->cores();
+  REQUIRE(cores);
+  REQUIRE(cores->size() == 1);
+  REQUIRE(cores->front().path == "/usr/bin/xray");
+  const auto path = (*reopened)->profile_path("profile-1");
+  REQUIRE(path);
+  REQUIRE(*path == "/tmp/xrm-profile-fixture");
+  REQUIRE((*reopened)->profile_ids() == std::vector<xrm::Id>{"profile-1"});
 }
