@@ -93,4 +93,13 @@ TEST_CASE("C2 subscription DTO summary does not disclose its URL", "[CT-02]") {
   node.original_name = "sample";
   const auto decoded_node = xrm::Json(node).get<xrm::Node>();
   REQUIRE(decoded_node.upstream_id == "line-4");
+
+  xrm::SubscriptionState state;
+  state.last_result = "partial";
+  state.last_unsupported_count = 2;
+  state.last_malformed_count = 1;
+  const auto decoded_state = xrm::Json(state).get<xrm::SubscriptionState>();
+  REQUIRE(decoded_state.last_result == "partial");
+  REQUIRE(decoded_state.last_unsupported_count == 2);
+  REQUIRE(decoded_state.last_malformed_count == 1);
 }

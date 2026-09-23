@@ -168,7 +168,9 @@ void to_json(Json& json, const SubscriptionState& value) {
               {"etag", optional_string(value.etag)},
               {"last_modified", optional_string(value.last_modified)},
               {"last_result", value.last_result},
-              {"reported_usage", optional_string(value.reported_usage)}};
+              {"reported_usage", optional_string(value.reported_usage)},
+              {"last_unsupported_count", value.last_unsupported_count},
+              {"last_malformed_count", value.last_malformed_count}};
 }
 
 void from_json(const Json& json, SubscriptionState& value) {
@@ -178,6 +180,8 @@ void from_json(const Json& json, SubscriptionState& value) {
   value.last_modified = read_optional_string(json, "last_modified");
   value.last_result = json.at("last_result").get<std::string>();
   value.reported_usage = read_optional_string(json, "reported_usage");
+  value.last_unsupported_count = json.value("last_unsupported_count", std::size_t{0});
+  value.last_malformed_count = json.value("last_malformed_count", std::size_t{0});
 }
 
 void to_json(Json& json, const RuntimePersistent& value) {

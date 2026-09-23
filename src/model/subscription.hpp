@@ -35,6 +35,8 @@ struct SubscriptionState {
   std::optional<std::string> last_modified;
   std::string last_result;
   std::optional<std::string> reported_usage;
+  std::size_t last_unsupported_count = 0;
+  std::size_t last_malformed_count = 0;
 };
 
 struct ParsedNode {
