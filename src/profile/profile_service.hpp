@@ -35,6 +35,10 @@ class ProfileService {
   Result<void> rename_module_file(const Id&, std::string_view key,
                                   const std::filesystem::path& relative_name);
   Result<ModuleSnapshot> snapshot(const Id&) const;
+
+ private:
+  Store& store_;
+  std::filesystem::path profiles_root_;
 };
 
 }  // namespace xrm
