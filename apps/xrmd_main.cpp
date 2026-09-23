@@ -47,6 +47,7 @@ struct Shutdown {
   uv_signal_t terminate{};
   xrm::RpcServer* server = nullptr;
   xrm::ProcessService* processes = nullptr;
+  xrm::Application* application = nullptr;
   bool stopping = false;
 
   static void received(uv_signal_t* signal, int) {
@@ -57,8 +58,10 @@ struct Shutdown {
     uv_signal_stop(&self->terminate);
     uv_close(reinterpret_cast<uv_handle_t*>(&self->interrupt), nullptr);
     uv_close(reinterpret_cast<uv_handle_t*>(&self->terminate), nullptr);
-    self->server->close([] {});
-    self->processes->shutdown([] {});
+    self->application->shutdown([self] {
+      self->server->close([] {});
+      self->processes->shutdown([] {});
+    });
   }
 };
 
@@ -103,7 +106,9 @@ int main(int argc, char** argv) {
     return 1;
   }
   xrm::ProcessService processes(loop);
-  xrm::Application application(**store, processes, XRM_VERSION, make_boot_id());
+  const auto data_root = database.parent_path().empty() ? std::filesystem::current_path()
+                                                        : database.parent_path();
+  xrm::Application application(**store, processes, loop, data_root, XRM_VERSION, make_boot_id());
   xrm::ApiRouter router(application);
   xrm::RpcServer rpc(loop, [&router](const xrm::Id& connection_id,
                                      xrm::RpcRequest request,
@@ -118,9 +123,12 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  application.recover([](xrm::Result<xrm::ActivationResult>) {});
+
   Shutdown shutdown;
   shutdown.server = &rpc;
   shutdown.processes = &processes;
+  shutdown.application = &application;
   status = uv_signal_init(&loop, &shutdown.interrupt);
   const bool interrupt_initialized = status == 0;
   if (status == 0) status = uv_signal_init(&loop, &shutdown.terminate);

@@ -17,6 +17,17 @@ void add_core_commands(CLI::App& app, Request& request) {
     request.method = "core.list";
     request.params = Json::object();
   });
+
+  auto* stop = core->add_subcommand("stop", "Stop the managed Xray process");
+  stop->callback([&request] {
+    request.method = "core.stop";
+    request.params = Json::object();
+  });
+  auto* restart = core->add_subcommand("restart", "Restart the active Profile using saved settings");
+  restart->callback([&request] {
+    request.method = "core.restart";
+    request.params = Json::object();
+  });
 }
 
 }  // namespace xrm::cli

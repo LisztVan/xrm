@@ -137,17 +137,6 @@ void from_json(const Json& json, Node& value) {
   value.settings = settings_from_json(json.at("settings"));
 }
 
-void to_json(Json& json, const CoreInstall& value) {
-  json = Json{{"id", value.id}, {"name", value.name}, {"path", value.path.string()},
-              {"reported_version", value.reported_version}, {"managed", value.managed}};
-}
-
-void from_json(const Json& json, CoreInstall& value) {
-  value = CoreInstall{json.at("id").get<std::string>(), json.at("name").get<std::string>(),
-                      json.at("path").get<std::string>(), json.at("reported_version").get<std::string>(),
-                      json.at("managed").get<bool>()};
-}
-
 void to_json(Json& json, const RuntimePersistent& value) {
   auto encode_run = [](const RunRecord& run) {
     Json nodes = Json::array();

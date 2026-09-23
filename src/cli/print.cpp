@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <iostream>
 #include <optional>
+#include <thread>
 #include <unistd.h>
 
 namespace xrm::cli {
@@ -19,6 +20,33 @@ struct CallState {
   const Request* request = nullptr;
   std::optional<Result<Json>> result;
 };
+
+Result<Json> call_rpc_once(const std::string& socket, const std::string& method, const Json& params) {
+  uv_loop_t loop{};
+  const int initialized = uv_loop_init(&loop);
+  if (initialized != 0)
+    return std::unexpected(AppError{ErrorCode::io_error,
+        std::string("初始化客户端事件循环失败: ") + uv_strerror(initialized), std::nullopt, std::nullopt});
+  RpcClient client(loop);
+  std::optional<Result<Json>> result;
+  auto opened = client.open(socket, [&](Result<void> status) {
+    if (!status) { result.emplace(std::unexpected(status.error())); return; }
+    auto sent = client.call(method, params, [&](Result<Json> response) {
+      result.emplace(std::move(response));
+      client.close();
+    });
+    if (!sent) { result.emplace(std::unexpected(sent.error())); client.close(); }
+  });
+  if (!opened) result.emplace(std::unexpected(opened.error()));
+  else uv_run(&loop, UV_RUN_DEFAULT);
+  client.close();
+  const int closed = uv_loop_close(&loop);
+  if (!result) return std::unexpected(AppError{ErrorCode::result_unknown,
+      "IPC请求未收到结果", std::nullopt, std::nullopt});
+  if (closed != 0 && *result)
+    return std::unexpected(AppError{ErrorCode::io_error, "客户端事件循环未能关闭", std::nullopt, std::nullopt});
+  return std::move(*result);
+}
 
 int exit_code_for(const AppError& error) {
   if (error.code == ErrorCode::io_error || error.code == ErrorCode::timed_out ||
@@ -44,48 +72,31 @@ std::string default_socket_path() {
 }
 
 int execute_request(const Request& request) {
-  uv_loop_t loop{};
-  const int initialized = uv_loop_init(&loop);
-  if (initialized != 0) {
-    return print_result(request, std::unexpected(AppError{
-        ErrorCode::io_error, std::string("初始化客户端事件循环失败: ") + uv_strerror(initialized),
-        std::nullopt, std::nullopt}));
-  }
-
-  RpcClient client(loop);
-  CallState state{&client, &request, std::nullopt};
-  auto opened = client.open(request.socket, [&state](Result<void> result) {
-    if (!result) {
-      state.result.emplace(std::unexpected(result.error()));
-      return;
+  auto result = call_rpc_once(request.socket, request.method, request.params);
+  if (result && result->is_object() && result->value("status", "") == "accepted" &&
+      result->contains("operation_id") && result->at("operation_id").is_string()) {
+    const auto operation = result->at("operation_id").get<std::string>();
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::minutes(5);
+    while (std::chrono::steady_clock::now() < deadline) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      auto polled = call_rpc_once(request.socket, "operation.get", Json{{"operation_id", operation}});
+      if (!polled) { result = std::unexpected(polled.error()); break; }
+      const auto status = polled->value("status", "");
+      if (status == "succeeded") {
+        result = polled->value("result", Json(nullptr));
+        break;
+      }
+      if (status == "failed") {
+        auto error = error_from_json(polled->at("error"));
+        result = std::unexpected(error ? std::move(*error) : error.error());
+        break;
+      }
     }
-    auto sent = state.client->call(state.request->method, state.request->params,
-                                   [&state](Result<Json> response) {
-      state.result.emplace(std::move(response));
-      state.client->close();
-    });
-    if (!sent) {
-      state.result.emplace(std::unexpected(sent.error()));
-      state.client->close();
-    }
-  });
-  if (!opened) {
-    state.result.emplace(std::unexpected(opened.error()));
-  } else {
-    uv_run(&loop, UV_RUN_DEFAULT);
+    if (result && result->is_object() && result->value("status", "") == "accepted")
+      result = std::unexpected(AppError{ErrorCode::timed_out,
+          "等待Server操作超过5分钟；operation仍可继续查询", operation, std::nullopt});
   }
-  client.close();
-  if (uv_loop_close(&loop) != 0 && !state.result) {
-    state.result.emplace(std::unexpected(AppError{ErrorCode::io_error,
-                                                   "客户端事件循环未能关闭",
-                                                   std::nullopt, std::nullopt}));
-  }
-  if (!state.result) {
-    state.result.emplace(std::unexpected(AppError{ErrorCode::result_unknown,
-                                                  "IPC请求未收到结果",
-                                                  std::nullopt, std::nullopt}));
-  }
-  return print_result(request, *state.result);
+  return print_result(request, result);
 }
 
 int print_result(const Request& request, const Result<Json>& result) {
@@ -124,6 +135,33 @@ int print_result(const Request& request, const Result<Json>& result) {
       std::cout << node.value("id", "") << '\t' << node.value("name", "") << '\t'
                 << node.value("protocol", "unknown") << '\n';
     }
+  } else if (request.method == "profile.list") {
+    for (const auto& profile : *result)
+      std::cout << profile.value("id", "") << '\t' << profile.value("name", "") << '\t'
+                << profile.value("core_id", "") << '\n';
+  } else if (request.method == "module.list") {
+    for (const auto& module : *result)
+      std::cout << module.value("key", "") << '\t' << (module.value("included", false) ? "enabled" : "disabled")
+                << '\t' << module.value("source_file", "") << '\t' << module.value("runtime_file", "") << '\n';
+  } else if (request.method == "module.get") {
+    std::cout << "module: " << result->value("key", "") << "\nenabled: "
+              << (result->value("included", false) ? "yes" : "no") << "\nsource: "
+              << result->value("source_file", "") << "\nruntime: "
+              << result->value("runtime_file", "") << "\n";
+    if (result->contains("text") && result->at("text").is_string()) std::cout << result->at("text").get<std::string>();
+  } else if (request.method == "runtime.status") {
+    std::cout << "state: " << result->value("state", "unknown") << "\nhealth: "
+              << result->value("health", "unknown") << "\n";
+    if (result->contains("active") && result->at("active").is_object())
+      std::cout << "profile: " << result->at("active").value("profile_id", "") << "\nconfdir: "
+                << result->at("active").value("confdir", "") << '\n';
+  } else if (request.method == "logs.read") {
+    for (const auto& entry : result->at("entries"))
+      std::cout << '[' << entry.value("cursor", 0) << "][" << entry.value("stream", "") << "] "
+                << entry.value("text", "");
+  } else if (request.method == "config.render") {
+    std::cout << "confdir: " << result->value("confdir", "") << '\n';
+    for (const auto& file : result->at("files")) std::cout << file.get<std::string>() << '\n';
   }
   return 0;
 }

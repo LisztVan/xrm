@@ -56,4 +56,8 @@ TEST_CASE("C1 freezes current M1 profile and runtime surfaces", "[CT-01]") {
   REQUIRE(xrm::methods::module_list == "module.list");
   REQUIRE(xrm::methods::connection_connect == "connection.connect");
   REQUIRE(xrm::methods::core_stop == "core.stop");
+  REQUIRE(xrm::methods::config_apply == "config.apply");
+  REQUIRE(xrm::methods::config_dump == "config.dump");
+  REQUIRE(xrm::methods::config_files == "config.files");
+  REQUIRE(xrm::methods::config_export == "config.export");
 }

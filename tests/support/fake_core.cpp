@@ -65,6 +65,11 @@ int main(int argc, char** argv) {
       count << "run\n";
     }
   }
+  if (!checking && argc > 1 && std::string(argv[1]) == "run" &&
+      !std::getenv("XRM_FAKE_CORE_RUN_EXIT") && !std::getenv("XRM_FAKE_CORE_EXIT") &&
+      !std::getenv("XRM_FAKE_CORE_RUN_HANG")) {
+    for (;;) std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
   if (std::getenv("XRM_FAKE_CORE_HANG")) {
     for (;;) std::this_thread::sleep_for(std::chrono::seconds(1));
   }

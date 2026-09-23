@@ -43,6 +43,14 @@ FetchContent_Declare(CLI11
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 FetchContent_MakeAvailable(CLI11)
 
+set(FTXUI_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(FTXUI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(FTXUI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(ftxui_dep
+  URL https://codeload.github.com/ArthurSonzogni/FTXUI/tar.gz/refs/tags/v7.0.1
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+FetchContent_MakeAvailable(ftxui_dep)
+
 if(XRM_BUILD_TESTING)
   FetchContent_Declare(Catch2
     URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.7.1.tar.gz
@@ -77,6 +85,7 @@ add_library(xrm_server_lib STATIC
   src/infra/store.cpp
   src/infra/files.cpp
   src/server/log_buffer.cpp
+  src/server/operations.cpp
   src/profile/profile_service.cpp
   src/xray/runtime_writer.cpp
   src/xray/core_manager.cpp
@@ -97,11 +106,14 @@ target_compile_definitions(xrmd PRIVATE XRM_VERSION="${PROJECT_VERSION}")
 add_executable(xrm
   apps/xrm_main.cpp
   src/cli/commands.cpp
+  src/cli/profile_commands.cpp
+  src/cli/runtime_commands.cpp
   src/cli/node_commands.cpp
   src/cli/core_commands.cpp
-  src/cli/print.cpp)
+  src/cli/print.cpp
+  src/tui/app.cpp)
 target_include_directories(xrm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(xrm PRIVATE xrm_client_lib CLI11::CLI11)
+target_link_libraries(xrm PRIVATE xrm_client_lib CLI11::CLI11 ftxui::component ftxui::dom ftxui::screen)
 
 if(XRM_BUILD_TESTING)
   add_subdirectory(tests)

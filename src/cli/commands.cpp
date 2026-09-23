@@ -25,6 +25,12 @@ int run_cli(int argc, char** argv) {
   });
   add_core_commands(app, request);
   add_node_commands(app, request);
+  add_profile_commands(app, request);
+  add_runtime_commands(app, request);
+  std::string tui_profile;
+  auto* tui = app.add_subcommand("tui", "Open the interactive Overview/Nodes/Native Modules/Logs interface");
+  tui->add_option("--profile", tui_profile, "Initial Profile ID");
+  tui->callback([&request] { request.method = "tui"; });
 
   try {
     app.parse(argc, argv);
@@ -42,9 +48,10 @@ int run_cli(int argc, char** argv) {
   }
 
   if (request.method.empty()) {
-    std::cerr << "请选择 server info、core 或 node 命令\n";
+    std::cerr << "请选择 server、core、node、profile、config、connect、status、logs 或 tui 命令\n";
     return 2;
   }
+  if (request.method == "tui") return run_tui(request.socket, tui_profile);
   return execute_request(request);
 }
 
