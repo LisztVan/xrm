@@ -1,0 +1,3 @@
+add_executable(xrm_profile_tests profile_tests.cpp)
+target_link_libraries(xrm_profile_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+catch_discover_tests(xrm_profile_tests)

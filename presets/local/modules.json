@@ -1,0 +1,4 @@
+{
+  "append_selected_default": true,
+  "included": ["log", "inbounds", "outbounds", "routing"]
+}
