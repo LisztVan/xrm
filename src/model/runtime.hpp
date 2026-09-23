@@ -125,6 +125,9 @@ struct LifecycleOptions {
   Milliseconds process_observation{2000};
   std::array<Milliseconds, 3> retry_delay{Milliseconds{1000}, Milliseconds{3000},
                                          Milliseconds{10000}};
+  enum class Phase { prepare, checking, stopping_old, starting_new, restoring_old, retry_wait };
+  // Deterministic test synchronization; callback code must not block the loop thread.
+  std::function<void(Phase)> phase_observer;
 };
 
 void to_json(Json& json, const CoreInstall& value);
