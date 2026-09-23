@@ -7,6 +7,7 @@
 #include "server/log_buffer.hpp"
 #include "server/operations.hpp"
 #include "subscription/subscription_service.hpp"
+#include "xray/control.hpp"
 #include "xray/core_manager.hpp"
 
 namespace xrm {
@@ -45,6 +46,11 @@ class Application {
   Result<void> export_config(const Id& profile_id, std::string_view source,
                              const std::filesystem::path& destination);
   Result<Json> runtime_status() const;
+  Result<ControlTarget> control_target() const;
+  Result<Id> override_runtime_group(std::string balancer, std::string outbound,
+                                    Completion<OverrideResult> completion);
+  Result<Id> clear_runtime_group_override(std::string balancer,
+                                          Completion<OverrideResult> completion);
   Result<Json> show_config(const Id& profile_id, std::string_view source,
                            std::optional<std::string> module) const;
   void recover(Completion<ActivationResult> completion);
@@ -60,8 +66,12 @@ class Application {
   std::unique_ptr<ProfileService> profiles_;
   std::unique_ptr<RuntimeWriter> runtime_writer_;
   std::unique_ptr<CoreManager> core_manager_;
+  std::unique_ptr<XrayControl> xray_control_;
   LogBuffer logs_;
   Operations operations_;
+  std::optional<Id> override_run_id_;
+  std::optional<std::string> runtime_override_;
+  OverrideState override_state_ = OverrideState::none;
 };
 
 }  // namespace xrm
