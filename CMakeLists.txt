@@ -81,6 +81,7 @@ add_library(xrm_logic STATIC
   src/subscription/parser.cpp
   src/subscription/reconcile.cpp
   src/xray/runtime_assembler.cpp)
+target_sources(xrm_logic PRIVATE src/profile/forms.cpp)
 target_include_directories(xrm_logic PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(xrm_logic PUBLIC xrm_model)
 
@@ -99,6 +100,7 @@ add_library(xrm_server_lib STATIC
   src/server/operations.cpp
   src/profile/profile_service.cpp
   src/profile/groups.cpp
+  src/profile/module_actions.cpp
   src/xray/runtime_writer.cpp
   src/xray/core_manager.cpp
   src/xray/metrics.cpp
