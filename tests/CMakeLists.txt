@@ -16,6 +16,7 @@ add_executable(xrm_contract_tests
   contract/m1/include_assembler.cpp
   contract/m1/include_writer.cpp
   contract/m1/include_core_manager.cpp
+  contract/m1/include_process_adapter.cpp
   contract/m1/interfaces.cpp)
 target_link_libraries(xrm_contract_tests PRIVATE xrm_contract Catch2::Catch2WithMain)
 include(CTest)
