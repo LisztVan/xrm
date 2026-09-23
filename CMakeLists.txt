@@ -99,6 +99,9 @@ add_library(xrm_server_lib STATIC
   src/xray/runtime_writer.cpp
   src/xray/core_manager.cpp
   src/xray/process_adapter.cpp)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/infra/http.cpp")
+  target_sources(xrm_server_lib PRIVATE src/infra/http.cpp)
+endif()
 target_include_directories(xrm_server_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract xrm_logic SQLite3::SQLite3 CURL::libcurl uv_a)
 target_compile_definitions(xrm_server_lib PRIVATE
