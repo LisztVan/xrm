@@ -27,6 +27,9 @@ class Store {
   Result<std::vector<Id>> profile_ids() const;
   Result<void> unregister_profile(const Id&);
 
+  Result<RuntimePersistent> load_runtime() const;
+  Result<void> save_runtime(const RuntimePersistent&);
+
   Result<std::vector<CoreInstall>> cores() const;
   Result<CoreInstall> get_core(const Id&) const;
   Result<void> put_core(const CoreInstall&);

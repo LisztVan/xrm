@@ -13,6 +13,7 @@ static_assert(std::is_default_constructible_v<xrm::ProfileSettings>);
 static_assert(std::is_default_constructible_v<xrm::ModuleDocument>);
 static_assert(std::is_default_constructible_v<xrm::BuildInput>);
 static_assert(std::is_default_constructible_v<xrm::PreparedFiles>);
+static_assert(!std::is_copy_constructible_v<xrm::CoreManager>);
 static_assert(std::is_same_v<decltype(xrm::assemble(std::declval<const xrm::BuildInput&>())),
                              xrm::Result<xrm::PreparedFiles>>);
 static_assert(std::is_same_v<decltype(xrm::parse_vless_uri(std::string_view{})),
