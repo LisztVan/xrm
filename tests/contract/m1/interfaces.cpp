@@ -14,6 +14,8 @@ static_assert(std::is_default_constructible_v<xrm::BuildInput>);
 static_assert(std::is_default_constructible_v<xrm::PreparedFiles>);
 static_assert(std::is_same_v<decltype(xrm::assemble(std::declval<const xrm::BuildInput&>())),
                              xrm::Result<xrm::PreparedFiles>>);
+static_assert(std::is_same_v<decltype(xrm::parse_vless_uri(std::string_view{})),
+                             xrm::Result<xrm::DecodedNode>>);
 static_assert(std::is_same_v<decltype(xrm::write_outbound(
                                   std::declval<const xrm::Node&>(), std::string_view{})),
                              xrm::Result<xrm::Json>>);
