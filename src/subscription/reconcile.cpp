@@ -15,9 +15,65 @@ AppError error(ErrorCode code, std::string message,
 
 std::string connection_identity(const NodeSettings& settings) {
   if (const auto* stream = std::get_if<StreamNode>(&settings)) {
-    // Authentication material is compared transiently; it is never turned into a public ID.
-    return "vless\n" + stream->endpoint.address + "\n" +
-           std::to_string(stream->endpoint.port) + "\n" + stream->protocol.id;
+    Json transport;
+    if (std::holds_alternative<RawTransport>(stream->transport)) {
+      transport = Json{{"type", "raw"}};
+    } else if (const auto* value = std::get_if<XHttpTransport>(&stream->transport)) {
+      transport = Json{{"type", "xhttp"},
+                       {"host", value->host ? Json(*value->host) : Json(nullptr)},
+                       {"path", value->path ? Json(*value->path) : Json(nullptr)},
+                       {"mode", value->mode ? Json(*value->mode) : Json(nullptr)},
+                       {"extra", value->extra.value_or(Json(nullptr))}};
+    } else if (const auto* value = std::get_if<WebSocketTransport>(&stream->transport)) {
+      transport = Json{{"type", "websocket"},
+                       {"path", value->path ? Json(*value->path) : Json(nullptr)},
+                       {"headers", value->headers}};
+    } else if (const auto* value = std::get_if<GrpcTransport>(&stream->transport)) {
+      transport = Json{{"type", "grpc"},
+                       {"service_name", value->service_name ? Json(*value->service_name) : Json(nullptr)},
+                       {"authority", value->authority ? Json(*value->authority) : Json(nullptr)}};
+    } else {
+      const auto& http_upgrade = std::get<HttpUpgradeTransport>(stream->transport);
+      transport = Json{{"type", "httpupgrade"},
+                       {"host", http_upgrade.host ? Json(*http_upgrade.host) : Json(nullptr)},
+                       {"path", http_upgrade.path ? Json(*http_upgrade.path) : Json(nullptr)}};
+    }
+
+    Json security;
+    if (std::holds_alternative<NoSecurity>(stream->security)) {
+      security = Json{{"type", "none"}};
+    } else if (const auto* value = std::get_if<TlsSecurity>(&stream->security)) {
+      security = Json{{"type", "tls"},
+                      {"server_name", value->server_name ? Json(*value->server_name) : Json(nullptr)},
+                      {"fingerprint", value->fingerprint ? Json(*value->fingerprint) : Json(nullptr)},
+                      {"alpn", value->alpn},
+                      {"options", value->options}};
+    } else {
+      const auto& reality = std::get<RealitySecurity>(stream->security);
+      security = Json{{"type", "reality"},
+                      {"server_name", reality.server_name ? Json(*reality.server_name) : Json(nullptr)},
+                      {"fingerprint", reality.fingerprint ? Json(*reality.fingerprint) : Json(nullptr)},
+                      {"password", reality.password},
+                      {"short_id", reality.short_id ? Json(*reality.short_id) : Json(nullptr)},
+                      {"spider_x", reality.spider_x ? Json(*reality.spider_x) : Json(nullptr)},
+                      {"options", reality.options}};
+    }
+
+    // These secret-bearing values are compared transiently and are never public IDs or logs.
+    const Json identity{
+        {"protocol", "vless"},
+        {"address", stream->endpoint.address},
+        {"port", stream->endpoint.port},
+        {"id", stream->protocol.id},
+        {"encryption", stream->protocol.encryption ? Json(*stream->protocol.encryption) : Json(nullptr)},
+        {"flow", stream->protocol.flow ? Json(*stream->protocol.flow) : Json(nullptr)},
+        {"level", stream->protocol.level ? Json(*stream->protocol.level) : Json(nullptr)},
+        {"transport", std::move(transport)},
+        {"security", std::move(security)},
+        {"sockopt", stream->sockopt.value_or(Json(nullptr))},
+        {"finalmask", stream->finalmask.value_or(Json(nullptr))},
+        {"mux", stream->mux.value_or(Json(nullptr))}};
+    return "vless\n" + identity.dump();
   }
   Json outbound = std::get<RawOutbound>(settings).value;
   if (!outbound.is_object()) return {};

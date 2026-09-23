@@ -4,7 +4,9 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <array>
 #include <string>
+#include <utility>
 
 namespace {
 xrm::ParsedNode vless(std::string name, std::string endpoint, std::string credential,
@@ -169,4 +171,44 @@ TEST_CASE("SUB-04 explicit upstream identity takes precedence over changed conne
   REQUIRE(result->changes.upserts.size() == 1);
   CHECK(result->changes.upserts.front().id == old.id);
   CHECK(result->changes.upserts.front().upstream_id == old.upstream_id);
+}
+
+TEST_CASE("SUB-04 same endpoint and credential with changed transport or security is not the same connection identity") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  for (const auto [change_transport, change_security] :
+       std::array<std::pair<bool, bool>, 2>{{{true, false}, {false, true}}}) {
+    xrm::Node old;
+    old.id = "old-vless";
+    old.source_id = source.id;
+    old.original_name = "same name";
+    auto old_settings = vless("same name", "same.example", "same-credential").settings;
+    auto& old_stream = std::get<xrm::StreamNode>(old_settings);
+    old_stream.transport = xrm::WebSocketTransport{"/old-path", {}};
+    xrm::TlsSecurity old_tls;
+    old_tls.server_name = "old-sni.example";
+    old_stream.security = old_tls;
+    old.settings = old_settings;
+
+    auto changed = vless("same name", "same.example", "same-credential");
+    auto& changed_stream = std::get<xrm::StreamNode>(changed.settings);
+    changed_stream.transport = xrm::WebSocketTransport{
+        change_transport ? "/new-path" : "/old-path", {}};
+    xrm::TlsSecurity changed_tls;
+    changed_tls.server_name = change_security ? "new-sni.example" : "old-sni.example";
+    changed_stream.security = changed_tls;
+    xrm::ParseReport parsed;
+    parsed.structurally_complete = true;
+    parsed.nodes = {std::move(changed)};
+
+    auto result = xrm::reconcile({source, {old}, parsed}, [] { return "new-vless"; });
+    REQUIRE(result.has_value());
+    CHECK(result->report.added == 1);
+    CHECK(result->report.missing == 1);
+    REQUIRE(result->changes.upserts.size() == 2);
+    CHECK(std::any_of(result->changes.upserts.begin(), result->changes.upserts.end(),
+                      [](const xrm::Node& node) { return node.id == "new-vless"; }));
+    CHECK(std::any_of(result->changes.upserts.begin(), result->changes.upserts.end(),
+                      [](const xrm::Node& node) { return node.id == "old-vless" && node.source_missing; }));
+  }
 }
