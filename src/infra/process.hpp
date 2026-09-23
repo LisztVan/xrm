@@ -2,6 +2,8 @@
 
 #include "model/runtime.hpp"
 
+#include <memory>
+
 namespace xrm {
 
 struct ProcessCallbacks {

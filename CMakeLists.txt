@@ -55,8 +55,10 @@ target_include_directories(xrm_contract PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src"
 target_link_libraries(xrm_contract PUBLIC xrm_model)
 
 add_library(xrm_server_lib STATIC
+  src/infra/process.cpp
   src/infra/store.cpp
-  src/model/json_models.cpp)
+  src/model/json_models.cpp
+  src/xray/process_adapter.cpp)
 target_include_directories(xrm_server_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(xrm_server_lib PUBLIC xrm_model SQLite3::SQLite3 uv_a)
 
