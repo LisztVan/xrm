@@ -15,3 +15,5 @@ include(Catch)
 catch_discover_tests(xrm_contract_tests)
 
 add_executable(xrm_fake_core support/fake_core.cpp)
+
+add_subdirectory(integration/store)

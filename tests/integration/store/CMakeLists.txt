@@ -1,0 +1,3 @@
+add_executable(xrm_store_tests store_tests.cpp)
+target_link_libraries(xrm_store_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+catch_discover_tests(xrm_store_tests)

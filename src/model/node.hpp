@@ -29,4 +29,7 @@ struct NodeQuery {
   bool include_missing = false;
 };
 
+void to_json(Json& json, const Node& value);
+void from_json(const Json& json, Node& value);
+
 }  // namespace xrm
