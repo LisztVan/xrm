@@ -34,6 +34,7 @@ struct Request {
   std::string profile_name;
   std::string profile_id;
   std::string module_key;
+  std::string module_show_key;
   std::string module_text;
   std::string metrics_listen;
   std::string source = "source";

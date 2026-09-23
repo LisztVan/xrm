@@ -116,6 +116,7 @@ struct MetricsClient::Impl {
     std::optional<std::chrono::steady_clock::time_point> sampled_at;
     std::optional<Id> request_id;
     std::function<void(const MetricsSample&)> callback;
+    bool shutting_down = false;
   };
 
   Impl(uv_loop_t& event_loop, HttpClient& http_client)
@@ -165,9 +166,28 @@ struct MetricsClient::Impl {
     if (started) state->request_id = *started;
   }
 
+  static void timer_close(uv_handle_t* handle) {
+    auto* self = static_cast<Impl*>(handle->data);
+    self->timer_closed = true;
+    if (self->delete_on_close) delete self;
+  }
+
+  void close_timer() {
+    auto& state = *shared;
+    if (state.shutting_down) return;
+    state.shutting_down = true;
+    state.viewers = 0;
+    uv_timer_stop(&timer);
+    if (state.request_id) (void)http.cancel(*state.request_id);
+    if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&timer)))
+      uv_close(reinterpret_cast<uv_handle_t*>(&timer), timer_close);
+  }
+
   uv_loop_t* loop;
   HttpClient& http;
   uv_timer_t timer{};
+  bool timer_closed = false;
+  bool delete_on_close = false;
   std::shared_ptr<Shared> shared;
 };
 
@@ -176,13 +196,10 @@ MetricsClient::MetricsClient(uv_loop_t& loop, HttpClient& http)
 
 MetricsClient::~MetricsClient() {
   if (!impl_) return;
-  uv_timer_stop(&impl_->timer);
-  if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&impl_->timer))) {
-    auto* raw = impl_.release();
-    uv_close(reinterpret_cast<uv_handle_t*>(&raw->timer), [](uv_handle_t* handle) {
-      delete static_cast<Impl*>(handle->data);
-    });
-  }
+  impl_->close_timer();
+  if (impl_->timer_closed) return;
+  impl_->delete_on_close = true;
+  (void)impl_.release();
 }
 
 void MetricsClient::attach(const RunRecord& record, std::optional<std::string> endpoint) {
@@ -195,6 +212,7 @@ void MetricsClient::attach(const RunRecord& record, std::optional<std::string> e
 
 void MetricsClient::set_viewer_count(std::size_t count) {
   auto& state = *impl_->shared;
+  if (state.shutting_down) return;
   const bool already_sampling = state.viewers > 0;
   state.viewers = count;
   if (count == 0) {
@@ -234,5 +252,7 @@ void MetricsClient::on_sample(std::function<void(const MetricsSample&)> callback
 }
 
 void MetricsClient::stop() { set_viewer_count(0); }
+
+void MetricsClient::shutdown() { impl_->close_timer(); }
 
 }  // namespace xrm

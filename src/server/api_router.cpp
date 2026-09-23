@@ -91,6 +91,45 @@ Json module_view_json(const ModuleView& view) {
       {"editor_support", view.editor_support}};
 }
 
+Json module_change_plan_json(const ModuleChangePlan& plan) {
+  Json changes = Json::array();
+  for (const auto& change : plan.changes) {
+    changes.push_back(Json{{"key", change.edit.key}, {"expected_text", change.edit.base.expected_text},
+        {"text", change.edit.text}, {"include_after_save", change.include_after_save}});
+  }
+  Json notices = Json::array();
+  for (const auto& notice : plan.notices)
+    notices.push_back(Json{{"code", notice.code}, {"message", notice.message}});
+  return Json{{"changes", std::move(changes)}, {"notices", std::move(notices)}};
+}
+
+Result<ModuleChangePlan> parse_module_change_plan(const Json& value) {
+  if (!value.is_object() || !value.contains("changes") || !value.at("changes").is_array())
+    return std::unexpected(bad_params("plan.changes必须是数组", "plan"));
+  ModuleChangePlan plan;
+  for (const auto& item : value.at("changes")) {
+    if (!item.is_object() || !item.contains("key") || !item.at("key").is_string() ||
+        !item.contains("text") || !item.at("text").is_string())
+      return std::unexpected(bad_params("plan change需要key与text", "plan.changes"));
+    EditBase base;
+    if (item.contains("expected_text") && !item.at("expected_text").is_null()) {
+      if (!item.at("expected_text").is_string())
+        return std::unexpected(bad_params("expected_text必须是字符串或null", "plan.changes.expected_text"));
+      base.expected_text = item.at("expected_text").get<std::string>();
+    }
+    const bool include = item.value("include_after_save", true);
+    plan.changes.push_back({ModuleEdit{item.at("key").get<std::string>(), std::move(base),
+        item.at("text").get<std::string>()}, include});
+  }
+  return plan;
+}
+
+Json save_many_result_json(const SaveManyResult& result) {
+  Json value{{"saved", result.saved}, {"changed_modules", result.saved}};
+  value["failure"] = result.failure ? error_to_json(*result.failure) : Json(nullptr);
+  return value;
+}
+
 Result<std::optional<Target>> read_target(const Json& params) {
   if (!params.contains("target") || params.at("target").is_null())
     return std::optional<Target>{};
@@ -140,7 +179,7 @@ Json log_stream_name(LogStream stream) {
 
 ApiRouter::ApiRouter(Application& application) : application_(&application) {}
 
-void ApiRouter::dispatch(const Id&, RpcRequest request, RpcReply reply) {
+void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply reply) {
   const auto id = request.id;
   const auto method = request.method;
   const auto params = std::move(request.params);
@@ -464,10 +503,31 @@ void ApiRouter::dispatch(const Id&, RpcRequest request, RpcReply reply) {
     } else {
       auto current = application_->profiles().module(id, key);
       if (!current) { fail(current.error()); return; }
-      base.expected_text = current->document ? current->document->source_text : std::string{};
+      if (current->document) base.expected_text = current->document->source_text;
     }
     auto saved = application_->profiles().save_module(id, ModuleEdit{key, std::move(base), std::move(text)});
     if (!saved) fail(saved.error()); else succeed(Json{{"status", "saved_only"}});
+    return;
+  }
+  if (method == methods::module_change_plan) {
+    std::string profile_id, action;
+    if (!read_string(params, "profile_id", profile_id) || !read_string(params, "action", action)) {
+      fail(bad_params("module.change_plan需要profile_id与action")); return;
+    }
+    const Json arguments = params.contains("arguments") ? params.at("arguments") : Json::object();
+    if (!arguments.is_object()) { fail(bad_params("arguments必须是对象", "arguments")); return; }
+    auto plan = application_->plan_module_changes(profile_id, action, arguments);
+    if (!plan) fail(plan.error()); else succeed(module_change_plan_json(*plan));
+    return;
+  }
+  if (method == methods::module_save_changes) {
+    std::string profile_id;
+    if (!read_string(params, "profile_id", profile_id) || !params.contains("plan")) {
+      fail(bad_params("module.save_changes需要profile_id与plan")); return;
+    }
+    auto plan = parse_module_change_plan(params.at("plan"));
+    if (!plan) { fail(plan.error()); return; }
+    succeed(save_many_result_json(application_->save_module_changes(profile_id, *plan)));
     return;
   }
   if (method == methods::module_include) {
@@ -681,6 +741,15 @@ void ApiRouter::dispatch(const Id&, RpcRequest request, RpcReply reply) {
   if (method == methods::runtime_status) {
     auto status = application_->runtime_status();
     if (!status) fail(status.error()); else succeed(std::move(*status));
+    return;
+  }
+  if (method == methods::runtime_stats || method == methods::runtime_metrics) {
+    bool watch = false;
+    if (params.contains("watch")) {
+      if (!params.at("watch").is_boolean()) { fail(bad_params("watch必须是布尔值", "watch")); return; }
+      watch = params.at("watch").get<bool>();
+    }
+    succeed(application_->runtime_metrics(connection_id, watch));
     return;
   }
   if (method == methods::logs_read) {

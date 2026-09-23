@@ -11,10 +11,11 @@ namespace xrm {
 
 using RpcReply = std::function<void(RpcResponse)>;
 using RpcHandler = std::function<void(const Id&, RpcRequest, RpcReply)>;
+using RpcDisconnectHandler = std::function<void(const Id&)>;
 
 class RpcServer {
  public:
-  RpcServer(uv_loop_t& loop, RpcHandler handler);
+  RpcServer(uv_loop_t& loop, RpcHandler handler, RpcDisconnectHandler disconnected = {});
   ~RpcServer();
   RpcServer(const RpcServer&) = delete;
   RpcServer& operator=(const RpcServer&) = delete;

@@ -6,7 +6,9 @@
 #include "xray/runtime_assembler.hpp"
 
 #include <array>
+#include <charconv>
 #include <chrono>
+#include <fstream>
 #include <random>
 #include <unistd.h>
 
@@ -37,16 +39,17 @@ AppError invalid(std::string message, std::string subject) {
 }  // namespace
 
 Application::Application(Store& store, ProcessService& processes,
-                         uv_loop_t& loop, std::filesystem::path data_root,
+                         HttpClient& http, uv_loop_t& loop, std::filesystem::path data_root,
                          std::string application_version, Id boot_id,
                          SubscriptionService& subscriptions)
-    : store_(&store), subscriptions_(&subscriptions), processes_(&processes),
+    : store_(&store), subscriptions_(&subscriptions), processes_(&processes), http_(&http),
       application_version_(std::move(application_version)), boot_id_(std::move(boot_id)),
       data_root_(std::move(data_root)),
       profiles_(std::make_unique<ProfileService>(store, data_root_ / "profiles")),
       runtime_writer_(std::make_unique<RuntimeWriter>(data_root_)),
       core_manager_(std::make_unique<CoreManager>(loop, store, processes, *runtime_writer_)),
       xray_control_(std::make_unique<XrayControl>(processes)),
+      metrics_client_(std::make_unique<MetricsClient>(loop, http)),
       operations_(boot_id_) {
   core_manager_->on_output([this](LogStream stream, std::string bytes) {
     logs_.append(stream, bytes);
@@ -349,6 +352,105 @@ Result<Json> Application::runtime_status() const {
               {"error", std::move(error)}};
 }
 
+Result<ModuleChangePlan> Application::plan_module_changes(const Id& profile_id,
+    std::string_view action, const Json& arguments) const {
+  if (action != "enable_traffic_statistics" && action != "disable_traffic_statistics")
+    return std::unexpected(invalid("不支持的跨模块模块动作", std::string(action)));
+  const auto enabled = action == "enable_traffic_statistics";
+  const auto listen = arguments.value("metrics_listen", std::string{});
+  auto snapshot = profiles_->snapshot(profile_id);
+  if (!snapshot) return std::unexpected(snapshot.error());
+  return plan_traffic_stats(*snapshot, enabled, listen);
+}
+
+SaveManyResult Application::save_module_changes(const Id& profile_id, const ModuleChangePlan& plan) {
+  return xrm::save_module_changes(*profiles_, profile_id, plan);
+}
+
+Json Application::runtime_metrics(const Id& connection_id, bool watch) {
+  if (watch) metrics_viewers_.insert(connection_id);
+  else metrics_viewers_.erase(connection_id);
+  metrics_client_->set_viewer_count(metrics_viewers_.size());
+  const auto status = core_manager_->status();
+  Json missing = Json::array();
+  std::optional<std::string> endpoint;
+  std::optional<RunRecord> record = status.active;
+  if (!record || status.state != CoreState::running) {
+    missing.push_back("core not running");
+    record.reset();
+  } else {
+    const auto directory = record->spec.confdir;
+    for (const auto& [key, filename] : std::array<std::pair<std::string_view, std::string_view>, 3>{
+             std::pair{"stats", "08_stats.json"}, {"policy", "09_policy.json"}, {"metrics", "07_metrics.json"}}) {
+      if (!std::filesystem::exists(directory / filename)) missing.push_back(key);
+    }
+    try {
+      const auto metrics_path = directory / "07_metrics.json";
+      if (std::filesystem::exists(metrics_path)) {
+        std::ifstream input(metrics_path);
+        const auto root = Json::parse(input).at("metrics");
+        const auto listen = root.at("listen").get<std::string>();
+        const auto separator = listen.rfind(':');
+        if (separator != std::string::npos) {
+          const auto host = listen.substr(0, separator);
+          const auto port_text = std::string_view(listen).substr(separator + 1);
+          unsigned port = 0;
+          const auto parsed = std::from_chars(port_text.data(), port_text.data() + port_text.size(), port);
+          const bool loopback = host == "127.0.0.1" || host == "localhost" || host == "[::1]";
+          if (loopback && parsed.ec == std::errc{} && parsed.ptr == port_text.data() + port_text.size() &&
+              port > 0 && port <= 65535)
+            endpoint = "http://" + listen + "/debug/vars";
+        }
+      }
+    } catch (const std::exception&) {
+      missing.push_back("metrics endpoint unavailable");
+    }
+  }
+  if (record) {
+    if (metrics_run_id_ != record->run_id) {
+      metrics_run_id_ = record->run_id;
+      metrics_client_->attach(*record, endpoint);
+    }
+    if (!endpoint && std::find(missing.begin(), missing.end(), Json("metrics")) == missing.end())
+      missing.push_back("metrics endpoint unavailable");
+  } else if (metrics_run_id_) {
+    metrics_run_id_.reset();
+    RunRecord empty{};
+    metrics_client_->attach(empty, std::nullopt);
+  }
+  const auto view = metrics_client_->view();
+  RuntimeMetricsDto dto{view.availability, view.sample, view.rates};
+  Json result = dto;
+  result["missing_conditions"] = std::move(missing);
+  if (!result["missing_conditions"].empty()) {
+    result["availability"] = "unavailable";
+    result["sample"] = nullptr;
+    result["rates"] = Json::array();
+  } else if (!view.sample) {
+    result["sample"] = nullptr;
+  }
+  if (view.sample && result["missing_conditions"].empty()) {
+    Json counters = Json::array();
+    for (const auto& value : view.sample->traffic)
+      counters.push_back(Json{{"scope", value.scope}, {"tag", value.tag},
+          {"uplink", value.uplink ? Json(*value.uplink) : Json(nullptr)},
+          {"downlink", value.downlink ? Json(*value.downlink) : Json(nullptr)}});
+    Json observations = Json::array();
+    for (const auto& value : view.sample->observations)
+      observations.push_back(Json{{"tag", value.tag},
+          {"alive", value.alive ? Json(*value.alive) : Json(nullptr)},
+          {"latency_ms", value.latency_ms ? Json(*value.latency_ms) : Json(nullptr)}});
+    result["sample"] = Json{{"run_id", view.sample->run_id}, {"received_at", view.sample->received_at},
+        {"traffic", std::move(counters)}, {"observations", std::move(observations)}};
+  }
+  return result;
+}
+
+void Application::release_metrics_viewer(const Id& connection_id) {
+  metrics_viewers_.erase(connection_id);
+  metrics_client_->set_viewer_count(metrics_viewers_.size());
+}
+
 Result<ControlTarget> Application::control_target() const {
   const auto status = core_manager_->status();
   if (!status.active || status.state != CoreState::running)
@@ -463,6 +565,7 @@ void Application::recover(Completion<ActivationResult> completion) {
 
 void Application::shutdown(std::function<void()> drained) {
   subscriptions_->stop_schedule();
+  metrics_client_->shutdown();
   core_manager_->shutdown(std::move(drained));
 }
 

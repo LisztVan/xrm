@@ -251,6 +251,25 @@ TEST_CASE("a late response from a previous core run cannot replace the current s
   REQUIRE(uv_loop_close(&loop) == 0);
 }
 
+TEST_CASE("MetricsClient shutdown closes its libuv timer before the server loop closes",
+          "[integration][MET-02][shutdown]") {
+  uv_loop_t loop;
+  REQUIRE(uv_loop_init(&loop) == 0);
+  HttpClient http(loop);
+  {
+    MetricsClient client(loop, http);
+    client.shutdown();
+    CHECK(uv_run(&loop, UV_RUN_NOWAIT) == 0);
+    client.set_viewer_count(1);
+    CHECK(uv_run(&loop, UV_RUN_NOWAIT) == 0);
+  }
+  bool drained = false;
+  http.shutdown([&] { drained = true; });
+  uv_run(&loop, UV_RUN_DEFAULT);
+  CHECK(drained);
+  REQUIRE(uv_loop_close(&loop) == 0);
+}
+
 TEST_CASE("metrics without a running run or configured endpoint are not zero-valued samples",
           "[unit][MET-01]") {
   uv_loop_t loop;

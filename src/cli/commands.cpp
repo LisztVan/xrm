@@ -68,22 +68,37 @@ int run_cli(int argc, char** argv) {
     return 2;
   }
   if (request.method == "tui") return run_tui(request.socket, tui_profile);
-  if (request.method == methods::runtime_stats && stats_watch) {
+  if (request.method == methods::runtime_stats) {
     stop_stats_watch = 0;
-    const auto old_int = std::signal(SIGINT, request_stats_watch_stop);
-    const auto old_term = std::signal(SIGTERM, request_stats_watch_stop);
     RpcSession session(request.socket);
     int result = 0;
-    while (!stop_stats_watch) {
+    if (stats_watch) {
+      const auto old_int = std::signal(SIGINT, request_stats_watch_stop);
+      const auto old_term = std::signal(SIGTERM, request_stats_watch_stop);
+      while (!stop_stats_watch) {
+        auto sample = session.call(request.method, Json{{"watch", true}});
+        result = print_result(request, sample);
+        if (result != 0) break;
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+      }
+      (void)session.call(request.method, Json{{"watch", false}});
+      std::signal(SIGINT, old_int);
+      std::signal(SIGTERM, old_term);
+    } else {
       auto sample = session.call(request.method, Json{{"watch", true}});
+      if (sample && sample->is_object() && sample->value("availability", "") != "unavailable") {
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        while (std::chrono::steady_clock::now() < deadline &&
+               !sample->value("sample", Json(nullptr)).is_object()) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          sample = session.call(request.method, Json{{"watch", true}});
+          if (!sample) break;
+        }
+      }
       result = print_result(request, sample);
-      if (result != 0) break;
-      std::this_thread::sleep_for(std::chrono::seconds(2));
+      (void)session.call(request.method, Json{{"watch", false}});
     }
-    (void)session.call(request.method, Json{{"watch", false}});
     session.close();
-    std::signal(SIGINT, old_int);
-    std::signal(SIGTERM, old_term);
     return result;
   }
   return execute_request(request);

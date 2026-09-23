@@ -115,13 +115,15 @@ int main(int argc, char** argv) {
   xrm::SubscriptionService subscriptions(**store, http);
   const auto data_root = database.parent_path().empty() ? std::filesystem::current_path()
                                                         : database.parent_path();
-  xrm::Application application(**store, processes, loop, data_root, XRM_VERSION,
+  xrm::Application application(**store, processes, http, loop, data_root, XRM_VERSION,
                                make_boot_id(), subscriptions);
   xrm::ApiRouter router(application);
   xrm::RpcServer rpc(loop, [&router](const xrm::Id& connection_id,
                                      xrm::RpcRequest request,
                                      xrm::RpcReply reply) {
     router.dispatch(connection_id, std::move(request), std::move(reply));
+  }, [&application](const xrm::Id& connection_id) {
+    application.release_metrics_viewer(connection_id);
   });
   auto listening = rpc.listen(socket);
   if (!listening) {

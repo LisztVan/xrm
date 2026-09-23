@@ -26,8 +26,10 @@ void add_profile_commands(CLI::App& app, Request& request) {
   auto* show_module = config->add_subcommand("show", "Show one source module or the generated runtime files");
   show_module->add_option("profile_id", request.profile_id)->required();
   show_module->add_option("module", request.module_key);
+  show_module->add_option("--module-key", request.module_show_key, "Native module key (avoids conflict with top-level commands)");
   show_module->add_option("--source", request.source)->check(CLI::IsMember({"source", "runtime"}));
   show_module->callback([&] {
+    if (!request.module_show_key.empty()) request.module_key = request.module_show_key;
     if (request.source == "source" && !request.module_key.empty()) {
       request.method = std::string(methods::module_get);
       request.params = {{"profile_id", request.profile_id}, {"module", request.module_key}};

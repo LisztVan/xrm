@@ -81,6 +81,23 @@ std::string default_socket_path() {
 }
 
 int execute_request(const Request& request) {
+  if (request.method == "module.enable_traffic_statistics") {
+    auto plan = call_rpc_once(request.socket, "module.change_plan", request.params);
+    if (!plan) return print_result(request, std::unexpected(plan.error()));
+    const auto profile_id = request.params.value("profile_id", std::string{});
+    auto saved = call_rpc_once(request.socket, "module.save_changes",
+        Json{{"profile_id", profile_id}, {"plan", *plan}});
+    if (!saved) return print_result(request, std::unexpected(saved.error()));
+    if (!saved->is_object())
+      return print_result(request, std::unexpected(AppError{ErrorCode::protocol_error,
+          "module.save_changes返回了非对象", std::nullopt, std::nullopt}));
+    (*saved)["notices"] = plan->value("notices", Json::array());
+    (*saved)["planned_modules"] = Json::array();
+    if (plan->contains("changes") && plan->at("changes").is_array())
+      for (const auto& change : plan->at("changes"))
+        if (change.is_object() && change.contains("key")) (*saved)["planned_modules"].push_back(change.at("key"));
+    return print_result(request, *saved);
+  }
   auto result = call_rpc_once(request.socket, request.method, request.params);
   if (result && result->is_object() && result->value("status", "") == "accepted" &&
       result->contains("operation_id") && result->at("operation_id").is_string()) {
@@ -258,6 +275,17 @@ int print_result(const Request& request, const Result<Json>& result) {
                   << " downlink=" << (rate.contains("downlink_bytes_per_second") && !rate["downlink_bytes_per_second"].is_null()
                       ? rate["downlink_bytes_per_second"].dump() + " B/s" : "pending") << '\n';
     }
+  } else if (request.method == "module.enable_traffic_statistics") {
+    std::cout << "changed modules:";
+    if (result->contains("changed_modules") && result->at("changed_modules").is_array())
+      for (const auto& module : result->at("changed_modules"))
+        if (module.is_string()) std::cout << ' ' << module.get<std::string>();
+    std::cout << '\n';
+    if (result->contains("failure") && !result->at("failure").is_null())
+      std::cout << "partial save failure: " << result->at("failure").dump() << '\n';
+    if (result->contains("notices") && result->at("notices").is_array())
+      for (const auto& notice : result->at("notices"))
+        if (notice.is_object()) std::cout << notice.value("message", "") << '\n';
   } else if (request.method == "logs.read") {
     for (const auto& entry : result->at("entries"))
       std::cout << '[' << entry.value("cursor", 0) << "][" << entry.value("stream", "") << "] "

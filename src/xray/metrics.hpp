@@ -47,6 +47,7 @@ class MetricsClient {
   MetricsView view() const;
   void on_sample(std::function<void(const MetricsSample&)>);
   void stop();
+  void shutdown();
  private:
   struct Impl;
   std::unique_ptr<Impl> impl_;

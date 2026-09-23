@@ -1,20 +1,24 @@
 #pragma once
 
 #include "contract/dtos.hpp"
+#include "infra/http.hpp"
 #include "infra/process.hpp"
 #include "infra/store.hpp"
 #include "profile/profile_service.hpp"
+#include "profile/forms.hpp"
 #include "server/log_buffer.hpp"
 #include "server/operations.hpp"
 #include "subscription/subscription_service.hpp"
 #include "xray/control.hpp"
 #include "xray/core_manager.hpp"
 
+#include <set>
+
 namespace xrm {
 
 class Application {
  public:
-  Application(Store& store, ProcessService& processes, uv_loop_t& loop,
+  Application(Store& store, ProcessService& processes, HttpClient& http, uv_loop_t& loop,
               std::filesystem::path data_root, std::string application_version,
               Id boot_id, SubscriptionService& subscriptions);
 
@@ -46,6 +50,11 @@ class Application {
   Result<void> export_config(const Id& profile_id, std::string_view source,
                              const std::filesystem::path& destination);
   Result<Json> runtime_status() const;
+  Json runtime_metrics(const Id& connection_id, bool watch);
+  void release_metrics_viewer(const Id& connection_id);
+  Result<ModuleChangePlan> plan_module_changes(const Id&, std::string_view action,
+                                                const Json& arguments) const;
+  SaveManyResult save_module_changes(const Id&, const ModuleChangePlan&);
   Result<ControlTarget> control_target() const;
   Result<Id> override_runtime_group(std::string balancer, std::string outbound,
                                     Completion<OverrideResult> completion);
@@ -60,6 +69,7 @@ class Application {
   Store* store_;
   SubscriptionService* subscriptions_;
   ProcessService* processes_;
+  HttpClient* http_;
   std::string application_version_;
   Id boot_id_;
   std::filesystem::path data_root_;
@@ -67,11 +77,14 @@ class Application {
   std::unique_ptr<RuntimeWriter> runtime_writer_;
   std::unique_ptr<CoreManager> core_manager_;
   std::unique_ptr<XrayControl> xray_control_;
+  std::unique_ptr<MetricsClient> metrics_client_;
   LogBuffer logs_;
   Operations operations_;
   std::optional<Id> override_run_id_;
   std::optional<std::string> runtime_override_;
   OverrideState override_state_ = OverrideState::none;
+  std::set<Id> metrics_viewers_;
+  std::optional<Id> metrics_run_id_;
 };
 
 }  // namespace xrm

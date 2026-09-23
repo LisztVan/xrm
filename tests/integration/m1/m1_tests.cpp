@@ -343,6 +343,52 @@ TEST_CASE("stats --watch keeps a UDS session alive until it sends an explicit st
   REQUIRE(server.stop());
 }
 
+TEST_CASE("FORM-03 traffic statistics convenience action saves only its native modules",
+          "[FORM-03][CLI-02][CLI-03]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  auto core = server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "forms fixture"});
+  INFO("fake core registration: " << core.out << core.err);
+  REQUIRE(core.code == 0);
+  auto profile = server.cli({"profile", "create", "--name", "statistics-form", "--core",
+                             parsed(core).at("id").get<std::string>()});
+  REQUIRE(profile.code == 0);
+  const auto profile_id = parsed(profile).at("id").get<std::string>();
+  REQUIRE(server.cli({"config", "edit", profile_id, "policy", "--text",
+      R"({"policy":{"levels":{"0":{"handshake":3,"customLevel":"preserve"}},"system":{"statsOutboundUplink":false,"customSystem":{"keep":true}},"extension":{"keep":7}}})"}).code == 0);
+  REQUIRE(server.cli({"config", "edit", profile_id, "metrics", "--text",
+      R"({"metrics":{"listen":"127.0.0.1:9100","customMetric":{"keep":"yes"}}})"}).code == 0);
+
+  const auto action = server.cli({"config", "statistics", "enable", profile_id,
+                                  "--metrics-listen", "127.0.0.1:9101"});
+  REQUIRE(action.code == 0);
+  const auto action_json = parsed(action);
+  REQUIRE(action_json.at("changed_modules").is_array());
+  CHECK(action_json.at("changed_modules") == Json::array({"stats", "policy", "metrics"}));
+  CHECK(action_json.at("planned_modules") == Json::array({"stats", "policy", "metrics"}));
+
+  const auto policy_result = server.cli({"config", "show", profile_id, "--module-key", "policy"});
+  const auto metrics_result = server.cli({"config", "show", profile_id, "--module-key", "metrics"});
+  const auto stats_result = server.cli({"config", "show", profile_id, "--module-key", "stats"});
+  INFO("stats show output: " << stats_result.out << stats_result.err);
+  REQUIRE(policy_result.code == 0);
+  REQUIRE(metrics_result.code == 0);
+  REQUIRE(stats_result.code == 0);
+  const auto policy = Json::parse(parsed(policy_result).at("text").get<std::string>()).at("policy");
+  CHECK(policy.at("levels").at("0").at("handshake") == 3);
+  CHECK(policy.at("levels").at("0").at("customLevel") == "preserve");
+  CHECK(policy.at("system").at("customSystem").at("keep") == true);
+  CHECK(policy.at("system").at("statsOutboundUplink") == true);
+  CHECK(policy.at("extension").at("keep") == 7);
+  const auto metrics = Json::parse(parsed(metrics_result).at("text").get<std::string>()).at("metrics");
+  CHECK(metrics.at("listen") == "127.0.0.1:9101");
+  CHECK(metrics.at("customMetric").at("keep") == "yes");
+  CHECK(Json::parse(parsed(stats_result).at("text").get<std::string>()).at("stats").is_object());
+  CHECK(parsed(server.cli({"status"})).at("state") == "stopped");
+  REQUIRE(server.stop());
+}
+
 TEST_CASE("E2E-02 manual node through Profile, modules, connect, logs, and stop", "[E2E-02][CLI-02][RPC-03]") {
   TempDirectory temp;
   Server server(temp);

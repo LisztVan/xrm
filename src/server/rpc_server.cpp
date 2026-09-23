@@ -60,8 +60,8 @@ struct RpcServer::Impl {
     bool close_after = false;
   };
 
-  Impl(uv_loop_t& event_loop, RpcHandler request_handler)
-      : loop(&event_loop), handler(std::move(request_handler)) {}
+  Impl(uv_loop_t& event_loop, RpcHandler request_handler, RpcDisconnectHandler disconnect_handler)
+      : loop(&event_loop), handler(std::move(request_handler)), disconnected(std::move(disconnect_handler)) {}
 
   static void allocate(uv_handle_t*, std::size_t suggested, uv_buf_t* buffer) {
     const auto size = std::clamp<std::size_t>(suggested, 4096, 65536);
@@ -121,6 +121,7 @@ struct RpcServer::Impl {
     auto* client = static_cast<Client*>(handle->data);
     auto* self = client->owner;
     const auto id = client->id;
+    if (self->disconnected) self->disconnected(id);
     self->clients.erase(id);
     self->notify_drained();
   }
@@ -260,6 +261,7 @@ struct RpcServer::Impl {
 
   uv_loop_t* loop;
   RpcHandler handler;
+  RpcDisconnectHandler disconnected;
   uv_pipe_t listener{};
   bool listener_open = false;
   bool closing = false;
@@ -271,8 +273,8 @@ struct RpcServer::Impl {
   std::function<void()> drained;
 };
 
-RpcServer::RpcServer(uv_loop_t& loop, RpcHandler handler)
-    : impl_(std::make_unique<Impl>(loop, std::move(handler))) {}
+RpcServer::RpcServer(uv_loop_t& loop, RpcHandler handler, RpcDisconnectHandler disconnected)
+    : impl_(std::make_unique<Impl>(loop, std::move(handler), std::move(disconnected))) {}
 RpcServer::~RpcServer() = default;
 
 Result<void> RpcServer::listen(const std::filesystem::path& socket) {
