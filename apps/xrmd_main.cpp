@@ -1,5 +1,7 @@
 #include "infra/store.hpp"
 #include "infra/process.hpp"
+#include "infra/http.hpp"
+#include "subscription/subscription_service.hpp"
 #include "server/api_router.hpp"
 #include "server/application.hpp"
 #include "server/rpc_server.hpp"
@@ -48,6 +50,7 @@ struct Shutdown {
   xrm::RpcServer* server = nullptr;
   xrm::ProcessService* processes = nullptr;
   xrm::Application* application = nullptr;
+  xrm::HttpClient* http = nullptr;
   bool stopping = false;
 
   static void received(uv_signal_t* signal, int) {
@@ -59,8 +62,10 @@ struct Shutdown {
     uv_close(reinterpret_cast<uv_handle_t*>(&self->interrupt), nullptr);
     uv_close(reinterpret_cast<uv_handle_t*>(&self->terminate), nullptr);
     self->application->shutdown([self] {
-      self->server->close([] {});
-      self->processes->shutdown([] {});
+      self->http->shutdown([self] {
+        self->server->close([] {});
+        self->processes->shutdown([] {});
+      });
     });
   }
 };
@@ -106,9 +111,12 @@ int main(int argc, char** argv) {
     return 1;
   }
   xrm::ProcessService processes(loop);
+  xrm::HttpClient http(loop);
+  xrm::SubscriptionService subscriptions(**store, http);
   const auto data_root = database.parent_path().empty() ? std::filesystem::current_path()
                                                         : database.parent_path();
-  xrm::Application application(**store, processes, loop, data_root, XRM_VERSION, make_boot_id());
+  xrm::Application application(**store, processes, loop, data_root, XRM_VERSION,
+                               make_boot_id(), subscriptions);
   xrm::ApiRouter router(application);
   xrm::RpcServer rpc(loop, [&router](const xrm::Id& connection_id,
                                      xrm::RpcRequest request,
@@ -122,6 +130,7 @@ int main(int argc, char** argv) {
     uv_loop_close(&loop);
     return 1;
   }
+  subscriptions.start_schedule(loop);
 
   application.recover([](xrm::Result<xrm::ActivationResult>) {});
 
@@ -129,6 +138,7 @@ int main(int argc, char** argv) {
   shutdown.server = &rpc;
   shutdown.processes = &processes;
   shutdown.application = &application;
+  shutdown.http = &http;
   status = uv_signal_init(&loop, &shutdown.interrupt);
   const bool interrupt_initialized = status == 0;
   if (status == 0) status = uv_signal_init(&loop, &shutdown.terminate);

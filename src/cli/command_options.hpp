@@ -14,6 +14,18 @@ struct Request {
   std::string node_name;
   std::string node_outbound;
   std::string node_search;
+  std::string subscription_id;
+  std::string subscription_name;
+  std::string subscription_url;
+  std::string subscription_user_agent;
+  std::string subscription_proxy;
+  std::vector<std::string> subscription_headers;
+  bool subscription_paused = false;
+  bool subscription_resume = false;
+  std::string node_id;
+  std::string node_alias;
+  std::string node_labels;
+  bool keep_nodes_manual = false;
   std::size_t node_offset = 0;
   std::size_t node_limit = 100;
   std::string core_path;
@@ -33,6 +45,7 @@ struct Request {
 };
 
 void add_node_commands(CLI::App& app, Request& request);
+void add_subscription_commands(CLI::App& app, Request& request);
 void add_core_commands(CLI::App& app, Request& request);
 void add_profile_commands(CLI::App& app, Request& request);
 void add_runtime_commands(CLI::App& app, Request& request);

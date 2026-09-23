@@ -52,6 +52,17 @@ class TuiApp final : public ComponentBase {
   }
 
   bool OnEvent(Event event) override {
+    if (filtering_nodes_) {
+      if (event == Event::Escape) { filtering_nodes_ = false; return true; }
+      if (event == Event::Return) { filtering_nodes_ = false; selected_ = 0; refresh_nodes(); return true; }
+      if (event == Event::Backspace && !node_filter_.empty()) {
+        auto erase_from = node_filter_.size() - 1;
+        while (erase_from > 0 && (static_cast<unsigned char>(node_filter_[erase_from]) & 0xc0) == 0x80) --erase_from;
+        node_filter_.erase(erase_from);
+      }
+      else if (event.is_character()) node_filter_ += event.character();
+      return true;
+    }
     if (editing_) {
       if (event == Event::Escape || event == Event::CtrlQ) { editing_ = false; return true; }
       if (event == Event::CtrlS) { save_editor(); return true; }
@@ -84,6 +95,7 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("2")) { page_ = 1; refresh_nodes(); }
     else if (event == Event::Character("3")) { page_ = 2; refresh_modules(); }
     else if (event == Event::Character("4")) { page_ = 3; refresh_logs(); }
+    else if (event == Event::Character("5")) { page_ = 4; refresh_subscriptions(); }
     else if (event == Event::ArrowDown) selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
     else if (event == Event::ArrowUp) selected_ = selected_ == 0 ? 0 : selected_ - 1;
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
@@ -93,13 +105,15 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("c") && !profile_id_.empty()) connect();
     else if (event == Event::Character("d")) disconnect();
     else if (event == Event::Character("r")) refresh_all();
+    else if (event == Event::Character("/" ) && page_ == 1) filtering_nodes_ = true;
+    else if (event == Event::Character("u") && page_ == 4) refresh_subscription_inventory();
     return true;
   }
 
   Element OnRender() override {
     Elements header{
       text(" XRM  ") | bold,
-      text("1 Overview   2 Nodes   3 Native Modules   4 Logs") | color(Color::Cyan),
+      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions") | color(Color::Cyan),
       filler(),
       text(profile_id_.empty() ? "no Profile" : "Profile " + profile_id_) | dim,
     };
@@ -127,10 +141,12 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("ID: " + node.value("id", "")));
         body.push_back(text(std::string("Enabled: ") + (node.value("enabled", false) ? "yes" : "no")));
       } else {
-        body.push_back(text("Nodes — Enter details; s saves selection, c connects") | bold);
+        body.push_back(text("Nodes — Enter details; / filter; s saves selection, c connects") | bold);
+        body.push_back(text("filter: " + node_filter_) | dim);
         for (std::size_t i = 0; i < nodes_.size(); ++i) {
           const auto& node = nodes_[i];
-          const auto row = node.value("name", "") + "   " + node.value("protocol", "") + "   " + node.value("id", "");
+          const auto row = node.value("name", "") + "   " + node.value("protocol", "") + "   " +
+              (node.value("source_missing", false) ? "source_missing" : "available") + "   " + node.value("id", "");
           body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
         }
       }
@@ -142,13 +158,26 @@ class TuiApp final : public ComponentBase {
             "]  source:" + module.value("source_file", "") + "  runtime:" + module.value("runtime_file", "");
         body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
       }
-    } else {
+    } else if (page_ == 3) {
       body.push_back(text("Logs — bounded cursor " + std::to_string(logs_.value("next_cursor", 0))) | bold);
       if (logs_.contains("entries")) for (const auto& entry : logs_["entries"])
         body.push_back(paragraph("[" + std::to_string(entry.value("cursor", 0)) + "][" +
             entry.value("stream", "") + "] " + entry.value("text", "")));
       body.push_back(text("r refresh from the server") | dim);
+    } else {
+      body.push_back(text("Subscriptions — u refresh inventory only; runtime is unchanged") | bold);
+      for (std::size_t i = 0; i < subscriptions_.size(); ++i) {
+        const auto& source = subscriptions_[i];
+        const auto row = source.value("name", "") + " [" + source.value("last_result", "never") + "] " +
+            (source.value("enabled", false) ? "enabled" : "paused") + " nodes:" +
+            std::to_string(source.value("node_count", 0)) + " unsupported:" +
+            std::to_string(source.value("unsupported_count", 0)) + " malformed:" +
+            std::to_string(source.value("malformed_count", 0));
+        body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
+      }
+      body.push_back(text("u updates subscriptions; no connect, config render or core restart") | dim);
     }
+    if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
     if (!message_.empty()) body.push_back(text(message_) | color(Color::Yellow));
     return vbox({hbox(std::move(header)), separator(), vbox(std::move(body)) | flex,
                  separator(), text("q quit   ↑/↓ move   c connect   d stop   r refresh   Tabs: 1–4") | dim}) | border;
@@ -158,9 +187,10 @@ class TuiApp final : public ComponentBase {
   std::size_t page_size() const {
     if (page_ == 1) return nodes_.size();
     if (page_ == 2) return modules_.size();
+    if (page_ == 4) return subscriptions_.size();
     return 0;
   }
-  void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); }
+  void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); }
   void refresh_expected() {
     expected_selection_.clear();
     if (profile_id_.empty()) return;
@@ -173,9 +203,48 @@ class TuiApp final : public ComponentBase {
     if (response) status_ = std::move(*response); else message_ = response.error().message;
   }
   void refresh_nodes() {
-    auto response = rpc(socket_, std::string(methods::node_list), Json{{"offset", 0}, {"limit", 100}});
+    std::string selected_id;
+    if (selected_ < nodes_.size()) selected_id = nodes_[selected_].value("id", "");
+    Json params{{"offset", 0}, {"limit", 100}};
+    if (!node_filter_.empty()) params["text"] = node_filter_;
+    auto response = rpc(socket_, std::string(methods::node_list), std::move(params));
     nodes_.clear();
     if (response && response->contains("items")) nodes_ = response->at("items").get<std::vector<Json>>();
+    if (!selected_id.empty()) {
+      auto found = std::find_if(nodes_.begin(), nodes_.end(), [&](const auto& node) { return node.value("id", "") == selected_id; });
+      if (found != nodes_.end()) selected_ = static_cast<std::size_t>(found - nodes_.begin());
+      else selected_ = std::min(selected_, nodes_.empty() ? 0 : nodes_.size() - 1);
+    }
+  }
+  void refresh_subscriptions() {
+    auto response = rpc(socket_, std::string(methods::subscription_list));
+    subscriptions_.clear();
+    if (response && response->is_array()) subscriptions_ = response->get<std::vector<Json>>();
+    selected_ = std::min(selected_, subscriptions_.empty() ? 0 : subscriptions_.size() - 1);
+  }
+  void refresh_subscription_inventory() {
+    auto result = rpc(socket_, std::string(methods::subscription_refresh));
+    if (!result) message_ = result.error().message;
+    else if (result->value("status", "") == "accepted" && result->contains("operation_id")) {
+      const auto operation = result->at("operation_id").get<std::string>();
+      message_ = "refresh running; runtime files are unchanged";
+      for (int attempt = 0; attempt < 100; ++attempt) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        auto state = rpc(socket_, std::string(methods::operation_get), Json{{"operation_id", operation}});
+        if (!state || state->value("status", "") == "running") continue;
+        if (state->value("status", "") == "succeeded") {
+          const auto& refresh = state->at("result");
+          std::size_t updated = 0, failed = 0;
+          if (refresh.contains("completed")) for (const auto& source : refresh["completed"])
+            updated += source.value("added", std::size_t{0}) + source.value("updated", std::size_t{0});
+          if (refresh.contains("failed")) failed = refresh["failed"].size();
+          message_ = "refresh complete: changed nodes=" + std::to_string(updated) +
+              " failed sources=" + std::to_string(failed) + "; runtime unchanged";
+        } else message_ = "refresh did not complete successfully; runtime unchanged";
+        break;
+      }
+    } else message_ = "refresh accepted; running core and runtime files are not changed";
+    refresh_subscriptions();
   }
   void refresh_modules() {
     if (profile_id_.empty()) return;
@@ -270,11 +339,14 @@ class TuiApp final : public ComponentBase {
   int page_ = 0;
   std::size_t selected_ = 0;
   bool editing_ = false;
+  bool filtering_nodes_ = false;
   bool node_detail_ = false;
   std::string editing_key_;
+  std::string node_filter_;
   std::string draft_;
   std::size_t edit_cursor_ = 0;
   std::vector<Json> nodes_;
+  std::vector<Json> subscriptions_;
   std::vector<Json> modules_;
   Json status_ = Json::object();
   Json logs_ = Json::object();

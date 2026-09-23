@@ -27,6 +27,45 @@ void add_node_commands(CLI::App& app, Request& request) {
     request.params = Json{{"offset", request.node_offset}, {"limit", request.node_limit}};
     if (!request.node_search.empty()) request.params["text"] = request.node_search;
   });
+
+  auto* show = node->add_subcommand("show", "Show one node including required connection settings");
+  show->add_option("id", request.node_id)->required();
+  show->callback([&request] { request.method = "node.get"; request.params = {{"id", request.node_id}}; });
+  auto* copy = node->add_subcommand("copy", "Copy a node as an independent manual node");
+  copy->add_option("id", request.node_id)->required();
+  copy->add_option("--name", request.node_name)->required();
+  copy->callback([&request] { request.method = "node.copy"; request.params = {{"id", request.node_id}, {"name", request.node_name}}; });
+  for (const auto& [name, enabled] : {std::pair{"enable", true}, std::pair{"disable", false}}) {
+    auto* toggle = node->add_subcommand(name, enabled ? "Enable a node" : "Disable a node");
+    toggle->add_option("id", request.node_id)->required();
+    toggle->callback([&request, enabled] {
+      request.method = "node.set_enabled";
+      request.params = {{"id", request.node_id}, {"enabled", enabled}};
+    });
+  }
+  auto* alias = node->add_subcommand("alias", "Set or clear a node display alias");
+  alias->add_option("id", request.node_id)->required();
+  alias->add_option("value", request.node_alias);
+  alias->callback([&request] {
+    request.method = "node.set_alias";
+    request.params = {{"id", request.node_id}, {"alias", request.node_alias.empty() ? Json(nullptr) : Json(request.node_alias)}};
+  });
+  auto* labels = node->add_subcommand("labels", "Set node labels as comma-separated values");
+  labels->add_option("id", request.node_id)->required();
+  labels->add_option("--values", request.node_labels)->required();
+  labels->callback([&request] {
+    Json values = Json::array();
+    std::size_t start = 0;
+    while (start <= request.node_labels.size()) {
+      const auto end = request.node_labels.find(',', start);
+      const auto part = request.node_labels.substr(start, end == std::string::npos ? end : end - start);
+      if (!part.empty()) values.push_back(part);
+      if (end == std::string::npos) break;
+      start = end + 1;
+    }
+    request.method = "node.set_labels";
+    request.params = {{"id", request.node_id}, {"labels", std::move(values)}};
+  });
 }
 
 }  // namespace xrm::cli

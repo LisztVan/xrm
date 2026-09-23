@@ -6,6 +6,7 @@
 #include "profile/profile_service.hpp"
 #include "server/log_buffer.hpp"
 #include "server/operations.hpp"
+#include "subscription/subscription_service.hpp"
 #include "xray/core_manager.hpp"
 
 namespace xrm {
@@ -14,11 +15,18 @@ class Application {
  public:
   Application(Store& store, ProcessService& processes, uv_loop_t& loop,
               std::filesystem::path data_root, std::string application_version,
-              Id boot_id);
+              Id boot_id, SubscriptionService& subscriptions);
 
   Json server_info() const;
   Result<NodeSummary> add_manual_node(std::string name, Json outbound);
   Result<Page<NodeSummary>> list_nodes(const NodeQuery& query, PageRequest page) const;
+  Result<Node> get_node(const Id& id) const;
+  Result<NodeSummary> copy_node(const Id& id, std::string new_name);
+  Result<NodeSummary> set_node_enabled(const Id& id, bool enabled);
+  Result<NodeSummary> set_node_alias(const Id& id, std::optional<std::string> alias);
+  Result<NodeSummary> set_node_labels(const Id& id, std::vector<std::string> labels);
+  Store& store();
+  SubscriptionService& subscriptions();
   Result<std::vector<CoreInstall>> list_cores() const;
   void register_core(std::filesystem::path path, std::string name,
                      Completion<CoreInstall> completion);
@@ -44,6 +52,7 @@ class Application {
 
  private:
   Store* store_;
+  SubscriptionService* subscriptions_;
   ProcessService* processes_;
   std::string application_version_;
   Id boot_id_;

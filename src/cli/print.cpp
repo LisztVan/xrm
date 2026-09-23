@@ -61,6 +61,15 @@ std::string display_error(const Json& error) {
   return error.at("message").get<std::string>();
 }
 
+int refresh_exit_code(const Request& request, const Json& result) {
+  if (request.method != "subscription.refresh" || !result.is_object()) return 0;
+  if (result.contains("failed") && result["failed"].is_array() && !result["failed"].empty()) return 4;
+  if (result.contains("completed") && result["completed"].is_array())
+    for (const auto& source : result["completed"])
+      if (source.is_object() && source.value("partial", false)) return 4;
+  return 0;
+}
+
 }  // namespace
 
 std::string default_socket_path() {
@@ -108,7 +117,7 @@ int print_result(const Request& request, const Result<Json>& result) {
   }
   if (request.json) {
     std::cout << result->dump() << '\n';
-    return 0;
+    return refresh_exit_code(request, *result);
   }
 
   if (request.method == "server.info") {
@@ -133,8 +142,34 @@ int print_result(const Request& request, const Result<Json>& result) {
     std::cout << "Nodes: " << result->value("total", 0) << '\n';
     for (const auto& node : items) {
       std::cout << node.value("id", "") << '\t' << node.value("name", "") << '\t'
-                << node.value("protocol", "unknown") << '\n';
+                << node.value("protocol", "unknown") << '\t'
+                << (node.value("source_missing", false) ? "source_missing" : "available")
+                << (node.value("enabled", false) ? "" : "\tdisabled") << '\n';
     }
+  } else if (request.method == "subscription.list") {
+    for (const auto& source : *result) {
+      std::cout << source.value("id", "") << '\t' << source.value("name", "") << '\t'
+          << (source.value("enabled", false) ? "enabled" : "paused") << '\t'
+          << source.value("last_result", "never") << "\tnodes=" << source.value("node_count", 0)
+          << "\tunsupported=" << source.value("unsupported_count", 0)
+          << "\tmalformed=" << source.value("malformed_count", 0)
+          << "\tlast_attempt=" << (source.contains("last_attempt") && source["last_attempt"].is_number()
+                ? std::to_string(source["last_attempt"].get<std::int64_t>()) : "never")
+          << "\tlast_success=" << (source.contains("last_success") && source["last_success"].is_number()
+                ? std::to_string(source["last_success"].get<std::int64_t>()) : "never") << '\n';
+    }
+  } else if (request.method == "subscription.get") {
+    std::cout << result->at("subscription").dump(2) << "\nstate: " << result->at("state").dump() << '\n';
+  } else if (request.method == "subscription.refresh") {
+    if (result->contains("completed")) for (const auto& source : result->at("completed"))
+      std::cout << source.value("source_id", "") << " added=" << source.value("added", 0)
+          << " updated=" << source.value("updated", 0) << " missing=" << source.value("missing", 0)
+          << " unsupported=" << source.value("unsupported", 0) << " malformed=" << source.value("malformed", 0)
+          << (source.value("partial", false) ? " partial" : "") << '\n';
+    if (result->contains("failed")) for (const auto& source : result->at("failed"))
+      std::cout << source.value("source_id", "") << " failed: " << source.value("error", Json::object()).value("message", "") << '\n';
+  } else if (request.method == "node.get") {
+    std::cout << result->dump(2) << '\n';
   } else if (request.method == "profile.list") {
     for (const auto& profile : *result)
       std::cout << profile.value("id", "") << '\t' << profile.value("name", "") << '\t'
@@ -163,7 +198,7 @@ int print_result(const Request& request, const Result<Json>& result) {
     std::cout << "confdir: " << result->value("confdir", "") << '\n';
     for (const auto& file : result->at("files")) std::cout << file.get<std::string>() << '\n';
   }
-  return 0;
+  return refresh_exit_code(request, *result);
 }
 
 }  // namespace xrm::cli

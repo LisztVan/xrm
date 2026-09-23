@@ -38,8 +38,9 @@ AppError invalid(std::string message, std::string subject) {
 
 Application::Application(Store& store, ProcessService& processes,
                          uv_loop_t& loop, std::filesystem::path data_root,
-                         std::string application_version, Id boot_id)
-    : store_(&store), processes_(&processes),
+                         std::string application_version, Id boot_id,
+                         SubscriptionService& subscriptions)
+    : store_(&store), subscriptions_(&subscriptions), processes_(&processes),
       application_version_(std::move(application_version)), boot_id_(std::move(boot_id)),
       data_root_(std::move(data_root)),
       profiles_(std::make_unique<ProfileService>(store, data_root_ / "profiles")),
@@ -79,6 +80,51 @@ Result<Page<NodeSummary>> Application::list_nodes(const NodeQuery& query,
   for (const auto& node : nodes->items) page.items.push_back(summarize_node(node));
   return page;
 }
+
+Result<Node> Application::get_node(const Id& id) const { return store_->get_node(id); }
+
+Result<NodeSummary> Application::copy_node(const Id& id, std::string new_name) {
+  if (new_name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
+  auto original = store_->get_node(id);
+  if (!original) return std::unexpected(original.error());
+  original->id = new_id();
+  original->source_id.reset();
+  original->upstream_id.reset();
+  original->source_missing = false;
+  original->original_name = std::move(new_name);
+  original->alias.reset();
+  original->labels.clear();
+  original->enabled = true;
+  if (auto saved = store_->put_node(*original); !saved) return std::unexpected(saved.error());
+  return summarize_node(*original);
+}
+
+Result<NodeSummary> Application::set_node_enabled(const Id& id, bool enabled) {
+  auto node = store_->get_node(id);
+  if (!node) return std::unexpected(node.error());
+  node->enabled = enabled;
+  if (auto saved = store_->put_node(*node); !saved) return std::unexpected(saved.error());
+  return summarize_node(*node);
+}
+
+Result<NodeSummary> Application::set_node_alias(const Id& id, std::optional<std::string> alias) {
+  auto node = store_->get_node(id);
+  if (!node) return std::unexpected(node.error());
+  node->alias = std::move(alias);
+  if (auto saved = store_->put_node(*node); !saved) return std::unexpected(saved.error());
+  return summarize_node(*node);
+}
+
+Result<NodeSummary> Application::set_node_labels(const Id& id, std::vector<std::string> labels) {
+  auto node = store_->get_node(id);
+  if (!node) return std::unexpected(node.error());
+  node->labels = std::move(labels);
+  if (auto saved = store_->put_node(*node); !saved) return std::unexpected(saved.error());
+  return summarize_node(*node);
+}
+
+Store& Application::store() { return *store_; }
+SubscriptionService& Application::subscriptions() { return *subscriptions_; }
 
 Result<std::vector<CoreInstall>> Application::list_cores() const {
   return store_->cores();
@@ -309,6 +355,7 @@ void Application::recover(Completion<ActivationResult> completion) {
 }
 
 void Application::shutdown(std::function<void()> drained) {
+  subscriptions_->stop_schedule();
   core_manager_->shutdown(std::move(drained));
 }
 

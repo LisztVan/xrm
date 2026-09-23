@@ -126,6 +126,7 @@ add_executable(xrm
   src/cli/profile_commands.cpp
   src/cli/runtime_commands.cpp
   src/cli/node_commands.cpp
+  src/cli/subscription_commands.cpp
   src/cli/core_commands.cpp
   src/cli/print.cpp
   src/tui/app.cpp)

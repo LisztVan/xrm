@@ -3,6 +3,8 @@
 #include "contract/methods.hpp"
 
 #include <limits>
+#include <array>
+#include <random>
 
 namespace xrm {
 namespace {
@@ -38,6 +40,46 @@ Json page_to_json(const Page<NodeSummary>& page) {
   for (const auto& item : page.items) items.push_back(item);
   return Json{{"items", std::move(items)}, {"total", page.total},
               {"next_offset", page.next_offset ? Json(*page.next_offset) : Json(nullptr)}};
+}
+
+Json refresh_result_json(const BatchRefreshResult& result) {
+  Json completed = Json::array();
+  for (const auto& report : result.completed)
+    completed.push_back(Json{{"source_id", report.source_id}, {"added", report.added},
+        {"updated", report.updated}, {"missing", report.missing},
+        {"malformed", report.malformed}, {"unsupported", report.unsupported},
+        {"partial", report.partial}});
+  Json failed = Json::array();
+  for (const auto& [id, error] : result.failed)
+    failed.push_back(Json{{"source_id", id}, {"error", error_to_json(error)}});
+  return Json{{"completed", std::move(completed)}, {"failed", std::move(failed)}};
+}
+
+Result<SubscriptionSummary> subscription_summary(Store& store, const Subscription& source) {
+  auto state = store.get_source_state(source.id);
+  if (!state) return std::unexpected(state.error());
+  auto nodes = store.list_nodes(NodeQuery{.source_id = source.id, .include_missing = true}, {0, 1});
+  if (!nodes) return std::unexpected(nodes.error());
+  return SubscriptionSummary{source.id, source.name, source.auto_refresh,
+      state->last_result, state->last_attempt, state->last_success, nodes->total,
+      state->last_unsupported_count, state->last_malformed_count};
+}
+
+Id new_source_id() {
+  std::array<unsigned char, 16> bytes{};
+  std::random_device random;
+  for (auto& byte : bytes) byte = static_cast<unsigned char>(random());
+  bytes[6] = static_cast<unsigned char>((bytes[6] & 0x0f) | 0x40);
+  bytes[8] = static_cast<unsigned char>((bytes[8] & 0x3f) | 0x80);
+  constexpr char digits[] = "0123456789abcdef";
+  Id id;
+  id.reserve(36);
+  for (std::size_t index = 0; index < bytes.size(); ++index) {
+    if (index == 4 || index == 6 || index == 8 || index == 10) id.push_back('-');
+    id.push_back(digits[bytes[index] >> 4]);
+    id.push_back(digits[bytes[index] & 0x0f]);
+  }
+  return id;
 }
 
 Json module_view_json(const ModuleView& view) {
@@ -142,9 +184,169 @@ void ApiRouter::dispatch(const Id&, RpcRequest request, RpcReply reply) {
       fail(bad_params("offset和limit必须是非负整数", "page"));
       return;
     }
+    query.include_missing = true;
     auto page = application_->list_nodes(query, {offset, limit});
     if (!page) fail(page.error());
     else succeed(page_to_json(*page));
+    return;
+  }
+  if (method == methods::node_get) {
+    std::string node_id;
+    if (!read_string(params, "id", node_id)) { fail(bad_params("node.get需要id")); return; }
+    auto node = application_->get_node(node_id);
+    if (!node) fail(node.error()); else succeed(Json(*node));
+    return;
+  }
+  if (method == methods::node_copy) {
+    std::string node_id, name;
+    if (!read_string(params, "id", node_id) || !read_string(params, "name", name)) {
+      fail(bad_params("node.copy需要id和name")); return;
+    }
+    auto copied = application_->copy_node(node_id, std::move(name));
+    if (!copied) fail(copied.error()); else succeed(Json(*copied));
+    return;
+  }
+  if (method == methods::node_set_enabled) {
+    std::string node_id;
+    if (!read_string(params, "id", node_id) || !params.contains("enabled") || !params["enabled"].is_boolean()) {
+      fail(bad_params("node.set_enabled需要id和boolean enabled")); return;
+    }
+    auto changed = application_->set_node_enabled(node_id, params["enabled"].get<bool>());
+    if (!changed) fail(changed.error()); else succeed(Json(*changed));
+    return;
+  }
+  if (method == methods::node_set_alias) {
+    std::string node_id;
+    if (!read_string(params, "id", node_id) || !params.contains("alias") ||
+        (!params["alias"].is_null() && !params["alias"].is_string())) {
+      fail(bad_params("node.set_alias需要id和string/null alias")); return;
+    }
+    std::optional<std::string> alias;
+    if (params["alias"].is_string()) alias = params["alias"].get<std::string>();
+    auto changed = application_->set_node_alias(node_id, std::move(alias));
+    if (!changed) fail(changed.error()); else succeed(Json(*changed));
+    return;
+  }
+  if (method == methods::node_set_labels) {
+    std::string node_id;
+    if (!read_string(params, "id", node_id) || !params.contains("labels") || !params["labels"].is_array()) {
+      fail(bad_params("node.set_labels需要id和labels数组")); return;
+    }
+    try {
+      auto changed = application_->set_node_labels(node_id, params["labels"].get<std::vector<std::string>>());
+      if (!changed) fail(changed.error()); else succeed(Json(*changed));
+    } catch (const Json::exception& error) { fail(bad_params(error.what(), "labels")); }
+    return;
+  }
+  if (method == methods::subscription_list) {
+    auto sources = application_->store().list_sources();
+    if (!sources) { fail(sources.error()); return; }
+    Json values = Json::array();
+    for (const auto& source : *sources) {
+      auto summary = subscription_summary(application_->store(), source);
+      if (!summary) { fail(summary.error()); return; }
+      values.push_back(*summary);
+    }
+    succeed(std::move(values)); return;
+  }
+  if (method == methods::subscription_get) {
+    std::string source_id;
+    if (!read_string(params, "id", source_id)) { fail(bad_params("subscription.get需要id")); return; }
+    auto source = application_->store().get_source(source_id);
+    if (!source) { fail(source.error()); return; }
+    auto state = application_->store().get_source_state(source_id);
+    if (!state) { fail(state.error()); return; }
+    succeed(Json{{"subscription", Json(*source)}, {"state", Json(*state)}}); return;
+  }
+  if (method == methods::subscription_add || method == methods::subscription_replace) {
+    std::string name, url;
+    if (method == methods::subscription_add &&
+        (!read_string(params, "name", name) || !read_string(params, "url", url))) {
+      fail(bad_params("subscription.add需要name和url")); return;
+    }
+    if (method == methods::subscription_replace && params.size() <= 1) {
+      fail(bad_params("subscription.replace需要至少一个变更字段")); return;
+    }
+    Subscription source;
+    if (method == methods::subscription_replace) {
+      std::string source_id;
+      if (!read_string(params, "id", source_id)) { fail(bad_params("subscription.replace需要id")); return; }
+      auto old = application_->store().get_source(source_id);
+      if (!old) { fail(old.error()); return; }
+      source = std::move(*old);
+      ++source.settings_revision;
+      name = source.name;
+      url = source.url;
+    } else source.id = new_source_id();
+    if (params.contains("name")) {
+      if (!params["name"].is_string() || params["name"].get<std::string>().empty()) {
+        fail(bad_params("name必须为非空字符串")); return;
+      }
+      name = params["name"].get<std::string>();
+    }
+    if (params.contains("url")) {
+      if (!params["url"].is_string() || params["url"].get<std::string>().empty()) {
+        fail(bad_params("url必须为非空字符串")); return;
+      }
+      url = params["url"].get<std::string>();
+    }
+    source.name = std::move(name);
+    source.url = std::move(url);
+    if (params.contains("user_agent")) {
+      if (!params["user_agent"].is_string()) { fail(bad_params("user_agent必须是字符串")); return; }
+      source.user_agent = params["user_agent"].get<std::string>();
+    }
+    if (params.contains("headers")) {
+      if (!params["headers"].is_object()) { fail(bad_params("headers必须是对象")); return; }
+      try { source.headers = params["headers"].get<std::map<std::string, std::string>>(); }
+      catch (const Json::exception& error) { fail(bad_params(error.what(), "headers")); return; }
+    }
+    if (params.contains("auto_refresh")) {
+      if (!params["auto_refresh"].is_boolean()) { fail(bad_params("auto_refresh必须是布尔值")); return; }
+      source.auto_refresh = params["auto_refresh"].get<bool>();
+    }
+    if (params.contains("interval_seconds")) {
+      if (!params["interval_seconds"].is_number_integer() || params["interval_seconds"].get<std::int64_t>() <= 0) {
+        fail(bad_params("interval_seconds必须为正整数")); return;
+      }
+      source.interval = std::chrono::seconds(params["interval_seconds"].get<std::int64_t>());
+    }
+    if (params.contains("proxy_url")) {
+      if (!params["proxy_url"].is_null() && !params["proxy_url"].is_string()) {
+        fail(bad_params("proxy_url必须是字符串或null")); return;
+      }
+      if (params["proxy_url"].is_string()) source.route.proxy_url = params["proxy_url"].get<std::string>();
+      else source.route.proxy_url.reset();
+    }
+    if (auto saved = application_->store().put_source(source); !saved) fail(saved.error());
+    else succeed(Json{{"id", source.id}});
+    return;
+  }
+  if (method == methods::subscription_remove) {
+    std::string source_id;
+    if (!read_string(params, "id", source_id)) { fail(bad_params("subscription.remove需要id")); return; }
+    const bool keep_as_manual = params.value("keep_as_manual", false);
+    auto removed = application_->store().remove_source(source_id, keep_as_manual);
+    if (!removed) fail(removed.error()); else succeed(Json{{"removed", true}});
+    return;
+  }
+  if (method == methods::subscription_refresh) {
+    std::vector<Id> ids;
+    if (params.contains("source_ids")) {
+      if (!params["source_ids"].is_array()) { fail(bad_params("source_ids必须是数组")); return; }
+      try { ids = params["source_ids"].get<std::vector<Id>>(); }
+      catch (const Json::exception& error) { fail(bad_params(error.what(), "source_ids")); return; }
+    }
+    const auto operation = application_->operations().begin();
+    auto accepted = application_->subscriptions().refresh(std::move(ids),
+        [application = application_, operation](Result<BatchRefreshResult> result) {
+          if (!result) application->operations().complete(operation, std::unexpected(result.error()));
+          else application->operations().complete(operation, refresh_result_json(*result));
+        });
+    if (!accepted) {
+      application_->operations().complete(operation, std::unexpected(accepted.error()));
+      fail(accepted.error());
+    } else succeed(Json{{"status", "accepted"}, {"operation_id", operation}});
     return;
   }
   if (method == methods::core_list) {

@@ -25,6 +25,7 @@ int run_cli(int argc, char** argv) {
   });
   add_core_commands(app, request);
   add_node_commands(app, request);
+  add_subscription_commands(app, request);
   add_profile_commands(app, request);
   add_runtime_commands(app, request);
   std::string tui_profile;
