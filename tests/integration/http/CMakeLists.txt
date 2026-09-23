@@ -1,0 +1,3 @@
+add_executable(xrm_http_tests http_tests.cpp)
+target_link_libraries(xrm_http_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+catch_discover_tests(xrm_http_tests)
