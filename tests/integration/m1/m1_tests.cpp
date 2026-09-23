@@ -103,6 +103,10 @@ class Server {
     arguments.insert(arguments.begin(), {"--socket", socket_.string(), "--json"});
     return run(XRM_TEST_MANAGER, temp_->path, arguments);
   }
+  Captured cli_text(std::vector<std::string> arguments) {
+    arguments.insert(arguments.begin(), {"--socket", socket_.string()});
+    return run(XRM_TEST_MANAGER, temp_->path, arguments);
+  }
   bool stop() {
     if (pid_ < 0) return true;
     ::kill(pid_, SIGTERM);
@@ -176,6 +180,168 @@ void send_tui(int master, std::string_view key) {
   ::poll(nullptr, 0, 250);
 }
 }  // namespace
+
+TEST_CASE("runtime stats CLI and TUI report unavailable without fabricating zero counters",
+          "[CLI-03][UI-03][stats]" ) {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  auto core = server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "stats fixture"});
+  REQUIRE(core.code == 0);
+  auto profile = server.cli({"profile", "create", "--name", "stats-profile", "--core",
+                             parsed(core).at("id").get<std::string>()});
+  REQUIRE(profile.code == 0);
+  auto node = server.cli({"node", "add", "--name", "stats-direct",
+      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"stats-direct"})"});
+  REQUIRE(node.code == 0);
+  REQUIRE(server.cli({"connect", parsed(profile).at("id").get<std::string>(), "--node",
+      parsed(node).at("id").get<std::string>()}).code == 0);
+
+  const auto unavailable = server.cli({"stats"});
+  REQUIRE(unavailable.code == 0);
+  const auto stats_json = parsed(unavailable);
+  CHECK(stats_json.at("availability") == "unavailable");
+  CHECK(stats_json.at("missing_conditions").is_array());
+  CHECK(std::find(stats_json.at("missing_conditions").begin(), stats_json.at("missing_conditions").end(), "stats") !=
+        stats_json.at("missing_conditions").end());
+  CHECK(std::find(stats_json.at("missing_conditions").begin(), stats_json.at("missing_conditions").end(), "policy") !=
+        stats_json.at("missing_conditions").end());
+  CHECK(std::find(stats_json.at("missing_conditions").begin(), stats_json.at("missing_conditions").end(), "metrics") !=
+        stats_json.at("missing_conditions").end());
+
+  const auto text_stats = server.cli_text({"stats"});
+  REQUIRE(text_stats.code == 0);
+  CHECK(text_stats.out.find("metrics: unavailable") != std::string::npos);
+  CHECK(text_stats.out.find("stats") != std::string::npos);
+  CHECK(text_stats.out.find("0 B/s") == std::string::npos);
+  CHECK(text_stats.out.find("0 ms") == std::string::npos);
+
+  auto tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
+  REQUIRE(tui.pid > 0);
+  REQUIRE(tui.master >= 0);
+  (void)read_tui(tui.master, std::chrono::milliseconds(300));
+  send_tui(tui.master, "7");
+  const auto screen = read_tui(tui.master, std::chrono::milliseconds(300));
+  CHECK(screen.find("Stats") != std::string::npos);
+  CHECK(screen.find("unavailable") != std::string::npos);
+  send_tui(tui.master, "q");
+  int status = 0;
+  for (int attempt = 0; attempt < 100 && ::waitpid(tui.pid, &status, WNOHANG) == 0; ++attempt)
+    ::poll(nullptr, 0, 20);
+  if (::waitpid(tui.pid, &status, WNOHANG) == 0) {
+    ::kill(tui.pid, SIGKILL);
+    ::waitpid(tui.pid, &status, 0);
+  }
+  ::close(tui.master);
+  REQUIRE(WIFEXITED(status));
+  REQUIRE(server.stop());
+}
+
+TEST_CASE("Stats TUI page keeps missing metrics and latency explicitly unavailable",
+          "[UI-03][stats-view]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  auto core = server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "stats view fixture"});
+  REQUIRE(core.code == 0);
+  auto profile = server.cli({"profile", "create", "--name", "stats-view", "--core",
+                             parsed(core).at("id").get<std::string>()});
+  REQUIRE(profile.code == 0);
+  auto node = server.cli({"node", "add", "--name", "stats-view-direct",
+      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"stats-view-direct"})"});
+  REQUIRE(node.code == 0);
+  REQUIRE(server.cli({"connect", parsed(profile).at("id").get<std::string>(), "--node",
+      parsed(node).at("id").get<std::string>()}).code == 0);
+  auto tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
+  REQUIRE(tui.pid > 0);
+  REQUIRE(tui.master >= 0);
+  (void)read_tui(tui.master, std::chrono::milliseconds(300));
+  send_tui(tui.master, "7");
+  const auto screen = read_tui(tui.master, std::chrono::milliseconds(300));
+  CHECK(screen.find("Core:") != std::string::npos);
+  CHECK(screen.find("Metrics:") != std::string::npos);
+  CHECK(screen.find("Cumulative traffic: unavailable") != std::string::npos);
+  CHECK(screen.find("Current rates: unavailable") != std::string::npos);
+  CHECK(screen.find("Observatory latency: unavailable") != std::string::npos);
+  CHECK(screen.find("0 B/s") == std::string::npos);
+  CHECK(screen.find("0 ms") == std::string::npos);
+  send_tui(tui.master, "q");
+  int status = 0;
+  for (int attempt = 0; attempt < 100 && ::waitpid(tui.pid, &status, WNOHANG) == 0; ++attempt)
+    ::poll(nullptr, 0, 20);
+  if (::waitpid(tui.pid, &status, WNOHANG) == 0) {
+    ::kill(tui.pid, SIGKILL);
+    ::waitpid(tui.pid, &status, 0);
+  }
+  ::close(tui.master);
+  REQUIRE(WIFEXITED(status));
+  REQUIRE(server.stop());
+}
+
+TEST_CASE("stats --watch keeps a UDS session alive until it sends an explicit stop", "[CLI-03][stats-watch]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  auto core = server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "stats watch fixture"});
+  REQUIRE(core.code == 0);
+  auto profile = server.cli({"profile", "create", "--name", "stats-watch", "--core",
+                             parsed(core).at("id").get<std::string>()});
+  REQUIRE(profile.code == 0);
+
+  int output_pipe[2]{};
+  REQUIRE(::pipe(output_pipe) == 0);
+  const int flags = ::fcntl(output_pipe[0], F_GETFL, 0);
+  REQUIRE(flags >= 0);
+  REQUIRE(::fcntl(output_pipe[0], F_SETFL, flags | O_NONBLOCK) == 0);
+  std::vector<std::string> args{XRM_TEST_MANAGER, "--socket", (temp.path / "xrmd.sock").string(),
+                                "stats", "--watch"};
+  std::vector<char*> argv;
+  for (auto& value : args) argv.push_back(value.data());
+  argv.push_back(nullptr);
+  posix_spawn_file_actions_t actions;
+  REQUIRE(posix_spawn_file_actions_init(&actions) == 0);
+  REQUIRE(posix_spawn_file_actions_adddup2(&actions, output_pipe[1], STDOUT_FILENO) == 0);
+  REQUIRE(posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0) == 0);
+  pid_t pid = -1;
+  const int spawned = posix_spawn(&pid, XRM_TEST_MANAGER, &actions, nullptr, argv.data(), environ);
+  posix_spawn_file_actions_destroy(&actions);
+  ::close(output_pipe[1]);
+  REQUIRE(spawned == 0);
+
+  std::string output;
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+  while (std::chrono::steady_clock::now() < deadline) {
+    pollfd descriptor{output_pipe[0], POLLIN, 0};
+    if (::poll(&descriptor, 1, 50) > 0 && (descriptor.revents & POLLIN) != 0) {
+      char bytes[4096];
+      const auto count = ::read(output_pipe[0], bytes, sizeof(bytes));
+      if (count > 0) output.append(bytes, static_cast<std::size_t>(count));
+    }
+    int status = 0;
+    if (::waitpid(pid, &status, WNOHANG) == pid) break;
+  }
+  REQUIRE(::kill(pid, SIGINT) == 0);
+  int status = 0;
+  for (int attempt = 0; attempt < 300 && ::waitpid(pid, &status, WNOHANG) == 0; ++attempt) {
+    pollfd descriptor{output_pipe[0], POLLIN, 0};
+    if (::poll(&descriptor, 1, 10) > 0 && (descriptor.revents & POLLIN) != 0) {
+      char bytes[4096];
+      const auto count = ::read(output_pipe[0], bytes, sizeof(bytes));
+      if (count > 0) output.append(bytes, static_cast<std::size_t>(count));
+    }
+  }
+  if (::waitpid(pid, &status, WNOHANG) == 0) {
+    ::kill(pid, SIGKILL);
+    ::waitpid(pid, &status, 0);
+  }
+  ::close(output_pipe[0]);
+  REQUIRE(WIFEXITED(status));
+  CHECK(WEXITSTATUS(status) == 0);
+  const auto first_sample = output.find("metrics: unavailable");
+  REQUIRE(first_sample != std::string::npos);
+  CHECK(output.find("metrics: unavailable", first_sample + 1) != std::string::npos);
+  REQUIRE(server.stop());
+}
 
 TEST_CASE("E2E-02 manual node through Profile, modules, connect, logs, and stop", "[E2E-02][CLI-02][RPC-03]") {
   TempDirectory temp;

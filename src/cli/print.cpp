@@ -216,6 +216,48 @@ int print_result(const Request& request, const Result<Json>& result) {
     if (result->contains("active") && result->at("active").is_object())
       std::cout << "profile: " << result->at("active").value("profile_id", "") << "\nconfdir: "
                 << result->at("active").value("confdir", "") << '\n';
+  } else if (request.method == "runtime.stats") {
+    const auto availability = result->value("availability", "unknown");
+    std::cout << "metrics: " << availability << '\n';
+    if (availability != "available") {
+      const auto missing_key = result->contains("missing_conditions") ? "missing_conditions" : "missing";
+      if (result->contains(missing_key) && result->at(missing_key).is_array()) {
+        std::cout << "unavailable conditions:";
+        for (const auto& condition : result->at(missing_key))
+          if (condition.is_string()) std::cout << ' ' << condition.get<std::string>();
+        std::cout << '\n';
+      }
+    }
+    if (result->contains("sample") && result->at("sample").is_object()) {
+      const auto& sample = result->at("sample");
+      if (sample.contains("received_at") && !sample["received_at"].is_null())
+        std::cout << "sample timestamp: " << sample["received_at"].dump() << '\n';
+      if (sample.contains("traffic") && sample["traffic"].is_array()) {
+        for (const auto& counter : sample["traffic"]) {
+          std::cout << "traffic " << counter.value("scope", "") << '/' << counter.value("tag", "")
+                    << " uplink=" << (counter.contains("uplink") && !counter["uplink"].is_null()
+                        ? counter["uplink"].dump() : "unavailable")
+                    << " downlink=" << (counter.contains("downlink") && !counter["downlink"].is_null()
+                        ? counter["downlink"].dump() : "unavailable") << '\n';
+        }
+      }
+      if (sample.contains("observations") && sample["observations"].is_array()) {
+        for (const auto& observation : sample["observations"])
+          std::cout << "observation " << observation.value("tag", "") << " latency="
+                    << (observation.contains("latency_ms") && !observation["latency_ms"].is_null()
+                        ? observation["latency_ms"].dump() + " ms" : "unavailable") << '\n';
+      }
+    } else {
+      std::cout << "sample: unavailable\n";
+    }
+    if (result->contains("rates") && result->at("rates").is_array()) {
+      for (const auto& rate : result->at("rates"))
+        std::cout << "rate " << rate.value("scope", "") << '/' << rate.value("tag", "")
+                  << " uplink=" << (rate.contains("uplink_bytes_per_second") && !rate["uplink_bytes_per_second"].is_null()
+                      ? rate["uplink_bytes_per_second"].dump() + " B/s" : "pending")
+                  << " downlink=" << (rate.contains("downlink_bytes_per_second") && !rate["downlink_bytes_per_second"].is_null()
+                      ? rate["downlink_bytes_per_second"].dump() + " B/s" : "pending") << '\n';
+    }
   } else if (request.method == "logs.read") {
     for (const auto& entry : result->at("entries"))
       std::cout << '[' << entry.value("cursor", 0) << "][" << entry.value("stream", "") << "] "

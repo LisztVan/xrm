@@ -1,4 +1,5 @@
 #include "cli/commands.hpp"
+#include "cli/rpc_session.hpp"
 
 #include "client/rpc_client.hpp"
 #include "contract/methods.hpp"
@@ -50,6 +51,9 @@ class TuiApp final : public ComponentBase {
     }
     refresh_all();
   }
+  ~TuiApp() override {
+    if (stats_watching_) refresh_stats(false);
+  }
 
   bool OnEvent(Event event) override {
     if (filtering_nodes_) {
@@ -88,15 +92,17 @@ class TuiApp final : public ComponentBase {
       return true;
     }
     if (event == Event::Character("q") || event == Event::Escape) {
+      stop_stats_watch();
       screen_->ExitLoopClosure()();
       return true;
     }
-    if (event == Event::Character("1")) page_ = 0;
-    else if (event == Event::Character("2")) { page_ = 1; refresh_nodes(); }
-    else if (event == Event::Character("3")) { page_ = 2; refresh_modules(); }
-    else if (event == Event::Character("4")) { page_ = 3; refresh_logs(); }
-    else if (event == Event::Character("5")) { page_ = 4; refresh_subscriptions(); }
-    else if (event == Event::Character("6")) { page_ = 5; refresh_groups(); }
+    if (event == Event::Character("1")) change_page(0);
+    else if (event == Event::Character("2")) { change_page(1); refresh_nodes(); }
+    else if (event == Event::Character("3")) { change_page(2); refresh_modules(); }
+    else if (event == Event::Character("4")) { change_page(3); refresh_logs(); }
+    else if (event == Event::Character("5")) { change_page(4); refresh_subscriptions(); }
+    else if (event == Event::Character("6")) { change_page(5); refresh_groups(); }
+    else if (event == Event::Character("7")) { change_page(6); refresh_stats(true); }
     else if (event == Event::ArrowDown) selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
     else if (event == Event::ArrowUp) selected_ = selected_ == 0 ? 0 : selected_ - 1;
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
@@ -109,7 +115,10 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("m") && page_ == 1) select_group_member();
     else if (event == Event::Character("c") && !profile_id_.empty()) connect();
     else if (event == Event::Character("d")) disconnect();
-    else if (event == Event::Character("r")) refresh_all();
+    else if (event == Event::Character("r")) {
+      refresh_all();
+      if (page_ == 6) refresh_stats(true);
+    }
     else if (event == Event::Character("/" ) && page_ == 1) filtering_nodes_ = true;
     else if (event == Event::Character("u") && page_ == 4) refresh_subscription_inventory();
     return true;
@@ -118,7 +127,7 @@ class TuiApp final : public ComponentBase {
   Element OnRender() override {
     Elements header{
       text(" XRM  ") | bold,
-      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions   6 Groups") | color(Color::Cyan),
+      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions   6 Groups   7 Stats") | color(Color::Cyan),
       filler(),
       text(profile_id_.empty() ? "no Profile" : "Profile " + profile_id_) | dim,
     };
@@ -184,6 +193,61 @@ class TuiApp final : public ComponentBase {
         body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
       }
       body.push_back(text("u updates subscriptions; no connect, config render or core restart") | dim);
+    } else if (page_ == 6) {
+      body.push_back(text("Stats — shared server sample; no client-side rate calculation") | bold);
+      body.push_back(text("Core: " + status_.value("state", "unknown")));
+      body.push_back(text("Metrics: " + stats_.value("availability", "unknown")));
+      if (stats_.value("availability", "unknown") != "available") {
+        const auto missing_key = stats_.contains("missing_conditions") ? "missing_conditions" : "missing";
+        std::string missing = "Unavailable conditions: ";
+        if (stats_.contains(missing_key) && stats_[missing_key].is_array()) {
+          bool first = true;
+          for (const auto& condition : stats_[missing_key]) if (condition.is_string()) {
+            if (!first) missing += ", ";
+            missing += condition.get<std::string>();
+            first = false;
+          }
+        } else if (stats_.contains("reason") && stats_["reason"].is_string()) {
+          missing += stats_["reason"].get<std::string>();
+        } else missing += "no sample";
+        body.push_back(text(missing));
+      }
+      if (!stats_.contains("sample") || !stats_["sample"].is_object()) {
+        body.push_back(text("Cumulative traffic: unavailable"));
+        body.push_back(text("Current rates: unavailable"));
+        body.push_back(text("Observatory latency: unavailable"));
+      } else {
+        const auto& sample = stats_["sample"];
+        body.push_back(text("Sample timestamp: " +
+            (sample.contains("received_at") && !sample["received_at"].is_null()
+                ? sample["received_at"].dump() : "unavailable")));
+        if (sample.contains("traffic") && sample["traffic"].is_array() && !sample["traffic"].empty()) {
+          body.push_back(text("Cumulative traffic") | bold);
+          for (const auto& counter : sample["traffic"])
+            body.push_back(text(counter.value("scope", "") + "/" + counter.value("tag", "") +
+                "  up=" + (counter.contains("uplink") && !counter["uplink"].is_null()
+                    ? counter["uplink"].dump() + " B" : "unavailable") +
+                "  down=" + (counter.contains("downlink") && !counter["downlink"].is_null()
+                    ? counter["downlink"].dump() + " B" : "unavailable")));
+        } else body.push_back(text("Cumulative traffic: unavailable"));
+        if (stats_.contains("rates") && stats_["rates"].is_array() && !stats_["rates"].empty()) {
+          body.push_back(text("Current rates") | bold);
+          for (const auto& rate : stats_["rates"])
+            body.push_back(text(rate.value("scope", "") + "/" + rate.value("tag", "") +
+                "  up=" + (rate.contains("uplink_bytes_per_second") && !rate["uplink_bytes_per_second"].is_null()
+                    ? rate["uplink_bytes_per_second"].dump() + " B/s" : "pending") +
+                "  down=" + (rate.contains("downlink_bytes_per_second") && !rate["downlink_bytes_per_second"].is_null()
+                    ? rate["downlink_bytes_per_second"].dump() + " B/s" : "pending")));
+        } else body.push_back(text("Current rates: pending second sample"));
+        if (sample.contains("observations") && sample["observations"].is_array() && !sample["observations"].empty()) {
+          body.push_back(text("Observatory latency") | bold);
+          for (const auto& observation : sample["observations"])
+            body.push_back(text(observation.value("tag", "") + "  " +
+                (observation.contains("latency_ms") && !observation["latency_ms"].is_null()
+                    ? observation["latency_ms"].dump() + " ms" : "unavailable")));
+        } else body.push_back(text("Observatory latency: unavailable"));
+      }
+      body.push_back(text("r refreshes the shared server sample") | dim);
     } else {
       body.push_back(text("Groups — Enter edits native binding JSON; s saves as target; m choose member via Nodes") | bold);
       for (std::size_t i = 0; i < groups_.size(); ++i) {
@@ -212,6 +276,30 @@ class TuiApp final : public ComponentBase {
     return 0;
   }
   void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); refresh_groups(); }
+  void change_page(int page) {
+    if (page_ == 6 && page != 6) stop_stats_watch();
+    page_ = page;
+  }
+  void stop_stats_watch() {
+    if (stats_watching_) refresh_stats(false);
+  }
+  void refresh_stats(bool watch) {
+    if (watch) {
+      if (!stats_rpc_) stats_rpc_ = std::make_unique<RpcSession>(socket_);
+      auto response = stats_rpc_->call(std::string(methods::runtime_stats), Json{{"watch", true}});
+      if (response) stats_ = std::move(*response);
+      else stats_ = Json{{"availability", "unavailable"}, {"reason", response.error().message}};
+      stats_watching_ = response.has_value();
+      return;
+    }
+    if (!stats_rpc_) return;
+    auto response = stats_rpc_->call(std::string(methods::runtime_stats), Json{{"watch", false}});
+    if (response) stats_ = std::move(*response);
+    else stats_ = Json{{"availability", "unavailable"}, {"reason", response.error().message}};
+    stats_rpc_->close();
+    stats_rpc_.reset();
+    stats_watching_ = false;
+  }
   void refresh_expected() {
     expected_selection_.clear();
     if (profile_id_.empty()) return;
@@ -426,6 +514,9 @@ class TuiApp final : public ComponentBase {
   std::vector<Json> modules_;
   Json status_ = Json::object();
   Json logs_ = Json::object();
+  Json stats_ = Json::object();
+  std::unique_ptr<RpcSession> stats_rpc_;
+  bool stats_watching_ = false;
   std::string message_;
   std::string expected_selection_;
   std::string selected_group_id_;

@@ -1,12 +1,20 @@
 #include "cli/command_options.hpp"
 #include "cli/commands.hpp"
+#include "cli/rpc_session.hpp"
 
 #include "contract/methods.hpp"
 #include "contract/wire.hpp"
 
 #include <iostream>
+#include <chrono>
+#include <csignal>
+#include <thread>
 
 namespace xrm::cli {
+namespace {
+volatile std::sig_atomic_t stop_stats_watch = 0;
+void request_stats_watch_stop(int) { stop_stats_watch = 1; }
+}  // namespace
 
 int run_cli(int argc, char** argv) {
   Request request;
@@ -28,6 +36,13 @@ int run_cli(int argc, char** argv) {
   add_subscription_commands(app, request);
   add_profile_commands(app, request);
   add_runtime_commands(app, request);
+  bool stats_watch = false;
+  auto* stats = app.add_subcommand("stats", "Show server-sampled Xray traffic and observations");
+  stats->add_flag("--watch", stats_watch, "Refresh the shared server sample every two seconds");
+  stats->callback([&request, &stats_watch] {
+    request.method = std::string(methods::runtime_stats);
+    request.params = {{"watch", stats_watch}};
+  });
   std::string tui_profile;
   auto* tui = app.add_subcommand("tui", "Open the interactive Overview/Nodes/Native Modules/Logs interface");
   tui->add_option("--profile", tui_profile, "Initial Profile ID");
@@ -53,6 +68,24 @@ int run_cli(int argc, char** argv) {
     return 2;
   }
   if (request.method == "tui") return run_tui(request.socket, tui_profile);
+  if (request.method == methods::runtime_stats && stats_watch) {
+    stop_stats_watch = 0;
+    const auto old_int = std::signal(SIGINT, request_stats_watch_stop);
+    const auto old_term = std::signal(SIGTERM, request_stats_watch_stop);
+    RpcSession session(request.socket);
+    int result = 0;
+    while (!stop_stats_watch) {
+      auto sample = session.call(request.method, Json{{"watch", true}});
+      result = print_result(request, sample);
+      if (result != 0) break;
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+    (void)session.call(request.method, Json{{"watch", false}});
+    session.close();
+    std::signal(SIGINT, old_int);
+    std::signal(SIGTERM, old_term);
+    return result;
+  }
   return execute_request(request);
 }
 
