@@ -55,6 +55,13 @@ add_library(xrm_model INTERFACE)
 target_include_directories(xrm_model INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(xrm_model INTERFACE nlohmann_json::nlohmann_json)
 
+add_library(xrm_logic STATIC
+  src/xray/codecs/codec.cpp
+  src/xray/codecs/stream.cpp
+  src/xray/codecs/vless.cpp)
+target_include_directories(xrm_logic PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(xrm_logic PUBLIC xrm_model)
+
 add_library(xrm_contract STATIC src/contract/wire.cpp)
 target_include_directories(xrm_contract PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(xrm_contract PUBLIC xrm_model)
@@ -69,7 +76,7 @@ add_library(xrm_server_lib STATIC
   src/xray/runtime_writer.cpp
   src/xray/process_adapter.cpp)
 target_include_directories(xrm_server_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract SQLite3::SQLite3 uv_a)
+target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract xrm_logic SQLite3::SQLite3 uv_a)
 
 add_library(xrm_client_lib STATIC src/client/rpc_client.cpp)
 target_include_directories(xrm_client_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
