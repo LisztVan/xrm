@@ -22,13 +22,21 @@ void write_repeated_from_environment(const char* key, std::ostream& output) {
 }  // namespace
 
 int main(int argc, char** argv) {
-  if (const char* record = std::getenv("XRM_FAKE_CORE_ARGV")) {
-    std::ofstream output(record, std::ios::binary | std::ios::trunc);
+  const bool checking = argc >= 3 && std::string(argv[1]) == "run" &&
+      std::string(argv[2]) == "-test";
+  const char* record_key = checking ? "XRM_FAKE_CORE_CHECK_ARGV" : "XRM_FAKE_CORE_RUN_ARGV";
+  const char* record_path = std::getenv(record_key);
+  if (!record_path) record_path = std::getenv("XRM_FAKE_CORE_ARGV");
+  if (record_path) {
+    std::ofstream output(record_path, std::ios::binary | std::ios::trunc);
     for (int index = 0; index < argc; ++index) {
       output << index << '\t' << argv[index] << '\n';
     }
   }
-  if (const char* record_cwd = std::getenv("XRM_FAKE_CORE_CWD")) {
+  const char* cwd_key = checking ? "XRM_FAKE_CORE_CHECK_CWD" : "XRM_FAKE_CORE_RUN_CWD";
+  const char* record_cwd = std::getenv(cwd_key);
+  if (!record_cwd) record_cwd = std::getenv("XRM_FAKE_CORE_CWD");
+  if (record_cwd) {
     std::ofstream output(record_cwd, std::ios::binary | std::ios::trunc);
     output << std::filesystem::current_path().string();
   }
@@ -41,6 +49,22 @@ int main(int argc, char** argv) {
   write_repeated_from_environment("XRM_FAKE_CORE_STDERR_BYTES", std::cerr);
   std::cout.flush();
   std::cerr.flush();
+  if (checking) {
+    if (const char* code = std::getenv("XRM_FAKE_CORE_CHECK_EXIT")) return std::atoi(code);
+  }
+  if (!checking && std::getenv("XRM_FAKE_CORE_RUN_HANG")) {
+    if (const char* count_path = std::getenv("XRM_FAKE_CORE_RUN_COUNT")) {
+      std::ofstream count(count_path, std::ios::app);
+      count << "run\n";
+    }
+    for (;;) std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
+  if (!checking) {
+    if (const char* count_path = std::getenv("XRM_FAKE_CORE_RUN_COUNT")) {
+      std::ofstream count(count_path, std::ios::app);
+      count << "run\n";
+    }
+  }
   if (std::getenv("XRM_FAKE_CORE_HANG")) {
     for (;;) std::this_thread::sleep_for(std::chrono::seconds(1));
   }
@@ -49,6 +73,9 @@ int main(int argc, char** argv) {
   }
   if (const char* code = std::getenv("XRM_FAKE_CORE_EXIT")) {
     return std::atoi(code);
+  }
+  if (!checking) {
+    if (const char* code = std::getenv("XRM_FAKE_CORE_RUN_EXIT")) return std::atoi(code);
   }
   return 0;
 }

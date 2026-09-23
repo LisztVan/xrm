@@ -133,7 +133,9 @@ Result<std::unique_ptr<Store>> Store::open(std::filesystem::path database) {
       "CREATE TABLE IF NOT EXISTS profiles (id TEXT PRIMARY KEY NOT NULL, path TEXT NOT NULL);"
       "CREATE TABLE IF NOT EXISTS cores ("
       "id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, path TEXT NOT NULL,"
-      "reported_version TEXT NOT NULL, managed INTEGER NOT NULL);";
+      "reported_version TEXT NOT NULL, managed INTEGER NOT NULL);"
+      "CREATE TABLE IF NOT EXISTS runtime_state ("
+      "id INTEGER PRIMARY KEY CHECK(id=1), document_json TEXT NOT NULL);";
   char* message = nullptr;
   const int schema_status = sqlite3_exec(handle, schema, nullptr, nullptr, &message);
   sqlite3_free(message);
@@ -343,6 +345,36 @@ Result<void> Store::put_core(const CoreInstall& core) {
   bind_text(statement.get(), 4, core.reported_version);
   sqlite3_bind_int(statement.get(), 5, core.managed ? 1 : 0);
   if (sqlite3_step(statement.get()) != SQLITE_DONE) return std::unexpected(statement.error("保存核心登记失败"));
+  return {};
+}
+
+Result<RuntimePersistent> Store::load_runtime() const {
+  Statement statement(impl_->db, "SELECT document_json FROM runtime_state WHERE id=1");
+  if (!statement.ready()) return std::unexpected(statement.error("准备运行状态读取失败"));
+  const int status = sqlite3_step(statement.get());
+  if (status == SQLITE_DONE) return RuntimePersistent{};
+  if (status != SQLITE_ROW) return std::unexpected(statement.error("读取运行状态失败"));
+  try {
+    return Json::parse(column_text(statement.get(), 0)).get<RuntimePersistent>();
+  } catch (const Json::exception& exception) {
+    return std::unexpected(AppError{ErrorCode::storage_error,
+        "运行状态JSON损坏: " + std::string(exception.what()), std::nullopt, std::nullopt});
+  }
+}
+
+Result<void> Store::save_runtime(const RuntimePersistent& runtime) {
+  Statement statement(impl_->db, "INSERT INTO runtime_state(id, document_json) VALUES(1, ?1) "
+                                 "ON CONFLICT(id) DO UPDATE SET document_json=excluded.document_json");
+  if (!statement.ready()) return std::unexpected(statement.error("准备运行状态保存失败"));
+  try {
+    const auto bytes = Json(runtime).dump();
+    bind_text(statement.get(), 1, bytes);
+  } catch (const Json::exception& exception) {
+    return std::unexpected(AppError{ErrorCode::invalid_argument,
+        "运行状态不能序列化: " + std::string(exception.what()), std::nullopt, std::nullopt});
+  }
+  if (sqlite3_step(statement.get()) != SQLITE_DONE)
+    return std::unexpected(statement.error("保存运行状态失败"));
   return {};
 }
 

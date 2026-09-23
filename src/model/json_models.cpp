@@ -6,6 +6,24 @@
 namespace xrm {
 namespace {
 
+std::string target_kind_name(TargetKind kind) {
+  switch (kind) {
+    case TargetKind::node: return "node";
+    case TargetKind::group: return "group";
+    case TargetKind::native_outbound: return "native_outbound";
+    case TargetKind::native_balancer: return "native_balancer";
+  }
+  return "node";
+}
+
+TargetKind target_kind_from_name(const std::string& value) {
+  if (value == "node") return TargetKind::node;
+  if (value == "group") return TargetKind::group;
+  if (value == "native_outbound") return TargetKind::native_outbound;
+  if (value == "native_balancer") return TargetKind::native_balancer;
+  throw std::invalid_argument("unknown runtime target kind");
+}
+
 Json optional_string(const std::optional<std::string>& value) {
   return value ? Json(*value) : Json(nullptr);
 }
@@ -117,6 +135,68 @@ void from_json(const Json& json, Node& value) {
   value.enabled = json.at("enabled").get<bool>();
   value.source_missing = json.at("source_missing").get<bool>();
   value.settings = settings_from_json(json.at("settings"));
+}
+
+void to_json(Json& json, const CoreInstall& value) {
+  json = Json{{"id", value.id}, {"name", value.name}, {"path", value.path.string()},
+              {"reported_version", value.reported_version}, {"managed", value.managed}};
+}
+
+void from_json(const Json& json, CoreInstall& value) {
+  value = CoreInstall{json.at("id").get<std::string>(), json.at("name").get<std::string>(),
+                      json.at("path").get<std::string>(), json.at("reported_version").get<std::string>(),
+                      json.at("managed").get<bool>()};
+}
+
+void to_json(Json& json, const RuntimePersistent& value) {
+  auto encode_run = [](const RunRecord& run) {
+    Json nodes = Json::array();
+    for (const auto& node : run.index.nodes)
+      nodes.push_back(Json{{"id", node.id}, {"tag", node.tag}, {"display_name", node.display_name}});
+    Json applied = nullptr;
+    if (run.applied_selection)
+      applied = Json{{"kind", target_kind_name(run.applied_selection->kind)},
+                     {"id_or_tag", run.applied_selection->id_or_tag}};
+    return Json{{"run_id", run.run_id}, {"profile_id", run.profile_id}, {"core_id", run.core_id},
+                {"spec", Json{{"binary", run.spec.binary.string()}, {"confdir", run.spec.confdir.string()},
+                               {"cwd", run.spec.cwd.string()}, {"environment", run.spec.environment}}},
+                {"applied_selection", applied}, {"index", Json{{"nodes", nodes},
+                    {"static_outbound_tags", run.index.static_outbound_tags},
+                    {"static_balancer_tags", run.index.static_balancer_tags}}},
+                {"started_at", run.started_at}};
+  };
+  json = Json{{"desired_running", value.desired_running},
+              {"active", value.active ? encode_run(*value.active) : Json(nullptr)},
+              {"previous", value.previous ? encode_run(*value.previous) : Json(nullptr)}};
+}
+
+void from_json(const Json& json, RuntimePersistent& value) {
+  auto decode_run = [](const Json& run) {
+    RunRecord record;
+    record.run_id = run.at("run_id").get<std::string>();
+    record.profile_id = run.at("profile_id").get<std::string>();
+    record.core_id = run.at("core_id").get<std::string>();
+    const auto& spec = run.at("spec");
+    record.spec = RunSpec{spec.at("binary").get<std::string>(), spec.at("confdir").get<std::string>(),
+                          spec.at("cwd").get<std::string>(),
+                          spec.at("environment").get<std::map<std::string, std::string>>()};
+    if (!run.at("applied_selection").is_null()) {
+      const auto& target = run.at("applied_selection");
+      record.applied_selection = Target{target_kind_from_name(target.at("kind").get<std::string>()),
+                                        target.at("id_or_tag").get<std::string>()};
+    }
+    const auto& index = run.at("index");
+    for (const auto& node : index.at("nodes"))
+      record.index.nodes.push_back(NodeRuntimeEntry{node.at("id").get<std::string>(),
+          node.at("tag").get<std::string>(), node.at("display_name").get<std::string>()});
+    record.index.static_outbound_tags = index.at("static_outbound_tags").get<std::vector<std::string>>();
+    record.index.static_balancer_tags = index.at("static_balancer_tags").get<std::vector<std::string>>();
+    record.started_at = run.at("started_at").get<UnixMillis>();
+    return record;
+  };
+  value.desired_running = json.at("desired_running").get<bool>();
+  value.active = json.at("active").is_null() ? std::nullopt : std::optional<RunRecord>(decode_run(json.at("active")));
+  value.previous = json.at("previous").is_null() ? std::nullopt : std::optional<RunRecord>(decode_run(json.at("previous")));
 }
 
 }  // namespace xrm

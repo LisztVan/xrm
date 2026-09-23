@@ -337,5 +337,6 @@ TEST_CASE("DB-05 Profile and source module text live in files, not SQLite mirror
   }
   sqlite3_finalize(query);
   sqlite3_close(raw_database);
-  CHECK(tables == std::set<std::string>{"cores", "nodes", "profiles"});
+  CHECK(tables == std::set<std::string>{"cores", "nodes", "profiles", "runtime_state"});
+  CHECK_FALSE(tables.contains("modules"));
 }
