@@ -77,6 +77,9 @@ struct CoreManager::Impl {
     auto* observation = static_cast<Observation*>(timer->data);
     auto* owner = observation->owner;
     const auto process_id = observation->process;
+    const auto found = owner->observation_timers.find(process_id);
+    if (found != owner->observation_timers.end() && found->second == observation)
+      owner->observation_timers.erase(found);
     uv_timer_stop(timer);
     if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(timer)))
       uv_close(reinterpret_cast<uv_handle_t*>(timer), close_observation);
@@ -145,11 +148,13 @@ struct CoreManager::Impl {
     if (!result || result->exit.exit_code != 0 || result->exit.term_signal != 0) {
       status.last_error = result ? core_error(ErrorCode::core_check_failed,
           "Xray候选配置检查失败", result->stderr_text) : result.error();
-      if (status.active && active_process) status.state = CoreState::running;
-      else status.state = CoreState::failed;
+      if (activation_mode != ActivationMode::check_only) {
+        if (status.active && active_process) status.state = CoreState::running;
+        else status.state = CoreState::failed;
+      }
       if (activation_mode == ActivationMode::check_only) {
         discard_record(candidate_record);
-        finish(ActivationResult{ActivationEffect::checked_only, status.active, status.last_error});
+        finish(std::unexpected(*status.last_error));
       } else {
         discard_record(candidate_record);
         finish(std::unexpected(*status.last_error));
@@ -378,7 +383,8 @@ struct CoreManager::Impl {
       candidate_record = std::move(replay.record);
     }
     phase = request.mode == ActivationMode::check_only ? Phase::preview_check : Phase::checking;
-    status.state = status.active ? CoreState::running : CoreState::starting;
+    if (request.mode != ActivationMode::check_only)
+      status.state = status.active ? CoreState::running : CoreState::starting;
     const auto command_id = process->execute(check_command(candidate_record->spec), options.check_timeout,
         [this](Result<ProcessResult> result) { check_ready(std::move(result)); });
     if (!command_id) {
