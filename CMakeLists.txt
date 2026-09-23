@@ -78,6 +78,8 @@ add_library(xrm_logic STATIC
   src/xray/codecs/codec.cpp
   src/xray/codecs/stream.cpp
   src/xray/codecs/vless.cpp
+  src/subscription/parser.cpp
+  src/subscription/reconcile.cpp
   src/xray/runtime_assembler.cpp)
 target_include_directories(xrm_logic PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(xrm_logic PUBLIC xrm_model)
