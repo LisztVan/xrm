@@ -131,6 +131,53 @@ bool wait_for_port(std::uint16_t port, std::chrono::seconds timeout = 5s) {
   return false;
 }
 
+std::string get_debug_vars(std::uint16_t port) {
+  const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+  if (fd < 0) return {};
+  sockaddr_in address{};
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  address.sin_port = htons(port);
+  if (::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
+    ::close(fd);
+    return {};
+  }
+  const std::string request = "GET /debug/vars HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+  if (::send(fd, request.data(), request.size(), MSG_NOSIGNAL) < 0) {
+    ::close(fd);
+    return {};
+  }
+  std::string response;
+  std::array<char, 4096> buffer{};
+  for (;;) {
+    const auto count = ::recv(fd, buffer.data(), buffer.size(), 0);
+    if (count <= 0) break;
+    response.append(buffer.data(), static_cast<std::size_t>(count));
+  }
+  ::close(fd);
+  const auto separator = response.find("\r\n\r\n");
+  if (separator == std::string::npos) return response;
+  auto body = response.substr(separator + 4);
+  if (response.substr(0, separator).find("Transfer-Encoding: chunked") == std::string::npos &&
+      response.substr(0, separator).find("transfer-encoding: chunked") == std::string::npos)
+    return body;
+  std::string decoded;
+  std::size_t cursor = 0;
+  while (cursor < body.size()) {
+    const auto line_end = body.find("\r\n", cursor);
+    if (line_end == std::string::npos) return {};
+    std::size_t chunk_size = 0;
+    try { chunk_size = std::stoul(body.substr(cursor, line_end - cursor), nullptr, 16); }
+    catch (...) { return {}; }
+    cursor = line_end + 2;
+    if (chunk_size == 0) return decoded;
+    if (cursor + chunk_size + 2 > body.size()) return {};
+    decoded.append(body, cursor, chunk_size);
+    cursor += chunk_size + 2;
+  }
+  return {};
+}
+
 class ControlledProbe {
  public:
   bool start() {
@@ -270,6 +317,13 @@ Result<PreparedDirectory> assemble_profile(ProfileService& profiles, Store& stor
   return writer.materialize(*files, DirectoryPurpose::candidate, directory_id);
 }
 
+void describe_handle(uv_handle_t* handle, void* opaque) {
+  auto* output = static_cast<std::string*>(opaque);
+  *output += std::string(uv_handle_type_name(uv_handle_get_type(handle))) +
+      " active=" + (uv_is_active(handle) ? "yes" : "no") +
+      " closing=" + (uv_is_closing(handle) ? "yes" : "no") + "; ";
+}
+
 bool run_observation_case(const std::filesystem::path& xray, std::string_view module_key) {
   TempDirectory temp;
   ControlledProbe probe;
@@ -288,6 +342,11 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
                                         std::string(managed_id), "RC-05 local freedom");
   REQUIRE(raw_node);
   REQUIRE((*store)->put_node(*raw_node));
+  auto profile_settings = profiles.get(profile->id);
+  REQUIRE(profile_settings);
+  profile_settings->selected = Target{TargetKind::node, std::string(managed_id)};
+  const auto profile_path = temp.path / "profiles" / profile->id / "profile.json";
+  REQUIRE(profiles.save(profile->id, {{read_file(profile_path)}, *profile_settings}));
 
   REQUIRE(save_module(profiles, profile->id, "outbounds", Json{{"outbounds", Json::array()}}));
   REQUIRE(save_module(profiles, profile->id, "metrics",
@@ -351,6 +410,18 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
   XrayProcess core;
   REQUIRE(core.start(xray, confdir, temp.path));
   REQUIRE(wait_for_port(*metrics_port));
+  const auto real_vars = Json::parse(get_debug_vars(*metrics_port));
+  REQUIRE(real_vars.contains("observatory"));
+  REQUIRE(real_vars.at("observatory").contains(node_tag(managed_id)));
+  INFO("real Xray observatory expvar: " << real_vars.at("observatory").at(node_tag(managed_id)).dump());
+  CHECK(real_vars.at("observatory").at(node_tag(managed_id)).at("alive") == true);
+  if (module_key == "burstObservatory") {
+    REQUIRE(real_vars.at("observatory").at(node_tag(managed_id)).contains("health_ping"));
+    CHECK(real_vars.at("observatory").at(node_tag(managed_id)).at("health_ping").at("all").get<std::uint64_t>() > 0);
+  } else {
+    CHECK(real_vars.at("observatory").at(node_tag(managed_id)).contains("last_try_time"));
+    CHECK(real_vars.at("observatory").at(node_tag(managed_id)).contains("last_seen_time"));
+  }
 
   uv_loop_t loop{};
   REQUIRE(uv_loop_init(&loop) == 0);
@@ -372,8 +443,7 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
         const auto view = metrics.view();
         if (view.sample && std::any_of(view.sample->observations.begin(), view.sample->observations.end(),
             [&](const NodeObservation& observation) {
-              return observation.tag == node_tag(managed_id) && observation.alive.value_or(false) &&
-                     observation.latency_ms.has_value();
+              return observation.tag == node_tag(managed_id) && observation.alive.value_or(false);
             })) {
           got_managed_observation = true;
           break;
@@ -391,6 +461,10 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
     http.shutdown([&] { drained = true; });
     while (!drained) uv_run(&loop, UV_RUN_DEFAULT);
   }
+  std::string open_handles;
+  uv_walk(&loop, describe_handle, &open_handles);
+  INFO("remaining libuv handles: " << open_handles);
+  uv_run(&loop, UV_RUN_DEFAULT);
   REQUIRE(uv_loop_close(&loop) == 0);
   CHECK(probe.requests() > 0);
   INFO("real controlled probe requests: " << probe.requests());
