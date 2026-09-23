@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "model/common.hpp"
+#include "model/profile.hpp"
 
 #include <spawn.h>
 #include <sys/wait.h>
@@ -226,7 +227,74 @@ TEST_CASE("E2E-02 manual node through Profile, modules, connect, logs, and stop"
   REQUIRE(server.stop());
 }
 
-TEST_CASE("UI-04 TUI module page renders all native module keys", "[UI-04]") {
+TEST_CASE("E2E-04 managed manual group is saved, selected, and assembled through CLI",
+          "[E2E-04][CLI-02][CLI-03]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  auto core = server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "group fixture"});
+  REQUIRE(core.code == 0);
+  auto profile = server.cli({"profile", "create", "--name", "group-profile", "--core",
+                             parsed(core).at("id").get<std::string>()});
+  REQUIRE(profile.code == 0);
+  const auto profile_id = parsed(profile).at("id").get<std::string>();
+  auto first = server.cli({"node", "add", "--name", "group-a",
+      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"group-a"})"});
+  auto second = server.cli({"node", "add", "--name", "group-b",
+      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"group-b"})"});
+  REQUIRE(first.code == 0);
+  REQUIRE(second.code == 0);
+  auto added = server.cli({"group", "add", profile_id, "--name", "Pinned", "--tag", "pinned",
+      "--mode", "manual", "--members", parsed(first).at("id").get<std::string>(),
+      parsed(second).at("id").get<std::string>()});
+  INFO(added.err);
+  REQUIRE(added.code == 0);
+  const auto group_id = parsed(added).at("id").get<std::string>();
+  auto listed = server.cli({"group", "list", profile_id});
+  REQUIRE(listed.code == 0);
+  REQUIRE(parsed(listed).size() == 1);
+  auto shown = server.cli({"group", "show", profile_id, group_id});
+  REQUIRE(shown.code == 0);
+  auto group_document = parsed(shown);
+  group_document["name"] = "Pinned edited";
+  auto edited = server.cli({"group", "edit", profile_id, "--json", group_document.dump()});
+  REQUIRE(edited.code == 0);
+  CHECK(parsed(server.cli({"group", "show", profile_id, group_id})).at("name") == "Pinned edited");
+  auto select_member = server.cli({"group", "select", profile_id, group_id,
+                                   parsed(second).at("id").get<std::string>()});
+  REQUIRE(select_member.code == 0);
+  auto select_target = server.cli({"select", "group", profile_id, group_id});
+  REQUIRE(select_target.code == 0);
+  auto rendered = server.cli({"config", "render", profile_id});
+  REQUIRE(rendered.code == 0);
+  const auto directory = parsed(rendered).at("confdir").get<std::string>();
+  const auto routing = read_file(std::filesystem::path(directory) / "04_routing.json");
+  const auto outbounds = read_file(std::filesystem::path(directory) / "03_outbounds.json");
+  const auto tail = read_file(std::filesystem::path(directory) / "90_nodes_tail.json");
+  CHECK(routing.find("pinned") != std::string::npos);
+  CHECK(outbounds.find("pinned") == std::string::npos);
+  CHECK(tail.find(node_tag(parsed(first).at("id").get<std::string>())) != std::string::npos);
+  CHECK(tail.find(node_tag(parsed(second).at("id").get<std::string>())) != std::string::npos);
+  auto connected = server.cli({"connect", profile_id});
+  REQUIRE(connected.code == 0);
+  auto status = parsed(server.cli({"status"}));
+  REQUIRE(status.at("active").at("selection").at("kind") == "group");
+  CHECK(status.at("saved_target").at("id_or_tag") == group_id);
+  CHECK(status.at("actual_target").at("id_or_tag") == group_id);
+  auto no_api = server.cli({"group", "override", "--runtime", "--clear", "pinned"});
+  CHECK(no_api.code != 0);
+  CHECK(parsed(server.cli({"profile", "show", profile_id})).at("selected").at("id_or_tag") == group_id);
+  auto stopped = server.cli({"disconnect"});
+  REQUIRE(stopped.code == 0);
+  auto restarted = server.cli({"connect", profile_id});
+  REQUIRE(restarted.code == 0);
+  CHECK(parsed(server.cli({"status"})).at("active").at("selection").at("id_or_tag") == group_id);
+  REQUIRE(server.cli({"disconnect"}).code == 0);
+  REQUIRE(server.stop());
+}
+
+TEST_CASE("UI-04 TUI module page renders all native module keys and UI-03 exposes saved Groups",
+          "[UI-04][UI-03]") {
   TempDirectory temp;
   Server server(temp);
   REQUIRE(server.start());
@@ -235,6 +303,13 @@ TEST_CASE("UI-04 TUI module page renders all native module keys", "[UI-04]") {
   auto profile = server.cli({"profile", "create", "--name", "tui-profile", "--core",
                              parsed(core).at("id").get<std::string>()});
   REQUIRE(profile.code == 0);
+  auto node = server.cli({"node", "add", "--name", "tui-group-node", "--outbound-json",
+      R"({"protocol":"freedom","settings":{}})"});
+  REQUIRE(node.code == 0);
+  auto group = server.cli({"group", "add", parsed(profile).at("id").get<std::string>(),
+      "--name", "TUI policy", "--tag", "tui-policy", "--mode", "manual", "--members",
+      parsed(node).at("id").get<std::string>()});
+  REQUIRE(group.code == 0);
 
   int master = -1;
   int slave = -1;
@@ -259,6 +334,8 @@ TEST_CASE("UI-04 TUI module page renders all native module keys", "[UI-04]") {
   ::poll(nullptr, 0, 500);
   REQUIRE(::write(master, "3", 1) == 1);
   ::poll(nullptr, 0, 500);
+  REQUIRE(::write(master, "6", 1) == 1);
+  ::poll(nullptr, 0, 500);
   REQUIRE(::write(master, "q", 1) == 1);
   std::string screen;
   int child_status = 0;
@@ -282,6 +359,7 @@ TEST_CASE("UI-04 TUI module page renders all native module keys", "[UI-04]") {
                            "outbounds", "stats", "fakedns", "metrics", "observatory",
                            "burstObservatory", "geodata", "version"})
     CHECK(screen.find(key) != std::string::npos);
+  CHECK(screen.find("TUI policy") != std::string::npos);
   REQUIRE(server.stop());
 }
 

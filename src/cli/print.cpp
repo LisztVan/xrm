@@ -184,9 +184,35 @@ int print_result(const Request& request, const Result<Json>& result) {
               << result->value("source_file", "") << "\nruntime: "
               << result->value("runtime_file", "") << "\n";
     if (result->contains("text") && result->at("text").is_string()) std::cout << result->at("text").get<std::string>();
+  } else if (request.method == "group.list") {
+    for (const auto& group : *result)
+      std::cout << group.value("id", "") << '\t' << group.value("name", "") << '\t'
+          << group.value("selection_mode", "automatic") << '\t'
+          << group.value("balancer", Json::object()).value("tag", "") << '\n';
+  } else if (request.method == "group.get") {
+    std::cout << result->dump(2) << '\n';
+  } else if (request.method == "group.save") {
+    std::cout << "saved group " << result->value("id", "") << '\n';
+  } else if (request.method == "group.remove") {
+    std::cout << "group removed\n";
+  } else if (request.method == "group.select") {
+    std::cout << "manual group selection saved; runtime unchanged\n";
+  } else if (request.method == "group.override" || request.method == "group.override.clear") {
+    std::cout << "runtime override " << result->value("state", "unknown");
+    if (result->contains("actual_outbound") && result->at("actual_outbound").is_string())
+      std::cout << ": " << result->at("actual_outbound").get<std::string>();
+    std::cout << "\n";
+  } else if (request.method == "connection.select") {
+    std::cout << "selection saved; runtime unchanged\n";
   } else if (request.method == "runtime.status") {
     std::cout << "state: " << result->value("state", "unknown") << "\nhealth: "
               << result->value("health", "unknown") << "\n";
+    if (result->contains("saved_target")) std::cout << "saved target: " << result->at("saved_target").dump() << '\n';
+    if (result->contains("actual_target")) std::cout << "applied target: " << result->at("actual_target").dump() << '\n';
+    std::cout << "runtime override: " << result->value("override_state", "unknown");
+    if (result->contains("runtime_override") && result->at("runtime_override").is_string())
+      std::cout << " " << result->at("runtime_override").get<std::string>();
+    std::cout << '\n';
     if (result->contains("active") && result->at("active").is_object())
       std::cout << "profile: " << result->at("active").value("profile_id", "") << "\nconfdir: "
                 << result->at("active").value("confdir", "") << '\n';

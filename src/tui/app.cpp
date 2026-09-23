@@ -64,7 +64,7 @@ class TuiApp final : public ComponentBase {
       return true;
     }
     if (editing_) {
-      if (event == Event::Escape || event == Event::CtrlQ) { editing_ = false; return true; }
+      if (event == Event::Escape || event == Event::CtrlQ) { editing_ = false; editing_group_ = false; return true; }
       if (event == Event::CtrlS) { save_editor(); return true; }
       if (event == Event::ArrowLeft && edit_cursor_ > 0) --edit_cursor_;
       else if (event == Event::ArrowRight && edit_cursor_ < draft_.size()) ++edit_cursor_;
@@ -96,12 +96,17 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("3")) { page_ = 2; refresh_modules(); }
     else if (event == Event::Character("4")) { page_ = 3; refresh_logs(); }
     else if (event == Event::Character("5")) { page_ = 4; refresh_subscriptions(); }
+    else if (event == Event::Character("6")) { page_ = 5; refresh_groups(); }
     else if (event == Event::ArrowDown) selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
     else if (event == Event::ArrowUp) selected_ = selected_ == 0 ? 0 : selected_ - 1;
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
     else if (event == Event::Return && page_ == 2) open_editor();
+    else if (event == Event::Return && page_ == 5) open_group_editor();
     else if (event == Event::Character("e") && page_ == 2) toggle_module();
     else if (event == Event::Character("s") && page_ == 1) select_node();
+    else if (event == Event::Character("s") && page_ == 5) select_group();
+    else if (event == Event::Character("m") && page_ == 5) choose_group_member();
+    else if (event == Event::Character("m") && page_ == 1) select_group_member();
     else if (event == Event::Character("c") && !profile_id_.empty()) connect();
     else if (event == Event::Character("d")) disconnect();
     else if (event == Event::Character("r")) refresh_all();
@@ -113,7 +118,7 @@ class TuiApp final : public ComponentBase {
   Element OnRender() override {
     Elements header{
       text(" XRM  ") | bold,
-      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions") | color(Color::Cyan),
+      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions   6 Groups") | color(Color::Cyan),
       filler(),
       text(profile_id_.empty() ? "no Profile" : "Profile " + profile_id_) | dim,
     };
@@ -129,8 +134,11 @@ class TuiApp final : public ComponentBase {
                           "    Health: " + status_.value("health", "unknown")));
       body.push_back(text("Active Profile: " + active_profile()));
       body.push_back(text("Runtime files: " + active_confdir()));
-      body.push_back(text("Expected selection: " + expected_selection()));
-      body.push_back(text("Actual selection: " + actual_selection()));
+      body.push_back(text("Saved target: " + expected_selection()));
+      body.push_back(text("Applied target: " + actual_selection()));
+      body.push_back(text("Runtime override: " + status_.value("override_state", "unknown") +
+          (status_.contains("runtime_override") && status_["runtime_override"].is_string()
+              ? " " + status_["runtime_override"].get<std::string>() : "")));
       body.push_back(text("Actions: c connect saved Profile    d stop    r refresh    q exit (core continues)") | dim);
     } else if (page_ == 1) {
       if (node_detail_ && selected_ < nodes_.size()) {
@@ -164,7 +172,7 @@ class TuiApp final : public ComponentBase {
         body.push_back(paragraph("[" + std::to_string(entry.value("cursor", 0)) + "][" +
             entry.value("stream", "") + "] " + entry.value("text", "")));
       body.push_back(text("r refresh from the server") | dim);
-    } else {
+    } else if (page_ == 4) {
       body.push_back(text("Subscriptions — u refresh inventory only; runtime is unchanged") | bold);
       for (std::size_t i = 0; i < subscriptions_.size(); ++i) {
         const auto& source = subscriptions_[i];
@@ -176,6 +184,18 @@ class TuiApp final : public ComponentBase {
         body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
       }
       body.push_back(text("u updates subscriptions; no connect, config render or core restart") | dim);
+    } else {
+      body.push_back(text("Groups — Enter edits native binding JSON; s saves as target; m choose member via Nodes") | bold);
+      for (std::size_t i = 0; i < groups_.size(); ++i) {
+        const auto& group = groups_[i];
+        const auto selected_node = group.value("selected_node_id", Json(nullptr));
+        const auto row = group.value("name", "") + " [" + group.value("selection_mode", "automatic") + "] tag:" +
+            group.value("balancer", Json::object()).value("tag", "") + " selected:" +
+            (selected_node.is_string() ? selected_node.get<std::string>() : "—");
+        body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
+        if (i == selected_) body.push_back(text("selector: " + group.value("members", Json::object()).dump()) | dim);
+      }
+      body.push_back(text("Group selection is persistent; runtime override is separate") | dim);
     }
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
     if (!message_.empty()) body.push_back(text(message_) | color(Color::Yellow));
@@ -188,15 +208,18 @@ class TuiApp final : public ComponentBase {
     if (page_ == 1) return nodes_.size();
     if (page_ == 2) return modules_.size();
     if (page_ == 4) return subscriptions_.size();
+    if (page_ == 5) return groups_.size();
     return 0;
   }
-  void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); }
+  void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); refresh_groups(); }
   void refresh_expected() {
     expected_selection_.clear();
     if (profile_id_.empty()) return;
     auto profile = rpc(socket_, std::string(methods::profile_get), Json{{"profile_id", profile_id_}});
-    if (profile && profile->contains("selected") && profile->at("selected").is_object())
-      expected_selection_ = profile->at("selected").value("id_or_tag", "");
+    if (profile && profile->contains("selected") && profile->at("selected").is_object()) {
+      const auto& target = profile->at("selected");
+      expected_selection_ = target.value("kind", "") + ":" + target.value("id_or_tag", "");
+    }
   }
   void refresh_status() {
     auto response = rpc(socket_, std::string(methods::runtime_status));
@@ -221,6 +244,13 @@ class TuiApp final : public ComponentBase {
     subscriptions_.clear();
     if (response && response->is_array()) subscriptions_ = response->get<std::vector<Json>>();
     selected_ = std::min(selected_, subscriptions_.empty() ? 0 : subscriptions_.size() - 1);
+  }
+  void refresh_groups() {
+    if (profile_id_.empty()) return;
+    auto response = rpc(socket_, std::string(methods::group_list), Json{{"profile_id", profile_id_}});
+    groups_.clear();
+    if (response && response->is_array()) groups_ = response->get<std::vector<Json>>();
+    selected_ = std::min(selected_, groups_.empty() ? 0 : groups_.size() - 1);
   }
   void refresh_subscription_inventory() {
     auto result = rpc(socket_, std::string(methods::subscription_refresh));
@@ -269,6 +299,7 @@ class TuiApp final : public ComponentBase {
   void open_editor() {
     if (selected_ >= modules_.size()) return;
     editing_key_ = modules_[selected_].value("key", "");
+    editing_group_ = false;
     auto result = rpc(socket_, std::string(methods::module_get),
                       Json{{"profile_id", profile_id_}, {"module", editing_key_}});
     if (!result) { message_ = result.error().message; return; }
@@ -277,6 +308,19 @@ class TuiApp final : public ComponentBase {
     editing_ = true;
   }
   void save_editor() {
+    if (editing_group_) {
+      Result<Json> saved = std::unexpected(AppError{ErrorCode::invalid_argument, "组内容必须是JSON对象", std::nullopt, std::nullopt});
+      try {
+        auto document = Json::parse(draft_);
+        saved = rpc(socket_, std::string(methods::group_save), Json{{"profile_id", profile_id_}, {"group", document}});
+      } catch (const Json::exception&) {}
+      if (!saved) message_ = saved.error().message;
+      else message_ = "group saved; runtime changes on next explicit connect";
+      editing_ = false;
+      editing_group_ = false;
+      refresh_groups();
+      return;
+    }
     auto result = rpc(socket_, std::string(methods::module_save), Json{
         {"profile_id", profile_id_}, {"module", editing_key_}, {"text", draft_}});
     if (!result) message_ = result.error().message;
@@ -290,6 +334,37 @@ class TuiApp final : public ComponentBase {
         {"profile_id", profile_id_}, {"target", Json{{"kind", "node"},
             {"id_or_tag", nodes_[selected_].value("id", "")}}}});
     if (!result) message_ = result.error().message; else { message_ = "selection saved; core unchanged"; refresh_expected(); refresh_status(); }
+  }
+  void open_group_editor() {
+    if (selected_ >= groups_.size()) return;
+    draft_ = groups_[selected_].dump(2) + "\n";
+    edit_cursor_ = draft_.size();
+    editing_group_ = true;
+    editing_key_ = "group " + groups_[selected_].value("name", "");
+    editing_ = true;
+  }
+  void select_group() {
+    if (selected_ >= groups_.size()) return;
+    auto result = rpc(socket_, std::string(methods::connection_select), Json{
+        {"profile_id", profile_id_}, {"target", Json{{"kind", "group"},
+        {"id_or_tag", groups_[selected_].value("id", "")}}}});
+    if (!result) message_ = result.error().message;
+    else { message_ = "group selection saved; core unchanged"; refresh_expected(); refresh_status(); }
+  }
+  void choose_group_member() {
+    if (selected_ >= groups_.size()) return;
+    selected_group_id_ = groups_[selected_].value("id", "");
+    page_ = 1;
+    refresh_nodes();
+    message_ = "choose a candidate on Nodes and press m";
+  }
+  void select_group_member() {
+    if (selected_group_id_.empty() || selected_ >= nodes_.size()) return;
+    auto result = rpc(socket_, std::string(methods::group_select), Json{
+        {"profile_id", profile_id_}, {"group_id", selected_group_id_},
+        {"node_id", nodes_[selected_].value("id", "")}});
+    if (!result) message_ = result.error().message;
+    else { message_ = "manual group member saved; core unchanged"; selected_group_id_.clear(); refresh_groups(); }
   }
   void connect() {
     auto result = rpc(socket_, std::string(methods::connection_connect), Json{{"profile_id", profile_id_}});
@@ -341,6 +416,7 @@ class TuiApp final : public ComponentBase {
   bool editing_ = false;
   bool filtering_nodes_ = false;
   bool node_detail_ = false;
+  bool editing_group_ = false;
   std::string editing_key_;
   std::string node_filter_;
   std::string draft_;
@@ -352,6 +428,8 @@ class TuiApp final : public ComponentBase {
   Json logs_ = Json::object();
   std::string message_;
   std::string expected_selection_;
+  std::string selected_group_id_;
+  std::vector<Json> groups_;
 };
 
 }  // namespace

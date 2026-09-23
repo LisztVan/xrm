@@ -38,6 +38,17 @@ struct Request {
   std::string source = "source";
   std::string output_path;
   std::string target_id;
+  std::string group_id;
+  std::string group_name;
+  std::string group_tag;
+  std::string group_mode = "automatic";
+  std::string group_strategy = "leastPing";
+  std::vector<std::string> group_members;
+  std::string group_json;
+  std::string override_balancer;
+  std::string override_outbound;
+  bool runtime_only = false;
+  bool clear_override = false;
   std::string operation_id;
   std::size_t log_cursor = 0;
   std::size_t log_limit = 65536;

@@ -46,6 +46,7 @@ Application::Application(Store& store, ProcessService& processes,
       profiles_(std::make_unique<ProfileService>(store, data_root_ / "profiles")),
       runtime_writer_(std::make_unique<RuntimeWriter>(data_root_)),
       core_manager_(std::make_unique<CoreManager>(loop, store, processes, *runtime_writer_)),
+      xray_control_(std::make_unique<XrayControl>(processes)),
       operations_(boot_id_) {
   core_manager_->on_output([this](LogStream stream, std::string bytes) {
     logs_.append(stream, bytes);
@@ -175,6 +176,12 @@ LogBuffer& Application::logs() { return logs_; }
 Result<BuildInput> Application::build_input(const Id& profile_id) {
   auto profile = profiles_->snapshot(profile_id);
   if (!profile) return std::unexpected(profile.error());
+  auto groups = profiles_->groups(profile_id);
+  if (!groups) return std::unexpected(groups.error());
+  auto observation = profiles_->observation(profile_id);
+  if (!observation) return std::unexpected(observation.error());
+  profile->bindings.groups = std::move(*groups);
+  profile->bindings.observation = std::move(*observation);
   auto nodes = store_->all_nodes();
   if (!nodes) return std::unexpected(nodes.error());
   return BuildInput{std::move(*profile), std::move(*nodes)};
@@ -189,9 +196,13 @@ Result<void> Application::select(const Id& profile_id, std::optional<Target> tar
     if (!node->enabled || node->source_missing)
       return std::unexpected(AppError{ErrorCode::not_found, "节点已停用或来源缺失",
                                       target->id_or_tag, std::nullopt});
-  } else if (target) {
-    return std::unexpected(AppError{ErrorCode::unsupported, "M1只支持选择单个节点",
-                                    target->id_or_tag, std::nullopt});
+  } else if (target && target->kind == TargetKind::group) {
+    auto groups = profiles_->groups(profile_id);
+    if (!groups) return std::unexpected(groups.error());
+    if (std::none_of(groups->begin(), groups->end(), [&](const GroupBinding& group) {
+          return group.id == target->id_or_tag;
+        }))
+      return std::unexpected(AppError{ErrorCode::not_found, "找不到策略组", target->id_or_tag, std::nullopt});
   }
   auto profile_path = store_->profile_path(profile_id);
   if (!profile_path) return std::unexpected(profile_path.error());
@@ -304,19 +315,115 @@ const char* health_name(RuntimeHealth health) {
 
 Result<Json> Application::runtime_status() const {
   const auto status = core_manager_->status();
+  const bool override_current = status.active && override_run_id_ == status.active->run_id;
+  auto target_json = [](const std::optional<Target>& target) -> Json {
+    if (!target) return nullptr;
+    const char* kind = target->kind == TargetKind::node ? "node"
+        : target->kind == TargetKind::group ? "group"
+        : target->kind == TargetKind::native_outbound ? "native_outbound" : "native_balancer";
+    return Json{{"kind", kind}, {"id_or_tag", target->id_or_tag}};
+  };
   Json active = nullptr;
   if (status.active) {
+    const auto core = store_->get_core(status.active->core_id);
     active = Json{{"run_id", status.active->run_id}, {"profile_id", status.active->profile_id},
                   {"core_id", status.active->core_id}, {"confdir", status.active->spec.confdir.string()},
-                  {"selection", status.active->applied_selection
-                      ? Json{{"kind", "node"}, {"id_or_tag", status.active->applied_selection->id_or_tag}}
-                      : Json(nullptr)}};
+                  {"core_version", core ? core->reported_version : "unknown"},
+                  {"selection", target_json(status.active->applied_selection)}};
+  }
+  Json saved_target = nullptr;
+  if (status.active) {
+    auto profile = profiles_->get(status.active->profile_id);
+    if (profile) saved_target = target_json(profile->selected);
   }
   Json error = nullptr;
   if (status.last_error) error = error_to_json(*status.last_error);
   return Json{{"state", core_state_name(status.state)}, {"desired_running", status.desired_running},
               {"pid", status.pid ? Json(*status.pid) : Json(nullptr)}, {"health", health_name(status.health)},
-              {"active", std::move(active)}, {"error", std::move(error)}};
+              {"active", std::move(active)}, {"saved_target", std::move(saved_target)},
+              {"actual_target", status.active ? target_json(status.active->applied_selection) : Json(nullptr)},
+              {"override_state", override_current
+                  ? (override_state_ == OverrideState::confirmed ? "confirmed"
+                      : override_state_ == OverrideState::unknown ? "unknown" : "none") : "none"},
+              {"runtime_override", override_current && runtime_override_ ? Json(*runtime_override_) : Json(nullptr)},
+              {"error", std::move(error)}};
+}
+
+Result<ControlTarget> Application::control_target() const {
+  const auto status = core_manager_->status();
+  if (!status.active || status.state != CoreState::running)
+    return std::unexpected(AppError{ErrorCode::not_found, "没有正在运行的核心", std::nullopt, std::nullopt});
+  const auto api_path = status.active->spec.confdir / "06_api.json";
+  const auto inbounds_path = status.active->spec.confdir / "02_inbounds.json";
+  auto api_text = read_text(api_path, 1024 * 1024);
+  auto inbounds_text = read_text(inbounds_path, 8 * 1024 * 1024);
+  if (!api_text || !inbounds_text)
+    return std::unexpected(AppError{ErrorCode::unsupported, "当前运行配置没有可用的 Xray API 模块/入站",
+        !api_text ? api_path.string() : inbounds_path.string(), std::nullopt});
+  try {
+    const auto api_root = Json::parse(*api_text).at("api");
+    const auto tag = api_root.at("tag").get<std::string>();
+    const auto inbounds_root = Json::parse(*inbounds_text).at("inbounds");
+    if (!inbounds_root.is_array()) throw std::invalid_argument("inbounds is not an array");
+    for (const auto& inbound : inbounds_root) {
+      if (inbound.value("tag", "") != tag) continue;
+      const auto listen = inbound.value("listen", "");
+      const auto port = inbound.at("port").get<std::uint16_t>();
+      if (listen != "127.0.0.1" && listen != "::1" && listen != "localhost")
+        return std::unexpected(AppError{ErrorCode::unsupported,
+            "运行中的 Xray API 入站不是 loopback，拒绝使用控制端点", listen, std::nullopt});
+      return ControlTarget{status.active->spec, listen + ":" + std::to_string(port), Milliseconds{3000}};
+    }
+    return std::unexpected(AppError{ErrorCode::unsupported, "找不到与 API tag 对应的 loopback 入站", tag, std::nullopt});
+  } catch (const std::exception& error) {
+    return std::unexpected(AppError{ErrorCode::invalid_argument,
+        "无法读取运行 Xray API 配置: " + std::string(error.what()), api_path.string(), std::nullopt});
+  }
+}
+
+Result<Id> Application::override_runtime_group(std::string balancer, std::string outbound,
+                                               Completion<OverrideResult> completion) {
+  if (balancer.empty() || outbound.empty())
+    return std::unexpected(invalid("需要 balancer 与 outbound tag", "group.override"));
+  auto target = control_target();
+  if (!target) return std::unexpected(target.error());
+  const auto run_id = core_manager_->status().active->run_id;
+  return xray_control_->override_outbound(std::move(*target), std::move(balancer), std::move(outbound),
+      [this, run_id, completion = std::move(completion)](Result<OverrideResult> response) mutable {
+        if (!response) { completion(std::unexpected(response.error())); return; }
+        auto result = std::move(*response);
+        if (result.confirmed) {
+          override_run_id_ = run_id;
+          runtime_override_ = result.actual_outbound;
+          override_state_ = OverrideState::confirmed;
+        } else {
+          override_run_id_ = run_id;
+          runtime_override_.reset();
+          override_state_ = OverrideState::unknown;
+        }
+        completion(std::move(result));
+      });
+}
+
+Result<Id> Application::clear_runtime_group_override(std::string balancer,
+                                                     Completion<OverrideResult> completion) {
+  auto target = control_target();
+  if (!target) return std::unexpected(target.error());
+  const auto run_id = core_manager_->status().active->run_id;
+  return xray_control_->clear_override(std::move(*target), std::move(balancer),
+      [this, run_id, completion = std::move(completion)](Result<OverrideResult> response) mutable {
+        if (!response) { completion(std::unexpected(response.error())); return; }
+        auto result = std::move(*response);
+        override_run_id_ = run_id;
+        if (result.confirmed) {
+          runtime_override_.reset();
+          override_state_ = OverrideState::none;
+        } else {
+          runtime_override_.reset();
+          override_state_ = OverrideState::unknown;
+        }
+        completion(std::move(result));
+      });
 }
 
 Result<Json> Application::show_config(const Id& profile_id, std::string_view source,

@@ -1,6 +1,7 @@
 #include "server/api_router.hpp"
 
 #include "contract/methods.hpp"
+#include "infra/files.hpp"
 
 #include <limits>
 #include <array>
@@ -496,6 +497,96 @@ void ApiRouter::dispatch(const Id&, RpcRequest request, RpcReply reply) {
       auto selected = application_->select(id, std::move(*target));
       if (!selected) fail(selected.error()); else succeed(Json{{"status", "saved_only"}});
     }
+    return;
+  }
+  if (method == methods::group_list || method == methods::group_get) {
+    std::string profile_id;
+    if (!read_string(params, "profile_id", profile_id)) {
+      fail(bad_params("group操作需要profile_id")); return;
+    }
+    auto groups = application_->profiles().groups(profile_id);
+    if (!groups) { fail(groups.error()); return; }
+    if (method == methods::group_list) { succeed(Json(*groups)); return; }
+    std::string group_id;
+    if (!read_string(params, "group_id", group_id)) { fail(bad_params("group.get需要group_id")); return; }
+    const auto found = std::find_if(groups->begin(), groups->end(), [&](const GroupBinding& group) {
+      return group.id == group_id;
+    });
+    if (found == groups->end()) { fail(AppError{ErrorCode::not_found, "找不到策略组", group_id, std::nullopt}); return; }
+    succeed(Json(*found)); return;
+  }
+  if (method == methods::group_save || method == methods::group_remove) {
+    std::string profile_id;
+    if (!read_string(params, "profile_id", profile_id)) { fail(bad_params("group操作需要profile_id")); return; }
+    auto groups = application_->profiles().groups(profile_id);
+    if (!groups) { fail(groups.error()); return; }
+    auto profile_path = application_->store().profile_path(profile_id);
+    if (!profile_path) { fail(profile_path.error()); return; }
+    auto original = read_text(*profile_path / "bindings" / "groups.json", 8 * 1024 * 1024);
+    EditBase base;
+    if (original) base.expected_text = *original;
+    else if (original.error().code != ErrorCode::not_found) { fail(original.error()); return; }
+    std::string saved_group_id;
+    if (method == methods::group_save) {
+      if (!params.contains("group") || !params["group"].is_object()) {
+        fail(bad_params("group.save需要group对象", "group")); return;
+      }
+      try {
+        auto encoded_group = params["group"];
+        if (!encoded_group.contains("id") || !encoded_group["id"].is_string() || encoded_group["id"].get<std::string>().empty())
+          encoded_group["id"] = new_source_id();
+        auto group = encoded_group.get<GroupBinding>();
+        saved_group_id = group.id;
+        const auto found = std::find_if(groups->begin(), groups->end(), [&](const GroupBinding& existing) {
+          return existing.id == group.id;
+        });
+        if (found == groups->end()) groups->push_back(std::move(group));
+        else *found = std::move(group);
+      } catch (const std::exception& error) { fail(bad_params(error.what(), "group")); return; }
+    } else {
+      std::string group_id;
+      if (!read_string(params, "group_id", group_id)) { fail(bad_params("group.remove需要group_id")); return; }
+      const auto before = groups->size();
+      std::erase_if(*groups, [&](const GroupBinding& group) { return group.id == group_id; });
+      if (groups->size() == before) { fail(AppError{ErrorCode::not_found, "找不到策略组", group_id, std::nullopt}); return; }
+    }
+    auto saved = application_->profiles().save_groups(profile_id, BindingsEdit{std::move(base), *groups});
+    if (!saved) fail(saved.error());
+    else if (method == methods::group_save) succeed(Json{{"saved", true}, {"id", saved_group_id}});
+    else succeed(Json{{"removed", true}});
+    return;
+  }
+  if (method == methods::group_select) {
+    std::string profile_id, group_id, node_id;
+    if (!read_string(params, "profile_id", profile_id) || !read_string(params, "group_id", group_id) ||
+        !read_string(params, "node_id", node_id)) { fail(bad_params("group.select需要profile_id、group_id、node_id")); return; }
+    auto selected = application_->profiles().select_group_node(profile_id, group_id, node_id);
+    if (!selected) fail(selected.error()); else succeed(Json{{"saved_only", true}});
+    return;
+  }
+  if (method == methods::group_override || method == methods::group_override_clear) {
+    if (!params.contains("runtime") || !params["runtime"].is_boolean() || !params["runtime"].get<bool>()) {
+      fail(bad_params("runtime override 必须显式提供 runtime=true", "runtime")); return;
+    }
+    std::string balancer;
+    if (!read_string(params, "balancer", balancer)) { fail(bad_params("override需要balancer tag")); return; }
+    std::string outbound;
+    if (method == methods::group_override && !read_string(params, "outbound", outbound)) {
+      fail(bad_params("override需要outbound tag")); return;
+    }
+    auto done = [reply = std::move(reply), id](Result<OverrideResult> response) mutable {
+      if (!response) {
+        reply(RpcResponse{1, id, false, std::nullopt, response.error()});
+        return;
+      }
+      auto result = std::move(*response);
+      reply(RpcResponse{1, id, true, Json{{"state", result.confirmed ? "confirmed" : "unknown"},
+          {"actual_outbound", result.actual_outbound ? Json(*result.actual_outbound) : Json(nullptr)}}, std::nullopt});
+    };
+    auto accepted = method == methods::group_override
+        ? application_->override_runtime_group(std::move(balancer), std::move(outbound), std::move(done))
+        : application_->clear_runtime_group_override(std::move(balancer), std::move(done));
+    if (!accepted) fail(accepted.error());
     return;
   }
   if (method == methods::connection_connect) {
