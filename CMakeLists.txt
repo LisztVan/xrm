@@ -101,6 +101,8 @@ add_library(xrm_server_lib STATIC
   src/profile/groups.cpp
   src/xray/runtime_writer.cpp
   src/xray/core_manager.cpp
+  src/xray/metrics.cpp
+  src/xray/control.cpp
   src/xray/process_adapter.cpp)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/infra/http.cpp")
   target_sources(xrm_server_lib PRIVATE src/infra/http.cpp)
