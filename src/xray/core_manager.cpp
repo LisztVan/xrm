@@ -49,11 +49,25 @@ ProcessSpec dump_command(const RunSpec& run) {
 }
 
 struct CoreManager::Impl {
-  enum class Phase { idle, checking, stopping_old, starting, observing, restoring, stopping, preview_check };
+  enum class Phase {
+    idle, preparing, checking, stopping_old, starting, observing, restoring,
+    stopping, preview_check, stopping_candidate_restore, retry_wait
+  };
   struct Observation {
     Impl* owner = nullptr;
     uv_timer_t timer{};
     ProcessId process = 0;
+  };
+  struct RetryTimer {
+    Impl* owner = nullptr;
+    uv_timer_t timer{};
+  };
+  struct Preparation {
+    uv_work_t request{};
+    Impl* owner = nullptr;
+    BuildRequest build;
+    std::optional<RunRecord> record;
+    std::optional<AppError> error;
   };
 
   Impl(uv_loop_t& loop_value, Store& store_value, ProcessService& process_value,
@@ -120,6 +134,10 @@ struct CoreManager::Impl {
     if (output_callback && !bytes.empty()) output_callback(stream, std::move(bytes));
   }
 
+  void observe(LifecycleOptions::Phase value) {
+    if (options.phase_observer) options.phase_observer(value);
+  }
+
   void finish(Result<ActivationResult> result) {
     phase = Phase::idle;
     active_command.reset();
@@ -142,6 +160,8 @@ struct CoreManager::Impl {
     if (stop_requested) {
       if (completion) completion(std::unexpected(core_error(ErrorCode::cancelled, "连接请求被用户停止动作取消")));
       completion = {};
+      discard_record(candidate_record);
+      candidate_record.reset();
       stop_after_pending_check();
       return;
     }
@@ -168,8 +188,10 @@ struct CoreManager::Impl {
     }
     if (active_process) {
       phase = Phase::stopping_old;
-      const auto id = *active_process;
       status.state = CoreState::starting;
+      observe(LifecycleOptions::Phase::stopping_old);
+      if (stop_requested) return;
+      const auto id = *active_process;
       auto terminated = process->terminate(id, options.stop_grace);
       if (!terminated) {
         status.state = CoreState::running;
@@ -197,13 +219,107 @@ struct CoreManager::Impl {
     active_process.reset();
     persistent.active.reset();
     persistent.desired_running = false;
-    (void)store->save_runtime(persistent);
+    auto saved = store->save_runtime(persistent);
+    if (!saved && !stop_intent_error) stop_intent_error = saved.error();
+    status.last_error = stop_intent_error;
     auto activation_callback = std::move(completion);
     if (activation_callback)
       activation_callback(std::unexpected(core_error(ErrorCode::cancelled, "连接请求已被停止")));
     phase = Phase::idle;
     auto callback = std::move(stop_completion);
-    if (callback) callback(ActivationResult{ActivationEffect::stopped, std::nullopt, std::nullopt});
+    auto error = std::move(stop_intent_error);
+    stop_intent_error.reset();
+    if (callback) callback(ActivationResult{ActivationEffect::stopped, std::nullopt, std::move(error)});
+  }
+
+  static void prepare_work(uv_work_t* request) {
+    auto* preparation = static_cast<Preparation*>(request->data);
+    auto& build = preparation->build;
+    auto assembled = assemble(build.input);
+    if (!assembled) {
+      preparation->error = assembled.error();
+      return;
+    }
+    const auto run_id = new_run_id();
+    auto directory = preparation->owner->writer->materialize(
+        *assembled, DirectoryPurpose::candidate, run_id);
+    if (!directory) {
+      preparation->error = directory.error();
+      return;
+    }
+    const auto& profile = build.input.settings.profile;
+    const auto cwd = profile.environment.cwd.empty() ? std::filesystem::current_path()
+                                                      : profile.environment.cwd;
+    preparation->record = RunRecord{run_id, profile.id, build.core.id,
+        RunSpec{build.core.path, directory->confdir, cwd, profile.environment.process_environment},
+        profile.selected, assembled->index, now_millis()};
+  }
+
+  static void prepared(uv_work_t* request, int status_code) {
+    std::unique_ptr<Preparation> preparation(static_cast<Preparation*>(request->data));
+    auto* owner = preparation->owner;
+    owner->preparing = false;
+    if (status_code < 0 && !preparation->error)
+      preparation->error = core_error(ErrorCode::io_error, "运行配置准备任务失败");
+    if (preparation->error) {
+      if (owner->stop_requested) owner->complete_stop();
+      else owner->finish(std::unexpected(*preparation->error));
+      return;
+    }
+    owner->candidate_record = std::move(preparation->record);
+    if (owner->stop_requested) {
+      owner->discard_record(owner->candidate_record);
+      owner->candidate_record.reset();
+      owner->complete_stop();
+      return;
+    }
+    (void)owner->begin_check();
+  }
+
+  Result<void> prepare(BuildRequest build) {
+    auto* preparation = new Preparation;
+    preparation->owner = this;
+    preparation->build = std::move(build);
+    preparation->request.data = preparation;
+    preparing = true;
+    phase = Phase::preparing;
+    const int queued = uv_queue_work(loop, &preparation->request, prepare_work, prepared);
+    if (queued != 0) {
+      preparing = false;
+      phase = Phase::idle;
+      delete preparation;
+      return std::unexpected(core_error(ErrorCode::io_error,
+          "提交运行配置准备任务失败: " + std::string(uv_strerror(queued))));
+    }
+    observe(LifecycleOptions::Phase::prepare);
+    return {};
+  }
+
+  Result<Id> begin_check() {
+    if (stop_requested) {
+      discard_record(candidate_record);
+      candidate_record.reset();
+      complete_stop();
+      return Id{};
+    }
+    phase = activation_mode == ActivationMode::check_only ? Phase::preview_check : Phase::checking;
+    if (activation_mode != ActivationMode::check_only)
+      status.state = status.active ? CoreState::running : CoreState::starting;
+    const auto command_id = process->execute(check_command(candidate_record->spec), options.check_timeout,
+        [this](Result<ProcessResult> result) { check_ready(std::move(result)); });
+    if (!command_id) {
+      phase = Phase::idle;
+      auto error = command_id.error();
+      auto done = std::move(completion);
+      if (done) done(std::unexpected(std::move(error)));
+      return Id{};
+    }
+    active_command = *command_id;
+    if (activation_mode == ActivationMode::check_only)
+      observe(LifecycleOptions::Phase::checking);
+    else
+      observe(LifecycleOptions::Phase::checking);
+    return *command_id;
   }
 
   void discard_record(const std::optional<RunRecord>& record) {
@@ -243,11 +359,33 @@ struct CoreManager::Impl {
     if (!observation) {
       (void)process->terminate(*spawned, options.stop_grace);
       candidate_failed(observation.error());
+      return;
     }
+    if (restoring) observe(LifecycleOptions::Phase::restoring_old);
+    else observe(LifecycleOptions::Phase::starting_new);
   }
 
   void observed(ProcessId id) {
     if (id == candidate_process && phase == Phase::starting) {
+      const bool was_retrying = retrying;
+      if (!retrying) {
+        persistent.previous = previous_record;
+        persistent.active = candidate_record;
+        persistent.desired_running = true;
+        auto saved = store->save_runtime(persistent);
+        if (!saved) {
+          attempt_error = saved.error();
+          status.last_error = saved.error();
+          phase = Phase::stopping_candidate_restore;
+          restore_after_candidate_stop = true;
+          (void)process->terminate(id, options.stop_grace);
+          return;
+        }
+      } else {
+        persistent.active = candidate_record;
+        persistent.desired_running = true;
+        (void)store->save_runtime(persistent);
+      }
       active_process = id;
       candidate_process.reset();
       status.active = candidate_record;
@@ -255,13 +393,12 @@ struct CoreManager::Impl {
       status.desired_running = true;
       status.health = RuntimeHealth::process_only;
       status.last_error.reset();
-      persistent.previous = previous_record;
-      persistent.active = status.active;
-      persistent.desired_running = true;
-      auto saved = store->save_runtime(persistent);
-      if (!saved) status.last_error = saved.error();
-      finish(ActivationResult{ActivationEffect::running_new, status.active,
-                              status.last_error});
+      retrying = false;
+      if (!was_retrying) retry_attempt = 0;
+      if (completion)
+        finish(ActivationResult{ActivationEffect::running_new, status.active, std::nullopt});
+      else
+        phase = Phase::idle;
       return;
     }
     if (id == restoration_process && phase == Phase::restoring) {
@@ -273,7 +410,8 @@ struct CoreManager::Impl {
       status.health = RuntimeHealth::process_only;
       persistent.active = status.active;
       persistent.desired_running = true;
-      (void)store->save_runtime(persistent);
+      auto saved = store->save_runtime(persistent);
+      if (!saved) status.last_error = saved.error();
       auto result = ActivationResult{ActivationEffect::restored_old, status.active, attempt_error};
       finish(result);
       return;
@@ -297,6 +435,16 @@ struct CoreManager::Impl {
       complete_stop();
       return;
     }
+    if (phase == Phase::stopping_candidate_restore && id == candidate_process) {
+      candidate_process.reset();
+      if (stop_requested) {
+        complete_stop();
+      } else if (restore_after_candidate_stop) {
+        restore_after_candidate_stop = false;
+        continue_candidate_failure();
+      }
+      return;
+    }
     if (phase == Phase::stopping_old && id == active_process) {
       active_process.reset();
       status.active.reset();
@@ -305,6 +453,12 @@ struct CoreManager::Impl {
     }
     if (!restoring && id == candidate_process) {
       candidate_process.reset();
+      if (retrying) {
+        retrying = false;
+        if (status.active) schedule_retry(*status.active);
+        else phase = Phase::idle;
+        return;
+      }
       candidate_failed(core_error(ErrorCode::core_start_failed,
           "Xray核心在稳定运行前退出 (exit=" + std::to_string(exit.exit_code) + ", signal=" +
           std::to_string(exit.term_signal) + ")"));
@@ -322,12 +476,13 @@ struct CoreManager::Impl {
     }
     if (id == active_process) {
       active_process.reset();
-      status.active.reset();
+      const auto crashed = status.active;
       status.state = CoreState::failed;
-      status.desired_running = false;
+      status.desired_running = true;
       status.last_error = core_error(ErrorCode::core_start_failed, "Xray核心意外退出");
-      persist();
-      if (phase == Phase::idle) output(LogStream::server, "Xray core exited unexpectedly\n");
+      if (crashed && phase == Phase::idle) schedule_retry(*crashed);
+      else persist();
+      if (phase != Phase::stopping) output(LogStream::server, "Xray core exited unexpectedly\n");
     }
   }
 
@@ -335,11 +490,105 @@ struct CoreManager::Impl {
     attempt_error = std::move(error);
     if (candidate_process) {
       const auto id = *candidate_process;
-      candidate_process.reset();
       close_timer(id);
+      phase = Phase::stopping_candidate_restore;
+      restore_after_candidate_stop = true;
       (void)process->terminate(id, options.stop_grace);
+      return;
     }
+    continue_candidate_failure();
+  }
+
+  static void close_retry_handle(uv_handle_t* handle) {
+    delete static_cast<RetryTimer*>(handle->data);
+  }
+
+  static void retry_timer_fired(uv_timer_t* timer) {
+    auto* retry = static_cast<RetryTimer*>(timer->data);
+    auto* owner = retry->owner;
+    owner->retry_timer = nullptr;
+    uv_timer_stop(timer);
+    if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(timer)))
+      uv_close(reinterpret_cast<uv_handle_t*>(timer), close_retry_handle);
+    if (owner->stop_requested || !owner->status.desired_running) {
+      owner->complete_stop();
+      return;
+    }
+    if (!owner->status.active) {
+      owner->phase = Phase::idle;
+      return;
+    }
+    owner->candidate_record = owner->status.active;
+    owner->previous_record.reset();
+    owner->retrying = true;
+    owner->start_candidate(false);
+  }
+
+  void cancel_retry_timer() {
+    if (!retry_timer) return;
+    auto* retry = retry_timer;
+    retry_timer = nullptr;
+    uv_timer_stop(&retry->timer);
+    if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&retry->timer)))
+      uv_close(reinterpret_cast<uv_handle_t*>(&retry->timer), close_retry_handle);
+  }
+
+  void schedule_retry(const RunRecord& record) {
+    if (stop_requested || !status.desired_running) return;
+    if (retry_attempt >= options.retry_delay.size()) {
+      phase = Phase::idle;
+      status.state = CoreState::failed;
+      status.active = record;
+      persistent.active = record;
+      persistent.desired_running = true;
+      auto saved = store->save_runtime(persistent);
+      if (!saved) status.last_error = saved.error();
+      output(LogStream::server, "Xray core exhausted automatic restarts\n");
+      return;
+    }
+    auto* retry = new RetryTimer;
+    retry->owner = this;
+    const int initialized = uv_timer_init(loop, &retry->timer);
+    if (initialized != 0) {
+      delete retry;
+      status.state = CoreState::failed;
+      status.last_error = core_error(ErrorCode::io_error, "初始化核心恢复计时器失败");
+      phase = Phase::idle;
+      return;
+    }
+    retry->timer.data = retry;
+    retry_timer = retry;
+    status.active = record;
+    persistent.active = record;
+    persistent.desired_running = true;
+    auto saved = store->save_runtime(persistent);
+    if (!saved) status.last_error = saved.error();
+    phase = Phase::retry_wait;
+    const auto delay = options.retry_delay[retry_attempt++];
+    const int started = uv_timer_start(&retry->timer, retry_timer_fired,
+        static_cast<std::uint64_t>(std::max<std::int64_t>(1, delay.count())), 0);
+    if (started != 0) {
+      cancel_retry_timer();
+      phase = Phase::idle;
+      status.state = CoreState::failed;
+      status.last_error = core_error(ErrorCode::io_error, "启动核心恢复计时器失败");
+      return;
+    }
+    observe(LifecycleOptions::Phase::retry_wait);
+  }
+
+  void continue_candidate_failure() {
     if (candidate_record) discard_record(candidate_record);
+    if (retrying) {
+      retrying = false;
+      if (status.active) schedule_retry(*status.active);
+      else phase = Phase::idle;
+      return;
+    }
+    if (stop_requested) {
+      complete_stop();
+      return;
+    }
     if (previous_record && !restore_attempted) {
       restore_attempted = true;
       start_candidate(true);
@@ -351,7 +600,8 @@ struct CoreManager::Impl {
     status.last_error = attempt_error;
     persistent.active.reset();
     persistent.desired_running = false;
-    (void)store->save_runtime(persistent);
+    auto saved = store->save_runtime(persistent);
+    if (!saved) status.last_error = saved.error();
     finish(std::unexpected(*attempt_error));
   }
 
@@ -363,64 +613,66 @@ struct CoreManager::Impl {
     previous_record = status.active;
     restore_attempted = false;
     stop_requested = false;
+    stop_intent_error.reset();
     attempt_error.reset();
+    retrying = false;
+    restore_after_candidate_stop = false;
 
     if (auto* build = std::get_if<BuildRequest>(&request.input)) {
-      auto assembled = assemble(build->input);
-      if (!assembled) { completion(std::unexpected(assembled.error())); completion = {}; return Id{}; }
-      const auto run_id = new_run_id();
-      auto directory = writer->materialize(*assembled, DirectoryPurpose::candidate, run_id);
-      if (!directory) { completion(std::unexpected(directory.error())); completion = {}; return Id{}; }
-      const auto& profile = build->input.settings.profile;
-      const auto cwd = profile.environment.cwd.empty() ? std::filesystem::current_path() : profile.environment.cwd;
-      RunRecord record{run_id, profile.id, build->core.id,
-          RunSpec{build->core.path, directory->confdir, cwd, profile.environment.process_environment},
-          profile.selected, assembled->index, now_millis()};
-      candidate_record = std::move(record);
+      auto queued = prepare(std::move(*build));
+      if (!queued) {
+        auto done = std::move(completion);
+        if (done) done(std::unexpected(queued.error()));
+        phase = Phase::idle;
+      }
+      return Id{};
     } else {
       auto replay = std::get<ReplayRequest>(std::move(request.input));
       replay.record.spec.binary = replay.core.path;
+      replay.record.core_id = replay.core.id;
       candidate_record = std::move(replay.record);
     }
-    phase = request.mode == ActivationMode::check_only ? Phase::preview_check : Phase::checking;
-    if (request.mode != ActivationMode::check_only)
-      status.state = status.active ? CoreState::running : CoreState::starting;
-    const auto command_id = process->execute(check_command(candidate_record->spec), options.check_timeout,
-        [this](Result<ProcessResult> result) { check_ready(std::move(result)); });
-    if (!command_id) {
-      phase = Phase::idle;
-      auto error = command_id.error();
-      auto done = std::move(completion);
-      if (done) done(std::unexpected(std::move(error)));
-      return Id{};
-    }
-    active_command = *command_id;
-    return *command_id;
+    return begin_check();
   }
 
   Result<Id> stop(Completion<ActivationResult> callback) {
+    stop_requested = true;
+    stop_completion = std::move(callback);
+    status.desired_running = false;
+    persistent.desired_running = false;
+    auto saved = store->save_runtime(persistent);
+    if (!saved && !stop_intent_error) stop_intent_error = saved.error();
     if (phase == Phase::idle) {
-      stop_completion = std::move(callback);
       if (active_process) {
         phase = Phase::stopping;
         status.state = CoreState::stopping;
-        auto stopped = process->terminate(*active_process, options.stop_grace);
-        if (!stopped) return std::unexpected(stopped.error());
+        (void)process->terminate(*active_process, options.stop_grace);
       } else {
         complete_stop();
       }
       return Id{};
     }
-    stop_requested = true;
-    stop_completion = std::move(callback);
-    if (active_command) (void)process->cancel_command(*active_command);
+    if (phase == Phase::retry_wait) {
+      cancel_retry_timer();
+      complete_stop();
+      return Id{};
+    }
+    if (active_command) {
+      (void)process->cancel_command(*active_command);
+      return Id{};
+    }
     if (candidate_process) {
       phase = Phase::stopping;
       (void)process->terminate(*candidate_process, options.stop_grace);
+    } else if (restoration_process) {
+      phase = Phase::stopping;
+      (void)process->terminate(*restoration_process, options.stop_grace);
     } else if (active_process) {
       phase = Phase::stopping;
       status.state = CoreState::stopping;
       (void)process->terminate(*active_process, options.stop_grace);
+    } else if (!preparing && !active_command) {
+      complete_stop();
     }
     return Id{};
   }
@@ -447,6 +699,12 @@ struct CoreManager::Impl {
   ActivationMode activation_mode = ActivationMode::start_or_replace;
   bool restore_attempted = false;
   bool stop_requested = false;
+  bool preparing = false;
+  bool retrying = false;
+  bool restore_after_candidate_stop = false;
+  std::size_t retry_attempt = 0;
+  RetryTimer* retry_timer = nullptr;
+  std::optional<AppError> stop_intent_error;
 };
 
 CoreManager::CoreManager(uv_loop_t& loop, Store& store, ProcessService& process,

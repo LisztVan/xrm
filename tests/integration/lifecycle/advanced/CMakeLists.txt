@@ -1,0 +1,6 @@
+add_executable(xrm_lifecycle_advanced_tests lifecycle_advanced_tests.cpp)
+target_link_libraries(xrm_lifecycle_advanced_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain SQLite3::SQLite3)
+target_compile_definitions(xrm_lifecycle_advanced_tests PRIVATE XRM_TEST_FAKE_CORE="$<TARGET_FILE:xrm_fake_core>")
+add_dependencies(xrm_lifecycle_advanced_tests xrm_fake_core)
+include(Catch)
+catch_discover_tests(xrm_lifecycle_advanced_tests)
