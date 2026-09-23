@@ -38,8 +38,15 @@ struct ProcessResult {
 };
 
 struct NodeRuntimeEntry { Id id; std::string tag; std::string display_name; };
+struct GroupRuntimeEntry {
+  Id id;
+  std::string tag;
+  std::vector<Id> candidate_ids;
+  std::optional<Id> selected_node_id;
+};
 struct RuntimeIndex {
   std::vector<NodeRuntimeEntry> nodes;
+  std::vector<GroupRuntimeEntry> groups;
   std::vector<std::string> static_outbound_tags;
   std::vector<std::string> static_balancer_tags;
 };
@@ -73,6 +80,7 @@ struct PreparedDirectory {
 enum class LogStream { server, core_stdout, core_stderr };
 enum class CoreState { stopped, starting, running, stopping, failed };
 enum class RuntimeHealth { process_only, control_ready, control_unavailable };
+enum class OverrideState { none, confirmed, unknown };
 struct RunRecord {
   Id run_id;
   Id profile_id;
@@ -81,6 +89,8 @@ struct RunRecord {
   std::optional<Target> applied_selection;
   RuntimeIndex index;
   UnixMillis started_at = 0;
+  std::optional<std::string> api_endpoint;
+  std::optional<std::string> metrics_endpoint;
 };
 struct RuntimePersistent {
   bool desired_running = false;
@@ -93,6 +103,9 @@ struct RuntimeStatus {
   std::optional<int> pid;
   std::optional<RunRecord> active;
   RuntimeHealth health = RuntimeHealth::process_only;
+  std::optional<Target> actual_selection;
+  OverrideState override_state = OverrideState::none;
+  std::optional<std::string> runtime_override;
   std::optional<AppError> last_error;
 };
 struct BuildRequest { BuildInput input; CoreInstall core; };
@@ -110,6 +123,8 @@ struct LifecycleOptions {
   Milliseconds check_timeout{30000};
   Milliseconds stop_grace{5000};
   Milliseconds process_observation{2000};
+  std::array<Milliseconds, 3> retry_delay{Milliseconds{1000}, Milliseconds{3000},
+                                         Milliseconds{10000}};
 };
 
 void to_json(Json& json, const CoreInstall& value);

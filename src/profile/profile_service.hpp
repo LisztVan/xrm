@@ -18,6 +18,7 @@ struct ProfileCreate {
 };
 struct ProfileSummary { Id id; std::string name; Id core_id; };
 struct ProfileEdit { EditBase base; ProfileSettings value; };
+struct BindingsEdit { EditBase base; std::vector<GroupBinding> value; };
 
 class ProfileService {
  public:
@@ -34,6 +35,12 @@ class ProfileService {
   Result<void> include_module(const Id&, std::string_view key, bool included);
   Result<void> rename_module_file(const Id&, std::string_view key,
                                   const std::filesystem::path& relative_name);
+  Result<std::vector<GroupBinding>> groups(const Id&) const;
+  Result<void> save_groups(const Id&, const BindingsEdit&);
+  Result<ObservationBinding> observation(const Id&) const;
+  Result<void> save_observation(const Id&, const EditBase&, const ObservationBinding&);
+  Result<void> select_group_node(const Id&, const Id& group_id, const Id& node_id);
+  Result<void> choose_observer(const Id&, std::optional<std::string> native_key);
   Result<ModuleSnapshot> snapshot(const Id&) const;
 
  private:

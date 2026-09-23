@@ -12,5 +12,8 @@ Result<std::vector<OutputFile>> write_outbounds(const BuildInput& input,
 Result<OutputFile> write_routing(const ModuleDocument& document,
                                  const BuildInput& input,
                                  const RuntimeIndex& index);
+Result<OutputFile> write_observation(const ModuleDocument& document,
+                                     const BuildInput& input,
+                                     const RuntimeIndex& index);
 
 }  // namespace xrm

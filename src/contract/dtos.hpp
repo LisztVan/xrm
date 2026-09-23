@@ -3,6 +3,7 @@
 #include "model/node.hpp"
 #include "model/runtime.hpp"
 #include "model/subscription.hpp"
+#include "xray/metrics.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -101,6 +102,46 @@ inline void to_json(Json& json, const ModuleDto& value) {
 struct OperationDto { std::string status; std::optional<std::string> operation_id; };
 inline void to_json(Json& json, const OperationDto& value) {
   json = Json{{"status", value.status}, {"operation_id", value.operation_id}};
+}
+
+struct GroupDto {
+  GroupBinding binding;
+  std::vector<NodeSummary> candidates;
+};
+inline void to_json(Json& json, const GroupDto& value) {
+  json = Json{{"binding", value.binding}, {"candidates", value.candidates}};
+}
+struct RuntimeMetricsDto {
+  MetricAvailability availability = MetricAvailability::unknown;
+  std::optional<MetricsSample> sample;
+  std::vector<TrafficRate> rates;
+};
+inline void to_json(Json& json, const RuntimeMetricsDto& value) {
+  const auto availability = [](MetricAvailability state) {
+    switch (state) {
+      case MetricAvailability::available: return "available";
+      case MetricAvailability::unavailable: return "unavailable";
+      case MetricAvailability::stale: return "stale";
+      case MetricAvailability::unknown: return "unknown";
+    }
+    return "unknown";
+  };
+  json = Json{{"availability", availability(value.availability)},
+              {"run_id", value.sample ? Json(value.sample->run_id) : Json(nullptr)},
+              {"received_at", value.sample ? Json(value.sample->received_at) : Json(nullptr)},
+              {"rates", Json::array()}};
+  for (const auto& rate : value.rates)
+    json["rates"].push_back(Json{{"scope", rate.scope}, {"tag", rate.tag},
+        {"uplink_bytes_per_second", rate.uplink_bytes_per_second ? Json(*rate.uplink_bytes_per_second) : Json(nullptr)},
+        {"downlink_bytes_per_second", rate.downlink_bytes_per_second ? Json(*rate.downlink_bytes_per_second) : Json(nullptr)}});
+}
+struct GroupOverrideDto { std::string group_tag; std::optional<std::string> outbound_tag; bool clear = false; };
+inline void to_json(Json& json, const GroupOverrideDto& value) {
+  json = Json{{"group_tag", value.group_tag}, {"outbound_tag", value.outbound_tag}, {"clear", value.clear}};
+}
+struct GroupOverrideResultDto { std::string status; std::optional<std::string> actual_outbound; };
+inline void to_json(Json& json, const GroupOverrideResultDto& value) {
+  json = Json{{"status", value.status}, {"actual_outbound", value.actual_outbound}};
 }
 
 inline void to_json(Json& json, const CoreInstall& value) {

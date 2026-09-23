@@ -184,11 +184,75 @@ void from_json(const Json& json, SubscriptionState& value) {
   value.last_malformed_count = json.value("last_malformed_count", std::size_t{0});
 }
 
+void to_json(Json& json, const ExplicitMembers& value) {
+  json = Json{{"kind", "explicit"}, {"node_ids", value.node_ids}};
+}
+void from_json(const Json& json, ExplicitMembers& value) {
+  value.node_ids = json.at("node_ids").get<std::vector<Id>>();
+}
+void to_json(Json& json, const NodeFilter& value) {
+  json = Json{{"kind", "filter"}, {"sources", value.sources},
+              {"protocols", value.protocols}, {"name_contains", value.name_contains},
+              {"labels", value.labels}};
+}
+void from_json(const Json& json, NodeFilter& value) {
+  value.sources = json.value("sources", std::vector<Id>{});
+  value.protocols = json.value("protocols", std::vector<std::string>{});
+  value.name_contains = json.value("name_contains", std::vector<std::string>{});
+  value.labels = json.value("labels", std::vector<std::string>{});
+}
+void to_json(Json& json, const NodeSelector& value) {
+  std::visit([&](const auto& selector) { to_json(json, selector); }, value);
+}
+void from_json(const Json& json, NodeSelector& value) {
+  const auto kind = json.at("kind").get<std::string>();
+  if (kind == "explicit") value = json.get<ExplicitMembers>();
+  else if (kind == "filter") value = json.get<NodeFilter>();
+  else throw std::invalid_argument("unknown node selector kind");
+}
+void to_json(Json& json, const GroupBinding& value) {
+  json = Json{{"id", value.id}, {"name", value.name}, {"members", value.members},
+              {"selection_mode", value.selection_mode == SelectionMode::manual ? "manual" : "automatic"},
+              {"selected_node_id", value.selected_node_id ? Json(*value.selected_node_id) : Json(nullptr)},
+              {"balancer", value.balancer}};
+}
+void from_json(const Json& json, GroupBinding& value) {
+  value.id = json.at("id").get<Id>();
+  value.name = json.at("name").get<std::string>();
+  value.members = json.at("members").get<NodeSelector>();
+  const auto mode = json.at("selection_mode").get<std::string>();
+  if (mode != "automatic" && mode != "manual") throw std::invalid_argument("unknown group selection mode");
+  value.selection_mode = mode == "manual" ? SelectionMode::manual : SelectionMode::automatic;
+  value.selected_node_id = json.at("selected_node_id").is_null()
+      ? std::nullopt : std::optional<Id>(json.at("selected_node_id").get<Id>());
+  value.balancer = json.at("balancer");
+}
+void to_json(Json& json, const ObservationBinding& value) {
+  json = Json{{"append_used_group_members", value.append_used_group_members},
+              {"additional_node_ids", value.additional_node_ids}};
+}
+void from_json(const Json& json, ObservationBinding& value) {
+  value.append_used_group_members = json.value("append_used_group_members", false);
+  value.additional_node_ids = json.value("additional_node_ids", std::vector<Id>{});
+}
+void to_json(Json& json, const ManagerBindings& value) {
+  json = Json{{"groups", value.groups}, {"observation", value.observation}};
+}
+void from_json(const Json& json, ManagerBindings& value) {
+  value.groups = json.value("groups", std::vector<GroupBinding>{});
+  value.observation = json.value("observation", ObservationBinding{});
+}
+
 void to_json(Json& json, const RuntimePersistent& value) {
   auto encode_run = [](const RunRecord& run) {
     Json nodes = Json::array();
     for (const auto& node : run.index.nodes)
       nodes.push_back(Json{{"id", node.id}, {"tag", node.tag}, {"display_name", node.display_name}});
+    Json groups = Json::array();
+    for (const auto& group : run.index.groups)
+      groups.push_back(Json{{"id", group.id}, {"tag", group.tag},
+          {"candidate_ids", group.candidate_ids},
+          {"selected_node_id", group.selected_node_id ? Json(*group.selected_node_id) : Json(nullptr)}});
     Json applied = nullptr;
     if (run.applied_selection)
       applied = Json{{"kind", target_kind_name(run.applied_selection->kind)},
@@ -197,8 +261,11 @@ void to_json(Json& json, const RuntimePersistent& value) {
                 {"spec", Json{{"binary", run.spec.binary.string()}, {"confdir", run.spec.confdir.string()},
                                {"cwd", run.spec.cwd.string()}, {"environment", run.spec.environment}}},
                 {"applied_selection", applied}, {"index", Json{{"nodes", nodes},
+                    {"groups", groups},
                     {"static_outbound_tags", run.index.static_outbound_tags},
                     {"static_balancer_tags", run.index.static_balancer_tags}}},
+                {"api_endpoint", optional_string(run.api_endpoint)},
+                {"metrics_endpoint", optional_string(run.metrics_endpoint)},
                 {"started_at", run.started_at}};
   };
   json = Json{{"desired_running", value.desired_running},
@@ -225,8 +292,16 @@ void from_json(const Json& json, RuntimePersistent& value) {
     for (const auto& node : index.at("nodes"))
       record.index.nodes.push_back(NodeRuntimeEntry{node.at("id").get<std::string>(),
           node.at("tag").get<std::string>(), node.at("display_name").get<std::string>()});
+    if (index.contains("groups"))
+      for (const auto& group : index.at("groups"))
+        record.index.groups.push_back(GroupRuntimeEntry{group.at("id").get<Id>(),
+            group.at("tag").get<std::string>(), group.value("candidate_ids", std::vector<Id>{}),
+            group.at("selected_node_id").is_null() ? std::nullopt
+              : std::optional<Id>(group.at("selected_node_id").get<Id>())});
     record.index.static_outbound_tags = index.at("static_outbound_tags").get<std::vector<std::string>>();
     record.index.static_balancer_tags = index.at("static_balancer_tags").get<std::vector<std::string>>();
+    if (run.contains("api_endpoint")) record.api_endpoint = read_optional_string(run, "api_endpoint");
+    if (run.contains("metrics_endpoint")) record.metrics_endpoint = read_optional_string(run, "metrics_endpoint");
     record.started_at = run.at("started_at").get<UnixMillis>();
     return record;
   };

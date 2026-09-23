@@ -1,0 +1,45 @@
+#pragma once
+
+#include "profile/profile_service.hpp"
+
+namespace xrm {
+
+enum class CollectionKind { inbounds, outbounds, route_rules, native_balancers };
+enum class ListAction { insert, replace, erase, move };
+struct ListEdit {
+  CollectionKind collection = CollectionKind::inbounds;
+  ListAction action = ListAction::insert;
+  std::size_t index = 0;
+  std::optional<std::size_t> destination;
+  std::optional<Json> object;
+};
+struct ModuleChange { ModuleEdit edit; bool include_after_save = true; };
+struct ModuleChangePlan { std::vector<ModuleChange> changes; std::vector<Notice> notices; };
+struct SaveManyResult { std::vector<std::string> saved; std::optional<AppError> failure; };
+
+Result<ModuleEdit> set_log_level(const ModuleDocument&, std::optional<std::string>);
+Result<ModuleEdit> replace_dns_servers(const ModuleDocument&, std::vector<Json>);
+Result<ModuleEdit> replace_dns_hosts(const ModuleDocument&, Json hosts);
+Result<ModuleEdit> set_api_services(const ModuleDocument&, std::vector<std::string>);
+Result<ModuleEdit> set_metrics_listener(const ModuleDocument&, std::string listen);
+Result<ModuleEdit> put_policy_level(const ModuleDocument&, std::string level, Json complete_level);
+Result<ModuleEdit> set_policy_counters(const ModuleDocument&, bool in_up, bool in_down,
+                                      bool out_up, bool out_down);
+Result<ModuleEdit> replace_fakedns_pools(const ModuleDocument&, Json object_or_array);
+Result<ModuleEdit> put_env(const ModuleDocument&, std::string key, std::string value);
+Result<ModuleEdit> erase_env(const ModuleDocument&, std::string key);
+Result<ModuleEdit> set_version_range(const ModuleDocument&, std::optional<std::string> min,
+                                     std::optional<std::string> max);
+Result<ModuleEdit> replace_geodata_assets(const ModuleDocument&, std::vector<Json>);
+Result<ModuleEdit> set_geodata_schedule(const ModuleDocument&, std::string cron);
+Result<ModuleEdit> set_observatory_probe(const ModuleDocument&, std::string url,
+                                         std::string interval, bool concurrency);
+Result<ModuleEdit> replace_burst_ping_config(const ModuleDocument&, Json complete_ping_config);
+Result<ModuleEdit> edit_native_list(const ModuleDocument&, const ListEdit&);
+Result<Json> set_rule_target(Json original_rule, const Target&,
+                             std::string_view resolved_native_tag);
+Result<ModuleChangePlan> plan_traffic_stats(const ProfileSnapshot&, bool enabled,
+                                            std::string metrics_listen);
+SaveManyResult save_module_changes(ProfileService&, const Id&, const ModuleChangePlan&);
+
+}  // namespace xrm

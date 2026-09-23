@@ -46,5 +46,16 @@ inline constexpr std::string_view core_stop = "core.stop";
 inline constexpr std::string_view runtime_status = "runtime.status";
 inline constexpr std::string_view logs_read = "logs.read";
 inline constexpr std::string_view operation_get = "operation.get";
+inline constexpr std::string_view group_list = "group.list";
+inline constexpr std::string_view group_get = "group.get";
+inline constexpr std::string_view group_save = "group.save";
+inline constexpr std::string_view group_remove = "group.remove";
+inline constexpr std::string_view group_select = "group.select";
+inline constexpr std::string_view group_override = "group.override";
+inline constexpr std::string_view group_override_clear = "group.override.clear";
+inline constexpr std::string_view observation_choose = "observation.choose";
+inline constexpr std::string_view runtime_metrics = "runtime.metrics";
+inline constexpr std::string_view runtime_stats = "runtime.stats";
+inline constexpr std::string_view native_list_edit = "module.list_edit";
 
 }  // namespace xrm::methods

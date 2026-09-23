@@ -31,6 +31,32 @@ struct ModuleSetting {
   bool included = false;
 };
 
+struct ExplicitMembers { std::vector<Id> node_ids; };
+struct NodeFilter {
+  std::vector<Id> sources;
+  std::vector<std::string> protocols;
+  std::vector<std::string> name_contains;
+  std::vector<std::string> labels;
+};
+using NodeSelector = std::variant<ExplicitMembers, NodeFilter>;
+enum class SelectionMode { automatic, manual };
+struct GroupBinding {
+  Id id;
+  std::string name;
+  NodeSelector members = ExplicitMembers{};
+  SelectionMode selection_mode = SelectionMode::automatic;
+  std::optional<Id> selected_node_id;
+  Json balancer = Json::object();
+};
+struct ObservationBinding {
+  bool append_used_group_members = false;
+  std::vector<Id> additional_node_ids;
+};
+struct ManagerBindings {
+  std::vector<GroupBinding> groups;
+  ObservationBinding observation;
+};
+
 enum class TargetKind { node, group, native_outbound, native_balancer };
 struct Target {
   TargetKind kind = TargetKind::node;
@@ -54,11 +80,12 @@ struct ProfileSettings {
   std::vector<Id> additional_node_ids;
 };
 
-struct ModuleSnapshot {
+struct ProfileSnapshot {
   ProfileSettings profile;
   std::vector<ModuleDocument> modules;
+  ManagerBindings bindings;
 };
-using ProfileSnapshot = ModuleSnapshot;
+using ModuleSnapshot = ProfileSnapshot;
 
 struct EditBase { std::optional<std::string> expected_text; };
 struct ModuleEdit {
@@ -79,5 +106,17 @@ std::string node_tag(std::string_view node_id);
 
 void to_json(Json& json, const ProfileSettings& value);
 void from_json(const Json& json, ProfileSettings& value);
+void to_json(Json& json, const ExplicitMembers& value);
+void from_json(const Json& json, ExplicitMembers& value);
+void to_json(Json& json, const NodeFilter& value);
+void from_json(const Json& json, NodeFilter& value);
+void to_json(Json& json, const NodeSelector& value);
+void from_json(const Json& json, NodeSelector& value);
+void to_json(Json& json, const GroupBinding& value);
+void from_json(const Json& json, GroupBinding& value);
+void to_json(Json& json, const ObservationBinding& value);
+void from_json(const Json& json, ObservationBinding& value);
+void to_json(Json& json, const ManagerBindings& value);
+void from_json(const Json& json, ManagerBindings& value);
 
 }  // namespace xrm
