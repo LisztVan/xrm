@@ -13,6 +13,9 @@ class RuntimeWriter {
                             const std::filesystem::path& new_destination);
   Result<void> discard(const PreparedDirectory&,
                        std::span<const Id> protected_run_ids);
+
+ private:
+  std::filesystem::path data_root_;
 };
 
 }  // namespace xrm
