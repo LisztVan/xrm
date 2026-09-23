@@ -12,6 +12,9 @@
 static_assert(std::is_default_constructible_v<xrm::GroupBinding>);
 static_assert(std::is_default_constructible_v<xrm::ManagerBindings>);
 static_assert(std::is_default_constructible_v<xrm::MetricsSample>);
+static_assert(!std::is_copy_constructible_v<xrm::MetricsClient>);
+static_assert(std::is_same_v<decltype(std::declval<const xrm::MetricsClient&>().view()),
+                             xrm::MetricsView>);
 static_assert(std::is_same_v<decltype(xrm::write_observation(
                                  std::declval<const xrm::ModuleDocument&>(),
                                  std::declval<const xrm::BuildInput&>(),

@@ -38,9 +38,13 @@ std::vector<TrafficRate> compute_rates(const MetricsSample&, const MetricsSample
 class MetricsClient {
  public:
   MetricsClient(uv_loop_t&, HttpClient&);
+  ~MetricsClient();
+  MetricsClient(const MetricsClient&) = delete;
+  MetricsClient& operator=(const MetricsClient&) = delete;
   void attach(const RunRecord&, std::optional<std::string> endpoint);
   void set_viewer_count(std::size_t);
   std::optional<MetricsSample> latest() const;
+  MetricsView view() const;
   void on_sample(std::function<void(const MetricsSample&)>);
   void stop();
  private:
