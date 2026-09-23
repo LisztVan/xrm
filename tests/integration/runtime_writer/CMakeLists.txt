@@ -1,0 +1,4 @@
+add_executable(xrm_runtime_writer_tests runtime_writer_tests.cpp)
+target_link_libraries(xrm_runtime_writer_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+include(Catch)
+catch_discover_tests(xrm_runtime_writer_tests)
