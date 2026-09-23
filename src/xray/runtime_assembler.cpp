@@ -206,7 +206,7 @@ Result<OutputFile> write_routing(const ModuleDocument& document, const BuildInpu
     if (std::find(index.static_outbound_tags.begin(), index.static_outbound_tags.end(), tag) !=
         index.static_outbound_tags.end())
       return std::unexpected(failure(ErrorCode::conflict, "managed node tag conflicts with a static outbound", tag));
-    root["rules"].push_back(Json{{"type", "field"}, {"outboundTag", tag}});
+    root["rules"].push_back(Json{{"type", "field"}, {"network", "tcp,udp"}, {"outboundTag", tag}});
   }
   return OutputFile{"04_routing.json", append ? parsed->dump(2) + "\n" : document.source_text};
 }

@@ -118,6 +118,7 @@ TEST_CASE("only selected and explicitly additional nodes enter the nodes tail", 
   const auto routing = Json::parse(file(*built, "04_routing.json")->bytes).at("routing");
   CHECK(routing.at("rules").size() == 2);
   CHECK(routing.at("rules").back().at("outboundTag") == node_tag("n1"));
+  CHECK(routing.at("rules").back().at("network") == "tcp,udp");
   CHECK(routing.at("unknown") == true);
   CHECK_FALSE(tail.dump().find("unused") != std::string::npos);
 }
