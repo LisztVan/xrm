@@ -1,0 +1,26 @@
+{
+  "uri": "vless://00000000-0000-4000-8000-000000000003@reality.invalid:443?encryption=none&flow=xtls-rprx-vision&type=tcp&security=reality&sni=www.invalid&fp=chrome&pbk=YWJjZA&sid=01234567&spx=%2F#vision",
+  "name": "vision",
+  "outbound": {
+    "tag": "managed-node",
+    "protocol": "vless",
+    "settings": {
+      "vnext": [{
+        "address": "reality.invalid",
+        "port": 443,
+        "users": [{"id": "00000000-0000-4000-8000-000000000003", "encryption": "none", "flow": "xtls-rprx-vision"}]
+      }]
+    },
+    "streamSettings": {
+      "network": "raw",
+      "security": "reality",
+      "realitySettings": {
+        "serverName": "www.invalid",
+        "fingerprint": "chrome",
+        "publicKey": "YWJjZA",
+        "shortId": "01234567",
+        "spiderX": "/"
+      }
+    }
+  }
+}

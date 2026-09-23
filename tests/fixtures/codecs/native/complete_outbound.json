@@ -1,0 +1,21 @@
+{
+  "tag": "source-tag",
+  "protocol": "vless",
+  "settings": {
+    "vnext": [{
+      "address": "edge.invalid",
+      "port": 443,
+      "users": [{
+        "id": "00000000-0000-4000-8000-000000000001",
+        "encryption": "none",
+        "vendorExtension": {"enabled": true, "weights": [1, 2, 3]}
+      }]
+    }]
+  },
+  "streamSettings": {
+    "network": "raw",
+    "security": "none",
+    "customObject": {"preserve": "exactly"}
+  },
+  "mux": {"enabled": true, "concurrency": 4}
+}

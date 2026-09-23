@@ -1,0 +1,16 @@
+{
+  "uri": "vless://00000000-0000-4000-8000-000000000001@edge.invalid:8443?encryption=none&type=tcp&security=none#plain",
+  "name": "plain",
+  "outbound": {
+    "tag": "managed-node",
+    "protocol": "vless",
+    "settings": {
+      "vnext": [{
+        "address": "edge.invalid",
+        "port": 8443,
+        "users": [{"id": "00000000-0000-4000-8000-000000000001", "encryption": "none"}]
+      }]
+    },
+    "streamSettings": {"network": "raw", "security": "none"}
+  }
+}

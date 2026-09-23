@@ -1,0 +1,26 @@
+{
+  "uri": "vless://00000000-0000-4000-8000-000000000004@xhttp.invalid:443?encryption=none&type=xhttp&security=tls&sni=front.invalid&host=origin.invalid&path=%2Fedge&mode=stream-up&extra=%7B%22xPaddingBytes%22%3A%22200-500%22%7D#xhttp",
+  "name": "xhttp",
+  "outbound": {
+    "tag": "managed-node",
+    "protocol": "vless",
+    "settings": {
+      "vnext": [{
+        "address": "xhttp.invalid",
+        "port": 443,
+        "users": [{"id": "00000000-0000-4000-8000-000000000004", "encryption": "none"}]
+      }]
+    },
+    "streamSettings": {
+      "network": "xhttp",
+      "security": "tls",
+      "tlsSettings": {"serverName": "front.invalid"},
+      "xhttpSettings": {
+        "host": "origin.invalid",
+        "path": "/edge",
+        "mode": "stream-up",
+        "extra": {"xPaddingBytes": "200-500"}
+      }
+    }
+  }
+}

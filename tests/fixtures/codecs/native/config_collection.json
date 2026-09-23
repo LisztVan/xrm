@@ -1,0 +1,7 @@
+{
+  "outbounds": [
+    {"tag": "direct", "protocol": "freedom", "settings": {}},
+    {"tag": "reject", "protocol": "blackhole", "settings": {}}
+  ],
+  "routing": {"rules": []}
+}

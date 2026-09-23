@@ -1,0 +1,20 @@
+{
+  "uri": "vless://00000000-0000-4000-8000-000000000002@tls.invalid:443?encryption=none&type=tcp&security=tls&sni=cdn.invalid&fp=chrome&alpn=h2%2Chttp%2F1.1#tls",
+  "name": "tls",
+  "outbound": {
+    "tag": "managed-node",
+    "protocol": "vless",
+    "settings": {
+      "vnext": [{
+        "address": "tls.invalid",
+        "port": 443,
+        "users": [{"id": "00000000-0000-4000-8000-000000000002", "encryption": "none"}]
+      }]
+    },
+    "streamSettings": {
+      "network": "raw",
+      "security": "tls",
+      "tlsSettings": {"serverName": "cdn.invalid", "fingerprint": "chrome", "alpn": ["h2", "http/1.1"]}
+    }
+  }
+}
