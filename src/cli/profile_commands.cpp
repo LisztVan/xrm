@@ -54,6 +54,19 @@ void add_profile_commands(CLI::App& app, Request& request) {
       request.params = {{"profile_id", request.profile_id}, {"module", request.module_key}, {"included", included}};
     });
   }
+  auto* statistics = config->add_subcommand("statistics", "Explicitly edit native modules for traffic statistics");
+  auto* enable_statistics = statistics->add_subcommand("enable", "Enable stats, policy counters and the Metrics endpoint");
+  enable_statistics->add_option("profile_id", request.profile_id)->required();
+  enable_statistics->add_option("--metrics-listen", request.metrics_listen,
+      "Host:port to write into the native metrics module")->required();
+  enable_statistics->callback([&request] {
+    // run_cli handles this local marker by requesting a plan first, then saving
+    // exactly the listed native modules through module.save_changes.
+    request.method = "module.enable_traffic_statistics";
+    request.params = {{"profile_id", request.profile_id},
+                      {"action", "enable_traffic_statistics"},
+                      {"arguments", {{"metrics_listen", request.metrics_listen}}}};
+  });
   for (const auto& [name, method] : {std::pair{"render", methods::config_render},
                                      std::pair{"check", methods::config_check},
                                      std::pair{"dump", methods::config_dump},
