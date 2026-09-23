@@ -242,6 +242,179 @@ class ControlledProbe {
   std::thread worker_;
 };
 
+bool receive_exact(int fd, char* bytes, std::size_t count) {
+  std::size_t received = 0;
+  while (received < count) {
+    const auto size = ::recv(fd, bytes + received, count - received, 0);
+    if (size <= 0) return false;
+    received += static_cast<std::size_t>(size);
+  }
+  return true;
+}
+
+bool send_bytes(int fd, std::string_view bytes) {
+  std::size_t sent = 0;
+  while (sent < bytes.size()) {
+    const auto size = ::send(fd, bytes.data() + sent, bytes.size() - sent, MSG_NOSIGNAL);
+    if (size <= 0) return false;
+    sent += static_cast<std::size_t>(size);
+  }
+  return true;
+}
+
+// A local SOCKS5 endpoint standing in for a controlled node.  It completes
+// requests to probe_port with a real local HTTP 204 response and maps all
+// other target ports to its marker.  response_delay creates a stable, fully
+// loopback leastPing ordering without relying on the host network.
+class ControlledSocksNode {
+ public:
+  bool start(std::uint16_t probe_port, std::uint16_t marker_port,
+             std::string marker, std::chrono::milliseconds response_delay) {
+    probe_port_ = probe_port;
+    marker_port_ = marker_port;
+    marker_ = std::move(marker);
+    response_delay_ = response_delay;
+    listener_ = ::socket(AF_INET, SOCK_STREAM, 0);
+    if (listener_ < 0) return false;
+    int reuse = 1;
+    ::setsockopt(listener_, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    if (::bind(listener_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0 ||
+        ::listen(listener_, 16) != 0) return false;
+    socklen_t size = sizeof(address);
+    if (::getsockname(listener_, reinterpret_cast<sockaddr*>(&address), &size) != 0) return false;
+    port_ = ntohs(address.sin_port);
+    worker_ = std::thread([this] { serve(); });
+    return true;
+  }
+
+  std::uint16_t port() const { return port_; }
+  std::size_t probe_requests() const { return probe_requests_.load(); }
+
+  ~ControlledSocksNode() {
+    stopping_.store(true);
+    if (listener_ >= 0) {
+      ::shutdown(listener_, SHUT_RDWR);
+      ::close(listener_);
+      listener_ = -1;
+    }
+    if (worker_.joinable()) worker_.join();
+  }
+
+ private:
+  void handle(int client) {
+    timeval timeout{3, 0};
+    ::setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    unsigned char greeting[2]{};
+    if (!receive_exact(client, reinterpret_cast<char*>(greeting), sizeof(greeting)) || greeting[0] != 5) return;
+    std::vector<char> methods(greeting[1]);
+    if (!receive_exact(client, methods.data(), methods.size()) ||
+        std::find(methods.begin(), methods.end(), 0) == methods.end() ||
+        !send_bytes(client, std::string_view{"\x05\x00", 2})) return;
+
+    unsigned char request[4]{};
+    if (!receive_exact(client, reinterpret_cast<char*>(request), sizeof(request)) || request[0] != 5) return;
+    std::size_t address_bytes = request[3] == 1 ? 4 : request[3] == 4 ? 16 : 0;
+    if (request[3] == 3) {
+      unsigned char length = 0;
+      if (!receive_exact(client, reinterpret_cast<char*>(&length), 1)) return;
+      address_bytes = length;
+    }
+    std::vector<char> address(address_bytes + 2);
+    if (!receive_exact(client, address.data(), address.size())) return;
+    const auto requested_port = static_cast<std::uint16_t>(
+        (static_cast<unsigned char>(address[address_bytes]) << 8) |
+        static_cast<unsigned char>(address[address_bytes + 1]));
+    if (requested_port == probe_port_) ::poll(nullptr, 0, static_cast<int>(response_delay_.count()));
+    constexpr std::string_view success{"\x05\x00\x00\x01\x7f\x00\x00\x01\x00\x00", 10};
+    if (!send_bytes(client, success)) return;
+    char http_request[4096]{};
+    const auto request_size = ::recv(client, http_request, sizeof(http_request), 0);
+    if (request_size <= 0) return;
+    if (requested_port == probe_port_) {
+      probe_requests_.fetch_add(1);
+      constexpr std::string_view response =
+          "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+      (void)send_bytes(client, response);
+    } else if (requested_port == marker_port_) {
+      const auto response = "HTTP/1.1 200 OK\r\nContent-Length: " +
+          std::to_string(marker_.size()) + "\r\nConnection: close\r\n\r\n" + marker_;
+      (void)send_bytes(client, response);
+    }
+  }
+
+  void serve() {
+    while (!stopping_.load()) {
+      pollfd descriptor{listener_, POLLIN, 0};
+      if (::poll(&descriptor, 1, 100) <= 0) continue;
+      const int client = ::accept(listener_, nullptr, nullptr);
+      if (client < 0) continue;
+      handle(client);
+      ::shutdown(client, SHUT_RDWR);
+      ::close(client);
+    }
+  }
+
+  int listener_ = -1;
+  std::uint16_t port_ = 0;
+  std::uint16_t probe_port_ = 0;
+  std::uint16_t marker_port_ = 0;
+  std::string marker_;
+  std::chrono::milliseconds response_delay_{0};
+  std::atomic<std::size_t> probe_requests_{0};
+  std::atomic<bool> stopping_{false};
+  std::thread worker_;
+};
+
+std::string socks_http_request(std::uint16_t proxy_port, std::uint16_t destination_port) {
+  const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+  if (fd < 0) return {};
+  timeval timeout{4, 0};
+  ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+  sockaddr_in proxy{};
+  proxy.sin_family = AF_INET;
+  proxy.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  proxy.sin_port = htons(proxy_port);
+  if (::connect(fd, reinterpret_cast<sockaddr*>(&proxy), sizeof(proxy)) != 0) {
+    ::close(fd);
+    return {};
+  }
+  constexpr std::string_view greeting{"\x05\x01\x00", 3};
+  char selected[2]{};
+  if (!send_bytes(fd, greeting) || !receive_exact(fd, selected, sizeof(selected)) ||
+      selected[0] != 5 || selected[1] != 0) {
+    ::close(fd);
+    return {};
+  }
+  const std::array<unsigned char, 10> request{
+      5, 1, 0, 1, 127, 0, 0, 1,
+      static_cast<unsigned char>(destination_port >> 8), static_cast<unsigned char>(destination_port & 0xff)};
+  if (!send_bytes(fd, std::string_view(reinterpret_cast<const char*>(request.data()), request.size()))) {
+    ::close(fd);
+    return {};
+  }
+  char reply[10]{};
+  if (!receive_exact(fd, reply, sizeof(reply)) || reply[0] != 5 || reply[1] != 0) {
+    ::close(fd);
+    return {};
+  }
+  if (!send_bytes(fd, "GET /marker HTTP/1.1\r\nHost: loopback\r\nConnection: close\r\n\r\n")) {
+    ::close(fd);
+    return {};
+  }
+  std::string response;
+  std::array<char, 1024> buffer{};
+  for (;;) {
+    const auto count = ::recv(fd, buffer.data(), buffer.size(), 0);
+    if (count <= 0) break;
+    response.append(buffer.data(), static_cast<std::size_t>(count));
+  }
+  ::close(fd);
+  return response;
+}
+
 class XrayProcess {
  public:
   bool start(const std::filesystem::path& xray, const std::filesystem::path& confdir,
@@ -474,6 +647,131 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
   return true;
 }
 
+bool run_least_ping_case(const std::filesystem::path& xray) {
+  TempDirectory temp;
+  const auto probe_port = free_loopback_port();
+  const auto marker_port = free_loopback_port();
+  const auto inbound_port = free_loopback_port();
+  const auto metrics_port = free_loopback_port();
+  REQUIRE(probe_port);
+  REQUIRE(marker_port);
+  REQUIRE(inbound_port);
+  REQUIRE(metrics_port);
+  ControlledSocksNode fast;
+  ControlledSocksNode slow;
+  REQUIRE(fast.start(*probe_port, *marker_port, "XRM-RC05-LEASTPING-FAST", 35ms));
+  REQUIRE(slow.start(*probe_port, *marker_port, "XRM-RC05-LEASTPING-SLOW", 500ms));
+
+  auto opened = Store::open(temp.path / "leastping.sqlite");
+  REQUIRE(opened);
+  auto store = std::move(*opened);
+  ProfileService profiles(*store, temp.path / "profiles");
+  auto profile = profiles.create({"RC-05 leastPing", "test-core", "local", {}});
+  REQUIRE(profile);
+  const auto add_node = [&](std::string id, std::uint16_t port) {
+    Json outbound{{"protocol", "socks"}, {"settings", {{"servers", Json::array({
+      Json{{"address", "127.0.0.1"}, {"port", port}}})}}}};
+    auto node = parse_native_outbound(outbound, id, id);
+    if (!node) return false;
+    return static_cast<bool>(store->put_node(*node));
+  };
+  REQUIRE(add_node("rc05-fast", fast.port()));
+  REQUIRE(add_node("rc05-slow", slow.port()));
+
+  auto settings = profiles.get(profile->id);
+  REQUIRE(settings);
+  settings->selected = Target{TargetKind::group, "rc05-leastping"};
+  settings->append_selected_default = true;
+  const auto profile_path = temp.path / "profiles" / profile->id / "profile.json";
+  REQUIRE(profiles.save(profile->id, {{read_file(profile_path)}, *settings}));
+  const auto groups_path = temp.path / "profiles" / profile->id / "bindings" / "groups.json";
+  std::optional<std::string> groups_base;
+  if (std::filesystem::exists(groups_path)) groups_base = read_file(groups_path);
+  GroupBinding group;
+  group.id = "rc05-leastping";
+  group.name = "controlled leastPing";
+  group.members = ExplicitMembers{{"rc05-fast", "rc05-slow"}};
+  group.selection_mode = SelectionMode::automatic;
+  group.balancer = Json{{"tag", "rc05-leastping"}, {"strategy", {{"type", "leastPing"}}}};
+  REQUIRE(profiles.save_groups(profile->id, {EditBase{groups_base}, {group}}));
+  REQUIRE(profiles.save_observation(profile->id, {std::nullopt}, ObservationBinding{true, {}}));
+  REQUIRE(profiles.choose_observer(profile->id, std::string("observatory")));
+
+  REQUIRE(save_module(profiles, profile->id, "outbounds", Json{{"outbounds", Json::array()}}));
+  REQUIRE(save_module(profiles, profile->id, "inbounds", Json{{"inbounds", Json::array({Json{
+      {"tag", "rc05-leastping-in"}, {"listen", "127.0.0.1"}, {"port", *inbound_port},
+      {"protocol", "socks"}, {"settings", {{"auth", "noauth"}, {"udp", false}}}}})}}));
+  REQUIRE(save_module(profiles, profile->id, "metrics",
+      Json{{"metrics", Json{{"listen", "127.0.0.1:" + std::to_string(*metrics_port)}}}}));
+  REQUIRE(save_module(profiles, profile->id, "observatory", Json{{"observatory", Json{
+      {"subjectSelector", Json::array()}, {"probeUrl", "http://127.0.0.1:" + std::to_string(*probe_port) + "/probe"},
+      {"probeInterval", "500ms"}}}}));
+
+  RuntimeWriter writer(temp.path / "runtime");
+  auto runtime = assemble_profile(profiles, *store, writer, profile->id, "rc05-leastping");
+  INFO("leastPing assemble failed: " << (runtime ? "none" : runtime.error().message));
+  REQUIRE(runtime);
+  const auto confdir = runtime->confdir;
+  const auto checked = run_command(xray, {"run", "-test", "-confdir", confdir.string()}, temp.path);
+  INFO("leastPing real check stdout=" << checked.out << " stderr=" << checked.err);
+  REQUIRE(checked.code == 0);
+  const auto routing = Json::parse(read_file(confdir / "04_routing.json")).at("routing");
+  const auto balancer = std::find_if(routing.at("balancers").begin(), routing.at("balancers").end(),
+      [](const Json& value) { return value.value("tag", "") == "rc05-leastping"; });
+  REQUIRE(balancer != routing.at("balancers").end());
+  CHECK(balancer->at("strategy").at("type") == "leastPing");
+  CHECK(balancer->at("selector").size() == 2);
+
+  XrayProcess core;
+  REQUIRE(core.start(xray, confdir, temp.path));
+  REQUIRE(wait_for_port(*metrics_port));
+  REQUIRE(wait_for_port(*inbound_port));
+  std::optional<Json> latest_vars;
+  std::optional<double> fast_delay;
+  std::optional<double> slow_delay;
+  const auto deadline = std::chrono::steady_clock::now() + 12s;
+  while (std::chrono::steady_clock::now() < deadline) {
+    try {
+      latest_vars = Json::parse(get_debug_vars(*metrics_port));
+      const auto observations = latest_vars->value("observatory", Json::object());
+      const auto fast_tag = node_tag("rc05-fast");
+      const auto slow_tag = node_tag("rc05-slow");
+      if (observations.contains(fast_tag) && observations.contains(slow_tag)) {
+        const auto& fast_observation = observations.at(fast_tag);
+        const auto& slow_observation = observations.at(slow_tag);
+        const auto delay = [](const Json& value) -> std::optional<double> {
+          if (value.contains("delay") && value.at("delay").is_number()) return value.at("delay").get<double>();
+          if (value.contains("health_ping") && value.at("health_ping").contains("average") &&
+              value.at("health_ping").at("average").is_number())
+            return value.at("health_ping").at("average").get<double>();
+          return std::nullopt;
+        };
+        if (fast_observation.value("alive", false) && slow_observation.value("alive", false)) {
+          fast_delay = delay(fast_observation);
+          slow_delay = delay(slow_observation);
+          if (fast_delay && slow_delay && *fast_delay < *slow_delay) break;
+        }
+      }
+    } catch (const Json::exception&) {
+    }
+    ::poll(nullptr, 0, 100);
+  }
+  INFO("leastPing real expvar=" << (latest_vars ? latest_vars->value("observatory", Json::object()).dump() : "unavailable")
+       << " fast delay=" << (fast_delay ? std::to_string(*fast_delay) : "unavailable")
+       << " slow delay=" << (slow_delay ? std::to_string(*slow_delay) : "unavailable"));
+  REQUIRE(fast_delay);
+  REQUIRE(slow_delay);
+  CHECK(*fast_delay < *slow_delay);
+  CHECK(fast.probe_requests() > 0);
+  CHECK(slow.probe_requests() > 0);
+  const auto response = socks_http_request(*inbound_port, *marker_port);
+  INFO("leastPing selected traffic marker: " << response);
+  CHECK(response.find("XRM-RC05-LEASTPING-FAST") != std::string::npos);
+  CHECK(response.find("XRM-RC05-LEASTPING-SLOW") == std::string::npos);
+  REQUIRE(core.stop());
+  return true;
+}
+
 }  // namespace
 
 TEST_CASE("RC-05 fixed Xray probes managed tags through both native observatories",
@@ -488,4 +786,5 @@ TEST_CASE("RC-05 fixed Xray probes managed tags through both native observatorie
   REQUIRE(version.out.find("52a412d") != std::string::npos);
   REQUIRE(run_observation_case(xray, "observatory"));
   REQUIRE(run_observation_case(xray, "burstObservatory"));
+  REQUIRE(run_least_ping_case(xray));
 }

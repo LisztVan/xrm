@@ -222,6 +222,7 @@ class LoopbackHttp {
     return true;
   }
   std::uint16_t port() const { return port_; }
+  int served() const { return served_.load(); }
   ~LoopbackHttp() {
     stopping_.store(true);
     if (fd_ >= 0) { ::shutdown(fd_, SHUT_RDWR); ::close(fd_); fd_ = -1; }
@@ -231,7 +232,12 @@ class LoopbackHttp {
   void serve() {
     while (!stopping_.load() && remaining_ > 0) {
       pollfd descriptor{fd_, POLLIN, 0};
-      if (::poll(&descriptor, 1, 10000) <= 0) break;
+      const int ready = ::poll(&descriptor, 1, 1000);
+      if (ready == 0) continue;
+      if (ready < 0) {
+        if (errno == EINTR) continue;
+        break;
+      }
       const int client = ::accept(fd_, nullptr, nullptr);
       if (client < 0) continue;
       timeval timeout{3, 0};
@@ -241,6 +247,7 @@ class LoopbackHttp {
       const auto response = "HTTP/1.1 200 OK\r\nContent-Length: " + std::to_string(marker_.size()) +
           "\r\nConnection: close\r\n\r\n" + marker_;
       (void)::send(client, response.data(), response.size(), MSG_NOSIGNAL);
+      ++served_;
       ::shutdown(client, SHUT_RDWR);
       ::close(client);
       --remaining_;
@@ -250,6 +257,7 @@ class LoopbackHttp {
   std::uint16_t port_ = 0;
   std::string marker_;
   int remaining_ = 0;
+  std::atomic<int> served_{0};
   std::atomic<bool> stopping_{false};
   std::thread worker_;
 };
@@ -272,6 +280,32 @@ bool recv_exact(int fd, char* bytes, std::size_t size) {
     received += static_cast<std::size_t>(count);
   }
   return true;
+}
+
+bool wait_for_socks(std::uint16_t port) {
+  const auto deadline = std::chrono::steady_clock::now() + 5s;
+  while (std::chrono::steady_clock::now() < deadline) {
+    const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    if (fd >= 0) {
+      sockaddr_in proxy{};
+      proxy.sin_family = AF_INET;
+      proxy.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+      proxy.sin_port = htons(port);
+      if (::connect(fd, reinterpret_cast<sockaddr*>(&proxy), sizeof(proxy)) == 0) {
+        const char hello[] = {5, 1, 0};
+        char selection[2]{};
+        const bool ready = send_all(fd, std::string_view(hello, sizeof(hello))) &&
+                           recv_exact(fd, selection, sizeof(selection)) &&
+                           selection[0] == 5 && selection[1] == 0;
+        ::close(fd);
+        if (ready) return true;
+      } else {
+        ::close(fd);
+      }
+    }
+    ::poll(nullptr, 0, 20);
+  }
+  return false;
 }
 
 std::string socks_http_request(std::uint16_t proxy_port, std::uint16_t destination_port) {
@@ -315,6 +349,18 @@ std::string socks_http_request(std::uint16_t proxy_port, std::uint16_t destinati
     response.append(chunk.data(), static_cast<std::size_t>(count));
   }
   ::close(fd);
+  return response;
+}
+
+std::string wait_for_socks_marker(std::uint16_t proxy_port, std::uint16_t destination_port,
+                                  std::string_view marker) {
+  const auto deadline = std::chrono::steady_clock::now() + 8s;
+  std::string response;
+  while (std::chrono::steady_clock::now() < deadline) {
+    response = socks_http_request(proxy_port, destination_port);
+    if (response.find(marker) != std::string::npos) return response;
+    ::poll(nullptr, 0, 100);
+  }
   return response;
 }
 
@@ -387,6 +433,13 @@ Json inbound_config(std::uint16_t port) {
 
 bool edit_module(XrmServer& server, const std::string& profile, const std::string& key, const Json& document) {
   auto result = server.cli({"config", "edit", profile, key, "--text", document.dump()});
+  if (result.code != 0) std::cerr << "edit " << key << " failed: " << result.err << '\n';
+  return result.code == 0;
+}
+
+bool enable_module(XrmServer& server, const std::string& profile, const std::string& key) {
+  const auto result = server.cli({"config", "enable", profile, key});
+  if (result.code != 0) std::cerr << "enable " << key << " failed: " << result.err << '\n';
   return result.code == 0;
 }
 
@@ -504,13 +557,226 @@ bool run_vless_flow(bool also_export) {
 
   OwnedProcess standalone;
   REQUIRE(standalone.start(xray, {"run", "-confdir", export_dir.string()}, temp.path, false));
-  REQUIRE(wait_for_port(*socks_port));
+    REQUIRE(wait_for_socks(*socks_port));
   const auto exported_response = socks_http_request(*socks_port, http.port());
   CHECK(exported_response.find(http_marker) != std::string::npos);
   INFO("standalone Xray stderr: " << standalone.stderr_text());
   REQUIRE(standalone.stop());
   REQUIRE(server.stop());
   REQUIRE(vless_server.stop());
+  return true;
+}
+
+bool run_runtime_override_flow(const std::filesystem::path& xray, bool exercise_override) {
+  TempDirectory temp;
+  const auto socks_port = free_loopback_port();
+  const auto native_port = free_loopback_port();
+  const auto native_b_port = free_loopback_port();
+  const auto api_port = free_loopback_port();
+  const auto server_a_port = free_loopback_port();
+  const auto server_b_port = free_loopback_port();
+  REQUIRE((socks_port && native_port && native_b_port && api_port && server_a_port && server_b_port));
+  LoopbackHttp http_a, http_b;
+  REQUIRE(http_a.start("XRM-G3-RC06-MARKER-A", 100));
+  REQUIRE(http_b.start("XRM-G3-RC06-MARKER-B", 100));
+  const std::string uuid_a = "00000000-0000-4000-8000-000000000011";
+  const std::string uuid_b = "00000000-0000-4000-8000-000000000012";
+  const auto server_config = [&](std::uint16_t listen_port, const std::string& uuid,
+                                 std::uint16_t destination_port) {
+    Json config{{"log", Json{{"loglevel", "warning"}}}};
+    config["inbounds"] = Json::array({Json{{"listen", "127.0.0.1"}, {"port", listen_port},
+        {"protocol", "vless"}, {"tag", "rc06-server"},
+        {"settings", Json{{"clients", Json::array({Json{{"id", uuid}}})}, {"decryption", "none"}}}}});
+    config["outbounds"] = Json::array({Json{{"protocol", "freedom"}, {"tag", "direct"},
+        {"settings", Json{{"finalRules", Json::array({Json{{"action", "allow"}, {"network", "tcp"},
+          {"port", std::to_string(destination_port)}, {"ip", Json::array({"127.0.0.0/8"})}}})}}}}});
+    return config;
+  };
+  const auto config_a = temp.path / "server-a.json";
+  const auto config_b = temp.path / "server-b.json";
+  { std::ofstream file(config_a); file << server_config(*server_a_port, uuid_a, http_a.port()).dump(2); }
+  { std::ofstream file(config_b); file << server_config(*server_b_port, uuid_b, http_b.port()).dump(2); }
+  OwnedProcess server_a, server_b;
+  REQUIRE(server_a.start(xray, {"run", "-c", config_a.string()}, temp.path, false));
+  REQUIRE(server_b.start(xray, {"run", "-c", config_b.string()}, temp.path, false));
+  REQUIRE(wait_for_port(*server_a_port));
+  REQUIRE(wait_for_port(*server_b_port));
+
+  XrmServer server(temp);
+  REQUIRE(server.start());
+  const auto profile = setup_xrm(server, xray);
+  REQUIRE(profile);
+  REQUIRE(edit_module(server, *profile, "api", Json{{"api", Json{{"tag", "api"},
+      {"services", Json::array({"HandlerService", "StatsService", "ObservatoryService", "RoutingService"})}}}}));
+  REQUIRE(enable_module(server, *profile, "inbounds"));
+  REQUIRE(enable_module(server, *profile, "routing"));
+  REQUIRE(enable_module(server, *profile, "api"));
+  REQUIRE(edit_module(server, *profile, "observatory", Json{{"observatory", Json{
+      {"subjectSelector", Json::array({"xrm.node.g3-rc06-a", "xrm.node.g3-rc06-b"})},
+      {"probeUrl", "http://127.0.0.1/"}, {"probeInterval", "5s"}}}}));
+  REQUIRE(enable_module(server, *profile, "observatory"));
+  REQUIRE(edit_module(server, *profile, "inbounds", Json{{"inbounds", Json::array({
+      Json{{"listen", "127.0.0.1"}, {"port", *socks_port}, {"protocol", "socks"},
+           {"tag", "g3-socks"}, {"settings", Json{{"auth", "noauth"}, {"udp", false}}}},
+      Json{{"listen", "127.0.0.1"}, {"port", *native_port}, {"protocol", "socks"},
+           {"tag", "g3-native-socks"}, {"settings", Json{{"auth", "noauth"}, {"udp", false}}}},
+      Json{{"listen", "127.0.0.1"}, {"port", *native_b_port}, {"protocol", "socks"},
+           {"tag", "g3-native-b-socks"}, {"settings", Json{{"auth", "noauth"}, {"udp", false}}}},
+      Json{{"listen", "127.0.0.1"}, {"port", *api_port}, {"protocol", "dokodemo-door"},
+           {"tag", "api"}, {"settings", Json{{"address", "127.0.0.1"}}}}
+  })}}));
+  REQUIRE(edit_module(server, *profile, "routing", Json{{"routing", Json{
+      {"balancers", Json::array({Json{{"tag", "g3-static"},
+          {"selector", Json::array({node_tag("g3-rc06-a")})},
+          {"strategy", Json{{"type", "random"}}}}})},
+      {"rules", Json::array({
+      Json{{"type", "field"}, {"inboundTag", Json::array({"api"})}, {"outboundTag", "api"}},
+      Json{{"type", "field"}, {"inboundTag", Json::array({"g3-native-socks"})}, {"outboundTag", node_tag("g3-rc06-a")}},
+      Json{{"type", "field"}, {"inboundTag", Json::array({"g3-native-b-socks"})}, {"outboundTag", node_tag("g3-rc06-b")}},
+      Json{{"type", "field"}, {"inboundTag", Json::array({"g3-socks"})}, {"balancerTag", "g3-group"}}})}}}}));
+  const auto uri_a = "vless://" + uuid_a + "@127.0.0.1:" + std::to_string(*server_a_port) + "?encryption=none&type=tcp#exit-a";
+  const auto uri_b = "vless://" + uuid_b + "@127.0.0.1:" + std::to_string(*server_b_port) + "?encryption=none&type=tcp#exit-b";
+  auto node_a = parse_vless_uri(uri_a), node_b = parse_vless_uri(uri_b);
+  REQUIRE((node_a && node_b));
+  node_a->node.id = "g3-rc06-a"; node_b->node.id = "g3-rc06-b";
+  auto store = Store::open(server.database());
+  REQUIRE(store);
+  REQUIRE((*store)->put_node(node_a->node)); REQUIRE((*store)->put_node(node_b->node));
+  store->reset();
+  const auto tag_b = node_tag("g3-rc06-b");
+  auto group = server.cli({"group", "add", *profile, "--name", "runtime-group", "--tag", "g3-group",
+      "--mode", "manual", "--strategy", "random", "--members", "g3-rc06-a", "g3-rc06-b"});
+  REQUIRE(group.code == 0);
+  const auto group_id = server.json(group).value("id", "");
+  REQUIRE(server.cli({"group", "select", *profile, group_id, "g3-rc06-a"}).code == 0);
+  auto automatic = server.cli({"group", "add", *profile, "--name", "automatic-single-node",
+      "--tag", "g3-auto", "--mode", "automatic", "--strategy", "roundRobin",
+      "--members", "g3-rc06-a"});
+  REQUIRE(automatic.code == 0);
+  const auto automatic_id = server.json(automatic).value("id", "");
+  REQUIRE(server.cli({"select", "group", *profile, automatic_id}).code == 0);
+  const auto auto_candidate = server.json(server.cli({"config", "render", *profile}));
+  const auto auto_check = run_command(xray, {"run", "-test", "-confdir", auto_candidate.at("confdir").get<std::string>()}, temp.path);
+  INFO("automatic config check stdout=" << auto_check.out << " stderr=" << auto_check.err);
+  const auto automatic_connect = server.cli({"connect", *profile});
+  INFO("automatic group connect: " << automatic_connect.out << automatic_connect.err);
+  REQUIRE(automatic_connect.code == 0);
+  const auto auto_response = socks_http_request(*socks_port, http_a.port());
+  INFO("automatic group response: " << auto_response);
+  CHECK(auto_response.find("XRM-G3-RC06-MARKER-A") != std::string::npos);
+  REQUIRE(server.cli({"disconnect"}).code == 0);
+  REQUIRE(server.cli({"select", "group", *profile, group_id}).code == 0);
+  const auto candidate = server.json(server.cli({"config", "render", *profile}));
+  REQUIRE(candidate.contains("confdir"));
+  const auto candidate_dir = std::filesystem::path(candidate.at("confdir").get<std::string>());
+  INFO("RC-06 generated routing: " << read_file(candidate_dir / "04_routing.json"));
+  INFO("RC-06 generated API: " << read_file(candidate_dir / "06_api.json"));
+  auto direct_check = run_command(xray, {"run", "-test", "-confdir", candidate.at("confdir").get<std::string>()}, temp.path);
+  INFO("RC-06 candidate stdout: " << direct_check.out);
+  INFO("RC-06 candidate stderr: " << direct_check.err);
+  REQUIRE(direct_check.code == 0);
+  const auto preview_routing = Json::parse(read_file(candidate_dir / "04_routing.json")).at("routing");
+  CHECK(preview_routing.at("balancers").size() == 2);
+  CHECK(preview_routing.at("rules").at(1).at("outboundTag") == node_tag("g3-rc06-a"));
+  auto connect_result = server.cli({"connect", *profile});
+  INFO("connect result: " << connect_result.out << connect_result.err);
+  REQUIRE(connect_result.code == 0);
+  REQUIRE(wait_for_socks(*socks_port));
+  const auto before = server.json(server.cli({"status"}));
+  const auto confdir = std::filesystem::path(before.at("active").at("confdir").get<std::string>());
+  const auto routing_before = read_file(confdir / "04_routing.json");
+  const auto tail_before = read_file(confdir / "90_nodes_tail.json");
+  CHECK(socks_http_request(*native_port, http_a.port()).find("XRM-G3-RC06-MARKER-A") != std::string::npos);
+  CHECK(socks_http_request(*native_b_port, http_b.port()).find("XRM-G3-RC06-MARKER-B") != std::string::npos);
+  const auto balancer_info = run_command(xray, {"api", "bi", "--server=127.0.0.1:" + std::to_string(*api_port), "-t", "3", "--json", "g3-group"}, temp.path);
+  INFO("balancer info exit=" << balancer_info.code << " stdout=" << balancer_info.out << " stderr=" << balancer_info.err);
+  REQUIRE(balancer_info.code == 0);
+  const auto baseline = Json::parse(balancer_info.out).at("balancer");
+  CHECK(baseline.at("override").empty());
+  CHECK(baseline.at("principleTarget").at("tag").at(0) == node_tag("g3-rc06-a"));
+  const auto manual_response = socks_http_request(*socks_port, http_a.port());
+  INFO("manual saved-A group response: " << manual_response);
+  CHECK(manual_response.find("XRM-G3-RC06-MARKER-A") != std::string::npos);
+  if (exercise_override) {
+    auto override_a = server.cli({"group", "override", "--runtime", "g3-group", node_tag("g3-rc06-a")});
+    REQUIRE(override_a.code == 0);
+    CHECK(server.json(override_a).value("state", "") == "confirmed");
+    const auto override_a_info = run_command(xray, {"api", "bi", "--server=127.0.0.1:" + std::to_string(*api_port), "--json", "g3-group"}, temp.path);
+    REQUIRE(override_a_info.code == 0);
+    CHECK(Json::parse(override_a_info.out).at("balancer").at("override").at("target") == node_tag("g3-rc06-a"));
+    CHECK(socks_http_request(*socks_port, http_a.port()).find("XRM-G3-RC06-MARKER-A") != std::string::npos);
+  }
+    REQUIRE(server.cli({"group", "select", *profile, group_id, "g3-rc06-b"}).code == 0);
+    CHECK(server.json(server.cli({"group", "show", *profile, group_id})).at("selected_node_id") == "g3-rc06-b");
+    REQUIRE(server.cli({"disconnect"}).code == 0);
+    const auto selected_b = server.json(server.cli({"config", "render", *profile}));
+    const auto selected_b_confdir = std::filesystem::path(selected_b.at("confdir").get<std::string>());
+    const auto selected_b_routing = Json::parse(read_file(selected_b_confdir / "04_routing.json")).at("routing");
+    const auto selected_b_balancer = std::find_if(selected_b_routing.at("balancers").begin(), selected_b_routing.at("balancers").end(),
+        [](const Json& value) { return value.value("tag", "") == "g3-group"; });
+    REQUIRE(selected_b_balancer != selected_b_routing.at("balancers").end());
+    REQUIRE(selected_b_balancer->at("selector").size() == 1);
+    CHECK(selected_b_balancer->at("selector").at(0) == tag_b);
+    REQUIRE(server.cli({"connect", *profile}).code == 0);
+    const auto status_b = server.json(server.cli({"status"}));
+    const auto runtime_b = std::filesystem::path(status_b.at("active").at("confdir").get<std::string>());
+    INFO("B selected runtime routing: " << read_file(runtime_b / "04_routing.json"));
+    const auto actual_b = run_command(xray, {"api", "bi", "--server=127.0.0.1:" + std::to_string(*api_port), "--json", "g3-group"}, temp.path);
+    INFO("B selected balancer info: " << actual_b.out);
+    const auto response_b = socks_http_request(*socks_port, http_b.port());
+    INFO("B selected HTTP response: " << response_b);
+    CHECK(response_b.find("XRM-G3-RC06-MARKER-B") != std::string::npos);
+  REQUIRE(server.cli({"group", "select", *profile, group_id, "g3-rc06-a"}).code == 0);
+  REQUIRE(server.cli({"disconnect"}).code == 0);
+  REQUIRE(server.cli({"connect", *profile}).code == 0);
+  REQUIRE(wait_for_socks(*socks_port));
+  if (exercise_override) {
+    const auto override_baseline = server.json(server.cli({"status"}));
+    const auto override_confdir = std::filesystem::path(override_baseline.at("active").at("confdir").get<std::string>());
+    const auto override_routing = read_file(override_confdir / "04_routing.json");
+    const auto override_tail = read_file(override_confdir / "90_nodes_tail.json");
+    auto overridden = server.cli({"group", "override", "--runtime", "g3-group", tag_b});
+    INFO("override response: " << overridden.out << overridden.err);
+    REQUIRE(overridden.code == 0);
+    REQUIRE(server.json(overridden).value("state", "") == "confirmed");
+    const auto after = server.json(server.cli({"status"}));
+    CHECK(after.at("pid") == override_baseline.at("pid"));
+    CHECK(after.at("active").at("confdir") == override_baseline.at("active").at("confdir"));
+    CHECK(read_file(override_confdir / "04_routing.json") == override_routing);
+    CHECK(read_file(override_confdir / "90_nodes_tail.json") == override_tail);
+    CHECK(server.json(server.cli({"profile", "show", *profile})).at("selected").at("id_or_tag") == group_id);
+    CHECK(server.json(server.cli({"group", "show", *profile, group_id})).at("selected_node_id") == "g3-rc06-a");
+    const auto override_b_info = run_command(xray, {"api", "bi", "--server=127.0.0.1:" + std::to_string(*api_port), "--json", "g3-group"}, temp.path);
+    REQUIRE(override_b_info.code == 0);
+    CHECK(Json::parse(override_b_info.out).at("balancer").at("override").at("target") == tag_b);
+    CHECK(socks_http_request(*socks_port, http_b.port()).find("XRM-G3-RC06-MARKER-B") != std::string::npos);
+    CHECK(server.json(server.cli({"status"})).value("runtime_override", "") == tag_b);
+    auto clear = server.cli({"group", "override", "--clear", "--runtime", "g3-group"});
+    REQUIRE(clear.code == 0);
+    const auto cleared = run_command(xray, {"api", "bi", "--server=127.0.0.1:" + std::to_string(*api_port), "--json", "g3-group"}, temp.path);
+    REQUIRE(cleared.code == 0);
+    CHECK(Json::parse(cleared.out).at("balancer").at("override").empty());
+  }
+  REQUIRE(server.cli({"disconnect"}).code == 0);
+  REQUIRE(server.cli({"connect", *profile}).code == 0);
+  REQUIRE(wait_for_socks(*socks_port));
+  CHECK(server.json(server.cli({"status"})).value("override_state", "") == "none");
+  if (exercise_override) {
+    const auto final_status = server.json(server.cli({"status"}));
+    const auto final_dir = std::filesystem::path(final_status.at("active").at("confdir").get<std::string>());
+    INFO("restart runtime routing: " << read_file(final_dir / "04_routing.json"));
+    const auto restart_info = run_command(xray, {"api", "bi", "--server=127.0.0.1:" + std::to_string(*api_port), "--json", "g3-group"}, temp.path);
+    INFO("restart balancer info: " << restart_info.out);
+    const auto final_response = wait_for_socks_marker(*socks_port, http_a.port(), "XRM-G3-RC06-MARKER-A");
+    INFO("restart saved-selection response: " << final_response);
+    INFO("marker A HTTP requests served: " << http_a.served());
+    INFO("VLESS server A output: " << server_a.stdout_text() << server_a.stderr_text());
+    INFO("XRM core logs after restart: " << server.cli({"logs", "--limit", "65536"}).out);
+    CHECK(final_response.find("XRM-G3-RC06-MARKER-A") != std::string::npos);
+  }
+  REQUIRE(server.cli({"disconnect"}).code == 0);
+  REQUIRE(server.stop());
+  REQUIRE(server_a.stop()); REQUIRE(server_b.stop());
   return true;
 }
 
@@ -615,4 +881,12 @@ TEST_CASE("RC-02 VLESS Codec node traverses XRM and carries loopback traffic", "
 
 TEST_CASE("RC-10 exported runtime files run independently without xrmd", "[real_core][RC-10]") {
   run_vless_flow(true);
+}
+
+TEST_CASE("RC-06 runtime API override changes only current Xray group selection", "[real_core][RC-06]") {
+  REQUIRE(run_runtime_override_flow(real_xray(), true));
+}
+
+TEST_CASE("RC-03 native routing and manual groups send real loopback traffic", "[real_core][RC-03]") {
+  REQUIRE(run_runtime_override_flow(real_xray(), false));
 }

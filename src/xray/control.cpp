@@ -33,10 +33,12 @@ ProcessSpec process_spec(const ControlTarget& target, std::vector<std::string> a
   return spec;
 }
 
-std::vector<std::string> api_options(const ControlTarget& target) {
+std::vector<std::string> api_options(const ControlTarget& target, bool json = false) {
   const auto seconds = std::max<std::int64_t>(
       1, (target.timeout.count() + 999) / 1000);
-  return {"--server=" + target.endpoint, "-t", std::to_string(seconds)};
+  std::vector<std::string> options{"--server=" + target.endpoint, "-t", std::to_string(seconds)};
+  if (json) options.push_back("--json");
+  return options;
 }
 
 std::optional<std::string> string_member(const Json& value, std::string_view key) {
@@ -45,43 +47,17 @@ std::optional<std::string> string_member(const Json& value, std::string_view key
   return std::nullopt;
 }
 
-bool contains_balancer(const Json& value, std::string_view tag) {
-  if (value.is_object()) {
-    if (string_member(value, "tag") == tag) return true;
-    for (auto it = value.begin(); it != value.end(); ++it) {
-      if (contains_balancer(it.value(), tag)) return true;
-    }
-  } else if (value.is_array()) {
-    return std::any_of(value.begin(), value.end(),
-                       [tag](const auto& item) { return contains_balancer(item, tag); });
-  }
-  return false;
+const Json* balancer_info_object(const Json& value) {
+  const auto found = value.find("balancer");
+  return found != value.end() && found->is_object() ? &*found : nullptr;
 }
 
-std::optional<std::string> selected_outbound(const Json& value, std::string_view tag) {
-  if (value.is_object()) {
-    const bool target = string_member(value, "tag") == tag ||
-                        (value.contains("tag") == false &&
-                         (value.contains("selector") || value.contains("selected")));
-    if (target) {
-      for (const auto key : {"selector", "selected", "selectedOutbound", "outboundTag"}) {
-        if (auto result = string_member(value, key)) return result;
-        const auto found = value.find(key);
-        if (found != value.end() && found->is_array() && found->size() == 1 &&
-            found->front().is_string()) {
-          return found->front().get<std::string>();
-        }
-      }
-    }
-    for (auto it = value.begin(); it != value.end(); ++it) {
-      if (auto result = selected_outbound(it.value(), tag)) return result;
-    }
-  } else if (value.is_array()) {
-    for (const auto& item : value) {
-      if (auto result = selected_outbound(item, tag)) return result;
-    }
-  }
-  return std::nullopt;
+std::optional<std::string> override_target(const Json& value) {
+  const auto* balancer = balancer_info_object(value);
+  if (!balancer) return std::nullopt;
+  const auto override = balancer->find("override");
+  if (override == balancer->end() || !override->is_object()) return std::nullopt;
+  return string_member(*override, "target");
 }
 
 void query_after_write(ProcessService& process, ControlTarget target, std::string balancer_tag,
@@ -89,7 +65,7 @@ void query_after_write(ProcessService& process, ControlTarget target, std::strin
                        bool write_timed_out,
                        Completion<OverrideResult> completion) {
   std::vector<std::string> arguments{"api", "bi"};
-  auto options = api_options(target);
+  auto options = api_options(target, true);
   arguments.insert(arguments.end(), options.begin(), options.end());
   arguments.push_back(balancer_tag);
   auto complete = std::make_shared<Completion<OverrideResult>>(std::move(completion));
@@ -106,9 +82,9 @@ void query_after_write(ProcessService& process, ControlTarget target, std::strin
         }
         try {
           const auto info = Json::parse(result->stdout_text);
-          const auto actual = selected_outbound(info, balancer_tag);
-          const bool exists = contains_balancer(info, balancer_tag);
-          const bool confirmed = expected ? actual == expected : (exists && !write_timed_out);
+          const auto actual = override_target(info);
+          const bool exists = balancer_info_object(info) != nullptr;
+          const bool confirmed = expected ? actual == expected : (exists && !actual && !write_timed_out);
           (*complete)(OverrideResult{confirmed, actual});
         } catch (const Json::exception&) {
           (*complete)(OverrideResult{false, std::nullopt});
@@ -126,7 +102,7 @@ Result<Id> XrayControl::balancer_info(ControlTarget target, std::string balancer
   auto valid = validate(target, balancer_tag);
   if (!valid) return std::unexpected(valid.error());
   std::vector<std::string> arguments{"api", "bi"};
-  auto options = api_options(target);
+  auto options = api_options(target, true);
   arguments.insert(arguments.end(), options.begin(), options.end());
   arguments.push_back(balancer_tag);
   return process_.execute(process_spec(target, std::move(arguments)), target.timeout,

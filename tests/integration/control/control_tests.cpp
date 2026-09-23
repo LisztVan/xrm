@@ -30,8 +30,13 @@ std::filesystem::path fixture(const std::filesystem::path& dir, std::string bo_a
             "printf '%s\\n' \"$*\" >> \"$XRM_CONTROL_RECORD\"\n"
             "case \" $* \" in\n"
             "  *' bo '*) " << bo_action << " ;;\n"
-            "  *' bi '*) printf '%s\\n' '{\"balancers\":[{\"tag\":\"lb\",\"selector\":\"" << selected << "\"}]}' ;;\n"
-            "esac\n";
+            "  *' bi '*) ";
+  if (selected.empty())
+    script << "printf '%s\\n' '{\"balancer\":{\"override\":{},\"principleTarget\":{\"tag\":[\"exit-a\",\"exit-b\"]}}}' ;;\n";
+  else
+    script << "printf '%s\\n' '{\"balancer\":{\"override\":{\"target\":\"" << selected
+           << "\"},\"principleTarget\":{\"tag\":[\"exit-a\",\"exit-b\"]}}}' ;;\n";
+  script << "esac\n";
   script.close();
   ::chmod(path.c_str(), 0700);
   return path;
@@ -65,6 +70,7 @@ TEST_CASE("Xray API override uses argv and does not shell-escape user tags",
   const std::string argv((std::istreambuf_iterator<char>(input)), {});
   CHECK(argv.find("api bo --server=127.0.0.1:18080") != std::string::npos);
   CHECK(argv.find("api bi --server=127.0.0.1:18080") != std::string::npos);
+  CHECK(argv.find("--json") != std::string::npos);
   CHECK(argv.find("-b lb exit-b") != std::string::npos);
   process.shutdown([&] {});
   uv_run(&loop, UV_RUN_DEFAULT);
@@ -109,7 +115,7 @@ TEST_CASE("clearing a runtime override uses the official remove flag",
   auto dir = std::filesystem::temp_directory_path() / ("xrm-control-clear-" + unique_name());
   std::filesystem::create_directories(dir);
   const auto calls = dir / "calls.txt";
-  const auto binary = fixture(dir, "exit 0");
+  const auto binary = fixture(dir, "exit 0", "");
   uv_loop_t loop;
   REQUIRE(uv_loop_init(&loop) == 0);
   ProcessService process(loop);

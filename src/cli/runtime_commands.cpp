@@ -11,14 +11,16 @@ void add_runtime_commands(CLI::App& app, Request& request) {
   group_add->add_option("--name", request.group_name)->required();
   group_add->add_option("--tag", request.group_tag)->required();
   group_add->add_option("--mode", request.group_mode)->check(CLI::IsMember({"automatic", "manual"}));
-  group_add->add_option("--strategy", request.group_strategy)->check(CLI::IsMember({"random", "roundRobin", "leastPing", "leastLoad"}));
+  group_add->add_option("--strategy", request.group_strategy,
+      "Xray strategy; leastLoad is experimental and has not been verified against the fixed core")
+      ->check(CLI::IsMember({"random", "roundRobin", "leastPing", "leastLoad"}));
   group_add->add_option("--members", request.group_members)->required();
   group_add->callback([&] {
     request.method = std::string(methods::group_save);
     request.params = {{"profile_id", request.profile_id}, {"group", {
       {"id", ""}, {"name", request.group_name}, {"members", {{"kind", "explicit"}, {"node_ids", request.group_members}}},
       {"selection_mode", request.group_mode}, {"selected_node_id", nullptr},
-      {"balancer", {{"tag", request.group_tag}, {"strategy", request.group_strategy}}}}}};
+      {"balancer", {{"tag", request.group_tag}, {"strategy", {{"type", request.group_strategy}}}}}}}};
   });
   auto* group_list = group->add_subcommand("list", "List groups in a Profile");
   group_list->add_option("profile_id", request.profile_id)->required();
