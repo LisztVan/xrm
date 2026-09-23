@@ -82,6 +82,12 @@ struct Node {
   bool enabled = true;
   bool source_missing = false;
   NodeSettings settings = RawOutbound{Json::object()};
+  std::optional<std::string> upstream_id;
+};
+
+struct NodeChanges {
+  std::vector<Node> upserts;
+  std::vector<Id> erase_ids;
 };
 
 struct NodeQuery {

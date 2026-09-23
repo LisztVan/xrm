@@ -9,6 +9,7 @@
 #include "model/profile.hpp"
 #include "server/rpc_server.hpp"
 #include "xray/runtime_assembler.hpp"
+#include "model/subscription.hpp"
 
 TEST_CASE("C0 headers are independently usable", "[CT-01]") {
   STATIC_REQUIRE(std::is_default_constructible_v<xrm::Node>);
@@ -60,4 +61,36 @@ TEST_CASE("C1 freezes current M1 profile and runtime surfaces", "[CT-01]") {
   REQUIRE(xrm::methods::config_dump == "config.dump");
   REQUIRE(xrm::methods::config_files == "config.files");
   REQUIRE(xrm::methods::config_export == "config.export");
+}
+
+TEST_CASE("C2 subscription DTO summary does not disclose its URL", "[CT-02]") {
+  const xrm::SubscriptionSummary summary{"source-1", "example", true,
+      "success", 100, 200, 4, 1, 2};
+  const auto encoded = xrm::Json(summary);
+  REQUIRE(encoded.at("id") == "source-1");
+  REQUIRE(encoded.at("name") == "example");
+  REQUIRE_FALSE(encoded.contains("url"));
+  REQUIRE_FALSE(encoded.contains("headers"));
+  REQUIRE(encoded.get<xrm::SubscriptionSummary>().unsupported_count == 1);
+  REQUIRE(xrm::methods::subscription_refresh == "subscription.refresh");
+  REQUIRE(xrm::methods::node_copy == "node.copy");
+
+  xrm::Subscription source;
+  source.id = "source-1";
+  source.name = "example";
+  source.url = "https://user:secret@example.invalid/sub?id=hidden";
+  source.headers.emplace("Authorization", "Bearer hidden");
+  source.settings_revision = 3;
+  const auto source_copy = xrm::Json(source).get<xrm::Subscription>();
+  REQUIRE(source_copy.url == source.url);
+  REQUIRE(source_copy.headers == source.headers);
+  REQUIRE(source_copy.settings_revision == 3);
+
+  xrm::Node node;
+  node.id = "node-1";
+  node.source_id = "source-1";
+  node.upstream_id = "line-4";
+  node.original_name = "sample";
+  const auto decoded_node = xrm::Json(node).get<xrm::Node>();
+  REQUIRE(decoded_node.upstream_id == "line-4");
 }

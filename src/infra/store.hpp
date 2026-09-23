@@ -2,6 +2,7 @@
 
 #include "model/node.hpp"
 #include "model/runtime.hpp"
+#include "model/subscription.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -21,6 +22,13 @@ class Store {
   Result<std::vector<Node>> all_nodes() const;
   Result<void> put_node(const Node&);
   Result<void> erase_node(const Id&);
+
+  Result<std::vector<Subscription>> list_sources() const;
+  Result<Subscription> get_source(const Id&) const;
+  Result<SubscriptionState> get_source_state(const Id&) const;
+  Result<void> put_source(const Subscription&);
+  Result<void> remove_source(const Id&, bool keep_as_manual);
+  Result<void> commit_source(const Id&, const SourceCommit&);
 
   Result<void> register_profile(const Id&, const std::filesystem::path&);
   Result<std::filesystem::path> profile_path(const Id&) const;

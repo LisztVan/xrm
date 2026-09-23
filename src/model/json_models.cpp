@@ -1,5 +1,6 @@
 #include "model/node.hpp"
 #include "model/runtime.hpp"
+#include "model/subscription.hpp"
 
 #include <stdexcept>
 
@@ -120,6 +121,7 @@ NodeSettings settings_from_json(const Json& json) {
 
 void to_json(Json& json, const Node& value) {
   json = Json{{"id", value.id}, {"source_id", value.source_id ? Json(*value.source_id) : Json(nullptr)},
+              {"upstream_id", optional_string(value.upstream_id)},
               {"original_name", value.original_name}, {"alias", optional_string(value.alias)},
               {"labels", value.labels}, {"enabled", value.enabled},
               {"source_missing", value.source_missing}, {"settings", settings_json(value.settings)}};
@@ -129,12 +131,53 @@ void from_json(const Json& json, Node& value) {
   if (!json.is_object()) throw Json::type_error::create(302, "node must be an object", &json);
   value.id = json.at("id").get<std::string>();
   value.source_id = json.at("source_id").is_null() ? std::nullopt : std::optional<Id>(json.at("source_id").get<std::string>());
+  value.upstream_id = json.contains("upstream_id")
+                          ? read_optional_string(json, "upstream_id")
+                          : std::nullopt;
   value.original_name = json.at("original_name").get<std::string>();
   value.alias = read_optional_string(json, "alias");
   value.labels = json.at("labels").get<std::vector<std::string>>();
   value.enabled = json.at("enabled").get<bool>();
   value.source_missing = json.at("source_missing").get<bool>();
   value.settings = settings_from_json(json.at("settings"));
+}
+
+void to_json(Json& json, const Subscription& value) {
+  json = Json{{"id", value.id}, {"name", value.name}, {"url", value.url},
+              {"user_agent", value.user_agent}, {"headers", value.headers},
+              {"auto_refresh", value.auto_refresh}, {"interval_seconds", value.interval.count()},
+              {"route", Json{{"proxy_url", optional_string(value.route.proxy_url)}}},
+              {"settings_revision", value.settings_revision}};
+}
+
+void from_json(const Json& json, Subscription& value) {
+  value.id = json.at("id").get<Id>();
+  value.name = json.at("name").get<std::string>();
+  value.url = json.at("url").get<std::string>();
+  value.user_agent = json.at("user_agent").get<std::string>();
+  value.headers = json.at("headers").get<std::map<std::string, std::string>>();
+  value.auto_refresh = json.at("auto_refresh").get<bool>();
+  value.interval = std::chrono::seconds(json.at("interval_seconds").get<std::int64_t>());
+  value.route.proxy_url = read_optional_string(json.at("route"), "proxy_url");
+  value.settings_revision = json.at("settings_revision").get<std::uint64_t>();
+}
+
+void to_json(Json& json, const SubscriptionState& value) {
+  json = Json{{"last_attempt", value.last_attempt ? Json(*value.last_attempt) : Json(nullptr)},
+              {"last_success", value.last_success ? Json(*value.last_success) : Json(nullptr)},
+              {"etag", optional_string(value.etag)},
+              {"last_modified", optional_string(value.last_modified)},
+              {"last_result", value.last_result},
+              {"reported_usage", optional_string(value.reported_usage)}};
+}
+
+void from_json(const Json& json, SubscriptionState& value) {
+  if (!json.at("last_attempt").is_null()) value.last_attempt = json.at("last_attempt").get<UnixMillis>();
+  if (!json.at("last_success").is_null()) value.last_success = json.at("last_success").get<UnixMillis>();
+  value.etag = read_optional_string(json, "etag");
+  value.last_modified = read_optional_string(json, "last_modified");
+  value.last_result = json.at("last_result").get<std::string>();
+  value.reported_usage = read_optional_string(json, "reported_usage");
 }
 
 void to_json(Json& json, const RuntimePersistent& value) {

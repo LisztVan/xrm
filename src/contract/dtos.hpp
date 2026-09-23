@@ -2,10 +2,43 @@
 
 #include "model/node.hpp"
 #include "model/runtime.hpp"
+#include "model/subscription.hpp"
 
 #include <nlohmann/json.hpp>
 
 namespace xrm {
+
+struct SubscriptionSummary {
+  Id id;
+  std::string name;
+  bool enabled = true;
+  std::string last_result;
+  std::optional<UnixMillis> last_attempt;
+  std::optional<UnixMillis> last_success;
+  std::size_t node_count = 0;
+  std::size_t unsupported_count = 0;
+  std::size_t malformed_count = 0;
+};
+
+inline void to_json(Json& json, const SubscriptionSummary& value) {
+  json = Json{{"id", value.id}, {"name", value.name}, {"enabled", value.enabled},
+              {"last_result", value.last_result}, {"last_attempt", value.last_attempt},
+              {"last_success", value.last_success}, {"node_count", value.node_count},
+              {"unsupported_count", value.unsupported_count},
+              {"malformed_count", value.malformed_count}};
+}
+
+inline void from_json(const Json& json, SubscriptionSummary& value) {
+  value.id = json.at("id").get<Id>();
+  value.name = json.at("name").get<std::string>();
+  value.enabled = json.at("enabled").get<bool>();
+  value.last_result = json.at("last_result").get<std::string>();
+  if (!json.at("last_attempt").is_null()) value.last_attempt = json.at("last_attempt").get<UnixMillis>();
+  if (!json.at("last_success").is_null()) value.last_success = json.at("last_success").get<UnixMillis>();
+  value.node_count = json.at("node_count").get<std::size_t>();
+  value.unsupported_count = json.at("unsupported_count").get<std::size_t>();
+  value.malformed_count = json.at("malformed_count").get<std::size_t>();
+}
 
 struct NodeSummary {
   Id id;
