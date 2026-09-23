@@ -98,6 +98,7 @@ add_library(xrm_server_lib STATIC
   src/server/log_buffer.cpp
   src/server/operations.cpp
   src/profile/profile_service.cpp
+  src/profile/groups.cpp
   src/xray/runtime_writer.cpp
   src/xray/core_manager.cpp
   src/xray/process_adapter.cpp)
