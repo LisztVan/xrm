@@ -99,6 +99,8 @@ TEST_CASE("FORM-01 common forms update only owned native fields", "[FORM-01]") {
   CHECK(body(*burst).contains("burstObservatory"));
   CHECK(body(*burst)["burstObservatory"]["pingConfig"]["destination"] == "127.0.0.1:80");
   CHECK(body(*burst)["burstObservatory"]["unknown"] == 5);
+  CHECK_FALSE(set_observatory_probe(doc("burstObservatory", {{"burstObservatory", {{"pingConfig", {{"keep", true}}}}}}),
+                                   "http://127.0.0.1/", "30s", true));
 }
 
 TEST_CASE("FORM-06 native target edit and list move preserve route matching fields", "[FORM-06]") {

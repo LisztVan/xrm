@@ -182,10 +182,9 @@ Result<ModuleEdit> set_geodata_schedule(const ModuleDocument& document, std::str
 
 Result<ModuleEdit> set_observatory_probe(const ModuleDocument& document, std::string url,
                                         std::string interval, bool concurrency) {
-  const auto key = document.key;
-  if (key != "observatory" && key != "burstObservatory")
-    return std::unexpected(invalid("探测表单只接受 observatory 或 burstObservatory", key));
-  return update_object(document, key, [&](Json& native) {
+  if (document.key != "observatory")
+    return std::unexpected(invalid("probeUrl/probeInterval 属于原生 observatory；burstObservatory 请编辑 pingConfig", document.key));
+  return update_object(document, "observatory", [&](Json& native) {
     native["probeUrl"] = std::move(url);
     native["probeInterval"] = std::move(interval);
     native["enableConcurrency"] = concurrency;
