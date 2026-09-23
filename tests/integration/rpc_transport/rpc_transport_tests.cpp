@@ -250,4 +250,91 @@ TEST_CASE("RPC-01 stream framing accepts fragments and combined frames and bound
   REQUIRE(stopper.drained);
   REQUIRE(loop.close() == 0);
 }
+
+TEST_CASE("LOG-02 slow UDS client is bounded without delaying other RPC clients", "[LOG-02][RPC-02]") {
+  Loop loop;
+  xrm::RpcServer server(loop.value, [](const xrm::Id&, xrm::RpcRequest request,
+                                       xrm::RpcReply reply) {
+    if (request.method == "logs.read") {
+      reply(xrm::RpcResponse{1, request.id, true,
+                             xrm::Json{{"entries", xrm::Json::array({
+                                 xrm::Json{{"text", std::string(256 * 1024, 'L')}}})},
+                                       {"truncated", true}}, std::nullopt});
+    } else if (request.method == "status") {
+      reply(xrm::RpcResponse{1, request.id, true, xrm::Json{{"running", true}}, std::nullopt});
+    } else if (request.method == "stop") {
+      reply(xrm::RpcResponse{1, request.id, true, xrm::Json{{"stopped", true}}, std::nullopt});
+    } else {
+      reply(xrm::RpcResponse{1, request.id, false, std::nullopt,
+                             xrm::AppError{xrm::ErrorCode::unsupported, "unknown", std::nullopt,
+                                           std::nullopt}});
+    }
+  });
+  const auto socket = socket_path();
+  REQUIRE(server.listen(socket));
+  LoopStopper stopper;
+  stopper.server = &server;
+  REQUIRE(uv_async_init(&loop.value, &stopper.signal, LoopStopper::request_stop) == 0);
+  stopper.signal.data = &stopper;
+  stopper.start(loop.value);
+
+  const int slow_fd = connect_socket(socket);
+  REQUIRE(slow_fd >= 0);
+  int receive_buffer_size = 1024;
+  REQUIRE(::setsockopt(slow_fd, SOL_SOCKET, SO_RCVBUF, &receive_buffer_size,
+                       sizeof(receive_buffer_size)) == 0);
+  std::string slow_pending;
+  REQUIRE(send_all(slow_fd,
+                   R"({"v":1,"id":0,"method":"logs.read","params":{"cursor":0}})" "\n"));
+  std::string first_log_line;
+  REQUIRE(receive_line(slow_fd, slow_pending, first_log_line));
+  const auto first_log_page = xrm::Json::parse(first_log_line);
+  REQUIRE(first_log_page.at("result").at("truncated").get<bool>());
+
+  std::string flood;
+  constexpr int kRequests = 64;
+  for (int i = 1; i <= kRequests; ++i) {
+    flood += R"({"v":1,"id":)" + std::to_string(i) +
+             R"(,"method":"logs.read","params":{"cursor":0}})" "\n";
+  }
+  REQUIRE(send_all(slow_fd, flood));
+
+  const int responsive_fd = connect_socket(socket);
+  REQUIRE(responsive_fd >= 0);
+  std::string pending;
+  std::string line;
+  REQUIRE(send_all(responsive_fd,
+                   R"({"v":1,"id":9001,"method":"status","params":{}})" "\n"));
+  REQUIRE(receive_line(responsive_fd, pending, line));
+  const auto status = xrm::Json::parse(line);
+  REQUIRE(status.at("id") == 9001);
+  REQUIRE(status.at("result").at("running") == true);
+
+  REQUIRE(send_all(responsive_fd,
+                   R"({"v":1,"id":9002,"method":"stop","params":{}})" "\n"));
+  REQUIRE(receive_line(responsive_fd, pending, line));
+  const auto stopped = xrm::Json::parse(line);
+  REQUIRE(stopped.at("id") == 9002);
+  REQUIRE(stopped.at("result").at("stopped") == true);
+
+  char probe[16384];
+  bool disconnected = false;
+  const auto disconnect_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+  while (!disconnected && std::chrono::steady_clock::now() < disconnect_deadline) {
+    pollfd slow_descriptor{slow_fd, POLLIN | POLLHUP | POLLERR, 0};
+    if (::poll(&slow_descriptor, 1, 100) <= 0) continue;
+    for (;;) {
+      const auto received = ::recv(slow_fd, probe, sizeof(probe), MSG_DONTWAIT);
+      if (received == 0) { disconnected = true; break; }
+      if (received < 0) break;
+    }
+  }
+  REQUIRE(disconnected);
+
+  ::close(slow_fd);
+  ::close(responsive_fd);
+  stopper.stop();
+  REQUIRE(stopper.drained);
+  REQUIRE(loop.close() == 0);
+}
 #endif

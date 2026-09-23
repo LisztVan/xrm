@@ -17,6 +17,7 @@ namespace xrm {
 namespace {
 
 constexpr std::size_t kMaxFrameBytes = 8 * 1024 * 1024;
+constexpr std::size_t kMaxClientQueuedBytes = 1024 * 1024;
 
 AppError uv_error(int code, std::string action) {
   action += ": ";
@@ -48,6 +49,7 @@ struct RpcServer::Impl {
     uv_pipe_t pipe{};
     bool closing = false;
     std::string input;
+    std::size_t queued_bytes = 0;
   };
 
   struct Write {
@@ -106,6 +108,11 @@ struct RpcServer::Impl {
     std::unique_ptr<Write> write(static_cast<Write*>(request->data));
     auto* self = write->owner;
     if (self->pending_writes > 0) --self->pending_writes;
+    const auto found = self->clients.find(write->connection_id);
+    if (found != self->clients.end()) {
+      auto& queued = found->second->queued_bytes;
+      queued -= std::min(queued, write->bytes.size());
+    }
     if (status != 0 || write->close_after) self->close_client(write->connection_id);
     self->notify_drained();
   }
@@ -139,6 +146,14 @@ struct RpcServer::Impl {
 
   void write(Client* client, std::string bytes, bool close_after) {
     if (!client || client->closing) return;
+    if (bytes.size() > kMaxClientQueuedBytes ||
+        client->queued_bytes > kMaxClientQueuedBytes - bytes.size()) {
+      // RPC responses are correlated and cannot be silently discarded while
+      // keeping the connection usable. Disconnect this slow consumer instead
+      // of allowing libuv's per-stream write queue to grow without bound.
+      close_client(client->id);
+      return;
+    }
     auto request = std::make_unique<Write>();
     request->owner = this;
     request->connection_id = client->id;
@@ -154,6 +169,7 @@ struct RpcServer::Impl {
       return;
     }
     ++pending_writes;
+    client->queued_bytes += request->bytes.size();
     auto* pending_write = request.release();
     pending_write->request.data = pending_write;
   }
