@@ -735,6 +735,10 @@ bool run_runtime_override_flow(const std::filesystem::path& xray, bool exercise_
     const auto override_confdir = std::filesystem::path(override_baseline.at("active").at("confdir").get<std::string>());
     const auto override_routing = read_file(override_confdir / "04_routing.json");
     const auto override_tail = read_file(override_confdir / "90_nodes_tail.json");
+    const auto source_routing_path = temp.path / "profiles" / *profile / "modules" / "04_routing.json";
+    const auto source_groups_path = temp.path / "profiles" / *profile / "bindings" / "groups.json";
+    const auto source_routing = read_file(source_routing_path);
+    const auto source_groups = read_file(source_groups_path);
     auto overridden = server.cli({"group", "override", "--runtime", "g3-group", tag_b});
     INFO("override response: " << overridden.out << overridden.err);
     REQUIRE(overridden.code == 0);
@@ -744,6 +748,8 @@ bool run_runtime_override_flow(const std::filesystem::path& xray, bool exercise_
     CHECK(after.at("active").at("confdir") == override_baseline.at("active").at("confdir"));
     CHECK(read_file(override_confdir / "04_routing.json") == override_routing);
     CHECK(read_file(override_confdir / "90_nodes_tail.json") == override_tail);
+    CHECK(read_file(source_routing_path) == source_routing);
+    CHECK(read_file(source_groups_path) == source_groups);
     CHECK(server.json(server.cli({"profile", "show", *profile})).at("selected").at("id_or_tag") == group_id);
     CHECK(server.json(server.cli({"group", "show", *profile, group_id})).at("selected_node_id") == "g3-rc06-a");
     const auto override_b_info = run_command(xray, {"api", "bi", "--server=127.0.0.1:" + std::to_string(*api_port), "--json", "g3-group"}, temp.path);
