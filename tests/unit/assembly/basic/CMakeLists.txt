@@ -1,0 +1,4 @@
+add_executable(xrm_assembler_tests assembler_tests.cpp)
+target_link_libraries(xrm_assembler_tests PRIVATE xrm_logic Catch2::Catch2WithMain)
+include(Catch)
+catch_discover_tests(xrm_assembler_tests)
