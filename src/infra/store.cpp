@@ -96,12 +96,78 @@ Node node_from_columns(sqlite3_stmt* statement) {
   }
   if (stored.is_object() && stored.contains("$xrm_node_settings") && !stored.contains("protocol")) {
     Json document{{"id", node.id}, {"source_id", node.source_id ? Json(*node.source_id) : Json(nullptr)},
+                  {"upstream_id", stored.value("$xrm_upstream_id", Json(nullptr))},
                   {"original_name", node.original_name}, {"alias", node.alias ? Json(*node.alias) : Json(nullptr)},
                   {"labels", node.labels}, {"enabled", node.enabled}, {"source_missing", node.source_missing},
                   {"settings", stored.at("$xrm_node_settings")}};
     document.get_to(node);
   }
   return node;
+}
+
+Json stored_node_settings(const Node& node) {
+  if (const auto* raw = std::get_if<RawOutbound>(&node.settings);
+      raw && !node.source_id && !node.upstream_id)
+    return raw->value;
+  const Json encoded(node);
+  return Json{{"$xrm_node_settings", encoded.at("settings")},
+              {"$xrm_upstream_id", node.upstream_id ? Json(*node.upstream_id) : Json(nullptr)}};
+}
+
+AppError source_missing_error(const Id& id) {
+  return AppError{ErrorCode::not_found, "订阅来源不存在", id, std::nullopt};
+}
+
+Result<Subscription> source_from_json(std::string_view text, const Id& id) {
+  try {
+    return Json::parse(text).get<Subscription>();
+  } catch (const std::exception& error) {
+    return std::unexpected(AppError{ErrorCode::storage_error,
+        std::string("订阅来源数据无效: ") + error.what(), id, std::nullopt});
+  }
+}
+
+Result<SubscriptionState> state_from_json(std::string_view text, const Id& id) {
+  try {
+    return Json::parse(text).get<SubscriptionState>();
+  } catch (const std::exception& error) {
+    return std::unexpected(AppError{ErrorCode::storage_error,
+        std::string("订阅状态数据无效: ") + error.what(), id, std::nullopt});
+  }
+}
+
+bool request_settings_equal(const Subscription& left, const Subscription& right) {
+  Json a(left), b(right);
+  a.erase("settings_revision");
+  b.erase("settings_revision");
+  return a == b;
+}
+
+Result<void> upsert_node_row(sqlite3* db, const Node& node) {
+  if (node.id.empty()) return std::unexpected(invalid("节点ID不能为空", "id"));
+  if (node.original_name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
+  const auto* raw_outbound = std::get_if<RawOutbound>(&node.settings);
+  if (raw_outbound && !raw_outbound->value.is_object())
+    return std::unexpected(invalid("原生outbound必须是对象", "outbound"));
+  const Json json(node);
+  Statement statement(db, "INSERT INTO nodes(id,source_id,original_name,alias,labels_json,"
+                          "enabled,source_missing,outbound_json) VALUES(?1,?2,?3,?4,?5,?6,?7,?8) "
+                          "ON CONFLICT(id) DO UPDATE SET source_id=excluded.source_id,"
+                          "original_name=excluded.original_name,alias=excluded.alias,"
+                          "labels_json=excluded.labels_json,enabled=excluded.enabled,"
+                          "source_missing=excluded.source_missing,outbound_json=excluded.outbound_json");
+  if (!statement.ready()) return std::unexpected(statement.error("准备保存节点失败"));
+  bind_text(statement.get(), 1, node.id);
+  if (node.source_id) bind_text(statement.get(), 2, *node.source_id); else sqlite3_bind_null(statement.get(), 2);
+  bind_text(statement.get(), 3, node.original_name);
+  if (node.alias) bind_text(statement.get(), 4, *node.alias); else sqlite3_bind_null(statement.get(), 4);
+  bind_text(statement.get(), 5, json.at("labels").dump());
+  sqlite3_bind_int(statement.get(), 6, node.enabled ? 1 : 0);
+  sqlite3_bind_int(statement.get(), 7, node.source_missing ? 1 : 0);
+  bind_text(statement.get(), 8, stored_node_settings(node).dump());
+  if (sqlite3_step(statement.get()) != SQLITE_DONE)
+    return std::unexpected(statement.error("保存节点失败"));
+  return {};
 }
 
 }  // namespace
@@ -137,6 +203,8 @@ Result<std::unique_ptr<Store>> Store::open(std::filesystem::path database) {
       "alias TEXT, labels_json TEXT NOT NULL, enabled INTEGER NOT NULL,"
       "source_missing INTEGER NOT NULL, outbound_json TEXT NOT NULL);"
       "CREATE INDEX IF NOT EXISTS nodes_source_idx ON nodes(source_id);"
+      "CREATE TABLE IF NOT EXISTS subscriptions ("
+      "id TEXT PRIMARY KEY NOT NULL, settings_json TEXT NOT NULL, state_json TEXT NOT NULL);"
       "CREATE TABLE IF NOT EXISTS profiles (id TEXT PRIMARY KEY NOT NULL, path TEXT NOT NULL);"
       "CREATE TABLE IF NOT EXISTS cores ("
       "id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, path TEXT NOT NULL,"
@@ -219,38 +287,12 @@ Result<std::vector<Node>> Store::all_nodes() const {
 }
 
 Result<void> Store::put_node(const Node& node) {
-  if (node.id.empty()) return std::unexpected(invalid("节点ID不能为空", "id"));
-  if (node.original_name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
-  const auto* raw_outbound = std::get_if<RawOutbound>(&node.settings);
-  if (raw_outbound && !raw_outbound->value.is_object())
-    return std::unexpected(invalid("原生outbound必须是对象", "outbound"));
-  const auto json = Json(node);
-  const Json stored_settings = Json{{"$xrm_node_settings", json.at("settings")}};
   if (auto started = exec(impl_->db, "BEGIN IMMEDIATE", [] { return "开始保存节点事务失败"; }); !started) {
     return started;
   }
-  Statement statement(impl_->db, "INSERT INTO nodes(id,source_id,original_name,alias,labels_json,"
-                                 "enabled,source_missing,outbound_json) VALUES(?1,?2,?3,?4,?5,?6,?7,?8) "
-                                 "ON CONFLICT(id) DO UPDATE SET source_id=excluded.source_id,"
-                                 "original_name=excluded.original_name,alias=excluded.alias,"
-                                 "labels_json=excluded.labels_json,enabled=excluded.enabled,"
-                                 "source_missing=excluded.source_missing,outbound_json=excluded.outbound_json");
-  if (!statement.ready()) {
+  if (auto saved = upsert_node_row(impl_->db, node); !saved) {
     sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
-    return std::unexpected(statement.error("准备保存节点失败"));
-  }
-  bind_text(statement.get(), 1, node.id);
-  if (node.source_id) bind_text(statement.get(), 2, *node.source_id); else sqlite3_bind_null(statement.get(), 2);
-  bind_text(statement.get(), 3, node.original_name);
-  if (node.alias) bind_text(statement.get(), 4, *node.alias); else sqlite3_bind_null(statement.get(), 4);
-  bind_text(statement.get(), 5, json.at("labels").dump());
-  sqlite3_bind_int(statement.get(), 6, node.enabled ? 1 : 0);
-  sqlite3_bind_int(statement.get(), 7, node.source_missing ? 1 : 0);
-  bind_text(statement.get(), 8, (raw_outbound ? raw_outbound->value : stored_settings).dump());
-  if (sqlite3_step(statement.get()) != SQLITE_DONE) {
-    auto error = statement.error("保存节点失败");
-    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
-    return std::unexpected(std::move(error));
+    return saved;
   }
   if (auto committed = exec(impl_->db, "COMMIT", [] { return "提交节点保存失败"; }); !committed) {
     sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
@@ -265,6 +307,268 @@ Result<void> Store::erase_node(const Id& id) {
   bind_text(statement.get(), 1, id);
   if (sqlite3_step(statement.get()) != SQLITE_DONE) return std::unexpected(statement.error("删除节点失败"));
   if (sqlite3_changes(impl_->db) == 0) return std::unexpected(missing("节点", id));
+  return {};
+}
+
+Result<std::vector<Subscription>> Store::list_sources() const {
+  Statement statement(impl_->db, "SELECT id,settings_json FROM subscriptions ORDER BY id");
+  if (!statement.ready()) return std::unexpected(statement.error("准备订阅列表失败"));
+  std::vector<Subscription> sources;
+  for (;;) {
+    const int status = sqlite3_step(statement.get());
+    if (status == SQLITE_DONE) break;
+    if (status != SQLITE_ROW) return std::unexpected(statement.error("读取订阅列表失败"));
+    auto source = source_from_json(column_text(statement.get(), 1), column_text(statement.get(), 0));
+    if (!source) return std::unexpected(source.error());
+    sources.push_back(std::move(*source));
+  }
+  return sources;
+}
+
+Result<Subscription> Store::get_source(const Id& id) const {
+  Statement statement(impl_->db, "SELECT settings_json FROM subscriptions WHERE id=?1");
+  if (!statement.ready()) return std::unexpected(statement.error("准备读取订阅失败"));
+  bind_text(statement.get(), 1, id);
+  const int status = sqlite3_step(statement.get());
+  if (status == SQLITE_DONE) return std::unexpected(source_missing_error(id));
+  if (status != SQLITE_ROW) return std::unexpected(statement.error("读取订阅失败"));
+  return source_from_json(column_text(statement.get(), 0), id);
+}
+
+Result<SubscriptionState> Store::get_source_state(const Id& id) const {
+  Statement statement(impl_->db, "SELECT state_json FROM subscriptions WHERE id=?1");
+  if (!statement.ready()) return std::unexpected(statement.error("准备读取订阅状态失败"));
+  bind_text(statement.get(), 1, id);
+  const int status = sqlite3_step(statement.get());
+  if (status == SQLITE_DONE) return std::unexpected(source_missing_error(id));
+  if (status != SQLITE_ROW) return std::unexpected(statement.error("读取订阅状态失败"));
+  return state_from_json(column_text(statement.get(), 0), id);
+}
+
+Result<void> Store::put_source(const Subscription& requested) {
+  if (requested.id.empty()) return std::unexpected(invalid("订阅ID不能为空", "id"));
+  if (requested.name.empty()) return std::unexpected(invalid("订阅名称不能为空", "name"));
+  if (requested.url.empty()) return std::unexpected(invalid("订阅URL不能为空", "url"));
+  if (requested.interval.count() <= 0)
+    return std::unexpected(invalid("订阅刷新间隔必须大于零", "interval"));
+
+  Subscription stored = requested;
+  SubscriptionState state;
+  Statement existing(impl_->db, "SELECT settings_json,state_json FROM subscriptions WHERE id=?1");
+  if (!existing.ready()) return std::unexpected(existing.error("准备读取订阅设置失败"));
+  bind_text(existing.get(), 1, requested.id);
+  const int status = sqlite3_step(existing.get());
+  if (status == SQLITE_ROW) {
+    auto current = source_from_json(column_text(existing.get(), 0), requested.id);
+    if (!current) return std::unexpected(current.error());
+    auto current_state = state_from_json(column_text(existing.get(), 1), requested.id);
+    if (!current_state) return std::unexpected(current_state.error());
+    state = std::move(*current_state);
+    if (request_settings_equal(*current, requested)) {
+      stored.settings_revision = current->settings_revision;
+    } else {
+      stored.settings_revision = current->settings_revision + 1;
+      state.etag.reset();
+      state.last_modified.reset();
+      state.last_success.reset();
+      state.last_result = "settings_changed";
+      state.last_unsupported_count = 0;
+      state.last_malformed_count = 0;
+    }
+  } else if (status == SQLITE_DONE) {
+    stored.settings_revision = 0;
+  } else {
+    return std::unexpected(existing.error("读取订阅设置失败"));
+  }
+
+  Statement statement(impl_->db, "INSERT INTO subscriptions(id,settings_json,state_json) VALUES(?1,?2,?3) "
+                                 "ON CONFLICT(id) DO UPDATE SET settings_json=excluded.settings_json,"
+                                 "state_json=excluded.state_json");
+  if (!statement.ready()) return std::unexpected(statement.error("准备保存订阅失败"));
+  bind_text(statement.get(), 1, stored.id);
+  bind_text(statement.get(), 2, Json(stored).dump());
+  bind_text(statement.get(), 3, Json(state).dump());
+  if (sqlite3_step(statement.get()) != SQLITE_DONE)
+    return std::unexpected(statement.error("保存订阅失败"));
+  return {};
+}
+
+Result<void> Store::remove_source(const Id& id, bool keep_as_manual) {
+  if (auto started = exec(impl_->db, "BEGIN IMMEDIATE", [] { return "开始删除订阅事务失败"; }); !started)
+    return started;
+  Statement source(impl_->db, "SELECT 1 FROM subscriptions WHERE id=?1");
+  if (!source.ready()) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(source.error("准备检查订阅失败"));
+  }
+  bind_text(source.get(), 1, id);
+  const int found = sqlite3_step(source.get());
+  if (found == SQLITE_DONE) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(source_missing_error(id));
+  }
+  if (found != SQLITE_ROW) {
+    auto error = source.error("检查订阅失败");
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(std::move(error));
+  }
+
+  std::vector<Node> nodes;
+  {
+    Statement select(impl_->db, "SELECT id,source_id,original_name,alias,labels_json,enabled,"
+                               "source_missing,outbound_json FROM nodes WHERE source_id=?1");
+    if (!select.ready()) {
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return std::unexpected(select.error("准备读取来源节点失败"));
+    }
+    bind_text(select.get(), 1, id);
+    for (;;) {
+      const int status = sqlite3_step(select.get());
+      if (status == SQLITE_DONE) break;
+      if (status != SQLITE_ROW) {
+        auto error = select.error("读取来源节点失败");
+        sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+        return std::unexpected(std::move(error));
+      }
+      try {
+        nodes.push_back(node_from_columns(select.get()));
+      } catch (const std::exception& exception) {
+        sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+        return std::unexpected(AppError{ErrorCode::storage_error,
+            std::string("来源节点数据无效: ") + exception.what(), id, std::nullopt});
+      }
+    }
+  }
+  for (auto& node : nodes) {
+    if (keep_as_manual) {
+      node.source_id.reset();
+      node.upstream_id.reset();
+      node.source_missing = false;
+    } else {
+      // Preserve the identity and parameters so an existing Profile selection
+      // becomes an explicit missing reference instead of silently retargeting.
+      node.source_missing = true;
+    }
+    if (auto saved = upsert_node_row(impl_->db, node); !saved) {
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return saved;
+    }
+  }
+  Statement remove(impl_->db, "DELETE FROM subscriptions WHERE id=?1");
+  if (!remove.ready()) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(remove.error("准备删除订阅失败"));
+  }
+  bind_text(remove.get(), 1, id);
+  if (sqlite3_step(remove.get()) != SQLITE_DONE) {
+    auto error = remove.error("删除订阅失败");
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(std::move(error));
+  }
+  if (auto committed = exec(impl_->db, "COMMIT", [] { return "提交删除订阅失败"; }); !committed) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return committed;
+  }
+  return {};
+}
+
+Result<void> Store::commit_source(const Id& id, const SourceCommit& commit) {
+  if (auto started = exec(impl_->db, "BEGIN IMMEDIATE", [] { return "开始订阅库存事务失败"; }); !started)
+    return started;
+  Statement source(impl_->db, "SELECT settings_json FROM subscriptions WHERE id=?1");
+  if (!source.ready()) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(source.error("准备检查订阅版本失败"));
+  }
+  bind_text(source.get(), 1, id);
+  const int status = sqlite3_step(source.get());
+  if (status == SQLITE_DONE) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(source_missing_error(id));
+  }
+  if (status != SQLITE_ROW) {
+    auto error = source.error("读取订阅版本失败");
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(std::move(error));
+  }
+  auto current = source_from_json(column_text(source.get(), 0), id);
+  if (!current) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(current.error());
+  }
+  if (current->settings_revision != commit.expected_settings_revision) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "订阅设置在刷新期间发生变化，旧结果未提交", id, std::nullopt});
+  }
+  for (const auto& node : commit.changes.upserts) {
+    if (node.source_id != std::optional<Id>(id)) {
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return std::unexpected(invalid("来源事务只能写入同一来源的节点", "source_id"));
+    }
+    bool exists = false;
+    std::optional<Id> existing_source;
+    {
+      Statement existing_node(impl_->db, "SELECT source_id FROM nodes WHERE id=?1");
+      if (!existing_node.ready()) {
+        sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+        return std::unexpected(existing_node.error("准备检查来源节点身份失败"));
+      }
+      bind_text(existing_node.get(), 1, node.id);
+      const int existing_status = sqlite3_step(existing_node.get());
+      if (existing_status == SQLITE_ROW) {
+        exists = true;
+        if (sqlite3_column_type(existing_node.get(), 0) != SQLITE_NULL)
+          existing_source = column_text(existing_node.get(), 0);
+      } else if (existing_status != SQLITE_DONE) {
+        auto error = existing_node.error("检查来源节点身份失败");
+        sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+        return std::unexpected(std::move(error));
+      }
+    }
+    if (exists && existing_source != std::optional<Id>(id)) {
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "来源刷新不能覆盖另一节点或手工节点的ID", node.id, std::nullopt});
+    }
+    if (auto saved = upsert_node_row(impl_->db, node); !saved) {
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return saved;
+    }
+  }
+  for (const auto& node_id : commit.changes.erase_ids) {
+    Statement erase(impl_->db, "DELETE FROM nodes WHERE id=?1 AND source_id=?2");
+    if (!erase.ready()) {
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return std::unexpected(erase.error("准备清理来源节点失败"));
+    }
+    bind_text(erase.get(), 1, node_id);
+    bind_text(erase.get(), 2, id);
+    if (sqlite3_step(erase.get()) != SQLITE_DONE) {
+      auto error = erase.error("清理来源节点失败");
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return std::unexpected(std::move(error));
+    }
+  }
+  auto state = commit.state;
+  state.last_unsupported_count = commit.report.unsupported;
+  state.last_malformed_count = commit.report.malformed;
+  Statement update(impl_->db, "UPDATE subscriptions SET state_json=?2 WHERE id=?1");
+  if (!update.ready()) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(update.error("准备更新订阅状态失败"));
+  }
+  bind_text(update.get(), 1, id);
+  bind_text(update.get(), 2, Json(state).dump());
+  if (sqlite3_step(update.get()) != SQLITE_DONE) {
+    auto error = update.error("更新订阅状态失败");
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return std::unexpected(std::move(error));
+  }
+  if (auto committed = exec(impl_->db, "COMMIT", [] { return "提交订阅库存事务失败"; }); !committed) {
+    sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+    return committed;
+  }
   return {};
 }
 

@@ -3,6 +3,8 @@
 #include "infra/http.hpp"
 #include "infra/store.hpp"
 
+#include <memory>
+
 namespace xrm {
 
 struct BatchRefreshResult {
@@ -23,8 +25,8 @@ class SubscriptionService {
   void stop_schedule();
 
  private:
-  Store* store_;
-  HttpClient* http_;
+  struct Impl;
+  std::shared_ptr<Impl> impl_;
 };
 
 }  // namespace xrm
