@@ -32,6 +32,7 @@ if(XRM_ENABLE_ASAN)
 endif()
 
 find_package(SQLite3 REQUIRED)
+find_package(CURL REQUIRED)
 
 set(LIBUV_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(LIBUV_BUILD_BENCH OFF CACHE BOOL "" FORCE)
@@ -99,7 +100,7 @@ add_library(xrm_server_lib STATIC
   src/xray/core_manager.cpp
   src/xray/process_adapter.cpp)
 target_include_directories(xrm_server_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract xrm_logic SQLite3::SQLite3 uv_a)
+target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract xrm_logic SQLite3::SQLite3 CURL::libcurl uv_a)
 target_compile_definitions(xrm_server_lib PRIVATE
   XRM_PRESETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/presets")
 
