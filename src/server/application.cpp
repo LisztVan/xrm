@@ -49,7 +49,7 @@ Result<NodeSummary> Application::add_manual_node(std::string name, Json outbound
     return std::unexpected(invalid("outbound必须包含非空protocol", "outbound.protocol"));
   }
   Node node{new_id(), std::nullopt, name, std::nullopt, {}, true, false,
-            std::move(outbound)};
+            RawOutbound{std::move(outbound)}};
   if (auto stored = store_->put_node(node); !stored) return std::unexpected(stored.error());
   return summarize_node(node);
 }

@@ -5,7 +5,10 @@
 #include "contract/wire.hpp"
 #include "infra/process.hpp"
 #include "infra/store.hpp"
+#include "contract/methods.hpp"
+#include "model/profile.hpp"
 #include "server/rpc_server.hpp"
+#include "xray/runtime_assembler.hpp"
 
 TEST_CASE("C0 headers are independently usable", "[CT-01]") {
   STATIC_REQUIRE(std::is_default_constructible_v<xrm::Node>);
@@ -38,4 +41,19 @@ TEST_CASE("C0 request decoder validates the M0 JSON line envelope", "[CT-02]") {
   REQUIRE(request->method == "node.list");
   REQUIRE_FALSE(xrm::decode_request(
       R"({"v":1,"id":17,"method":"node.list","params":null})"));
+}
+
+TEST_CASE("C1 freezes current M1 profile and runtime surfaces", "[CT-01]") {
+  STATIC_REQUIRE(std::is_default_constructible_v<xrm::StreamNode>);
+  STATIC_REQUIRE(std::is_default_constructible_v<xrm::ProfileSettings>);
+  STATIC_REQUIRE(std::is_default_constructible_v<xrm::ModuleDocument>);
+  STATIC_REQUIRE(std::is_default_constructible_v<xrm::OutputFile>);
+  STATIC_REQUIRE(std::is_default_constructible_v<xrm::PreparedFiles>);
+  STATIC_REQUIRE(std::is_same_v<decltype(xrm::assemble(
+                                   std::declval<const xrm::BuildInput&>())),
+                               xrm::Result<xrm::PreparedFiles>>);
+  REQUIRE(xrm::methods::profile_create == "profile.create");
+  REQUIRE(xrm::methods::module_list == "module.list");
+  REQUIRE(xrm::methods::connection_connect == "connection.connect");
+  REQUIRE(xrm::methods::core_stop == "core.stop");
 }

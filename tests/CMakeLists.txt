@@ -8,7 +8,15 @@ add_executable(xrm_contract_tests
   contract/include_store.cpp
   contract/include_process.cpp
   contract/include_rpc_client.cpp
-  contract/include_rpc_server.cpp)
+  contract/include_rpc_server.cpp
+  contract/m1/include_profile.cpp
+  contract/m1/include_catalog.cpp
+  contract/m1/include_profile_service.cpp
+  contract/m1/include_codec.cpp
+  contract/m1/include_assembler.cpp
+  contract/m1/include_writer.cpp
+  contract/m1/include_core_manager.cpp
+  contract/m1/interfaces.cpp)
 target_link_libraries(xrm_contract_tests PRIVATE xrm_contract Catch2::Catch2WithMain)
 include(CTest)
 include(Catch)

@@ -33,8 +33,8 @@ class TempDatabase {
 xrm::Node node(std::string id, std::string name, std::string secret) {
   return {std::move(id), std::nullopt, std::move(name), std::nullopt,
           {"blue", "manual"}, true, false,
-          xrm::Json{{"protocol", "vless"}, {"password", std::move(secret)},
-                    {"port", 443}, {"enabled", true}}};
+          xrm::RawOutbound{xrm::Json{{"protocol", "vless"}, {"password", std::move(secret)},
+                                     {"port", 443}, {"enabled", true}}}};
 }
 
 }  // namespace
@@ -55,7 +55,7 @@ TEST_CASE("DB-01 manual node inventory survives reopening SQLite", "[DB-01]") {
   REQUIRE(reopened);
   auto found = (*reopened)->get_node("id-b");
   REQUIRE(found);
-  REQUIRE(found->outbound.at("password") == "secret-b");
+  REQUIRE(std::get<xrm::RawOutbound>(found->settings).value.at("password") == "secret-b");
   REQUIRE(found->labels == std::vector<std::string>{"blue", "manual"});
 
   const auto summary = xrm::summarize_node(*found);
@@ -86,7 +86,8 @@ TEST_CASE("Node storage JSON preserves nullable and unknown native values", "[CT
   const auto decoded = encoded.get<xrm::Node>();
   REQUIRE(decoded.id == source.id);
   REQUIRE(decoded.source_id == source.source_id);
-  REQUIRE(decoded.outbound == source.outbound);
+  REQUIRE(std::get<xrm::RawOutbound>(decoded.settings).value ==
+          std::get<xrm::RawOutbound>(source.settings).value);
   REQUIRE(encoded.at("source_id").is_null());
 }
 

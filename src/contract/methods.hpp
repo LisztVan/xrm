@@ -9,5 +9,27 @@ inline constexpr std::string_view core_register = "core.register";
 inline constexpr std::string_view core_list = "core.list";
 inline constexpr std::string_view node_add = "node.add";
 inline constexpr std::string_view node_list = "node.list";
+inline constexpr std::string_view profile_create = "profile.create";
+inline constexpr std::string_view profile_list = "profile.list";
+inline constexpr std::string_view profile_get = "profile.get";
+inline constexpr std::string_view profile_save = "profile.save";
+inline constexpr std::string_view profile_clone = "profile.clone";
+inline constexpr std::string_view profile_remove = "profile.remove";
+inline constexpr std::string_view module_list = "module.list";
+inline constexpr std::string_view module_get = "module.get";
+inline constexpr std::string_view module_save = "module.save";
+inline constexpr std::string_view module_include = "module.include";
+inline constexpr std::string_view module_rename_file = "module.rename_file";
+inline constexpr std::string_view connection_select = "connection.select";
+inline constexpr std::string_view connection_connect = "connection.connect";
+inline constexpr std::string_view connection_disconnect = "connection.disconnect";
+inline constexpr std::string_view config_render = "config.render";
+inline constexpr std::string_view config_check = "config.check";
+inline constexpr std::string_view core_start = "core.start";
+inline constexpr std::string_view core_restart = "core.restart";
+inline constexpr std::string_view core_stop = "core.stop";
+inline constexpr std::string_view runtime_status = "runtime.status";
+inline constexpr std::string_view logs_read = "logs.read";
+inline constexpr std::string_view operation_get = "operation.get";
 
 }  // namespace xrm::methods

@@ -87,7 +87,7 @@ Node node_from_columns(sqlite3_stmt* statement) {
             column_text(statement, 2), std::nullopt,
             labels.get<std::vector<std::string>>(),
             sqlite3_column_int(statement, 5) != 0,
-            sqlite3_column_int(statement, 6) != 0, std::move(outbound)};
+            sqlite3_column_int(statement, 6) != 0, RawOutbound{std::move(outbound)}};
   if (sqlite3_column_type(statement, 1) != SQLITE_NULL) {
     node.source_id = column_text(statement, 1);
   }
@@ -212,7 +212,9 @@ Result<std::vector<Node>> Store::all_nodes() const {
 Result<void> Store::put_node(const Node& node) {
   if (node.id.empty()) return std::unexpected(invalid("节点ID不能为空", "id"));
   if (node.original_name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
-  if (!node.outbound.is_object()) return std::unexpected(invalid("原生outbound必须是对象", "outbound"));
+  const auto* raw_outbound = std::get_if<RawOutbound>(&node.settings);
+  if (!raw_outbound || !raw_outbound->value.is_object())
+    return std::unexpected(invalid("M0节点必须是原生outbound对象", "outbound"));
   const auto json = Json(node);
   if (auto started = exec(impl_->db, "BEGIN IMMEDIATE", [] { return "开始保存节点事务失败"; }); !started) {
     return started;
@@ -234,7 +236,7 @@ Result<void> Store::put_node(const Node& node) {
   bind_text(statement.get(), 5, json.at("labels").dump());
   sqlite3_bind_int(statement.get(), 6, node.enabled ? 1 : 0);
   sqlite3_bind_int(statement.get(), 7, node.source_missing ? 1 : 0);
-  bind_text(statement.get(), 8, node.outbound.dump());
+  bind_text(statement.get(), 8, raw_outbound->value.dump());
   if (sqlite3_step(statement.get()) != SQLITE_DONE) {
     auto error = statement.error("保存节点失败");
     sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);

@@ -37,12 +37,37 @@ inline void from_json(const Json& json, NodeSummary& value) {
 inline NodeSummary summarize_node(const Node& node) {
   const auto name = node.alias.value_or(node.original_name);
   std::string protocol = "unknown";
-  if (node.outbound.is_object() && node.outbound.contains("protocol") &&
-      node.outbound.at("protocol").is_string()) {
-    protocol = node.outbound.at("protocol").get<std::string>();
+  if (const auto* raw = std::get_if<RawOutbound>(&node.settings)) {
+    if (raw->value.is_object() && raw->value.contains("protocol") &&
+        raw->value.at("protocol").is_string()) {
+      protocol = raw->value.at("protocol").get<std::string>();
+    }
+  } else {
+    protocol = "vless";
   }
   return {node.id, name, node.labels, node.enabled, node.source_missing,
           std::move(protocol)};
+}
+
+struct ProfileDto { Id id; std::string name; Id core_id; };
+inline void to_json(Json& json, const ProfileDto& value) {
+  json = Json{{"id", value.id}, {"name", value.name}, {"core_id", value.core_id}};
+}
+
+struct ModuleDto {
+  std::string key;
+  std::string filename;
+  bool included = false;
+  std::optional<std::string> text;
+};
+inline void to_json(Json& json, const ModuleDto& value) {
+  json = Json{{"module", value.key}, {"filename", value.filename},
+              {"included", value.included}, {"text", value.text}};
+}
+
+struct OperationDto { std::string status; std::optional<std::string> operation_id; };
+inline void to_json(Json& json, const OperationDto& value) {
+  json = Json{{"status", value.status}, {"operation_id", value.operation_id}};
 }
 
 inline void to_json(Json& json, const CoreInstall& value) {

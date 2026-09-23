@@ -1,0 +1,19 @@
+#include "model/module_catalog.hpp"
+#include "profile/profile_service.hpp"
+#include "xray/codecs/codec.hpp"
+#include "xray/core_manager.hpp"
+#include "xray/runtime_assembler.hpp"
+#include "xray/runtime_writer.hpp"
+
+#include <type_traits>
+#include <utility>
+
+static_assert(std::is_default_constructible_v<xrm::ProfileSettings>);
+static_assert(std::is_default_constructible_v<xrm::ModuleDocument>);
+static_assert(std::is_default_constructible_v<xrm::BuildInput>);
+static_assert(std::is_default_constructible_v<xrm::PreparedFiles>);
+static_assert(std::is_same_v<decltype(xrm::assemble(std::declval<const xrm::BuildInput&>())),
+                             xrm::Result<xrm::PreparedFiles>>);
+static_assert(std::is_same_v<decltype(xrm::write_outbound(
+                                  std::declval<const xrm::Node&>(), std::string_view{})),
+                             xrm::Result<xrm::Json>>);
