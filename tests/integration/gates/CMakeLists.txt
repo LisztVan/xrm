@@ -1,4 +1,4 @@
-add_executable(xrm_real_core_tests m1.cpp rc04.cpp rc05.cpp rc07.cpp rc08.cpp rc09.cpp)
+add_executable(xrm_real_core_tests m1.cpp rc04.cpp rc05.cpp rc07.cpp rc08.cpp rc09.cpp rc10_m4.cpp)
 target_link_libraries(xrm_real_core_tests PRIVATE xrm_server_lib xrm_logic Catch2::Catch2)
 target_compile_definitions(xrm_real_core_tests PRIVATE
   XRM_TEST_MANAGER="$<TARGET_FILE:xrm>"
