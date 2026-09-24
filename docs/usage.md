@@ -107,6 +107,10 @@ xrm config export <profile-id> --source runtime --output ./exported-confdir
 
 `disconnect`/`core stop` 是显式停止。退出 TUI 不会停止核心。导出运行目录后，可在相同 Xray 二进制、工作目录、环境变量和外部资源路径条件下独立运行；导出不会打包证书/私钥等外部资源。
 
+TUI 使用 Tab / Shift-Tab 或 `1`–`8` 切换页面，`?` 查看按键帮助，`q` 仅退出界面。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看已收到的历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
+
+在 Native Modules 页按 Enter 打开原生文本草稿，按 `v` 可用 `$VISUAL`（优先）或 `$EDITOR` 打开外部编辑器。变量须指定 executable 和可选的简单、未加引号参数；程序直接 spawn，不经 shell。编辑器只改临时草稿，返回 TUI 后仍须按 Ctrl-S 才保存模块源文件；保存不 connect/restart。缺少两个变量会明确报错。编辑器非零退出时保留 TUI 草稿；源文件在编辑期间被别的客户端修改时，保存会报告冲突并保留草稿，不覆盖外部修改。人工验收步骤见 [tui-manual-acceptance.md](tui-manual-acceptance.md)。
+
 切换核心是显式动作：
 
 ```sh

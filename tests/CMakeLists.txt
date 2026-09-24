@@ -31,6 +31,7 @@ include(Catch)
 catch_discover_tests(xrm_contract_tests)
 
 add_executable(xrm_fake_core support/fake_core.cpp)
+add_executable(xrm_fake_editor support/fake_editor.cpp)
 
 add_subdirectory(integration/store)
 add_subdirectory(integration/process)

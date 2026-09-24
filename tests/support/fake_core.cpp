@@ -1,9 +1,12 @@
 #include <cstdlib>
 #include <csignal>
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -102,6 +105,16 @@ int main(int argc, char** argv) {
   if (!checking && argc > 1 && std::string(argv[1]) == "run" &&
       !std::getenv("XRM_FAKE_CORE_RUN_EXIT") && !std::getenv("XRM_FAKE_CORE_EXIT") &&
       !std::getenv("XRM_FAKE_CORE_RUN_HANG")) {
+    const auto* log_count_value = std::getenv("XRM_FAKE_CORE_LOG_COUNT");
+    if (log_count_value) {
+      const auto count = std::strtoull(log_count_value, nullptr, 10);
+      const auto* interval_value = std::getenv("XRM_FAKE_CORE_LOG_INTERVAL_MS");
+      const auto interval = interval_value ? std::strtoull(interval_value, nullptr, 10) : 0;
+      for (std::uint64_t index = 0; index < count; ++index) {
+        std::cout << "XRM_FAKE_CORE_LOG_" << std::setw(4) << std::setfill('0') << index << '\n' << std::flush;
+        if (interval) std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+      }
+    }
     for (;;) std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   if (std::getenv("XRM_FAKE_CORE_HANG")) {

@@ -12,14 +12,79 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <optional>
 #include <chrono>
+#include <cerrno>
+#include <cstring>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <spawn.h>
+#include <system_error>
+#include <sys/wait.h>
 #include <thread>
+#include <unistd.h>
 #include <utility>
+#include <vector>
+
+extern char** environ;
 
 namespace xrm::cli {
 namespace {
 using namespace ftxui;
+constexpr std::size_t kLogViewportRows = 9;
+constexpr std::size_t kTuiLogByteLimit = 256 * 1024;
+constexpr std::size_t kTuiLogEntryLimit = 512;
+
+class DraftFile {
+ public:
+  DraftFile() {
+    std::error_code error;
+    auto pattern = (std::filesystem::temp_directory_path(error) / "xrm-module-XXXXXX").string();
+    if (error) return;
+    std::vector<char> writable(pattern.begin(), pattern.end());
+    writable.push_back('\0');
+    const int fd = ::mkstemp(writable.data());
+    if (fd < 0) return;
+    path_ = writable.data();
+    ::close(fd);
+  }
+  ~DraftFile() { if (!path_.empty()) ::unlink(path_.c_str()); }
+  bool valid() const { return !path_.empty(); }
+  const std::string& path() const { return path_; }
+  bool write(std::string_view content) const {
+    std::ofstream output(path_, std::ios::binary | std::ios::trunc);
+    output.write(content.data(), static_cast<std::streamsize>(content.size()));
+    return static_cast<bool>(output);
+  }
+  std::optional<std::string> read() const {
+    std::ifstream input(path_, std::ios::binary);
+    if (!input) return std::nullopt;
+    return std::string{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+  }
+ private:
+  std::string path_;
+};
+
+std::optional<std::vector<std::string>> editor_argv(std::string_view command) {
+  std::istringstream input{std::string(command)};
+  std::vector<std::string> args;
+  std::string arg;
+  while (input >> arg) {
+    if (arg.find_first_of("\"'") != std::string::npos) return std::nullopt;
+    args.push_back(std::move(arg));
+  }
+  if (args.empty()) return std::nullopt;
+  return args;
+}
+
+std::string editor_command() {
+  if (const char* visual = std::getenv("VISUAL"); visual && *visual) return visual;
+  if (const char* editor = std::getenv("EDITOR"); editor && *editor) return editor;
+  return {};
+}
 
 Result<Json> rpc(const std::string& socket, std::string method, Json params = Json::object()) {
   uv_loop_t loop{};
@@ -52,12 +117,24 @@ class TuiApp final : public ComponentBase {
       if (profiles && profiles->is_array() && !profiles->empty()) profile_id_ = profiles->front().value("id", "");
     }
     refresh_all();
+    log_poller_ = std::thread([this] {
+      while (!log_poller_stop_.load()) {
+        if (log_poll_active_.load()) screen_->PostEvent(Event::Custom);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      }
+    });
   }
   ~TuiApp() override {
+    log_poller_stop_.store(true);
+    if (log_poller_.joinable()) log_poller_.join();
     if (stats_watching_) refresh_stats(false);
   }
 
   bool OnEvent(Event event) override {
+    if (event == Event::Custom) {
+      if (page_ == 3) refresh_logs();
+      return true;
+    }
     if (filtering_nodes_) {
       if (event == Event::Escape) { filtering_nodes_ = false; return true; }
       if (event == Event::Return) { filtering_nodes_ = false; selected_ = 0; refresh_nodes(); return true; }
@@ -74,6 +151,10 @@ class TuiApp final : public ComponentBase {
         editing_ = false; editing_group_ = false; editing_node_ = false; return true;
       }
       if (event == Event::CtrlS) { save_editor(); return true; }
+      if (event == Event::Character("v") && !editing_node_ && !editing_group_) {
+        open_external_editor();
+        return true;
+      }
       if (event == Event::ArrowLeft && edit_cursor_ > 0) --edit_cursor_;
       else if (event == Event::ArrowRight && edit_cursor_ < draft_.size()) ++edit_cursor_;
       else if (event == Event::Backspace && edit_cursor_ > 0) {
@@ -89,6 +170,8 @@ class TuiApp final : public ComponentBase {
         draft_.insert(edit_cursor_, value);
         edit_cursor_ += value.size();
       }
+      if (!editing_node_ && !editing_group_ && editing_base_text_)
+        editing_dirty_ = draft_ != *editing_base_text_;
       return true;
     }
     if (node_detail_) {
@@ -119,6 +202,13 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("6")) { change_page(5); refresh_groups(); }
     else if (event == Event::Character("7")) { change_page(6); refresh_stats(true); }
     else if (event == Event::Character("8")) { change_page(7); refresh_cores(); }
+    else if (event == Event::ArrowDown && page_ == 3) {
+      const auto tail = log_entries_.size() > kLogViewportRows ? log_entries_.size() - kLogViewportRows : 0;
+      if (log_view_start_ < tail) ++log_view_start_;
+    }
+    else if (event == Event::ArrowUp && page_ == 3) {
+      if (log_view_start_ > 0) --log_view_start_;
+    }
     else if (event == Event::ArrowDown) selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
     else if (event == Event::ArrowUp) selected_ = selected_ == 0 ? 0 : selected_ - 1;
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
@@ -135,8 +225,17 @@ class TuiApp final : public ComponentBase {
       if (page_ == 7) {
         if (!pending_core_operation_.empty()) poll_core_operation();
         else refresh_cores();
-      } else refresh_all();
+      } else if (page_ == 3) refresh_logs();
+      else refresh_all();
       if (page_ == 6) refresh_stats(true);
+    }
+    else if (event == Event::Character("p") && page_ == 3) {
+      logs_paused_ = !logs_paused_;
+      if (!logs_paused_) {
+        refresh_logs();
+        scroll_logs_to_tail();
+        message_ = "log follow resumed";
+      } else message_ = "log view paused; Server continues collecting logs";
     }
     else if (event == Event::Character("/" ) && page_ == 1) {
       node_filter_.clear();
@@ -159,7 +258,11 @@ class TuiApp final : public ComponentBase {
     };
     Elements body;
     if (editing_) {
-      body.push_back(text("Native module editor — " + editing_key_ + " (Ctrl-S save, Esc discard)") | bold);
+      body.push_back(text("Native module editor — " + editing_key_ +
+          (editing_dirty_ ? " [unsaved]" : "") +
+          (editing_node_ || editing_group_ ? " (Ctrl-S Save, Esc close)" : " (Ctrl-S Save, v external editor, Esc close)")) | bold);
+      if (draft_json_invalid_)
+        body.push_back(text("Draft is not valid strict JSON; source can be saved, but form/runtime checks may reject it") | color(Color::Yellow));
       auto visible = draft_;
       visible.insert(edit_cursor_, "█");
       body.push_back(paragraph(visible) | border | flex);
@@ -206,11 +309,26 @@ class TuiApp final : public ComponentBase {
         body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
       }
     } else if (page_ == 3) {
-      body.push_back(text("Logs — bounded cursor " + std::to_string(logs_.value("next_cursor", 0))) | bold);
-      if (logs_.contains("entries")) for (const auto& entry : logs_["entries"])
+      const auto mode = logs_paused_ ? "PAUSED" : "FOLLOW";
+      const auto end = std::min(log_entries_.size(), log_view_start_ + kLogViewportRows);
+      const std::string top = log_view_start_ < log_entries_.size()
+          ? log_entries_[log_view_start_].value("text", "") : "(empty)";
+      body.push_back(text("Logs — " + std::string(mode) + " cursor " + std::to_string(log_cursor_)) | bold);
+      body.push_back(text("Viewport top: " + top.substr(0, 72) + "  rows " +
+          std::to_string(log_view_start_ + (log_entries_.empty() ? 0 : 1)) + "-" +
+          std::to_string(end) + "/" + std::to_string(log_entries_.size())) | dim);
+      if (log_dropped_ || logs_.value("truncated", false))
+        body.push_back(text("older logs dropped / truncated") | color(Color::Yellow));
+      if (logs_paused_ && log_view_start_ < log_entries_.size() &&
+          log_entries_.size() > log_view_start_ + kLogViewportRows)
+        body.push_back(text("new logs: " + std::to_string(log_entries_.size() - log_view_start_ - kLogViewportRows)) | dim);
+      for (std::size_t index = log_view_start_; index < end; ++index) {
+        const auto& entry = log_entries_[index];
         body.push_back(paragraph("[" + std::to_string(entry.value("cursor", 0)) + "][" +
             entry.value("stream", "") + "] " + entry.value("text", "")));
-      body.push_back(text("r refresh from the server") | dim);
+      }
+      body.push_back(text("p " + std::string(logs_paused_ ? "Resume" : "Pause") +
+          "   ↑/↓ history   r refresh   Server buffer remains active") | dim);
     } else if (page_ == 4) {
       body.push_back(text("Subscriptions — u refresh inventory only; runtime is unchanged") | bold);
       for (std::size_t i = 0; i < subscriptions_.size(); ++i) {
@@ -342,12 +460,14 @@ class TuiApp final : public ComponentBase {
                 text("c                connect the saved Profile target"),
                 text("d                stop the managed core"),
                 text("r                refresh the current page"),
+                text("Logs: p pause/resume follow; arrows browse received history"),
+                text("Module editor: v open $VISUAL / $EDITOR; Ctrl-S saves source only"),
                 text("q                quit this TUI; the core keeps running"),
                 text("Esc or ?         close help")}) | flex,
           separator(), text("Help") | dim}) | border;
     }
     return vbox({hbox(std::move(header)), separator(), vbox(std::move(body)) | flex,
-                 separator(), text("q quit   ? help   Tab/Shift-Tab pages   ↑/↓ move   c connect   d stop   r refresh") | dim}) | border;
+                 separator(), text("q quit   ? help   Tab/Shift-Tab pages   ↑/↓ move   c connect   d stop   r refresh   Logs: p pause/resume") | dim}) | border;
   }
 
  private:
@@ -363,6 +483,7 @@ class TuiApp final : public ComponentBase {
   void change_page(int page) {
     if (page_ == 6 && page != 6) stop_stats_watch();
     page_ = page;
+    log_poll_active_.store(page_ == 3);
   }
   void navigate_page(int page) {
     change_page(page);
@@ -563,8 +684,29 @@ class TuiApp final : public ComponentBase {
     selected_ = std::min(selected_, modules_.empty() ? 0 : modules_.size() - 1);
   }
   void refresh_logs() {
-    auto response = rpc(socket_, std::string(methods::logs_read), Json{{"cursor", 0}, {"limit", 65536}});
-    if (response) logs_ = std::move(*response);
+    auto response = rpc(socket_, std::string(methods::logs_read), Json{{"cursor", log_cursor_}, {"limit", 65536}});
+    if (!response) return;
+    if (response->value("truncated", false)) log_dropped_ = true;
+    if (response->contains("entries") && response->at("entries").is_array()) {
+      for (const auto& entry : response->at("entries")) {
+        log_bytes_ += entry.value("text", std::string{}).size();
+        log_entries_.push_back(entry);
+      }
+    }
+    log_cursor_ = response->value("next_cursor", log_cursor_);
+    logs_ = std::move(*response);
+    while (log_entries_.size() > kTuiLogEntryLimit || log_bytes_ > kTuiLogByteLimit) {
+      if (log_entries_.empty()) break;
+      log_bytes_ -= log_entries_.front().value("text", std::string{}).size();
+      log_entries_.erase(log_entries_.begin());
+      if (log_view_start_ > 0) --log_view_start_;
+      log_dropped_ = true;
+    }
+    if (!logs_paused_) scroll_logs_to_tail();
+  }
+  void scroll_logs_to_tail() {
+    log_view_start_ = log_entries_.size() > kLogViewportRows
+        ? log_entries_.size() - kLogViewportRows : 0;
   }
   void toggle_module() {
     if (selected_ >= modules_.size()) return;
@@ -584,8 +726,63 @@ class TuiApp final : public ComponentBase {
                       Json{{"profile_id", profile_id_}, {"module", editing_key_}});
     if (!result) { message_ = result.error().message; return; }
     draft_ = result->value("text", std::string("{}\n"));
+    editing_base_text_ = result->contains("text") && result->at("text").is_string()
+        ? std::optional<std::string>(result->at("text").get<std::string>()) : std::nullopt;
     edit_cursor_ = draft_.size();
+    editing_dirty_ = false;
+    draft_json_invalid_ = false;
     editing_ = true;
+  }
+  void open_external_editor() {
+    const auto command = editor_command();
+    if (command.empty()) { message_ = "set VISUAL or EDITOR to open an external editor"; return; }
+    auto args = editor_argv(command);
+    if (!args) {
+      message_ = "editor command must be an executable followed by simple unquoted arguments";
+      return;
+    }
+    DraftFile temporary;
+    if (!temporary.valid() || !temporary.write(draft_)) {
+      message_ = "cannot create temporary module draft";
+      return;
+    }
+    args->push_back(temporary.path());
+    std::vector<char*> argv;
+    argv.reserve(args->size() + 1);
+    for (auto& arg : *args) argv.push_back(arg.data());
+    argv.push_back(nullptr);
+    pid_t pid = -1;
+    int spawn_result = 0;
+    int wait_status = 0;
+    auto invoke = [&] {
+      spawn_result = ::posix_spawnp(&pid, argv.front(), nullptr, nullptr, argv.data(), environ);
+      if (spawn_result != 0) return;
+      pid_t waited;
+      do { waited = ::waitpid(pid, &wait_status, 0); } while (waited < 0 && errno == EINTR);
+      if (waited < 0) spawn_result = errno;
+    };
+    screen_->WithRestoredIO(invoke)();
+    if (spawn_result != 0) {
+      message_ = "external editor failed to start/wait: " + std::string(std::strerror(spawn_result));
+      return;
+    }
+    if (!WIFEXITED(wait_status) || WEXITSTATUS(wait_status) != 0) {
+      message_ = (WIFEXITED(wait_status) && WEXITSTATUS(wait_status) == 130)
+          ? "external editor cancelled; draft kept"
+          : "external editor failed; draft kept";
+      return;
+    }
+    auto edited = temporary.read();
+    if (!edited) { message_ = "cannot read external editor draft; current draft kept"; return; }
+    if (*edited == draft_) { message_ = "external editor made no changes; draft kept"; return; }
+    draft_ = std::move(*edited);
+    edit_cursor_ = draft_.size();
+    editing_dirty_ = !editing_base_text_ || draft_ != *editing_base_text_;
+    try { const auto parsed = Json::parse(draft_); (void)parsed; draft_json_invalid_ = false; }
+    catch (const Json::exception&) { draft_json_invalid_ = true; }
+    message_ = draft_json_invalid_
+        ? "external draft loaded; invalid JSON retained, Save is explicit"
+        : "external draft loaded; unsaved until Ctrl-S";
   }
   void open_node_editor() {
     if (selected_ >= nodes_.size()) return;
@@ -640,10 +837,13 @@ class TuiApp final : public ComponentBase {
       return;
     }
     auto result = rpc(socket_, std::string(methods::module_save), Json{
-        {"profile_id", profile_id_}, {"module", editing_key_}, {"text", draft_}});
-    if (!result) message_ = result.error().message;
-    else message_ = "saved source text; not applied to running core";
+        {"profile_id", profile_id_}, {"module", editing_key_}, {"text", draft_},
+        {"expected_text", editing_base_text_ ? Json(*editing_base_text_) : Json(nullptr)}});
+    if (!result) { message_ = result.error().message + "; draft retained"; return; }
+    message_ = "saved source text; not applied to running core";
     editing_ = false;
+    editing_dirty_ = false;
+    editing_base_text_ = draft_;
     refresh_modules();
   }
   void select_node() {
@@ -737,6 +937,9 @@ class TuiApp final : public ComponentBase {
   bool node_detail_ = false;
   bool editing_group_ = false;
   bool editing_node_ = false;
+  bool editing_dirty_ = false;
+  bool draft_json_invalid_ = false;
+  std::optional<std::string> editing_base_text_;
   std::string editing_key_;
   std::string node_filter_;
   std::string draft_;
@@ -746,6 +949,15 @@ class TuiApp final : public ComponentBase {
   std::vector<Json> modules_;
   Json status_ = Json::object();
   Json logs_ = Json::object();
+  std::vector<Json> log_entries_;
+  std::uint64_t log_cursor_ = 0;
+  std::size_t log_bytes_ = 0;
+  std::size_t log_view_start_ = 0;
+  bool logs_paused_ = false;
+  bool log_dropped_ = false;
+  std::atomic_bool log_poll_active_{false};
+  std::atomic_bool log_poller_stop_{false};
+  std::thread log_poller_;
   Json stats_ = Json::object();
   std::unique_ptr<RpcSession> stats_rpc_;
   bool stats_watching_ = false;
