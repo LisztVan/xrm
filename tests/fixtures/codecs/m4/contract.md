@@ -25,7 +25,7 @@ top-level protocol or transport files are introduced.
 
 | Typed protocol | Accepted input | Fields consumed | Explicit unsupported boundary |
 |---|---|---|---|
-| VMess | `vmess://` base64 JSON share; standard and URL-safe base64, optional padding | `add`, `port`, `id`, `ps`, `scy`, `net`, `host`, `path`, `tls`, `sni`, `alpn`, `fp`; `aid` must be zero | nonzero `aid`, unknown transport/security values, unknown connection-affecting fields |
+| VMess | `vmess://` base64 JSON share; standard and URL-safe base64, optional padding | `add`, `port`, `id`, `ps`, `scy`, `net`, `host`, `path`, `tls`, `sni`, `alpn`, `fp`; `aid` must be zero; absent `scy` means `auto`, otherwise only `auto`, `aes-128-gcm`, `chacha20-poly1305` | nonzero `aid`, any other `scy`, unknown transport/security values, unknown connection-affecting fields |
 | Trojan | `trojan://password@host:port` URI | percent-decoded password; `type` raw/ws/grpc/httpupgrade/xhttp; corresponding `host`, `path`, `serviceName`, `authority`, `mode`; `security` none/tls; `sni`, `alpn`, `fp` | `flow`, plugin, unknown connection-affecting query fields |
 | Shadowsocks | SIP002 URL-safe base64 userinfo; legacy whole-authority base64 form | `method`, `password`, endpoint, fragment name | every non-empty `plugin` value; malformed/unsupported method |
 | Hysteria2 | `hysteria2://` and `hy2://` URI | endpoint, auth, `sni`, TLS selection and explicitly mapped Xray Hysteria transport fields | `obfs`/`obfs-password`, pinning, bandwidth controls, and all parameters without a v26.9.9 Xray mapping |
