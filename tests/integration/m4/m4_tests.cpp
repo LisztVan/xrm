@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "subscription/parser.hpp"
+#include "contract/dtos.hpp"
 #include "xray/codecs/codec.hpp"
 
 #include <fstream>
@@ -66,4 +67,20 @@ TEST_CASE("CODEC-08 subscription import dispatches supported M4 schemes and repo
   CHECK(std::holds_alternative<xrm::TrojanSettings>(std::get<xrm::StreamNode>(report->nodes[1].settings).protocol));
   CHECK(std::holds_alternative<xrm::ShadowsocksSettings>(std::get<xrm::StreamNode>(report->nodes[2].settings).protocol));
   CHECK(std::holds_alternative<xrm::Hysteria2Settings>(std::get<xrm::StreamNode>(report->nodes[3].settings).protocol));
+}
+
+TEST_CASE("CLI-03 protocol summaries distinguish typed URI codecs from native raw-only nodes") {
+  const auto vmess = xrm::parse_share_uri(fixture("vmess/tcp.json").at("uri").get<std::string>());
+  REQUIRE(vmess);
+  xrm::Node typed{"node-vmess", std::nullopt, vmess->name, std::nullopt, {}, true,
+             false, std::move(vmess->settings)};
+  const auto typed_summary = xrm::summarize_node(typed);
+  CHECK(typed_summary.protocol == "vmess");
+  CHECK(typed_summary.support == "typed-uri");
+
+  xrm::Node raw{"node-raw", std::nullopt, "raw", std::nullopt, {}, true, false,
+           xrm::RawOutbound{xrm::Json{{"protocol", "freedom"}, {"settings", xrm::Json::object()}}}};
+  const auto raw_summary = xrm::summarize_node(raw);
+  CHECK(raw_summary.protocol == "freedom");
+  CHECK(raw_summary.support == "raw-only");
 }

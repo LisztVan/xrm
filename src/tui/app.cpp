@@ -155,6 +155,7 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("Node details (Esc returns)") | bold);
         body.push_back(text("Name: " + node.value("name", "")));
         body.push_back(text("Protocol: " + node.value("protocol", "")));
+        body.push_back(text("XRM support: " + node.value("support", "raw-only")));
         body.push_back(text("ID: " + node.value("id", "")));
         body.push_back(text(std::string("Enabled: ") + (node.value("enabled", false) ? "yes" : "no")));
       } else {
@@ -162,7 +163,8 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("filter: " + node_filter_) | dim);
         for (std::size_t i = 0; i < nodes_.size(); ++i) {
           const auto& node = nodes_[i];
-          const auto row = node.value("name", "") + "   " + node.value("protocol", "") + "   " +
+          const auto row = node.value("name", "") + "   " + node.value("protocol", "") + " [" +
+              node.value("support", "raw-only") + "]   " +
               (node.value("source_missing", false) ? "source_missing" : "available") + "   " + node.value("id", "");
           body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
         }

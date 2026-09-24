@@ -49,6 +49,7 @@ struct NodeSummary {
   bool enabled = true;
   bool source_missing = false;
   std::string protocol;
+  std::string support;
 };
 
 inline void to_json(Json& json, const NodeSummary& value) {
@@ -57,7 +58,8 @@ inline void to_json(Json& json, const NodeSummary& value) {
               {"labels", value.labels},
               {"enabled", value.enabled},
               {"source_missing", value.source_missing},
-              {"protocol", value.protocol}};
+              {"protocol", value.protocol},
+              {"support", value.support}};
 }
 
 inline void from_json(const Json& json, NodeSummary& value) {
@@ -67,21 +69,31 @@ inline void from_json(const Json& json, NodeSummary& value) {
   value.enabled = json.at("enabled").get<bool>();
   value.source_missing = json.at("source_missing").get<bool>();
   value.protocol = json.at("protocol").get<std::string>();
+  value.support = json.value("support", "raw-only");
 }
 
 inline NodeSummary summarize_node(const Node& node) {
   const auto name = node.alias.value_or(node.original_name);
   std::string protocol = "unknown";
+  std::string support = "raw-only";
   if (const auto* raw = std::get_if<RawOutbound>(&node.settings)) {
     if (raw->value.is_object() && raw->value.contains("protocol") &&
         raw->value.at("protocol").is_string()) {
       protocol = raw->value.at("protocol").get<std::string>();
     }
-  } else {
-    protocol = "vless";
+  } else if (const auto* stream = std::get_if<StreamNode>(&node.settings)) {
+    protocol = std::visit([](const auto& value) -> std::string {
+      using T = std::decay_t<decltype(value)>;
+      if constexpr (std::is_same_v<T, VlessSettings>) return "vless";
+      if constexpr (std::is_same_v<T, VmessSettings>) return "vmess";
+      if constexpr (std::is_same_v<T, TrojanSettings>) return "trojan";
+      if constexpr (std::is_same_v<T, ShadowsocksSettings>) return "shadowsocks";
+      if constexpr (std::is_same_v<T, Hysteria2Settings>) return "hysteria2";
+    }, stream->protocol);
+    support = "typed-uri";
   }
   return {node.id, name, node.labels, node.enabled, node.source_missing,
-          std::move(protocol)};
+          std::move(protocol), std::move(support)};
 }
 
 struct ProfileDto { Id id; std::string name; Id core_id; };

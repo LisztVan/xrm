@@ -160,6 +160,7 @@ int print_result(const Request& request, const Result<Json>& result) {
     for (const auto& node : items) {
       std::cout << node.value("id", "") << '\t' << node.value("name", "") << '\t'
                 << node.value("protocol", "unknown") << '\t'
+                << node.value("support", "raw-only") << '\t'
                 << (node.value("source_missing", false) ? "source_missing" : "available")
                 << (node.value("enabled", false) ? "" : "\tdisabled") << '\n';
     }
