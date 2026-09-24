@@ -33,25 +33,25 @@ cmake --build /tmp/xrm-i52-build -j4 \
 | 日志暂停后保持滚动位置 | NOT IMPLEMENTED / NOT RUN | 当前 TUI 日志页只有显式 `r` 刷新，没有暂停/自动订阅交互；未添加产品功能。 |
 | 外部编辑器成功、非零退出、取消、冲突、无效 JSON、终端恢复 | NOT IMPLEMENTED / NOT RUN | 当前仓库未发现外部编辑器启动入口；TUI 使用内嵌原生 JSON 编辑器。没有用手工测试替代缺失入口。 |
 | saved target B 与 actual A、runtime override 的屏幕并列展示 | NOT RUN | 源码中 Overview 有 saved/applied/override 字段；既有状态/API 与真实 override gate 属于 M3 覆盖，但本轮没有得到小终端屏幕验收证据。 |
-| 退出 TUI 不停止核心 | NOT RUN（本轮） | 既有 M1 `[UI-01]` 用例覆盖此行为；本轮因 Server 无法绑定 UDS 未能复跑。 |
+| 退出 TUI 不停止核心 | PASS（E2E-06） | 真 Xray E2E 中第二 Manager TUI 退出后，Server status 保持原 core PID/running。 |
 
 ## PERF-02：1000 节点测量
 
 测试目标 `xrm_performance_tests` 使用临时 SQLite 与虚构节点，不访问公网。数据为 1000 个有不同 endpoint/upstream ID 的节点、一个筛选组。重复次数：Store 列表/搜索各 60 次，组展开+组装渲染 40 次，reconcile 40 次，日志读取 60 次。RSS 取 `/proc/self/status` 的 `VmRSS` / `VmHWM`；4 MiB 日志上限直接检查 `LogBuffer::bytes_retained()` 与旧 cursor `truncated`。
 
-该次 Debug 测量输出（单次主机结果，不作为跨机绝对门槛）：
+最终集成 Debug 测量输出（单次主机结果，不作为跨机绝对门槛）：
 
 | 路径 | p50 | p95 |
 |---|---:|---:|
-| SQLite node list（100条分页） | 57.53 ms | 58.23 ms |
-| SQLite node search（`edge-99`） | 56.95 ms | 57.68 ms |
-| group expansion + runtime assemble/render | 35.93 ms | 36.77 ms |
-| 来源内 reconcile（1000节点） | 63.28 ms | 63.81 ms |
-| 日志 page read | 0.0021 ms | 0.0024 ms |
+| SQLite node list（100条分页） | 57.36 ms | 59.17 ms |
+| SQLite node search（`edge-99`） | 56.60 ms | 58.25 ms |
+| group expansion + runtime assemble/render | 35.74 ms | 36.61 ms |
+| 来源内 reconcile（1000节点） | 62.83 ms | 63.19 ms |
+| 日志 page read | 0.00211 ms | 0.00229 ms |
 
-其它观测：seed 86.7 ms；8 MiB 日志追加约 0.98 ms；FileSet 合计 504143 字节；保留日志 4194304 字节（正好达到 4 MiB 上限）。机器标识 `Linux 7.2.7+deb14-amd64 x86_64 / debian-work`，CPU `Intel(R) Core(TM) i7-14700F`，GCC 16.2.0，Debug，报告 28 个逻辑线程。测试进程 `VmRSS` 初始/结束为 5836/16300 KiB；重复组装 40 次的区间 `VmRSS` 为 10952 KiB 起、最高 13496 KiB；`VmHWM` 初始/结束为 5904/16300 KiB。现使用同一个 `/proc/self/status` 的 VmRSS/VmHWM 字段，没有将历史 `getrusage` 峰值冒充当前 RSS。重复组装区间的增长上限为 32 MiB，并断言结束 VmHWM 不低于 VmRSS。
+其它观测：seed 2971.69 ms；8 MiB 日志追加 0.908 ms；FileSet 合计 504143 字节；保留日志 4194304 字节（正好达到 4 MiB 上限）。机器标识 `Linux 7.2.7+deb14-amd64 x86_64 / debian-work`，CPU `Intel(R) Core(TM) i7-14700F`，GCC 16.2.0，Debug，报告 28 个逻辑线程。测试进程 `VmRSS` 初始/结束为 5840/16184 KiB；重复组装 40 次的区间 `VmRSS` 为 10116 KiB 起、最高 13384 KiB；`VmHWM` 初始/结束为 5904/16184 KiB。`xrm status` p50/p95 为 10.40/10.68 ms；`xrm logs` p50/p95 为 10.31/10.55 ms。现使用同一个 `/proc/self/status` 的 VmRSS/VmHWM 字段，没有将历史 `getrusage` 峰值冒充当前 RSS。重复组装区间增长上限为 32 MiB，并断言结束 VmHWM 不低于 VmRSS。该有限重复测量不证明长期无泄漏。
 
-CLI status/logs 的真实 UDS 调用循环已经由主 Agent 在 socket-capable 环境运行通过；`performance_tests.cpp` 现在会在成功时把完整单行测量记录直接打印到测试 stdout。最终测量数字仍待从该次 stdout 抄录到上表/记录。reconcile/assemble 和缓冲区数据是产品真实逻辑，但不等价于 TUI 绘制全链路延迟。
+CLI status/logs 的真实 UDS 调用循环和 PERF-02 目标均通过；`performance_tests.cpp` 在成功时把完整单行测量记录直接打印到测试 stdout。reconcile/assemble 和缓冲区数据是产品真实逻辑，但不等价于 TUI 绘制全链路延迟。
 
 Metrics 多 watcher 与无人 watcher 停止高频采样已有独立 `[MET-02]` 集成测试，覆盖两个 viewer 共用一个采样器、最后一个 viewer 离开后不再轮询；I52 专项未重复计时此行为。性能测试当前未测长期持续 RSS 斜率或每节点线程数，不能由有限重复次数推断无泄漏。
 
