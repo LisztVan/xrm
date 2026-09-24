@@ -1,4 +1,4 @@
-add_executable(xrm_real_core_tests m1.cpp rc04.cpp rc05.cpp)
+add_executable(xrm_real_core_tests m1.cpp rc04.cpp rc05.cpp rc07.cpp rc08.cpp rc09.cpp)
 target_link_libraries(xrm_real_core_tests PRIVATE xrm_server_lib xrm_logic Catch2::Catch2)
 target_compile_definitions(xrm_real_core_tests PRIVATE
   XRM_TEST_MANAGER="$<TARGET_FILE:xrm>"
@@ -10,7 +10,7 @@ if(XRM_TEST_XRAY)
 endif()
 add_dependencies(xrm_real_core_tests xrm xrmd)
 
-foreach(case RC-01 RC-02 RC-03 RC-04 RC-05 RC-06 RC-10)
+foreach(case RC-01 RC-02 RC-03 RC-04 RC-05 RC-06 RC-07 RC-08 RC-09 RC-10)
   add_test(NAME ${case} COMMAND xrm_real_core_tests "[${case}]")
   set_tests_properties(${case} PROPERTIES
     LABELS "real_core"

@@ -65,7 +65,7 @@ std::string read_file(const std::filesystem::path& path) {
 CommandResult run_xray(const std::filesystem::path& binary,
                        const std::vector<std::string>& arguments,
                        const std::filesystem::path& cwd,
-                       const std::map<std::string, std::string, std::less<>>& environment,
+                       const std::map<std::string, std::string>& environment,
                        const std::filesystem::path& log_root,
                        std::chrono::seconds timeout = 20s) {
   static std::atomic<unsigned> sequence{0};
