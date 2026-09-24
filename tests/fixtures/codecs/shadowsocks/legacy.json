@@ -1,0 +1,14 @@
+{
+  "source": "Legacy SIP002 whole-authority base64 share form; Xray-core v26.9.9 infra/conf/shadowsocks.go; hand-authored",
+  "uri": "ss://YWVzLTI1Ni1nY206cGFzc0BleGFtcGxlLm9yZzo4NDQz#legacy",
+  "name": "legacy",
+  "expected_outbound": {
+    "tag": "managed-node",
+    "protocol": "shadowsocks",
+    "settings": {
+      "servers": [
+        { "address": "example.org", "port": 8443, "method": "aes-256-gcm", "password": "pass" }
+      ]
+    }
+  }
+}

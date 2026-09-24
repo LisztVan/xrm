@@ -1,0 +1,14 @@
+{
+  "source": "SIP002 URL-safe base64 userinfo; Xray-core v26.9.9 infra/conf/shadowsocks.go outbound envelope; hand-authored",
+  "uri": "ss://YWVzLTEyOC1nY206cEBzczp3b3Jk@ss.example:8388#lab%20edge",
+  "name": "lab edge",
+  "expected_outbound": {
+    "tag": "managed-node",
+    "protocol": "shadowsocks",
+    "settings": {
+      "servers": [
+        { "address": "ss.example", "port": 8388, "method": "aes-128-gcm", "password": "p@ss:word" }
+      ]
+    }
+  }
+}

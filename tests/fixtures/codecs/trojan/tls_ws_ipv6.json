@@ -1,0 +1,27 @@
+{
+  "source": "Xray-core v26.9.9, infra/conf/trojan.go and infra/conf/transport_internet.go; hand-authored URI fixture",
+  "uri": "trojan://pa%3Ass%40word@[2001:db8::4]:443?type=ws&host=cdn.example&path=%2Ftrojan&security=tls&sni=front.example&alpn=h2%2Chttp%2F1.1&fp=chrome#edge%20node",
+  "name": "edge node",
+  "expected_outbound": {
+    "tag": "managed-node",
+    "protocol": "trojan",
+    "settings": {
+      "servers": [
+        { "address": "2001:db8::4", "port": 443, "password": "pa:ss@word" }
+      ]
+    },
+    "streamSettings": {
+      "network": "websocket",
+      "security": "tls",
+      "tlsSettings": {
+        "serverName": "front.example",
+        "fingerprint": "chrome",
+        "alpn": ["h2", "http/1.1"]
+      },
+      "wsSettings": {
+        "path": "/trojan",
+        "headers": { "Host": "cdn.example" }
+      }
+    }
+  }
+}
