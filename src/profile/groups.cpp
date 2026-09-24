@@ -45,7 +45,16 @@ std::string folded(std::string value) {
 }
 
 std::string node_protocol(const Node& node) {
-  if (std::holds_alternative<StreamNode>(node.settings)) return "vless";
+  if (const auto* stream = std::get_if<StreamNode>(&node.settings)) {
+    return std::visit([](const auto& protocol) -> std::string {
+      using T = std::decay_t<decltype(protocol)>;
+      if constexpr (std::is_same_v<T, VlessSettings>) return "vless";
+      if constexpr (std::is_same_v<T, VmessSettings>) return "vmess";
+      if constexpr (std::is_same_v<T, TrojanSettings>) return "trojan";
+      if constexpr (std::is_same_v<T, ShadowsocksSettings>) return "shadowsocks";
+      return "hysteria2";
+    }, stream->protocol);
+  }
   const auto& raw = std::get<RawOutbound>(node.settings).value;
   if (raw.is_object() && raw.contains("protocol") && raw["protocol"].is_string())
     return raw["protocol"].get<std::string>();

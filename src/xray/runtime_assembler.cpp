@@ -92,7 +92,16 @@ const GroupBinding* find_group_by_tag(const ManagerBindings& bindings, std::stri
 }
 
 std::string protocol_of(const Node& node) {
-  if (std::holds_alternative<StreamNode>(node.settings)) return "vless";
+  if (const auto* stream = std::get_if<StreamNode>(&node.settings)) {
+    return std::visit([](const auto& protocol) -> std::string {
+      using T = std::decay_t<decltype(protocol)>;
+      if constexpr (std::is_same_v<T, VlessSettings>) return "vless";
+      if constexpr (std::is_same_v<T, VmessSettings>) return "vmess";
+      if constexpr (std::is_same_v<T, TrojanSettings>) return "trojan";
+      if constexpr (std::is_same_v<T, ShadowsocksSettings>) return "shadowsocks";
+      return "hysteria2";
+    }, stream->protocol);
+  }
   const auto& value = std::get<RawOutbound>(node.settings).value;
   if (!value.is_object()) return {};
   const auto protocol = value.find("protocol");

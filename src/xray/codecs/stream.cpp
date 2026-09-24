@@ -35,6 +35,7 @@ Json transport_settings(const Transport& transport) {
       if (value.path) result["path"] = *value.path;
       return result;
     }
+    if constexpr (std::is_same_v<T, HysteriaTransport>) return value.options;
   }, transport);
 }
 
@@ -69,6 +70,7 @@ std::string_view network_name(const Transport& transport) {
     if constexpr (std::is_same_v<T, WebSocketTransport>) return "websocket";
     if constexpr (std::is_same_v<T, GrpcTransport>) return "grpc";
     if constexpr (std::is_same_v<T, HttpUpgradeTransport>) return "httpupgrade";
+    if constexpr (std::is_same_v<T, HysteriaTransport>) return "hysteria";
   }, transport);
 }
 
@@ -93,6 +95,7 @@ Json write_stream_settings(const StreamNode& stream) {
     else if (network == "websocket") result["wsSettings"] = settings;
     else if (network == "grpc") result["grpcSettings"] = settings;
     else if (network == "httpupgrade") result["httpupgradeSettings"] = settings;
+    else if (network == "hysteria") result["hysteriaSettings"] = settings;
   }
   if (stream.sockopt) result["sockopt"] = *stream.sockopt;
   if (stream.finalmask) result["finalmask"] = *stream.finalmask;

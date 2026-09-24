@@ -19,7 +19,12 @@ add_executable(xrm_contract_tests
   contract/m1/include_process_adapter.cpp
   contract/m1/interfaces.cpp
   contract/m2/interfaces.cpp
-  contract/m3/interfaces.cpp)
+  contract/m3/interfaces.cpp
+  contract/m4/interfaces.cpp
+  contract/m4/include_node.cpp
+  contract/m4/include_codec.cpp
+  contract/m4/include_forms.cpp
+  contract/m4/include_installer.cpp)
 target_link_libraries(xrm_contract_tests PRIVATE xrm_contract Catch2::Catch2WithMain)
 include(CTest)
 include(Catch)

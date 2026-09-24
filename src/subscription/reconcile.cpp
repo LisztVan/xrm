@@ -15,108 +15,24 @@ AppError error(ErrorCode code, std::string message,
 
 std::string connection_identity(const NodeSettings& settings) {
   if (const auto* stream = std::get_if<StreamNode>(&settings)) {
-    Json transport;
-    if (std::holds_alternative<RawTransport>(stream->transport)) {
-      transport = Json{{"type", "raw"}};
-    } else if (const auto* value = std::get_if<XHttpTransport>(&stream->transport)) {
-      transport = Json{{"type", "xhttp"},
-                       {"host", value->host ? Json(*value->host) : Json(nullptr)},
-                       {"path", value->path ? Json(*value->path) : Json(nullptr)},
-                       {"mode", value->mode ? Json(*value->mode) : Json(nullptr)},
-                       {"extra", value->extra.value_or(Json(nullptr))}};
-    } else if (const auto* value = std::get_if<WebSocketTransport>(&stream->transport)) {
-      transport = Json{{"type", "websocket"},
-                       {"path", value->path ? Json(*value->path) : Json(nullptr)},
-                       {"headers", value->headers}};
-    } else if (const auto* value = std::get_if<GrpcTransport>(&stream->transport)) {
-      transport = Json{{"type", "grpc"},
-                       {"service_name", value->service_name ? Json(*value->service_name) : Json(nullptr)},
-                       {"authority", value->authority ? Json(*value->authority) : Json(nullptr)}};
-    } else {
-      const auto& http_upgrade = std::get<HttpUpgradeTransport>(stream->transport);
-      transport = Json{{"type", "httpupgrade"},
-                       {"host", http_upgrade.host ? Json(*http_upgrade.host) : Json(nullptr)},
-                       {"path", http_upgrade.path ? Json(*http_upgrade.path) : Json(nullptr)}};
-    }
-
-    Json security;
-    if (std::holds_alternative<NoSecurity>(stream->security)) {
-      security = Json{{"type", "none"}};
-    } else if (const auto* value = std::get_if<TlsSecurity>(&stream->security)) {
-      security = Json{{"type", "tls"},
-                      {"server_name", value->server_name ? Json(*value->server_name) : Json(nullptr)},
-                      {"fingerprint", value->fingerprint ? Json(*value->fingerprint) : Json(nullptr)},
-                      {"alpn", value->alpn},
-                      {"options", value->options}};
-    } else {
-      const auto& reality = std::get<RealitySecurity>(stream->security);
-      security = Json{{"type", "reality"},
-                      {"server_name", reality.server_name ? Json(*reality.server_name) : Json(nullptr)},
-                      {"fingerprint", reality.fingerprint ? Json(*reality.fingerprint) : Json(nullptr)},
-                      {"password", reality.password},
-                      {"short_id", reality.short_id ? Json(*reality.short_id) : Json(nullptr)},
-                      {"spider_x", reality.spider_x ? Json(*reality.spider_x) : Json(nullptr)},
-                      {"options", reality.options}};
-    }
-
-    // These secret-bearing values are compared transiently and are never public IDs or logs.
-    const Json identity{
-        {"protocol", "vless"},
-        {"address", stream->endpoint.address},
-        {"port", stream->endpoint.port},
-        {"id", stream->protocol.id},
-        {"encryption", stream->protocol.encryption ? Json(*stream->protocol.encryption) : Json(nullptr)},
-        {"flow", stream->protocol.flow ? Json(*stream->protocol.flow) : Json(nullptr)},
-        {"level", stream->protocol.level ? Json(*stream->protocol.level) : Json(nullptr)},
-        {"transport", std::move(transport)},
-        {"security", std::move(security)},
-        {"sockopt", stream->sockopt.value_or(Json(nullptr))},
-        {"finalmask", stream->finalmask.value_or(Json(nullptr))},
-        {"mux", stream->mux.value_or(Json(nullptr))}};
-    return "vless\n" + identity.dump();
+    Node transient;
+    transient.settings = *stream;
+    const auto serialized = Json(transient).at("settings");
+    const auto kind = std::visit([](const auto& protocol) -> std::string_view {
+      using T = std::decay_t<decltype(protocol)>;
+      if constexpr (std::is_same_v<T, VlessSettings>) return "vless";
+      if constexpr (std::is_same_v<T, VmessSettings>) return "vmess";
+      if constexpr (std::is_same_v<T, TrojanSettings>) return "trojan";
+      if constexpr (std::is_same_v<T, ShadowsocksSettings>) return "shadowsocks";
+      return "hysteria2";
+    }, stream->protocol);
+    // Secret-bearing settings are compared transiently and are never public IDs or logs.
+    return std::string(kind) + "\n" + serialized.dump();
   }
   Json outbound = std::get<RawOutbound>(settings).value;
   if (!outbound.is_object()) return {};
   outbound.erase("tag");
   return "native\n" + outbound.dump();
-}
-
-bool transport_equal(const Transport& left, const Transport& right) {
-  if (left.index() != right.index()) return false;
-  if (const auto* a = std::get_if<RawTransport>(&left)) {
-    (void)a;
-    return true;
-  }
-  if (const auto* a = std::get_if<XHttpTransport>(&left)) {
-    const auto& b = std::get<XHttpTransport>(right);
-    return a->host == b.host && a->path == b.path && a->mode == b.mode && a->extra == b.extra;
-  }
-  if (const auto* a = std::get_if<WebSocketTransport>(&left)) {
-    const auto& b = std::get<WebSocketTransport>(right);
-    return a->path == b.path && a->headers == b.headers;
-  }
-  if (const auto* a = std::get_if<GrpcTransport>(&left)) {
-    const auto& b = std::get<GrpcTransport>(right);
-    return a->service_name == b.service_name && a->authority == b.authority;
-  }
-  const auto& a = std::get<HttpUpgradeTransport>(left);
-  const auto& b = std::get<HttpUpgradeTransport>(right);
-  return a.host == b.host && a.path == b.path;
-}
-
-bool security_equal(const Security& left, const Security& right) {
-  if (left.index() != right.index()) return false;
-  if (std::holds_alternative<NoSecurity>(left)) return true;
-  if (const auto* a = std::get_if<TlsSecurity>(&left)) {
-    const auto& b = std::get<TlsSecurity>(right);
-    return a->server_name == b.server_name && a->fingerprint == b.fingerprint &&
-           a->alpn == b.alpn && a->options == b.options;
-  }
-  const auto& a = std::get<RealitySecurity>(left);
-  const auto& b = std::get<RealitySecurity>(right);
-  return a.server_name == b.server_name && a.fingerprint == b.fingerprint &&
-         a.password == b.password && a.short_id == b.short_id &&
-         a.spider_x == b.spider_x && a.options == b.options;
 }
 
 bool settings_equal(const NodeSettings& left, const NodeSettings& right) {
@@ -125,11 +41,10 @@ bool settings_equal(const NodeSettings& left, const NodeSettings& right) {
     return a->value == std::get<RawOutbound>(right).value;
   const auto& a = std::get<StreamNode>(left);
   const auto& b = std::get<StreamNode>(right);
-  return a.endpoint.address == b.endpoint.address && a.endpoint.port == b.endpoint.port &&
-         a.protocol.id == b.protocol.id && a.protocol.encryption == b.protocol.encryption &&
-         a.protocol.flow == b.protocol.flow && a.protocol.level == b.protocol.level &&
-         transport_equal(a.transport, b.transport) && security_equal(a.security, b.security) &&
-         a.sockopt == b.sockopt && a.finalmask == b.finalmask && a.mux == b.mux;
+  Node left_node, right_node;
+  left_node.settings = a;
+  right_node.settings = b;
+  return Json(left_node).at("settings") == Json(right_node).at("settings");
 }
 
 }  // namespace

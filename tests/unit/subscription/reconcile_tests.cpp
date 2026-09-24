@@ -13,8 +13,9 @@ xrm::ParsedNode vless(std::string name, std::string endpoint, std::string creden
                       std::optional<std::string> upstream_id = std::nullopt) {
   xrm::StreamNode settings;
   settings.endpoint = {std::move(endpoint), 443};
-  settings.protocol.id = std::move(credential);
-  settings.protocol.encryption = "none";
+  auto& protocol = std::get<xrm::VlessSettings>(settings.protocol);
+  protocol.id = std::move(credential);
+  protocol.encryption = "none";
   return {std::move(upstream_id), std::move(name), std::move(settings)};
 }
 }

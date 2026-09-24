@@ -66,7 +66,7 @@ TEST_CASE("CODEC-07 typed security options cannot duplicate strongly typed field
   xrm::Node node;
   xrm::StreamNode stream;
   stream.endpoint = {"edge.invalid", 443};
-  stream.protocol.id = "00000000-0000-4000-8000-000000000001";
+  std::get<xrm::VlessSettings>(stream.protocol).id = "00000000-0000-4000-8000-000000000001";
   xrm::TlsSecurity tls;
   tls.server_name = "front.invalid";
   tls.options["serverName"] = "conflicting.invalid";

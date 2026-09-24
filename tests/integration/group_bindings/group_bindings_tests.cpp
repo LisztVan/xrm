@@ -45,7 +45,7 @@ struct Fixture {
 xrm::Node node(std::string id, std::string name, bool enabled = true, bool missing = false) {
   xrm::StreamNode stream;
   stream.endpoint = {"127.0.0.1", 443};
-  stream.protocol.id = "uuid";
+  std::get<xrm::VlessSettings>(stream.protocol).id = "uuid";
   return {std::move(id), std::nullopt, std::move(name), std::nullopt,
           {"test", "west"}, enabled, missing, std::move(stream), std::nullopt};
 }

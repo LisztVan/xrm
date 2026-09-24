@@ -42,4 +42,12 @@ Result<ModuleChangePlan> plan_traffic_stats(const ProfileSnapshot&, bool enabled
                                             std::string metrics_listen);
 SaveManyResult save_module_changes(ProfileService&, const Id&, const ModuleChangePlan&);
 
+// Typed node editors return a changed node; callers persist it through the
+// node store. They never edit an unrelated native module or outbound object.
+Result<Node> edit_node_transport(const Node&, Transport);
+Result<Node> edit_node_security(const Node&, Security);
+Result<Node> edit_node_sockopt(const Node&, std::optional<Json>);
+Result<Node> edit_node_finalmask(const Node&, std::optional<Json>);
+Result<Node> edit_node_mux(const Node&, std::optional<Json>);
+
 }  // namespace xrm

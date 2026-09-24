@@ -1,6 +1,7 @@
 #include "model/node.hpp"
 #include "model/runtime.hpp"
 #include "model/subscription.hpp"
+#include "xray/installer.hpp"
 
 #include <stdexcept>
 
@@ -33,10 +34,25 @@ Json settings_json(const NodeSettings& settings) {
   if (const auto* raw = std::get_if<RawOutbound>(&settings))
     return Json{{"kind", "raw"}, {"value", raw->value}};
   const auto& stream = std::get<StreamNode>(settings);
-  Json protocol{{"kind", "vless"}, {"id", stream.protocol.id},
-                {"encryption", optional_string(stream.protocol.encryption)},
-                {"flow", optional_string(stream.protocol.flow)},
-                {"level", stream.protocol.level ? Json(*stream.protocol.level) : Json(nullptr)}};
+  Json protocol;
+  std::visit([&](const auto& value) {
+    using T = std::decay_t<decltype(value)>;
+    if constexpr (std::is_same_v<T, VlessSettings>)
+      protocol = Json{{"kind", "vless"}, {"id", value.id},
+                      {"encryption", optional_string(value.encryption)},
+                      {"flow", optional_string(value.flow)},
+                      {"level", value.level ? Json(*value.level) : Json(nullptr)}};
+    else if constexpr (std::is_same_v<T, VmessSettings>)
+      protocol = Json{{"kind", "vmess"}, {"id", value.id},
+                      {"security", optional_string(value.security)},
+                      {"level", value.level ? Json(*value.level) : Json(nullptr)}};
+    else if constexpr (std::is_same_v<T, TrojanSettings>)
+      protocol = Json{{"kind", "trojan"}, {"password", value.password}};
+    else if constexpr (std::is_same_v<T, ShadowsocksSettings>)
+      protocol = Json{{"kind", "shadowsocks"}, {"method", value.method},
+                      {"password", value.password}};
+    else protocol = Json{{"kind", "hysteria2"}, {"auth", value.auth}};
+  }, stream.protocol);
   Json transport;
   std::visit([&](const auto& value) {
     using T = std::decay_t<decltype(value)>;
@@ -50,8 +66,10 @@ Json settings_json(const NodeSettings& settings) {
     else if constexpr (std::is_same_v<T, GrpcTransport>)
       transport = Json{{"kind", "grpc"}, {"service_name", optional_string(value.service_name)},
                        {"authority", optional_string(value.authority)}};
-    else transport = Json{{"kind", "httpupgrade"}, {"host", optional_string(value.host)},
-                          {"path", optional_string(value.path)}};
+    else if constexpr (std::is_same_v<T, HttpUpgradeTransport>)
+      transport = Json{{"kind", "httpupgrade"}, {"host", optional_string(value.host)},
+                       {"path", optional_string(value.path)}};
+    else transport = Json{{"kind", "hysteria"}, {"options", value.options}};
   }, stream.transport);
   Json security;
   std::visit([&](const auto& value) {
@@ -63,6 +81,7 @@ Json settings_json(const NodeSettings& settings) {
     else security = Json{{"kind", "reality"}, {"server_name", optional_string(value.server_name)},
                          {"fingerprint", optional_string(value.fingerprint)}, {"password", value.password},
                          {"short_id", optional_string(value.short_id)}, {"spider_x", optional_string(value.spider_x)},
+                         {"mldsa65_verify", optional_string(value.mldsa65_verify)},
                          {"options", value.options}};
   }, stream.security);
   return Json{{"kind", "stream"},
@@ -85,27 +104,42 @@ NodeSettings settings_from_json(const Json& json) {
   if (kind == "raw") return RawOutbound{json.at("value")};
   if (kind != "stream") throw std::invalid_argument("unknown node settings kind");
   const auto& p = json.at("protocol");
-  if (p.at("kind") != "vless") throw std::invalid_argument("unsupported node protocol kind");
+  const auto protocol_kind = p.at("kind").get<std::string>();
   const auto& e = json.at("endpoint");
   StreamNode stream;
   stream.endpoint = {e.at("address").get<std::string>(), e.at("port").get<std::uint16_t>()};
-  stream.protocol.id = p.at("id").get<std::string>();
-  stream.protocol.encryption = read_optional_string(p, "encryption");
-  stream.protocol.flow = read_optional_string(p, "flow");
-  if (!p.at("level").is_null()) stream.protocol.level = p.at("level").get<std::uint32_t>();
+  if (protocol_kind == "vless") {
+    VlessSettings value;
+    value.id = p.at("id").get<std::string>();
+    value.encryption = read_optional_string(p, "encryption");
+    value.flow = read_optional_string(p, "flow");
+    if (!p.at("level").is_null()) value.level = p.at("level").get<std::uint32_t>();
+    stream.protocol = std::move(value);
+  } else if (protocol_kind == "vmess") {
+    VmessSettings value;
+    value.id = p.at("id").get<std::string>();
+    value.security = read_optional_string(p, "security");
+    if (!p.at("level").is_null()) value.level = p.at("level").get<std::uint32_t>();
+    stream.protocol = std::move(value);
+  } else if (protocol_kind == "trojan") stream.protocol = TrojanSettings{p.at("password").get<std::string>()};
+  else if (protocol_kind == "shadowsocks")
+    stream.protocol = ShadowsocksSettings{p.at("method").get<std::string>(), p.at("password").get<std::string>()};
+  else if (protocol_kind == "hysteria2") stream.protocol = Hysteria2Settings{p.at("auth").get<std::string>()};
+  else throw std::invalid_argument("unsupported node protocol kind");
   const auto& t = json.at("transport");
   const auto tk = t.at("kind").get<std::string>();
   if (tk == "raw") stream.transport = RawTransport{};
   else if (tk == "xhttp") stream.transport = XHttpTransport{read_optional_string(t, "host"), read_optional_string(t, "path"), read_optional_string(t, "mode"), t.at("extra").is_null() ? std::nullopt : std::optional<Json>(t.at("extra"))};
   else if (tk == "websocket") stream.transport = WebSocketTransport{read_optional_string(t, "path"), t.at("headers").get<std::map<std::string, std::string>>()};
   else if (tk == "grpc") stream.transport = GrpcTransport{read_optional_string(t, "service_name"), read_optional_string(t, "authority")};
-  else if (tk == "httpupgrade") stream.transport = HttpUpgradeTransport{read_optional_string(t, "host"), read_optional_string(t, "path")};
+    else if (tk == "httpupgrade") stream.transport = HttpUpgradeTransport{read_optional_string(t, "host"), read_optional_string(t, "path")};
+    else if (tk == "hysteria") stream.transport = HysteriaTransport{t.at("options")};
   else throw std::invalid_argument("unknown transport kind");
   const auto& s = json.at("security");
   const auto sk = s.at("kind").get<std::string>();
   if (sk == "none") stream.security = NoSecurity{};
   else if (sk == "tls") stream.security = TlsSecurity{read_optional_string(s, "server_name"), read_optional_string(s, "fingerprint"), s.at("alpn").get<std::vector<std::string>>(), s.at("options")};
-  else if (sk == "reality") stream.security = RealitySecurity{read_optional_string(s, "server_name"), read_optional_string(s, "fingerprint"), s.at("password").get<std::string>(), read_optional_string(s, "short_id"), read_optional_string(s, "spider_x"), s.at("options")};
+  else if (sk == "reality") stream.security = RealitySecurity{read_optional_string(s, "server_name"), read_optional_string(s, "fingerprint"), s.at("password").get<std::string>(), read_optional_string(s, "short_id"), read_optional_string(s, "spider_x"), s.at("options"), s.contains("mldsa65_verify") ? read_optional_string(s, "mldsa65_verify") : std::nullopt};
   else throw std::invalid_argument("unknown security kind");
   for (const auto key : {"sockopt", "finalmask", "mux"}) {
     const auto& field = json.at(key);
@@ -308,6 +342,38 @@ void from_json(const Json& json, RuntimePersistent& value) {
   value.desired_running = json.at("desired_running").get<bool>();
   value.active = json.at("active").is_null() ? std::nullopt : std::optional<RunRecord>(decode_run(json.at("active")));
   value.previous = json.at("previous").is_null() ? std::nullopt : std::optional<RunRecord>(decode_run(json.at("previous")));
+}
+
+void to_json(Json& json, const ReleaseAsset& value) {
+  json = Json{{"name", value.name}, {"url", value.url},
+              {"platform", value.platform}, {"architecture", value.architecture},
+              {"sha256", optional_string(value.sha256)}};
+}
+void from_json(const Json& json, ReleaseAsset& value) {
+  value.name = json.at("name").get<std::string>();
+  value.url = json.at("url").get<std::string>();
+  value.platform = json.at("platform").get<std::string>();
+  value.architecture = json.at("architecture").get<std::string>();
+  value.sha256 = read_optional_string(json, "sha256");
+}
+void to_json(Json& json, const CoreRelease& value) {
+  json = Json{{"tag", value.tag}, {"published_at", value.published_at},
+              {"prerelease", value.prerelease}, {"assets", value.assets}};
+}
+void from_json(const Json& json, CoreRelease& value) {
+  value.tag = json.at("tag").get<std::string>();
+  value.published_at = json.at("published_at").get<UnixMillis>();
+  value.prerelease = json.at("prerelease").get<bool>();
+  value.assets = json.at("assets").get<std::vector<ReleaseAsset>>();
+}
+void to_json(Json& json, const InstallRequest& value) {
+  json = Json{{"release", value.release}, {"asset_name", value.asset_name},
+              {"allow_unverified_checksum", value.allow_unverified_checksum}};
+}
+void from_json(const Json& json, InstallRequest& value) {
+  value.release = json.at("release").get<CoreRelease>();
+  value.asset_name = json.at("asset_name").get<std::string>();
+  value.allow_unverified_checksum = json.value("allow_unverified_checksum", false);
 }
 
 }  // namespace xrm

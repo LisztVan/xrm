@@ -166,9 +166,8 @@ Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
 
   StreamNode stream;
   stream.endpoint = Endpoint{uri.address, uri.port};
-  stream.protocol.id = uri.user;
-  stream.protocol.encryption = get("encryption").value_or("none");
-  stream.protocol.flow = get("flow");
+  stream.protocol = VlessSettings{uri.user, get("encryption").value_or("none"),
+                                 get("flow"), std::nullopt};
 
   const auto type = get("type").value_or("tcp");
   if (type == "tcp" || type == "raw") stream.transport = RawTransport{};

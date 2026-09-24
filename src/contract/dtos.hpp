@@ -4,6 +4,7 @@
 #include "model/runtime.hpp"
 #include "model/subscription.hpp"
 #include "xray/metrics.hpp"
+#include "xray/installer.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -142,6 +143,29 @@ inline void to_json(Json& json, const GroupOverrideDto& value) {
 struct GroupOverrideResultDto { std::string status; std::optional<std::string> actual_outbound; };
 inline void to_json(Json& json, const GroupOverrideResultDto& value) {
   json = Json{{"status", value.status}, {"actual_outbound", value.actual_outbound}};
+}
+
+struct CoreReleasesRequestDto { bool include_prerelease = false; };
+inline void to_json(Json& json, const CoreReleasesRequestDto& value) {
+  json = Json{{"include_prerelease", value.include_prerelease}};
+}
+inline void from_json(const Json& json, CoreReleasesRequestDto& value) {
+  value.include_prerelease = json.value("include_prerelease", false);
+}
+struct CoreReleaseListDto { std::vector<CoreRelease> items; };
+inline void to_json(Json& json, const CoreReleaseListDto& value) {
+  json = Json{{"items", value.items}};
+}
+struct CoreInstallRequestDto { InstallRequest request; };
+inline void to_json(Json& json, const CoreInstallRequestDto& value) {
+  json = Json{{"request", value.request}};
+}
+inline void from_json(const Json& json, CoreInstallRequestDto& value) {
+  value.request = json.at("request").get<InstallRequest>();
+}
+struct CoreInstallResultDto { CoreInstall install; std::string status; };
+inline void to_json(Json& json, const CoreInstallResultDto& value) {
+  json = Json{{"install", value.install}, {"status", value.status}};
 }
 
 inline void to_json(Json& json, const CoreInstall& value) {

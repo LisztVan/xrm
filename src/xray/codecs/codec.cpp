@@ -54,7 +54,11 @@ Result<Json> write_outbound(const Node& node, std::string_view tag) {
   }
 
   const auto& stream = std::get<StreamNode>(node.settings);
-  if (stream.endpoint.address.empty() || stream.endpoint.port == 0 || stream.protocol.id.empty())
+  const auto* vless = std::get_if<VlessSettings>(&stream.protocol);
+  if (!vless)
+    return std::unexpected(error(ErrorCode::unsupported,
+                                 "typed outbound protocol codec is not integrated yet", "protocol"));
+  if (stream.endpoint.address.empty() || stream.endpoint.port == 0 || vless->id.empty())
     return std::unexpected(error(ErrorCode::invalid_argument, "VLESS endpoint and user id are required", "node"));
   if (const auto* tls = std::get_if<TlsSecurity>(&stream.security)) {
     if (!tls->options.is_object())
@@ -75,10 +79,10 @@ Result<Json> write_outbound(const Node& node, std::string_view tag) {
     }
   }
 
-  Json user{{"id", stream.protocol.id}};
-  user["encryption"] = stream.protocol.encryption.value_or("none");
-  if (stream.protocol.flow) user["flow"] = *stream.protocol.flow;
-  if (stream.protocol.level) user["level"] = *stream.protocol.level;
+  Json user{{"id", vless->id}};
+  user["encryption"] = vless->encryption.value_or("none");
+  if (vless->flow) user["flow"] = *vless->flow;
+  if (vless->level) user["level"] = *vless->level;
 
   Json result{{"tag", tag}, {"protocol", "vless"},
               {"settings", {{"vnext", Json::array({Json{

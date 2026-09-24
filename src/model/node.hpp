@@ -21,6 +21,17 @@ struct VlessSettings {
   std::optional<std::string> flow;
   std::optional<std::uint32_t> level;
 };
+struct VmessSettings {
+  std::string id;
+  std::optional<std::string> security;
+  std::optional<std::uint32_t> level;
+};
+struct TrojanSettings { std::string password; };
+struct ShadowsocksSettings { std::string method; std::string password; };
+struct Hysteria2Settings { std::string auth; };
+using ProtocolSettings = std::variant<VlessSettings, VmessSettings,
+                                     TrojanSettings, ShadowsocksSettings,
+                                     Hysteria2Settings>;
 
 struct RawTransport {};
 struct XHttpTransport {
@@ -41,8 +52,9 @@ struct HttpUpgradeTransport {
   std::optional<std::string> host;
   std::optional<std::string> path;
 };
+struct HysteriaTransport { Json options = Json::object(); };
 using Transport = std::variant<RawTransport, XHttpTransport, WebSocketTransport,
-                               GrpcTransport, HttpUpgradeTransport>;
+                               GrpcTransport, HttpUpgradeTransport, HysteriaTransport>;
 
 struct NoSecurity {};
 struct TlsSecurity {
@@ -58,12 +70,13 @@ struct RealitySecurity {
   std::optional<std::string> short_id;
   std::optional<std::string> spider_x;
   Json options = Json::object();
+  std::optional<std::string> mldsa65_verify;
 };
 using Security = std::variant<NoSecurity, TlsSecurity, RealitySecurity>;
 
 struct StreamNode {
   Endpoint endpoint;
-  VlessSettings protocol;
+  ProtocolSettings protocol = VlessSettings{};
   Transport transport = RawTransport{};
   Security security = NoSecurity{};
   std::optional<Json> sockopt;
