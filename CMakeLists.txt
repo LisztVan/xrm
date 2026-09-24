@@ -33,6 +33,24 @@ endif()
 
 find_package(SQLite3 REQUIRED)
 find_package(CURL REQUIRED)
+find_package(OpenSSL REQUIRED COMPONENTS Crypto)
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(ENABLE_OPENSSL OFF CACHE BOOL "" FORCE)
+set(ENABLE_LZ4 OFF CACHE BOOL "" FORCE)
+set(ENABLE_LZMA OFF CACHE BOOL "" FORCE)
+set(ENABLE_ZSTD OFF CACHE BOOL "" FORCE)
+set(ENABLE_BZip2 OFF CACHE BOOL "" FORCE)
+set(ENABLE_ZLIB ON CACHE BOOL "" FORCE)
+set(ENABLE_TAR OFF CACHE BOOL "" FORCE)
+set(ENABLE_CPIO OFF CACHE BOOL "" FORCE)
+set(ENABLE_CAT OFF CACHE BOOL "" FORCE)
+set(ENABLE_TEST OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(libarchive
+  URL https://codeload.github.com/libarchive/libarchive/tar.gz/refs/tags/v3.8.9
+  URL_HASH SHA256=744346f6bca195c8f894f847bb32a16e9bcae6002624a58fadc81e80f595b3cb
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+FetchContent_MakeAvailable(libarchive)
 
 set(LIBUV_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(LIBUV_BUILD_BENCH OFF CACHE BOOL "" FORCE)
@@ -111,6 +129,9 @@ add_library(xrm_server_lib STATIC
   src/xray/metrics.cpp
   src/xray/control.cpp
   src/xray/process_adapter.cpp)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/xray/installer.cpp")
+  target_sources(xrm_server_lib PRIVATE src/xray/installer.cpp)
+endif()
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/infra/http.cpp")
   target_sources(xrm_server_lib PRIVATE src/infra/http.cpp)
 endif()
@@ -118,7 +139,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/subscription/subscription_service.cpp
   target_sources(xrm_server_lib PRIVATE src/subscription/subscription_service.cpp)
 endif()
 target_include_directories(xrm_server_lib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract xrm_logic SQLite3::SQLite3 CURL::libcurl uv_a)
+target_link_libraries(xrm_server_lib PUBLIC xrm_model xrm_contract xrm_logic SQLite3::SQLite3 CURL::libcurl uv_a archive_static OpenSSL::Crypto)
 target_compile_definitions(xrm_server_lib PRIVATE
   XRM_PRESETS_DIR="${CMAKE_CURRENT_SOURCE_DIR}/presets")
 
