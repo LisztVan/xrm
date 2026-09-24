@@ -8,8 +8,10 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <uv.h>
+#include <sys/utsname.h>
 
 #include <algorithm>
+#include <array>
 #include <optional>
 #include <chrono>
 #include <thread>
@@ -68,7 +70,9 @@ class TuiApp final : public ComponentBase {
       return true;
     }
     if (editing_) {
-      if (event == Event::Escape || event == Event::CtrlQ) { editing_ = false; editing_group_ = false; return true; }
+      if (event == Event::Escape || event == Event::CtrlQ) {
+        editing_ = false; editing_group_ = false; editing_node_ = false; return true;
+      }
       if (event == Event::CtrlS) { save_editor(); return true; }
       if (event == Event::ArrowLeft && edit_cursor_ > 0) --edit_cursor_;
       else if (event == Event::ArrowRight && edit_cursor_ < draft_.size()) ++edit_cursor_;
@@ -89,6 +93,9 @@ class TuiApp final : public ComponentBase {
     }
     if (node_detail_) {
       if (event == Event::Escape || event == Event::CtrlQ) node_detail_ = false;
+      else if (event == Event::Character("t"))
+        node_field_index_ = (node_field_index_ + 1) % node_edit_fields_.size();
+      else if (event == Event::Character("e")) open_node_editor();
       return true;
     }
     if (event == Event::Character("q") || event == Event::Escape) {
@@ -117,11 +124,18 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("c") && !profile_id_.empty()) connect();
     else if (event == Event::Character("d")) disconnect();
     else if (event == Event::Character("r")) {
-      refresh_all();
+      if (page_ == 7) {
+        if (!pending_core_operation_.empty()) poll_core_operation();
+        else refresh_cores();
+      } else refresh_all();
       if (page_ == 6) refresh_stats(true);
     }
     else if (event == Event::Character("/" ) && page_ == 1) filtering_nodes_ = true;
     else if (event == Event::Character("u") && page_ == 4) refresh_subscription_inventory();
+    else if (event == Event::Character("l") && page_ == 7) fetch_core_releases(false);
+    else if (event == Event::Character("p") && page_ == 7) fetch_core_releases(true);
+    else if (event == Event::Character("i") && page_ == 7) install_selected_release();
+    else if (event == Event::Character("u") && page_ == 7) use_selected_core();
     return true;
   }
 
@@ -159,7 +173,8 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("XRM support: " + node.value("support", "raw-only")));
         body.push_back(text("ID: " + node.value("id", "")));
         body.push_back(text(std::string("Enabled: ") + (node.value("enabled", false) ? "yes" : "no")));
-        body.push_back(text("Typed subobjects: xrm node edit ID transport|security|sockopt|finalmask|mux --json VALUE") | dim);
+        body.push_back(text("Native subobject: " + node_edit_fields_[node_field_index_] +
+                            " (t changes field, e edits JSON, Ctrl-S saves)") | dim);
       } else {
         body.push_back(text("Nodes — Enter details; / filter; s saves selection, c connects") | bold);
         body.push_back(text("filter: " + node_filter_) | dim);
@@ -265,20 +280,43 @@ class TuiApp final : public ComponentBase {
       }
       body.push_back(text("Group selection is persistent; runtime override is separate") | dim);
     } else {
-      body.push_back(text("Cores — system binaries are registered only; managed binaries live under XRM data") | bold);
-      const auto running = status_.contains("active") && status_["active"].is_object()
-          ? status_["active"].value("core_id", "") : "";
-      auto profiles = rpc(socket_, std::string(methods::profile_list));
-      for (const auto& core : cores_) {
-        bool selected = false;
-        if (profiles && profiles->is_array()) for (const auto& profile : *profiles)
-          selected = selected || profile.value("core_id", "") == core.value("id", "");
-        body.push_back(text(core.value("name", "") + "  " + core.value("reported_version", "") +
-            "  " + (core.value("managed", false) ? "managed" : "system") + "  installed" +
-            (selected ? " selected" : "") + (running == core.value("id", "") ? " running" : "")));
-        body.push_back(text(core.value("path", "")) | dim);
+      body.push_back(text("Cores — system binaries are register-only; managed binaries live under XRM data") | bold);
+      if (viewing_releases_) {
+        body.push_back(text(std::string("Official XTLS/Xray-core releases ") +
+            (include_prerelease_ ? "(stable + prerelease)" : "(stable)")) | dim);
+        for (std::size_t i = 0; i < core_releases_.size(); ++i) {
+          const auto& release = core_releases_[i];
+          body.push_back(text((i == selected_ ? "> " : "  ") + release.value("tag", "") +
+              "  published:" + std::to_string(release.value("published_at", std::int64_t{0})) +
+              (release.value("prerelease", false) ? "  prerelease" : "  stable")) |
+              (i == selected_ ? inverted : nothing));
+          if (i == selected_ && release.contains("assets") && release["assets"].is_array())
+            for (const auto& asset : release["assets"])
+              body.push_back(text("    " + asset.value("name", "") + "  " +
+                  asset.value("platform", "") + "/" + asset.value("architecture", "") +
+                  (asset.contains("sha256") && asset["sha256"].is_string()
+                      ? "  sha256" : "  no checksum")) | dim);
+        }
+        body.push_back(text("l stable releases   p include prereleases   i install selected release") | dim);
+      } else {
+        const auto running = status_.contains("active") && status_["active"].is_object()
+            ? status_["active"].value("core_id", "") : "";
+        auto profiles = rpc(socket_, std::string(methods::profile_list));
+        for (std::size_t i = 0; i < cores_.size(); ++i) {
+          const auto& core = cores_[i];
+          bool selected = false;
+          if (profiles && profiles->is_array()) for (const auto& profile : *profiles)
+            selected = selected || profile.value("core_id", "") == core.value("id", "");
+          body.push_back(text((i == selected_ ? "> " : "  ") + core.value("name", "") + "  " +
+              core.value("reported_version", "") + "  " +
+              (core.value("managed", false) ? "managed" : "system") + "  installed" +
+              (selected ? " selected" : "") + (running == core.value("id", "") ? " running" : "")) |
+              (i == selected_ ? inverted : nothing));
+          body.push_back(text(core.value("path", "")) | dim);
+        }
+        body.push_back(text("l releases   u use selected core for current Profile") | dim);
       }
-      body.push_back(text("Install: xrm core releases / xrm core install VERSION; use: xrm core use PROFILE VERSION") | dim);
+      body.push_back(text("r refresh/poll operation; install never changes the running core") | dim);
     }
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
     if (!message_.empty()) body.push_back(text(message_) | color(Color::Yellow));
@@ -292,7 +330,7 @@ class TuiApp final : public ComponentBase {
     if (page_ == 2) return modules_.size();
     if (page_ == 4) return subscriptions_.size();
     if (page_ == 5) return groups_.size();
-    if (page_ == 7) return cores_.size();
+    if (page_ == 7) return viewing_releases_ ? core_releases_.size() : cores_.size();
     return 0;
   }
   void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); refresh_groups(); refresh_cores(); }
@@ -365,6 +403,97 @@ class TuiApp final : public ComponentBase {
     cores_.clear();
     if (response && response->is_array()) cores_ = response->get<std::vector<Json>>();
     selected_ = std::min(selected_, cores_.empty() ? 0 : cores_.size() - 1);
+    viewing_releases_ = false;
+  }
+  void poll_core_operation() {
+    if (pending_core_operation_.empty()) return;
+    auto state = rpc(socket_, std::string(methods::operation_get),
+                     Json{{"operation_id", pending_core_operation_}});
+    if (!state) { message_ = state.error().message; return; }
+    const auto status = state->value("status", "unknown");
+    if (status == "running") { message_ = pending_core_label_ + " still running; press r to check"; return; }
+    if (status == "failed") {
+      message_ = state->contains("error")
+          ? state->at("error").value("message", "operation failed") : "operation failed";
+    } else if (status == "succeeded") {
+      const auto result = state->value("result", Json::object());
+      if (pending_core_label_ == "release query") {
+        core_releases_ = result.value("items", Json::array()).get<std::vector<Json>>();
+        viewing_releases_ = true;
+        selected_ = 0;
+        message_ = "loaded " + std::to_string(core_releases_.size()) + " official releases";
+      } else if (pending_core_label_ == "install") {
+        message_ = "installed core; not selected or running";
+        refresh_cores();
+      } else {
+        message_ = "selected core for Profile; saved runtime files were reused";
+        refresh_cores();
+        refresh_status();
+      }
+    }
+    pending_core_operation_.clear();
+    pending_core_label_.clear();
+  }
+  void start_core_operation(std::string method, Json params, std::string label) {
+    if (!pending_core_operation_.empty()) {
+      message_ = "core operation already pending; press r to poll";
+      return;
+    }
+    auto accepted = rpc(socket_, std::move(method), std::move(params));
+    if (!accepted) { message_ = accepted.error().message; return; }
+    pending_core_operation_ = accepted->value("operation_id", "");
+    pending_core_label_ = std::move(label);
+    if (pending_core_operation_.empty()) { message_ = "server did not return an operation id"; return; }
+    message_ = pending_core_label_ + " accepted; press r to poll";
+    poll_core_operation();
+  }
+  void fetch_core_releases(bool include_prerelease) {
+    include_prerelease_ = include_prerelease;
+    start_core_operation(std::string(methods::core_releases),
+        Json{{"include_prerelease", include_prerelease_}}, "release query");
+  }
+  void install_selected_release() {
+    if (!viewing_releases_ || selected_ >= core_releases_.size()) {
+      message_ = "load and select an official release first";
+      return;
+    }
+    utsname machine{};
+    if (::uname(&machine) != 0) { message_ = "cannot determine host architecture"; return; }
+    std::string architecture = machine.machine;
+    if (architecture == "amd64") architecture = "x86_64";
+    if (architecture == "arm64") architecture = "aarch64";
+#if defined(__linux__)
+    const std::string platform = "linux";
+#elif defined(__APPLE__)
+    const std::string platform = "macos";
+#elif defined(__FreeBSD__)
+    const std::string platform = "freebsd";
+#else
+    const std::string platform = "unknown";
+#endif
+    const auto& release = core_releases_[selected_];
+    std::string asset_name;
+    if (release.contains("assets") && release["assets"].is_array())
+      for (const auto& asset : release["assets"])
+        if (asset.value("platform", "") == platform && asset.value("architecture", "") == architecture) {
+          asset_name = asset.value("name", "");
+          break;
+        }
+    if (asset_name.empty()) {
+      message_ = "selected release has no asset for " + platform + "/" + architecture;
+      return;
+    }
+    start_core_operation(std::string(methods::core_install), Json{{"request", Json{
+        {"release", release}, {"asset_name", asset_name},
+        {"allow_unverified_checksum", false}}}}, "install");
+  }
+  void use_selected_core() {
+    if (viewing_releases_ || selected_ >= cores_.size() || profile_id_.empty()) {
+      message_ = "select an installed core from the local list first";
+      return;
+    }
+    start_core_operation(std::string(methods::core_use), Json{
+        {"profile_id", profile_id_}, {"core_id", cores_[selected_].value("id", "")}}, "use");
   }
   void refresh_subscription_inventory() {
     auto result = rpc(socket_, std::string(methods::subscription_refresh));
@@ -414,6 +543,7 @@ class TuiApp final : public ComponentBase {
     if (selected_ >= modules_.size()) return;
     editing_key_ = modules_[selected_].value("key", "");
     editing_group_ = false;
+    editing_node_ = false;
     auto result = rpc(socket_, std::string(methods::module_get),
                       Json{{"profile_id", profile_id_}, {"module", editing_key_}});
     if (!result) { message_ = result.error().message; return; }
@@ -421,7 +551,45 @@ class TuiApp final : public ComponentBase {
     edit_cursor_ = draft_.size();
     editing_ = true;
   }
+  void open_node_editor() {
+    if (selected_ >= nodes_.size()) return;
+    const auto id = nodes_[selected_].value("id", "");
+    auto current = rpc(socket_, std::string(methods::node_get), Json{{"id", id}});
+    if (!current) { message_ = current.error().message; return; }
+    if (!current->contains("settings") || !current->at("settings").is_object() ||
+        current->at("settings").value("kind", "") != "stream") {
+      message_ = "raw-only native outbounds use the native editor";
+      return;
+    }
+    editing_node_field_ = node_edit_fields_[node_field_index_];
+    if (!current->at("settings").contains(editing_node_field_)) {
+      message_ = "node subobject is unavailable";
+      return;
+    }
+    editing_node_id_ = id;
+    editing_key_ = "Node native editor — " + editing_node_field_;
+    draft_ = current->at("settings").at(editing_node_field_).dump(2) + "\n";
+    edit_cursor_ = draft_.size();
+    editing_node_ = true;
+    editing_group_ = false;
+    editing_ = true;
+  }
   void save_editor() {
+    if (editing_node_) {
+      Result<Json> saved = std::unexpected(AppError{ErrorCode::invalid_argument,
+          "节点子对象必须是合法JSON", std::nullopt, std::nullopt});
+      try {
+        saved = rpc(socket_, std::string(methods::node_form_edit), Json{
+            {"id", editing_node_id_}, {"field", editing_node_field_},
+            {"value", Json::parse(draft_)}});
+      } catch (const Json::exception&) {}
+      if (!saved) message_ = saved.error().message;
+      else message_ = "saved node " + editing_node_field_ + "; connect to apply";
+      editing_ = false;
+      editing_node_ = false;
+      refresh_nodes();
+      return;
+    }
     if (editing_group_) {
       Result<Json> saved = std::unexpected(AppError{ErrorCode::invalid_argument, "组内容必须是JSON对象", std::nullopt, std::nullopt});
       try {
@@ -454,6 +622,7 @@ class TuiApp final : public ComponentBase {
     draft_ = groups_[selected_].dump(2) + "\n";
     edit_cursor_ = draft_.size();
     editing_group_ = true;
+    editing_node_ = false;
     editing_key_ = "group " + groups_[selected_].value("name", "");
     editing_ = true;
   }
@@ -531,6 +700,7 @@ class TuiApp final : public ComponentBase {
   bool filtering_nodes_ = false;
   bool node_detail_ = false;
   bool editing_group_ = false;
+  bool editing_node_ = false;
   std::string editing_key_;
   std::string node_filter_;
   std::string draft_;
@@ -546,8 +716,17 @@ class TuiApp final : public ComponentBase {
   std::string message_;
   std::string expected_selection_;
   std::string selected_group_id_;
+  std::string editing_node_id_;
+  std::string editing_node_field_;
+  std::array<std::string, 5> node_edit_fields_{"transport", "security", "sockopt", "finalmask", "mux"};
+  std::size_t node_field_index_ = 0;
   std::vector<Json> groups_;
   std::vector<Json> cores_;
+  std::vector<Json> core_releases_;
+  std::string pending_core_operation_;
+  std::string pending_core_label_;
+  bool viewing_releases_ = false;
+  bool include_prerelease_ = false;
 };
 
 }  // namespace

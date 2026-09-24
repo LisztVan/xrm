@@ -2,12 +2,15 @@
 
 #include "model/common.hpp"
 #include "model/profile.hpp"
+#include "infra/store.hpp"
+#include "xray/codecs/codec.hpp"
 
 #include <spawn.h>
 #include <sys/wait.h>
 #include <poll.h>
 #include <pty.h>
 #include <sys/ioctl.h>
+#include <termios.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -145,6 +148,13 @@ TuiProcess start_tui(const std::filesystem::path& root, const std::filesystem::p
                      const std::string& profile) {
   int master = -1, slave = -1;
   if (::openpty(&master, &slave, nullptr, nullptr, nullptr) != 0) return {};
+  termios terminal{};
+  if (::tcgetattr(slave, &terminal) == 0) {
+    // Keep Ctrl-S available to the TUI editor instead of letting the PTY's
+    // XON/XOFF line discipline consume it as terminal flow control.
+    terminal.c_iflag &= static_cast<tcflag_t>(~IXON);
+    (void)::tcsetattr(slave, TCSANOW, &terminal);
+  }
   winsize size{40, 140, 0, 0};
   ::ioctl(slave, TIOCSWINSZ, &size);
   std::vector<std::string> values{XRM_TEST_MANAGER, "--socket", socket.string(), "tui", "--profile", profile};
@@ -726,5 +736,83 @@ TEST_CASE("UI-01 text keys do not fire global actions and TUI exit leaves core r
   INFO(server.cli({"server", "info"}).err);
   INFO("server exit status: " << server.observed_exit());
   REQUIRE(stopped.code == 0);
+  REQUIRE(server.stop());
+}
+
+TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject",
+          "[UI-04][M4]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  auto core = server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "typed node editor fixture"});
+  REQUIRE(core.code == 0);
+  auto profile = server.cli({"profile", "create", "--name", "typed-node-ui", "--core",
+                             parsed(core).at("id").get<std::string>()});
+  REQUIRE(profile.code == 0);
+  auto store = Store::open(temp.path / "state.sqlite");
+  REQUIRE(store);
+  auto typed = parse_vless_uri("vless://00000000-0000-4000-8000-000000000099@127.0.0.1:443?encryption=none#typed-ui-node");
+  REQUIRE(typed);
+  typed->node.id = "typed-ui-node-id";
+  REQUIRE((*store)->put_node(typed->node));
+
+  auto tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
+  REQUIRE(tui.pid > 0);
+  (void)read_tui(tui.master, std::chrono::milliseconds(250));
+  send_tui(tui.master, "2");
+  (void)read_tui(tui.master, std::chrono::milliseconds(250));
+  send_tui(tui.master, "\r");
+  const auto details = read_tui(tui.master, std::chrono::milliseconds(250));
+  CHECK(details.find("Native subobject: transport") != std::string::npos);
+  send_tui(tui.master, "e");
+  const auto editor = read_tui(tui.master, std::chrono::milliseconds(250));
+  INFO("typed node editor screen: " << editor);
+  CHECK(editor.find("Node native editor") != std::string::npos);
+  send_tui(tui.master, "\x13");
+  const auto saved = read_tui(tui.master, std::chrono::milliseconds(300));
+  INFO("typed node save screen: " << saved);
+  CHECK(saved.find("saved node transport") != std::string::npos);
+  send_tui(tui.master, "\x1b");
+  send_tui(tui.master, "q");
+  int status = 0;
+  for (int attempt = 0; attempt < 100 && ::waitpid(tui.pid, &status, WNOHANG) == 0; ++attempt)
+    ::poll(nullptr, 0, 20);
+  if (::waitpid(tui.pid, &status, WNOHANG) == 0) {
+    ::kill(tui.pid, SIGKILL);
+    ::waitpid(tui.pid, &status, 0);
+  }
+  ::close(tui.master);
+  REQUIRE(WIFEXITED(status));
+  const auto saved_node = parsed(server.cli({"node", "show", "typed-ui-node-id"}));
+  CHECK(saved_node.at("settings").at("transport").at("kind") == "raw");
+
+  auto core_tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
+  REQUIRE(core_tui.pid > 0);
+  (void)read_tui(core_tui.master, std::chrono::milliseconds(250));
+  send_tui(core_tui.master, "8");
+  const auto core_page = read_tui(core_tui.master, std::chrono::milliseconds(250));
+  CHECK(core_page.find("Cores —") != std::string::npos);
+  CHECK(core_page.find("use selected core for current Profile") != std::string::npos);
+  send_tui(core_tui.master, "u");
+  std::string use_result;
+  for (int attempt = 0; attempt < 8; ++attempt) {
+    use_result += read_tui(core_tui.master, std::chrono::milliseconds(250));
+    if (use_result.find("selected core for Profile") != std::string::npos) break;
+    send_tui(core_tui.master, "r");
+  }
+  INFO("TUI core use result: " << use_result);
+  CHECK(use_result.find("selected core for Profile") != std::string::npos);
+  send_tui(core_tui.master, "q");
+  status = 0;
+  for (int attempt = 0; attempt < 100 && ::waitpid(core_tui.pid, &status, WNOHANG) == 0; ++attempt)
+    ::poll(nullptr, 0, 20);
+  if (::waitpid(core_tui.pid, &status, WNOHANG) == 0) {
+    ::kill(core_tui.pid, SIGKILL);
+    ::waitpid(core_tui.pid, &status, 0);
+  }
+  ::close(core_tui.master);
+  REQUIRE(WIFEXITED(status));
+  const auto profile_after_use = parsed(server.cli({"profile", "show", parsed(profile).at("id").get<std::string>()}));
+  CHECK(profile_after_use.at("core_id") == parsed(core).at("id"));
   REQUIRE(server.stop());
 }

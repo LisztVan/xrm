@@ -1,5 +1,5 @@
 add_executable(xrm_m1_tests m1_tests.cpp)
-target_link_libraries(xrm_m1_tests PRIVATE xrm_model Catch2::Catch2WithMain util)
+target_link_libraries(xrm_m1_tests PRIVATE xrm_model xrm_logic xrm_server_lib Catch2::Catch2WithMain util)
 target_compile_definitions(xrm_m1_tests PRIVATE
   XRM_TEST_MANAGER="$<TARGET_FILE:xrm>"
   XRM_TEST_SERVER="$<TARGET_FILE:xrmd>"
