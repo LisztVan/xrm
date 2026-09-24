@@ -17,6 +17,7 @@ inline constexpr std::string_view node_copy = "node.copy";
 inline constexpr std::string_view node_set_enabled = "node.set_enabled";
 inline constexpr std::string_view node_set_labels = "node.set_labels";
 inline constexpr std::string_view node_set_alias = "node.set_alias";
+inline constexpr std::string_view node_form_edit = "node.form_edit";
 inline constexpr std::string_view subscription_list = "subscription.list";
 inline constexpr std::string_view subscription_get = "subscription.get";
 inline constexpr std::string_view subscription_add = "subscription.add";

@@ -41,6 +41,13 @@ struct Request {
   std::string module_show_key;
   std::string module_text;
   std::string metrics_listen;
+  std::string form_key;
+  std::string form_value;
+  std::string form_min;
+  std::string form_max;
+  std::string form_cron;
+  std::string form_json;
+  std::vector<std::string> form_values;
   std::string source = "source";
   std::string output_path;
   std::string target_id;

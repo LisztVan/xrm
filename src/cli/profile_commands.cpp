@@ -69,6 +69,87 @@ void add_profile_commands(CLI::App& app, Request& request) {
                       {"action", "enable_traffic_statistics"},
                       {"arguments", {{"metrics_listen", request.metrics_listen}}}};
   });
+
+  auto* env = config->add_subcommand("env", "Edit Xray's native env module, not xrmd's process environment");
+  auto* env_set = env->add_subcommand("set", "Set one native Xray environment value");
+  env_set->add_option("profile_id", request.profile_id)->required();
+  env_set->add_option("key", request.form_key)->required();
+  env_set->add_option("value", request.form_value)->required();
+  env_set->callback([&request] {
+    request.method = "module.form";
+    request.params = {{"profile_id", request.profile_id}, {"action", "env.set"},
+                      {"arguments", {{"key", request.form_key}, {"value", request.form_value}}}};
+  });
+  auto* env_unset = env->add_subcommand("unset", "Remove one native Xray environment value");
+  env_unset->add_option("profile_id", request.profile_id)->required();
+  env_unset->add_option("key", request.form_key)->required();
+  env_unset->callback([&request] {
+    request.method = "module.form";
+    request.params = {{"profile_id", request.profile_id}, {"action", "env.unset"},
+                      {"arguments", {{"key", request.form_key}}}};
+  });
+
+  auto* version = config->add_subcommand("version", "Edit the native Xray minimum/maximum version range");
+  auto* version_range = version->add_subcommand("range", "Set or clear user-authored min/max fields");
+  version_range->add_option("profile_id", request.profile_id)->required();
+  version_range->add_option("--min", request.form_min);
+  version_range->add_option("--max", request.form_max);
+  version_range->callback([&request] {
+    request.method = "module.form";
+    request.params = {{"profile_id", request.profile_id}, {"action", "version.range"},
+                      {"arguments", {{"min", request.form_min.empty() ? Json(nullptr) : Json(request.form_min)},
+                                      {"max", request.form_max.empty() ? Json(nullptr) : Json(request.form_max)}}}};
+  });
+
+  auto* geodata = config->add_subcommand("geodata", "Edit geodata resource references and update schedule");
+  auto* geodata_schedule = geodata->add_subcommand("schedule", "Set the Xray-native geodata update schedule");
+  geodata_schedule->add_option("profile_id", request.profile_id)->required();
+  geodata_schedule->add_option("cron", request.form_cron)->required();
+  geodata_schedule->callback([&request] {
+    request.method = "module.form";
+    request.params = {{"profile_id", request.profile_id}, {"action", "geodata.schedule"},
+                      {"arguments", {{"cron", request.form_cron}}}};
+  });
+  auto* geodata_assets = geodata->add_subcommand("assets", "Replace geodata asset references from a JSON array");
+  geodata_assets->add_option("profile_id", request.profile_id)->required();
+  geodata_assets->add_option("--json", request.form_json)->required();
+  geodata_assets->callback([&request] {
+    request.method = "module.form";
+    Json assets = nullptr;
+    try { assets = Json::parse(request.form_json); } catch (const Json::exception&) {}
+    request.params = {{"profile_id", request.profile_id}, {"action", "geodata.assets"},
+                      {"arguments", {{"assets", std::move(assets)}}}};
+  });
+
+  auto* api = config->add_subcommand("api", "Edit native Xray API services without automatically opening the API");
+  auto* api_services = api->add_subcommand("services", "Set API services");
+  api_services->add_option("profile_id", request.profile_id)->required();
+  api_services->add_option("services", request.form_values)->required();
+  api_services->callback([&request] {
+    request.method = "module.form";
+    request.params = {{"profile_id", request.profile_id}, {"action", "api.services"},
+                      {"arguments", {{"services", request.form_values}}}};
+  });
+
+  auto* metrics = config->add_subcommand("metrics", "Edit the native Xray Metrics listener");
+  auto* metrics_listen = metrics->add_subcommand("listen", "Set a Metrics listen address");
+  metrics_listen->add_option("profile_id", request.profile_id)->required();
+  metrics_listen->add_option("listen", request.metrics_listen)->required();
+  metrics_listen->callback([&request] {
+    request.method = "module.form";
+    request.params = {{"profile_id", request.profile_id}, {"action", "metrics.listen"},
+                      {"arguments", {{"listen", request.metrics_listen}}}};
+  });
+
+  auto* log = config->add_subcommand("log", "Edit common native log fields");
+  auto* log_level = log->add_subcommand("level", "Set native Xray log level");
+  log_level->add_option("profile_id", request.profile_id)->required();
+  log_level->add_option("level", request.form_value)->required();
+  log_level->callback([&request] {
+    request.method = "module.form";
+    request.params = {{"profile_id", request.profile_id}, {"action", "log.level"},
+                      {"arguments", {{"level", request.form_value}}}};
+  });
   for (const auto& [name, method] : {std::pair{"render", methods::config_render},
                                      std::pair{"check", methods::config_check},
                                      std::pair{"dump", methods::config_dump},

@@ -31,6 +31,19 @@ void add_node_commands(CLI::App& app, Request& request) {
   auto* show = node->add_subcommand("show", "Show one node including required connection settings");
   show->add_option("id", request.node_id)->required();
   show->callback([&request] { request.method = "node.get"; request.params = {{"id", request.node_id}}; });
+  auto* edit = node->add_subcommand("edit", "Edit one typed transport/security/sockopt/finalmask/mux subobject");
+  edit->add_option("id", request.node_id)->required();
+  edit->add_option("field", request.module_key)->required()->check(
+      CLI::IsMember({"transport", "security", "sockopt", "finalmask", "mux"}));
+  edit->add_option("--json", request.node_outbound,
+                   "Typed node subobject JSON; use null to clear optional fields")->required();
+  edit->callback([&request] {
+    Json value;
+    try { value = Json::parse(request.node_outbound); }
+    catch (const Json::exception&) { throw CLI::ValidationError("--json must contain valid JSON"); }
+    request.method = "node.form_edit";
+    request.params = {{"id", request.node_id}, {"field", request.module_key}, {"value", std::move(value)}};
+  });
   auto* copy = node->add_subcommand("copy", "Copy a node as an independent manual node");
   copy->add_option("id", request.node_id)->required();
   copy->add_option("--name", request.node_name)->required();

@@ -99,3 +99,15 @@ TEST_CASE("M4 core use RPC binds an explicit Profile and registered core") {
   CHECK(decoded.core_id == request.core_id);
   CHECK(xrm::methods::core_use == "core.use");
 }
+
+TEST_CASE("M4 typed node form RPC keeps each native subobject distinct") {
+  const xrm::NodeFormEditDto request{"node-id", "security",
+      xrm::Json{{"kind", "tls"}, {"server_name", "edge.example"},
+                {"fingerprint", nullptr}, {"alpn", xrm::Json::array()},
+                {"options", xrm::Json::object()}}};
+  const auto encoded = xrm::Json(request);
+  CHECK(encoded.at("field") == "security");
+  CHECK(encoded.at("value").at("kind") == "tls");
+  CHECK(encoded.get<xrm::NodeFormEditDto>().value == request.value);
+  CHECK(xrm::methods::node_form_edit == "node.form_edit");
+}

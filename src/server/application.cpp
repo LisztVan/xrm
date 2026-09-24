@@ -128,6 +128,38 @@ Result<NodeSummary> Application::set_node_labels(const Id& id, std::vector<std::
   return summarize_node(*node);
 }
 
+Result<NodeSummary> Application::edit_node_form(const Id& id, std::string_view field, Json value) {
+  auto original = store_->get_node(id);
+  if (!original) return std::unexpected(original.error());
+  if (original->source_id)
+    return std::unexpected(AppError{ErrorCode::unsupported,
+        "订阅节点须先复制为手工节点后才能编辑", id, std::nullopt});
+  Json encoded = *original;
+  if (!encoded.at("settings").is_object() || encoded.at("settings").value("kind", "") != "stream")
+    return std::unexpected(AppError{ErrorCode::unsupported,
+        "Raw outbound没有typed transport/security表单；请使用原生编辑或保存typed节点", id, std::nullopt});
+  if (field != "transport" && field != "security" && field != "sockopt" &&
+      field != "finalmask" && field != "mux")
+    return std::unexpected(invalid("未知的typed节点表单字段", std::string(field)));
+  encoded["settings"][std::string(field)] = std::move(value);
+  Node candidate;
+  try { candidate = encoded.get<Node>(); }
+  catch (const Json::exception& exception) {
+    return std::unexpected(invalid("typed节点字段无效: " + std::string(exception.what()),
+                                   "settings." + std::string(field)));
+  }
+  Result<Node> changed = std::unexpected(invalid("节点表单更新失败", id));
+  const auto& stream = std::get<StreamNode>(candidate.settings);
+  if (field == "transport") changed = edit_node_transport(*original, stream.transport);
+  else if (field == "security") changed = edit_node_security(*original, stream.security);
+  else if (field == "sockopt") changed = edit_node_sockopt(*original, stream.sockopt);
+  else if (field == "finalmask") changed = edit_node_finalmask(*original, stream.finalmask);
+  else changed = edit_node_mux(*original, stream.mux);
+  if (!changed) return std::unexpected(changed.error());
+  if (auto saved = store_->put_node(*changed); !saved) return std::unexpected(saved.error());
+  return summarize_node(*changed);
+}
+
 Store& Application::store() { return *store_; }
 SubscriptionService& Application::subscriptions() { return *subscriptions_; }
 
@@ -434,13 +466,87 @@ Result<Json> Application::runtime_status() const {
 
 Result<ModuleChangePlan> Application::plan_module_changes(const Id& profile_id,
     std::string_view action, const Json& arguments) const {
-  if (action != "enable_traffic_statistics" && action != "disable_traffic_statistics")
-    return std::unexpected(invalid("不支持的跨模块模块动作", std::string(action)));
-  const auto enabled = action == "enable_traffic_statistics";
-  const auto listen = arguments.value("metrics_listen", std::string{});
-  auto snapshot = profiles_->snapshot(profile_id);
-  if (!snapshot) return std::unexpected(snapshot.error());
-  return plan_traffic_stats(*snapshot, enabled, listen);
+  if (action == "enable_traffic_statistics" || action == "disable_traffic_statistics") {
+    const auto enabled = action == "enable_traffic_statistics";
+    const auto listen = arguments.value("metrics_listen", std::string{});
+    auto snapshot = profiles_->snapshot(profile_id);
+    if (!snapshot) return std::unexpected(snapshot.error());
+    return plan_traffic_stats(*snapshot, enabled, listen);
+  }
+  bool include_after_save = false;
+  bool source_exists = true;
+  auto module = [&](std::string_view key) -> Result<ModuleDocument> {
+    auto view = profiles_->module(profile_id, key);
+    if (!view) return std::unexpected(view.error());
+    include_after_save = view->setting.included;
+    if (!view->document) {
+      source_exists = false;
+      if (key != "env" && key != "version" && key != "geodata" && key != "api" &&
+          key != "metrics" && key != "log")
+        return std::unexpected(invalid("源模块不存在且此表单没有安全的默认原生对象", std::string(key)));
+      return ModuleDocument{std::string(key), view->setting.filename,
+                            Json{{std::string(key), Json::object()}}.dump(2) + "\n"};
+    }
+    source_exists = true;
+    return *view->document;
+  };
+  Result<ModuleEdit> edit = std::unexpected(invalid("未知的专用模块表单", std::string(action)));
+  if (action == "env.set" || action == "env.unset") {
+    auto document = module("env");
+    if (!document) return std::unexpected(document.error());
+    const auto key = arguments.value("key", std::string{});
+    if (key.empty()) return std::unexpected(invalid("env表单需要key", "key"));
+    if (action == "env.set") {
+      if (!arguments.contains("value") || !arguments["value"].is_string())
+        return std::unexpected(invalid("env.set需要字符串value", "value"));
+      edit = put_env(*document, key, arguments["value"].get<std::string>());
+    } else edit = erase_env(*document, key);
+  } else if (action == "version.range") {
+    auto document = module("version");
+    if (!document) return std::unexpected(document.error());
+    const auto min = arguments.value("min", Json(nullptr));
+    const auto max = arguments.value("max", Json(nullptr));
+    if ((!min.is_null() && !min.is_string()) || (!max.is_null() && !max.is_string()))
+      return std::unexpected(invalid("version min/max必须是字符串或null", "version"));
+    edit = set_version_range(*document,
+        min.is_null() ? std::nullopt : std::optional<std::string>(min.get<std::string>()),
+        max.is_null() ? std::nullopt : std::optional<std::string>(max.get<std::string>()));
+  } else if (action == "geodata.assets") {
+    auto document = module("geodata");
+    if (!document) return std::unexpected(document.error());
+    if (!arguments.contains("assets") || !arguments["assets"].is_array())
+      return std::unexpected(invalid("geodata.assets需要assets数组", "assets"));
+    edit = replace_geodata_assets(*document, arguments["assets"].get<std::vector<Json>>());
+  } else if (action == "geodata.schedule") {
+    auto document = module("geodata");
+    if (!document) return std::unexpected(document.error());
+    const auto cron = arguments.value("cron", std::string{});
+    if (cron.empty()) return std::unexpected(invalid("geodata.schedule需要cron", "cron"));
+    edit = set_geodata_schedule(*document, cron);
+  } else if (action == "api.services") {
+    auto document = module("api");
+    if (!document) return std::unexpected(document.error());
+    if (!arguments.contains("services") || !arguments["services"].is_array())
+      return std::unexpected(invalid("api.services需要字符串services数组", "services"));
+    try { edit = set_api_services(*document, arguments["services"].get<std::vector<std::string>>()); }
+    catch (const Json::exception& error) { return std::unexpected(invalid(error.what(), "services")); }
+  } else if (action == "metrics.listen") {
+    auto document = module("metrics");
+    if (!document) return std::unexpected(document.error());
+    const auto listen = arguments.value("listen", std::string{});
+    if (listen.empty()) return std::unexpected(invalid("metrics.listen需要listen", "listen"));
+    edit = set_metrics_listener(*document, listen);
+  } else if (action == "log.level") {
+    auto document = module("log");
+    if (!document) return std::unexpected(document.error());
+    const auto level = arguments.value("level", std::string{});
+    edit = set_log_level(*document, level.empty() ? std::nullopt : std::optional<std::string>(level));
+  } else {
+    return std::unexpected(invalid("不支持的模块表单", std::string(action)));
+  }
+  if (!edit) return std::unexpected(edit.error());
+  if (!source_exists) edit->base.expected_text.reset();
+  return ModuleChangePlan{{ModuleChange{std::move(*edit), include_after_save}}, {}};
 }
 
 SaveManyResult Application::save_module_changes(const Id& profile_id, const ModuleChangePlan& plan) {

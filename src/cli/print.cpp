@@ -119,6 +119,23 @@ std::string default_socket_path() {
 }
 
 int execute_request(const Request& request) {
+  if (request.method == "module.form") {
+    auto plan = call_rpc_once(request.socket, "module.change_plan", request.params);
+    if (!plan) return print_result(request, std::unexpected(plan.error()));
+    const auto profile_id = request.params.value("profile_id", std::string{});
+    auto saved = call_rpc_once(request.socket, "module.save_changes",
+        Json{{"profile_id", profile_id}, {"plan", *plan}});
+    if (!saved) return print_result(request, std::unexpected(saved.error()));
+    if (!saved->is_object())
+      return print_result(request, std::unexpected(AppError{ErrorCode::protocol_error,
+          "module.save_changes返回了非对象", std::nullopt, std::nullopt}));
+    (*saved)["notices"] = plan->value("notices", Json::array());
+    (*saved)["planned_modules"] = Json::array();
+    if (plan->contains("changes") && plan->at("changes").is_array())
+      for (const auto& change : plan->at("changes"))
+        if (change.is_object() && change.contains("key")) (*saved)["planned_modules"].push_back(change.at("key"));
+    return print_result(request, *saved);
+  }
   if (request.method == "module.enable_traffic_statistics") {
     auto plan = call_rpc_once(request.socket, "module.change_plan", request.params);
     if (!plan) return print_result(request, std::unexpected(plan.error()));
@@ -245,6 +262,12 @@ int print_result(const Request& request, const Result<Json>& result) {
   } else if (request.method == "core.use.version") {
     std::cout << "Profile core updated";
     if (result->contains("effect")) std::cout << " (" << result->value("effect", "unknown") << ')';
+    std::cout << '\n';
+  } else if (request.method == "module.form") {
+    std::cout << "Saved native module fields:";
+    if (result->contains("changed_modules") && result->at("changed_modules").is_array())
+      for (const auto& key : result->at("changed_modules"))
+        if (key.is_string()) std::cout << ' ' << key.get<std::string>();
     std::cout << '\n';
   } else if (request.method == "node.add") {
     std::cout << "Saved " << result->value("name", "") << " ("

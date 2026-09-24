@@ -159,6 +159,7 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("XRM support: " + node.value("support", "raw-only")));
         body.push_back(text("ID: " + node.value("id", "")));
         body.push_back(text(std::string("Enabled: ") + (node.value("enabled", false) ? "yes" : "no")));
+        body.push_back(text("Typed subobjects: xrm node edit ID transport|security|sockopt|finalmask|mux --json VALUE") | dim);
       } else {
         body.push_back(text("Nodes — Enter details; / filter; s saves selection, c connects") | bold);
         body.push_back(text("filter: " + node_filter_) | dim);

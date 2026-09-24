@@ -31,6 +31,7 @@ class Application {
   Result<NodeSummary> set_node_enabled(const Id& id, bool enabled);
   Result<NodeSummary> set_node_alias(const Id& id, std::optional<std::string> alias);
   Result<NodeSummary> set_node_labels(const Id& id, std::vector<std::string> labels);
+  Result<NodeSummary> edit_node_form(const Id& id, std::string_view field, Json value);
   Store& store();
   SubscriptionService& subscriptions();
   Result<std::vector<CoreInstall>> list_cores() const;

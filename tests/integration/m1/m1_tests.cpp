@@ -460,13 +460,17 @@ TEST_CASE("E2E-05 installing/using a registered core stays separate from applyin
   INFO("initial connection: " << connected.out << connected.err);
   REQUIRE(connected.code == 0);
   const auto before = parsed(server.cli({"status"}));
+  INFO("status before core switch: " << before.dump());
   REQUIRE(before.at("state") == "running");
   const auto confdir = before.at("active").at("confdir").get<std::string>();
   const auto original_files = std::filesystem::directory_iterator(confdir);
   std::map<std::string, std::string> bytes_before;
   for (const auto& entry : original_files) bytes_before.emplace(entry.path().filename().string(), read_file(entry.path()));
 
-  const auto module_before = parsed(server.cli({"config", "show", profile.at("id").get<std::string>(), "log"}));
+  const auto module_call = server.cli({"config", "show", profile.at("id").get<std::string>(), "--module-key", "log"});
+  INFO("module read result: " << module_call.out << module_call.err);
+  const auto module_before = parsed(module_call);
+  INFO("source log module: " << module_before.dump());
   const auto module_text = module_before.at("text").get<std::string>();
   auto module = Json::parse(module_text);
   module["log"]["loglevel"] = "warning";
@@ -490,6 +494,40 @@ TEST_CASE("E2E-05 installing/using a registered core stays separate from applyin
   CHECK(parsed(server.cli({"profile", "show", profile.at("id").get<std::string>()}))
             .at("core_id") == second_core.at("id"));
   REQUIRE(server.cli({"core", "stop"}).code == 0);
+  REQUIRE(server.stop());
+}
+
+TEST_CASE("CLI-03 dedicated advanced module forms save their own native source files",
+          "[CLI-03][FORM-01][FORM-05][MOD-07]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  const auto core = parsed(server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "forms core"}));
+  const auto profile = parsed(server.cli({"profile", "create", "--name", "forms-profile",
+                                          "--core", core.at("id").get<std::string>()}));
+  const auto id = profile.at("id").get<std::string>();
+
+  const auto env_edit = server.cli({"config", "env", "set", id, "XRM_NATIVE_TEST", "kept"});
+  INFO("native env form: " << env_edit.out << env_edit.err);
+  CHECK(env_edit.code == 0);
+  auto env = Json::parse(parsed(server.cli({"config", "show", id, "--module-key", "env"})).at("text").get<std::string>());
+  CHECK(env.at("env").at("XRM_NATIVE_TEST") == "kept");
+  CHECK(server.cli({"config", "version", "range", id, "--min", "26.0.0", "--max", "27.0.0"}).code == 0);
+  auto version = Json::parse(parsed(server.cli({"config", "show", id, "--module-key", "version"})).at("text").get<std::string>());
+  CHECK(version.at("version").at("min") == "26.0.0");
+  CHECK(version.at("version").at("max") == "27.0.0");
+  CHECK(server.cli({"config", "geodata", "schedule", id, "0 0 1 * *"}).code == 0);
+  auto geodata = Json::parse(parsed(server.cli({"config", "show", id, "--module-key", "geodata"})).at("text").get<std::string>());
+  CHECK(geodata.at("geodata").at("cron") == "0 0 1 * *");
+  CHECK(server.cli({"config", "api", "services", id, "HandlerService", "RoutingService"}).code == 0);
+  auto api = Json::parse(parsed(server.cli({"config", "show", id, "--module-key", "api"})).at("text").get<std::string>());
+  CHECK(api.at("api").at("services") == Json::array({"HandlerService", "RoutingService"}));
+  CHECK(server.cli({"config", "metrics", "listen", id, "127.0.0.1:19999"}).code == 0);
+  auto metrics = Json::parse(parsed(server.cli({"config", "show", id, "--module-key", "metrics"})).at("text").get<std::string>());
+  CHECK(metrics.at("metrics").at("listen") == "127.0.0.1:19999");
+  CHECK(server.cli({"config", "log", "level", id, "warning"}).code == 0);
+  auto log = Json::parse(parsed(server.cli({"config", "show", id, "--module-key", "log"})).at("text").get<std::string>());
+  CHECK(log.at("log").at("loglevel") == "warning");
   REQUIRE(server.stop());
 }
 

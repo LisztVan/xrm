@@ -278,6 +278,15 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     } catch (const Json::exception& error) { fail(bad_params(error.what(), "labels")); }
     return;
   }
+  if (method == methods::node_form_edit) {
+    NodeFormEditDto edit;
+    try { edit = params.get<NodeFormEditDto>(); }
+    catch (const Json::exception& error) { fail(bad_params(error.what())); return; }
+    if (edit.id.empty() || edit.field.empty()) { fail(bad_params("node.form_edit需要id与field")); return; }
+    auto changed = application_->edit_node_form(edit.id, edit.field, std::move(edit.value));
+    if (!changed) fail(changed.error()); else succeed(Json(*changed));
+    return;
+  }
   if (method == methods::subscription_list) {
     auto sources = application_->store().list_sources();
     if (!sources) { fail(sources.error()); return; }

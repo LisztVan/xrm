@@ -93,15 +93,15 @@ SaveManyResult save_module_changes(ProfileService& profiles, const Id& profile_i
   std::set<std::string> seen;
   for (const auto& change : plan.changes) {
     const auto& edit = change.edit;
-    if (edit.key != "stats" && edit.key != "policy" && edit.key != "metrics") {
+    if (!find_module(edit.key)) {
       result.failure = AppError{ErrorCode::invalid_argument,
-          "统计便利动作只允许单独编辑 stats、policy、metrics 原生模块",
+          "表单计划包含未知原生模块",
           edit.key, std::nullopt};
       return result;
     }
     if (!seen.insert(edit.key).second) {
       result.failure = AppError{ErrorCode::invalid_argument,
-          "统计计划包含重复原生模块", edit.key, std::nullopt};
+          "表单计划包含重复原生模块", edit.key, std::nullopt};
       return result;
     }
   }

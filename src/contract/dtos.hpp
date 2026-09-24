@@ -52,6 +52,16 @@ struct NodeSummary {
   std::string support;
 };
 
+struct NodeFormEditDto { Id id; std::string field; Json value; };
+inline void to_json(Json& json, const NodeFormEditDto& value) {
+  json = Json{{"id", value.id}, {"field", value.field}, {"value", value.value}};
+}
+inline void from_json(const Json& json, NodeFormEditDto& value) {
+  value.id = json.at("id").get<Id>();
+  value.field = json.at("field").get<std::string>();
+  value.value = json.at("value");
+}
+
 inline void to_json(Json& json, const NodeSummary& value) {
   json = Json{{"id", value.id},
               {"name", value.name},
