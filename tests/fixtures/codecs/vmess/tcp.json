@@ -1,0 +1,23 @@
+{
+  "uri": "vmess://eyJ2IjoiMiIsInBzIjoidGNwIiwgImFkZCI6IjIwMDI6ZGI4OjoxIiwgInBvcnQiOiI4NDQzIiwgImlkIjoiMjIyMjIyMjItMjIyMi00MjIyLTgyMjItMjIyMjIyMjIyMjIyIiwgImFpZCI6IjAiLCAic2N5IjoiYWVzLTEyOC1nY20iLCAibmV0IjoidGNwIiwgInR5cGUiOiJub25lIiwgInRscyI6IiJ9",
+  "name": "tcp",
+  "outbound": {
+    "tag": "managed-node",
+    "protocol": "vmess",
+    "settings": {
+      "vnext": [
+        {
+          "address": "2002:db8::1",
+          "port": 8443,
+          "users": [
+            {
+              "id": "22222222-2222-4222-8222-222222222222",
+              "security": "aes-128-gcm"
+            }
+          ]
+        }
+      ]
+    },
+    "streamSettings": {"network": "raw", "security": "none"}
+  }
+}
