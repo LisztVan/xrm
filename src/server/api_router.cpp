@@ -397,6 +397,55 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     succeed(std::move(result));
     return;
   }
+  if (method == methods::core_releases) {
+    const bool include_prerelease = params.value("include_prerelease", false);
+    const auto operation = application_->operations().begin();
+    auto accepted = application_->core_releases(include_prerelease,
+        [application = application_, operation](Result<std::vector<CoreRelease>> result) {
+          if (!result) { application->operations().complete(operation, std::unexpected(result.error())); return; }
+          Json items = Json::array();
+          for (const auto& release : *result) items.push_back(release);
+          application->operations().complete(operation, Json{{"items", std::move(items)}});
+        });
+    if (!accepted) {
+      application_->operations().complete(operation, std::unexpected(accepted.error()));
+      fail(accepted.error());
+    } else succeed(Json{{"status", "accepted"}, {"operation_id", operation}});
+    return;
+  }
+  if (method == methods::core_install) {
+    if (!params.contains("request")) { fail(bad_params("core.install需要request")); return; }
+    InstallRequest request;
+    try { request = params.at("request").get<InstallRequest>(); }
+    catch (const Json::exception& error) { fail(bad_params(error.what(), "request")); return; }
+    const auto operation = application_->operations().begin();
+    auto accepted = application_->install_core(std::move(request),
+        [application = application_, operation](Result<CoreInstall> result) {
+          if (!result) application->operations().complete(operation, std::unexpected(result.error()));
+          else application->operations().complete(operation, Json{{"install", *result}, {"status", "installed"}});
+        });
+    if (!accepted) {
+      application_->operations().complete(operation, std::unexpected(accepted.error()));
+      fail(accepted.error());
+    } else succeed(Json{{"status", "accepted"}, {"operation_id", operation}});
+    return;
+  }
+  if (method == methods::core_use) {
+    CoreUseRequestDto request;
+    try { request = params.get<CoreUseRequestDto>(); }
+    catch (const Json::exception& error) { fail(bad_params(error.what())); return; }
+    if (request.profile_id.empty() || request.core_id.empty()) {
+      fail(bad_params("core.use需要profile_id和core_id")); return;
+    }
+    const auto operation = application_->operations().begin();
+    application_->use_core(request.profile_id, request.core_id,
+        [application = application_, operation](Result<ActivationResult> result) {
+          if (!result) application->operations().complete(operation, std::unexpected(result.error()));
+          else application->operations().complete(operation, activation_json(*result));
+        });
+    succeed(Json{{"status", "accepted"}, {"operation_id", operation}});
+    return;
+  }
   if (method == methods::core_register) {
     std::string path;
     std::string name;

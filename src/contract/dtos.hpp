@@ -179,6 +179,14 @@ struct CoreInstallResultDto { CoreInstall install; std::string status; };
 inline void to_json(Json& json, const CoreInstallResultDto& value) {
   json = Json{{"install", value.install}, {"status", value.status}};
 }
+struct CoreUseRequestDto { Id profile_id; Id core_id; };
+inline void to_json(Json& json, const CoreUseRequestDto& value) {
+  json = Json{{"profile_id", value.profile_id}, {"core_id", value.core_id}};
+}
+inline void from_json(const Json& json, CoreUseRequestDto& value) {
+  value.profile_id = json.at("profile_id").get<Id>();
+  value.core_id = json.at("core_id").get<Id>();
+}
 
 inline void to_json(Json& json, const CoreInstall& value) {
   json = Json{{"id", value.id},

@@ -89,3 +89,13 @@ TEST_CASE("M4 release metadata and install request have stable JSON DTOs") {
   REQUIRE(xrm::methods::core_releases == "core.releases");
   REQUIRE(xrm::methods::core_install == "core.install");
 }
+
+TEST_CASE("M4 core use RPC binds an explicit Profile and registered core") {
+  const xrm::CoreUseRequestDto request{"profile-local", "core-managed"};
+  const auto encoded = xrm::Json(request);
+  CHECK(encoded == xrm::Json{{"profile_id", "profile-local"}, {"core_id", "core-managed"}});
+  const auto decoded = encoded.get<xrm::CoreUseRequestDto>();
+  CHECK(decoded.profile_id == request.profile_id);
+  CHECK(decoded.core_id == request.core_id);
+  CHECK(xrm::methods::core_use == "core.use");
+}

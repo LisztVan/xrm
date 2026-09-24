@@ -50,6 +50,7 @@ Application::Application(Store& store, ProcessService& processes,
       core_manager_(std::make_unique<CoreManager>(loop, store, processes, *runtime_writer_)),
       xray_control_(std::make_unique<XrayControl>(processes)),
       metrics_client_(std::make_unique<MetricsClient>(loop, http)),
+      core_installer_(std::make_unique<CoreInstaller>(http, processes, data_root_ / "cores")),
       operations_(boot_id_) {
   core_manager_->on_output([this](LogStream stream, std::string bytes) {
     logs_.append(stream, bytes);
@@ -132,6 +133,85 @@ SubscriptionService& Application::subscriptions() { return *subscriptions_; }
 
 Result<std::vector<CoreInstall>> Application::list_cores() const {
   return store_->cores();
+}
+
+Result<Id> Application::core_releases(bool include_prerelease,
+                                      Completion<std::vector<CoreRelease>> completion) {
+  return core_installer_->releases(include_prerelease, std::move(completion));
+}
+
+Result<Id> Application::install_core(InstallRequest request,
+                                     Completion<CoreInstall> completion) {
+  auto* store = store_;
+  return core_installer_->install(std::move(request),
+      [store, completion = std::move(completion)](Result<CoreInstall> result) mutable {
+        if (!result) { completion(std::unexpected(result.error())); return; }
+        if (auto saved = store->put_core(*result); !saved) {
+          std::error_code ignored;
+          std::filesystem::remove_all(result->path.parent_path(), ignored);
+          completion(std::unexpected(saved.error()));
+          return;
+        }
+        completion(std::move(*result));
+      });
+}
+
+void Application::use_core(const Id& profile_id, const Id& core_id,
+                           Completion<ActivationResult> completion) {
+  auto profile = profiles_->get(profile_id);
+  if (!profile) { completion(std::unexpected(profile.error())); return; }
+  auto core = store_->get_core(core_id);
+  if (!core) { completion(std::unexpected(core.error())); return; }
+  if (profile->core_id == core_id) {
+    completion(ActivationResult{ActivationEffect::checked_only, std::nullopt, std::nullopt});
+    return;
+  }
+  auto profile_path = store_->profile_path(profile_id);
+  if (!profile_path) { completion(std::unexpected(profile_path.error())); return; }
+  auto current = read_text(*profile_path / "profile.json", 8 * 1024 * 1024);
+  if (!current) { completion(std::unexpected(current.error())); return; }
+  const auto previous_core_id = profile->core_id;
+  profile->core_id = core_id;
+  if (auto saved = profiles_->save(profile_id, ProfileEdit{{*current}, *profile}); !saved) {
+    completion(std::unexpected(saved.error()));
+    return;
+  }
+
+  const auto status = core_manager_->status();
+  if (!status.active || status.active->profile_id != profile_id) {
+    completion(ActivationResult{ActivationEffect::checked_only, std::nullopt, std::nullopt});
+    return;
+  }
+  auto restore_profile = [this, profile_id, previous_core_id]() -> Result<void> {
+    auto value = profiles_->get(profile_id);
+    if (!value) return std::unexpected(value.error());
+    auto path = store_->profile_path(profile_id);
+    if (!path) return std::unexpected(path.error());
+    auto text = read_text(*path / "profile.json", 8 * 1024 * 1024);
+    if (!text) return std::unexpected(text.error());
+    value->core_id = previous_core_id;
+    return profiles_->save(profile_id, ProfileEdit{{*text}, std::move(*value)});
+  };
+  auto done = std::make_shared<Completion<ActivationResult>>(std::move(completion));
+  auto accepted = core_manager_->activate(
+      ActivationRequest{ActivationInput{ReplayRequest{*status.active, std::move(*core)}},
+                        ActivationMode::start_or_replace},
+      [done, restore_profile = std::move(restore_profile)](Result<ActivationResult> result) mutable {
+        if (!result || result->effect != ActivationEffect::running_new) {
+          auto saved = restore_profile();
+          if (!result) { (*done)(std::unexpected(result.error())); return; }
+          if (!saved) { (*done)(std::unexpected(saved.error())); return; }
+          if (result->attempt_error) { (*done)(std::unexpected(*result->attempt_error)); return; }
+          (*done)(std::unexpected(AppError{ErrorCode::core_check_failed,
+              "切换核心未能运行新实例", std::nullopt, std::nullopt}));
+          return;
+        }
+        (*done)(std::move(*result));
+      });
+  if (!accepted) {
+    (void)restore_profile();
+    (*done)(std::unexpected(accepted.error()));
+  }
 }
 
 void Application::register_core(std::filesystem::path path, std::string name,

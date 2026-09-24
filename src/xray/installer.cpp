@@ -420,46 +420,6 @@ Result<std::filesystem::path> extract_xray(std::string_view bytes,
 
 }  // namespace
 
-void to_json(Json& json, const ReleaseAsset& value) {
-  json = Json{{"name", value.name}, {"url", value.url}, {"platform", value.platform},
-              {"architecture", value.architecture}};
-  if (value.sha256) json["sha256"] = *value.sha256;
-  else json["sha256"] = nullptr;
-}
-
-void from_json(const Json& json, ReleaseAsset& value) {
-  value.name = json.at("name").get<std::string>();
-  value.url = json.at("url").get<std::string>();
-  value.platform = json.value("platform", std::string{});
-  value.architecture = json.value("architecture", std::string{});
-  value.sha256 = json.contains("sha256") && !json["sha256"].is_null()
-                     ? std::optional<std::string>(json["sha256"].get<std::string>())
-                     : std::nullopt;
-}
-
-void to_json(Json& json, const CoreRelease& value) {
-  json = Json{{"tag", value.tag}, {"published_at", value.published_at},
-              {"prerelease", value.prerelease}, {"assets", value.assets}};
-}
-
-void from_json(const Json& json, CoreRelease& value) {
-  value.tag = json.at("tag").get<std::string>();
-  value.published_at = json.at("published_at").get<UnixMillis>();
-  value.prerelease = json.at("prerelease").get<bool>();
-  value.assets = json.at("assets").get<std::vector<ReleaseAsset>>();
-}
-
-void to_json(Json& json, const InstallRequest& value) {
-  json = Json{{"release", value.release}, {"asset_name", value.asset_name},
-              {"allow_unverified_checksum", value.allow_unverified_checksum}};
-}
-
-void from_json(const Json& json, InstallRequest& value) {
-  value.release = json.at("release").get<CoreRelease>();
-  value.asset_name = json.at("asset_name").get<std::string>();
-  value.allow_unverified_checksum = json.value("allow_unverified_checksum", false);
-}
-
 struct CoreInstaller::Impl {
   struct State : std::enable_shared_from_this<State> {
     State(HttpClient& http_client, ProcessService& process_service,

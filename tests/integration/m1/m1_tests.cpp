@@ -18,6 +18,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <string>
 #include <thread>
 #include <vector>
@@ -439,6 +440,59 @@ TEST_CASE("E2E-02 manual node through Profile, modules, connect, logs, and stop"
   REQUIRE(server.stop());
 }
 
+TEST_CASE("E2E-05 installing/using a registered core stays separate from applying module edits",
+          "[E2E-05][CLI-03]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  const auto original_core = parsed(server.cli({"core", "register", XRM_TEST_FAKE_CORE,
+                                                "--name", "original core"}));
+  REQUIRE(original_core.contains("id"));
+  const auto profile = parsed(server.cli({"profile", "create", "--name", "core-use-profile",
+                                          "--core", original_core.at("id").get<std::string>()}));
+  REQUIRE(profile.contains("id"));
+  const auto node = parsed(server.cli({"node", "add", "--name", "core-use-direct",
+      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"core-use-direct"})"}));
+  REQUIRE(node.contains("id"));
+  REQUIRE(server.cli({"select", "node", profile.at("id").get<std::string>(),
+                      node.at("id").get<std::string>()}).code == 0);
+  const auto connected = server.cli({"connect", profile.at("id").get<std::string>()});
+  INFO("initial connection: " << connected.out << connected.err);
+  REQUIRE(connected.code == 0);
+  const auto before = parsed(server.cli({"status"}));
+  REQUIRE(before.at("state") == "running");
+  const auto confdir = before.at("active").at("confdir").get<std::string>();
+  const auto original_files = std::filesystem::directory_iterator(confdir);
+  std::map<std::string, std::string> bytes_before;
+  for (const auto& entry : original_files) bytes_before.emplace(entry.path().filename().string(), read_file(entry.path()));
+
+  const auto module_before = parsed(server.cli({"config", "show", profile.at("id").get<std::string>(), "log"}));
+  const auto module_text = module_before.at("text").get<std::string>();
+  auto module = Json::parse(module_text);
+  module["log"]["loglevel"] = "warning";
+  REQUIRE(server.cli({"config", "edit", profile.at("id").get<std::string>(), "log",
+                      "--text", module.dump()}).code == 0);
+
+  const auto second_core = parsed(server.cli({"core", "register", XRM_TEST_FAKE_CORE,
+                                              "--name", "replacement core"}));
+  REQUIRE(second_core.contains("id"));
+  const auto used = server.cli({"core", "use", profile.at("id").get<std::string>(),
+                                second_core.at("id").get<std::string>()});
+  INFO("core use output: " << used.out << used.err);
+  REQUIRE(used.code == 0);
+  const auto after = parsed(server.cli({"status"}));
+  CHECK(after.at("state") == "running");
+  CHECK(after.at("active").at("core_id") == second_core.at("id"));
+  CHECK(after.at("active").at("confdir") == confdir);
+  CHECK(after.at("pid") != before.at("pid"));
+  for (const auto& entry : std::filesystem::directory_iterator(confdir))
+    CHECK(bytes_before.at(entry.path().filename().string()) == read_file(entry.path()));
+  CHECK(parsed(server.cli({"profile", "show", profile.at("id").get<std::string>()}))
+            .at("core_id") == second_core.at("id"));
+  REQUIRE(server.cli({"core", "stop"}).code == 0);
+  REQUIRE(server.stop());
+}
+
 TEST_CASE("E2E-04 managed manual group is saved, selected, and assembled through CLI",
           "[E2E-04][CLI-02][CLI-03]") {
   TempDirectory temp;
@@ -548,6 +602,8 @@ TEST_CASE("UI-04 TUI module page renders all native module keys and UI-03 expose
   ::poll(nullptr, 0, 500);
   REQUIRE(::write(master, "6", 1) == 1);
   ::poll(nullptr, 0, 500);
+  REQUIRE(::write(master, "8", 1) == 1);
+  ::poll(nullptr, 0, 500);
   REQUIRE(::write(master, "q", 1) == 1);
   std::string screen;
   int child_status = 0;
@@ -572,6 +628,8 @@ TEST_CASE("UI-04 TUI module page renders all native module keys and UI-03 expose
                            "burstObservatory", "geodata", "version"})
     CHECK(screen.find(key) != std::string::npos);
   CHECK(screen.find("TUI policy") != std::string::npos);
+  CHECK(screen.find("Cores") != std::string::npos);
+  CHECK((screen.find("system") != std::string::npos || screen.find("managed") != std::string::npos));
   REQUIRE(server.stop());
 }
 

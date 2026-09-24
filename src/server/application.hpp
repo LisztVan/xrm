@@ -11,6 +11,7 @@
 #include "subscription/subscription_service.hpp"
 #include "xray/control.hpp"
 #include "xray/core_manager.hpp"
+#include "xray/installer.hpp"
 
 #include <set>
 
@@ -33,6 +34,12 @@ class Application {
   Store& store();
   SubscriptionService& subscriptions();
   Result<std::vector<CoreInstall>> list_cores() const;
+  Result<Id> core_releases(bool include_prerelease,
+                           Completion<std::vector<CoreRelease>> completion);
+  Result<Id> install_core(InstallRequest request,
+                          Completion<CoreInstall> completion);
+  void use_core(const Id& profile_id, const Id& core_id,
+                Completion<ActivationResult> completion);
   void register_core(std::filesystem::path path, std::string name,
                      Completion<CoreInstall> completion);
 
@@ -78,6 +85,7 @@ class Application {
   std::unique_ptr<CoreManager> core_manager_;
   std::unique_ptr<XrayControl> xray_control_;
   std::unique_ptr<MetricsClient> metrics_client_;
+  std::unique_ptr<CoreInstaller> core_installer_;
   LogBuffer logs_;
   Operations operations_;
   std::optional<Id> override_run_id_;

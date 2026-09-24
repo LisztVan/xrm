@@ -11,6 +11,7 @@
 #include <optional>
 #include <thread>
 #include <unistd.h>
+#include <sys/utsname.h>
 
 namespace xrm::cli {
 namespace {
@@ -46,6 +47,43 @@ Result<Json> call_rpc_once(const std::string& socket, const std::string& method,
   if (closed != 0 && *result)
     return std::unexpected(AppError{ErrorCode::io_error, "客户端事件循环未能关闭", std::nullopt, std::nullopt});
   return std::move(*result);
+}
+
+Result<Json> finish_operation(const std::string& socket, Result<Json> result) {
+  if (!result || !result->is_object() || result->value("status", "") != "accepted" ||
+      !result->contains("operation_id") || !result->at("operation_id").is_string()) return result;
+  const auto operation = result->at("operation_id").get<std::string>();
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::minutes(5);
+  while (std::chrono::steady_clock::now() < deadline) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    auto polled = call_rpc_once(socket, "operation.get", Json{{"operation_id", operation}});
+    if (!polled) return std::unexpected(polled.error());
+    const auto status = polled->value("status", "");
+    if (status == "succeeded") return polled->value("result", Json(nullptr));
+    if (status == "failed") {
+      auto error = error_from_json(polled->at("error"));
+      return std::unexpected(error ? std::move(*error) : error.error());
+    }
+  }
+  return std::unexpected(AppError{ErrorCode::timed_out,
+      "等待Server操作超过5分钟；operation仍可继续查询", std::nullopt, std::nullopt});
+}
+
+std::pair<std::string, std::string> host_platform_arch() {
+  struct utsname host{};
+  if (::uname(&host) != 0) return {};
+  std::string platform = host.sysname;
+  if (platform == "Linux") platform = "linux";
+  else if (platform == "Darwin") platform = "macos";
+  else if (platform == "FreeBSD") platform = "freebsd";
+  else if (platform == "OpenBSD") platform = "openbsd";
+  else return {};
+  std::string arch = host.machine;
+  if (arch == "x86_64") arch = "x86_64";
+  else if (arch == "aarch64" || arch == "arm64") arch = "aarch64";
+  else if (arch == "i386" || arch == "i686") arch = "x86";
+  else return {};
+  return {std::move(platform), std::move(arch)};
 }
 
 int exit_code_for(const AppError& error) {
@@ -98,30 +136,57 @@ int execute_request(const Request& request) {
         if (change.is_object() && change.contains("key")) (*saved)["planned_modules"].push_back(change.at("key"));
     return print_result(request, *saved);
   }
-  auto result = call_rpc_once(request.socket, request.method, request.params);
-  if (result && result->is_object() && result->value("status", "") == "accepted" &&
-      result->contains("operation_id") && result->at("operation_id").is_string()) {
-    const auto operation = result->at("operation_id").get<std::string>();
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::minutes(5);
-    while (std::chrono::steady_clock::now() < deadline) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      auto polled = call_rpc_once(request.socket, "operation.get", Json{{"operation_id", operation}});
-      if (!polled) { result = std::unexpected(polled.error()); break; }
-      const auto status = polled->value("status", "");
-      if (status == "succeeded") {
-        result = polled->value("result", Json(nullptr));
-        break;
-      }
-      if (status == "failed") {
-        auto error = error_from_json(polled->at("error"));
-        result = std::unexpected(error ? std::move(*error) : error.error());
-        break;
-      }
-    }
-    if (result && result->is_object() && result->value("status", "") == "accepted")
-      result = std::unexpected(AppError{ErrorCode::timed_out,
-          "等待Server操作超过5分钟；operation仍可继续查询", operation, std::nullopt});
+  if (request.method == "core.use.version") {
+    auto cores = call_rpc_once(request.socket, "core.list", Json::object());
+    if (!cores) return print_result(request, std::unexpected(cores.error()));
+    std::vector<std::string> matches;
+    if (cores->is_array()) for (const auto& core : *cores)
+      if (core.is_object() && (core.value("id", "") == request.core_version ||
+                               core.value("reported_version", "") == request.core_version))
+        matches.push_back(core.value("id", ""));
+    if (matches.size() != 1)
+      return print_result(request, std::unexpected(AppError{matches.empty() ? ErrorCode::not_found : ErrorCode::conflict,
+          matches.empty() ? "找不到已登记的核心版本或 ID" : "该版本对应多个已登记核心，请用 core ID 消歧",
+          request.core_version, std::nullopt}));
+    auto result = finish_operation(request.socket, call_rpc_once(request.socket, "core.use",
+        Json{{"profile_id", request.profile_id}, {"core_id", matches.front()}}));
+    return print_result(request, result);
   }
+  if (request.method == "core.install.version") {
+    auto releases = finish_operation(request.socket,
+        call_rpc_once(request.socket, "core.releases", Json{{"include_prerelease", true}}));
+    if (!releases) return print_result(request, std::unexpected(releases.error()));
+    if (!releases->is_object() || !releases->contains("items") || !releases->at("items").is_array())
+      return print_result(request, std::unexpected(AppError{ErrorCode::protocol_error,
+          "core.releases未返回版本列表", std::nullopt, std::nullopt}));
+    const Json* selected_release = nullptr;
+    for (const auto& release : releases->at("items"))
+      if (release.is_object() && release.value("tag", "") == request.core_version) {
+        selected_release = &release;
+        break;
+      }
+    if (!selected_release)
+      return print_result(request, std::unexpected(AppError{ErrorCode::not_found,
+          "官方发布列表中找不到所选版本", request.core_version, std::nullopt}));
+    std::string asset_name = request.core_asset;
+    if (asset_name.empty()) {
+      const auto [platform, architecture] = host_platform_arch();
+      std::vector<std::string> matching;
+      for (const auto& asset : selected_release->value("assets", Json::array()))
+        if (asset.value("platform", "") == platform && asset.value("architecture", "") == architecture)
+          matching.push_back(asset.value("name", ""));
+      if (matching.size() != 1)
+        return print_result(request, std::unexpected(AppError{ErrorCode::not_found,
+            "所选版本没有唯一匹配当前平台的官方资产；请传入 --asset", request.core_version, std::nullopt}));
+      asset_name = matching.front();
+    }
+    auto installed = finish_operation(request.socket, call_rpc_once(request.socket, "core.install",
+        Json{{"request", {{"release", *selected_release}, {"asset_name", asset_name},
+            {"allow_unverified_checksum", request.core_allow_unverified_checksum}}}}));
+    return print_result(request, installed);
+  }
+  auto result = call_rpc_once(request.socket, request.method, request.params);
+  result = finish_operation(request.socket, std::move(result));
   return print_result(request, result);
 }
 
@@ -145,11 +210,42 @@ int print_result(const Request& request, const Result<Json>& result) {
               << result->value("reported_version", "") << " ["
               << result->value("id", "") << "]\n";
   } else if (request.method == "core.list") {
+    const auto runtime = call_rpc_once(request.socket, "runtime.status", Json::object());
+    const auto profiles = call_rpc_once(request.socket, "profile.list", Json::object());
+    const std::string running_core = runtime && runtime->is_object() &&
+        runtime->contains("active") && runtime->at("active").is_object()
+        ? runtime->at("active").value("core_id", "") : "";
     for (const auto& core : *result) {
+      bool selected = false;
+      if (profiles && profiles->is_array()) for (const auto& profile : *profiles)
+        selected = selected || profile.value("core_id", "") == core.value("id", "");
       std::cout << core.value("id", "") << '\t' << core.value("name", "") << '\t'
                 << core.value("reported_version", "") << '\t'
-                << core.value("path", "") << '\n';
+                << core.value("path", "") << '\t'
+                << (core.value("managed", false) ? "managed" : "system") << '\t'
+                << "installed" << (selected ? ",selected" : "")
+                << (running_core == core.value("id", "") ? ",running" : "") << '\n';
     }
+  } else if (request.method == "core.releases") {
+    if (result->contains("items") && result->at("items").is_array()) for (const auto& release : result->at("items")) {
+      std::cout << release.value("tag", "") << '\t'
+                << (release.value("prerelease", false) ? "prerelease" : "stable") << '\t'
+                << release.value("published_at", std::int64_t{}) << '\n';
+      if (release.contains("assets") && release.at("assets").is_array())
+        for (const auto& asset : release.at("assets"))
+          std::cout << "  " << asset.value("name", "") << '\t'
+                    << asset.value("platform", "") << '/' << asset.value("architecture", "")
+                    << (asset.value("sha256", Json(nullptr)).is_string() ? "\tsha256 verified" : "\tno checksum")
+                    << '\n';
+    }
+  } else if (request.method == "core.install.version") {
+    const auto installed = result->contains("install") ? result->at("install") : *result;
+    std::cout << "Installed " << installed.value("reported_version", "") << " ["
+              << installed.value("id", "") << "] (managed; not selected)\n";
+  } else if (request.method == "core.use.version") {
+    std::cout << "Profile core updated";
+    if (result->contains("effect")) std::cout << " (" << result->value("effect", "unknown") << ')';
+    std::cout << '\n';
   } else if (request.method == "node.add") {
     std::cout << "Saved " << result->value("name", "") << " ("
               << result->value("protocol", "unknown") << ") ["

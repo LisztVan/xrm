@@ -31,6 +31,10 @@ struct Request {
   std::string core_path;
   std::string core_name;
   std::string core_id;
+  std::string core_version;
+  std::string core_asset;
+  bool core_include_prerelease = false;
+  bool core_allow_unverified_checksum = false;
   std::string profile_name;
   std::string profile_id;
   std::string module_key;

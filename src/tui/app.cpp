@@ -103,6 +103,7 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("5")) { change_page(4); refresh_subscriptions(); }
     else if (event == Event::Character("6")) { change_page(5); refresh_groups(); }
     else if (event == Event::Character("7")) { change_page(6); refresh_stats(true); }
+    else if (event == Event::Character("8")) { change_page(7); refresh_cores(); }
     else if (event == Event::ArrowDown) selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
     else if (event == Event::ArrowUp) selected_ = selected_ == 0 ? 0 : selected_ - 1;
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
@@ -127,7 +128,7 @@ class TuiApp final : public ComponentBase {
   Element OnRender() override {
     Elements header{
       text(" XRM  ") | bold,
-      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions   6 Groups   7 Stats") | color(Color::Cyan),
+      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions   6 Groups   7 Stats   8 Cores") | color(Color::Cyan),
       filler(),
       text(profile_id_.empty() ? "no Profile" : "Profile " + profile_id_) | dim,
     };
@@ -250,7 +251,7 @@ class TuiApp final : public ComponentBase {
         } else body.push_back(text("Observatory latency: unavailable"));
       }
       body.push_back(text("r refreshes the shared server sample") | dim);
-    } else {
+    } else if (page_ == 5) {
       body.push_back(text("Groups — Enter edits native binding JSON; s saves as target; m choose member via Nodes") | bold);
       for (std::size_t i = 0; i < groups_.size(); ++i) {
         const auto& group = groups_[i];
@@ -262,6 +263,21 @@ class TuiApp final : public ComponentBase {
         if (i == selected_) body.push_back(text("selector: " + group.value("members", Json::object()).dump()) | dim);
       }
       body.push_back(text("Group selection is persistent; runtime override is separate") | dim);
+    } else {
+      body.push_back(text("Cores — system binaries are registered only; managed binaries live under XRM data") | bold);
+      const auto running = status_.contains("active") && status_["active"].is_object()
+          ? status_["active"].value("core_id", "") : "";
+      auto profiles = rpc(socket_, std::string(methods::profile_list));
+      for (const auto& core : cores_) {
+        bool selected = false;
+        if (profiles && profiles->is_array()) for (const auto& profile : *profiles)
+          selected = selected || profile.value("core_id", "") == core.value("id", "");
+        body.push_back(text(core.value("name", "") + "  " + core.value("reported_version", "") +
+            "  " + (core.value("managed", false) ? "managed" : "system") + "  installed" +
+            (selected ? " selected" : "") + (running == core.value("id", "") ? " running" : "")));
+        body.push_back(text(core.value("path", "")) | dim);
+      }
+      body.push_back(text("Install: xrm core releases / xrm core install VERSION; use: xrm core use PROFILE VERSION") | dim);
     }
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
     if (!message_.empty()) body.push_back(text(message_) | color(Color::Yellow));
@@ -275,9 +291,10 @@ class TuiApp final : public ComponentBase {
     if (page_ == 2) return modules_.size();
     if (page_ == 4) return subscriptions_.size();
     if (page_ == 5) return groups_.size();
+    if (page_ == 7) return cores_.size();
     return 0;
   }
-  void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); refresh_groups(); }
+  void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); refresh_groups(); refresh_cores(); }
   void change_page(int page) {
     if (page_ == 6 && page != 6) stop_stats_watch();
     page_ = page;
@@ -341,6 +358,12 @@ class TuiApp final : public ComponentBase {
     groups_.clear();
     if (response && response->is_array()) groups_ = response->get<std::vector<Json>>();
     selected_ = std::min(selected_, groups_.empty() ? 0 : groups_.size() - 1);
+  }
+  void refresh_cores() {
+    auto response = rpc(socket_, std::string(methods::core_list));
+    cores_.clear();
+    if (response && response->is_array()) cores_ = response->get<std::vector<Json>>();
+    selected_ = std::min(selected_, cores_.empty() ? 0 : cores_.size() - 1);
   }
   void refresh_subscription_inventory() {
     auto result = rpc(socket_, std::string(methods::subscription_refresh));
@@ -523,6 +546,7 @@ class TuiApp final : public ComponentBase {
   std::string expected_selection_;
   std::string selected_group_id_;
   std::vector<Json> groups_;
+  std::vector<Json> cores_;
 };
 
 }  // namespace
