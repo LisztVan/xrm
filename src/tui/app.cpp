@@ -98,11 +98,19 @@ class TuiApp final : public ComponentBase {
       else if (event == Event::Character("e")) open_node_editor();
       return true;
     }
+    if (show_help_) {
+      if (event == Event::Escape || event == Event::CtrlQ || event == Event::Character("?"))
+        show_help_ = false;
+      return true;
+    }
     if (event == Event::Character("q") || event == Event::Escape) {
       stop_stats_watch();
       screen_->ExitLoopClosure()();
       return true;
     }
+    if (event == Event::Character("?")) { show_help_ = true; return true; }
+    if (event == Event::Tab) { navigate_page((page_ + 1) % 8); return true; }
+    if (event == Event::TabReverse) { navigate_page((page_ + 7) % 8); return true; }
     if (event == Event::Character("1")) change_page(0);
     else if (event == Event::Character("2")) { change_page(1); refresh_nodes(); }
     else if (event == Event::Character("3")) { change_page(2); refresh_modules(); }
@@ -320,8 +328,23 @@ class TuiApp final : public ComponentBase {
     }
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
     if (!message_.empty()) body.push_back(text(message_) | color(Color::Yellow));
+    if (show_help_) {
+      return vbox({hbox(std::move(header)), separator(),
+          vbox({text("Help — keyboard controls") | bold,
+                text("Tab / Shift-Tab  change page"),
+                text("1–8              open a page directly"),
+                text("↑ / ↓            move through a list"),
+                text("Enter            view or open the selected item"),
+                text("/                filter Nodes; Enter applies, Esc cancels"),
+                text("c                connect the saved Profile target"),
+                text("d                stop the managed core"),
+                text("r                refresh the current page"),
+                text("q                quit this TUI; the core keeps running"),
+                text("Esc or ?         close help")}) | flex,
+          separator(), text("Help") | dim}) | border;
+    }
     return vbox({hbox(std::move(header)), separator(), vbox(std::move(body)) | flex,
-                 separator(), text("q quit   ↑/↓ move   c connect   d stop   r refresh   Tabs: 1–4") | dim}) | border;
+                 separator(), text("q quit   ? help   Tab/Shift-Tab pages   ↑/↓ move   c connect   d stop   r refresh") | dim}) | border;
   }
 
  private:
@@ -337,6 +360,16 @@ class TuiApp final : public ComponentBase {
   void change_page(int page) {
     if (page_ == 6 && page != 6) stop_stats_watch();
     page_ = page;
+  }
+  void navigate_page(int page) {
+    change_page(page);
+    if (page_ == 1) refresh_nodes();
+    else if (page_ == 2) refresh_modules();
+    else if (page_ == 3) refresh_logs();
+    else if (page_ == 4) refresh_subscriptions();
+    else if (page_ == 5) refresh_groups();
+    else if (page_ == 6) refresh_stats(true);
+    else if (page_ == 7) refresh_cores();
   }
   void stop_stats_watch() {
     if (stats_watching_) refresh_stats(false);
@@ -727,6 +760,7 @@ class TuiApp final : public ComponentBase {
   std::string pending_core_label_;
   bool viewing_releases_ = false;
   bool include_prerelease_ = false;
+  bool show_help_ = false;
 };
 
 }  // namespace
