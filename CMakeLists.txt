@@ -46,6 +46,7 @@ set(ENABLE_TAR OFF CACHE BOOL "" FORCE)
 set(ENABLE_CPIO OFF CACHE BOOL "" FORCE)
 set(ENABLE_CAT OFF CACHE BOOL "" FORCE)
 set(ENABLE_TEST OFF CACHE BOOL "" FORCE)
+set(ENABLE_WERROR OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(libarchive
   URL https://codeload.github.com/libarchive/libarchive/tar.gz/refs/tags/v3.8.9
   URL_HASH SHA256=744346f6bca195c8f894f847bb32a16e9bcae6002624a58fadc81e80f595b3cb
