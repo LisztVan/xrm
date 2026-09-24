@@ -361,7 +361,7 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   REQUIRE(old->items.size() == 1);
   const auto old_id = old->items.front().id;
 
-  fixture.respond(200, std::string(node_b) + "\nnot-a-node\nvmess://opaque");
+  fixture.respond(200, std::string(node_b) + "\nnot-a-node\nsocks://opaque");
   auto partial = refresh_sync(service, loop.value, {"source-A"});
   REQUIRE(partial);
   REQUIRE(partial->completed.size() == 1);
@@ -378,7 +378,7 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   CHECK(std::any_of(after_partial->items.begin(), after_partial->items.end(),
                     [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
 
-  for (const auto& body : {std::string(""), std::string("vmess://opaque"),
+  for (const auto& body : {std::string(""), std::string("socks://opaque"),
                            std::string("<!doctype html><html>login</html>")}) {
     fixture.respond(200, body);
     auto rejected = refresh_sync(service, loop.value, {"source-A"});

@@ -434,7 +434,7 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   REQUIRE(tail != b_runtime.end());
   CHECK(tail->second.find(uuid_b) != std::string::npos);
 
-  fixture.set("<html>partial listing</html>\n" + link(uuid_b, "b.invalid", "B") + "\nvmess://not-supported", 200);
+  fixture.set("<html>partial listing</html>\n" + link(uuid_b, "b.invalid", "B") + "\nsocks://not-supported", 200);
   // HTML is intentionally a failed parse; the next valid partial response verifies the
   // accepted-node/partial-state behavior without allowing missing-node cleanup.
   auto failed_cmd = server.cli({"sub", "update", source_id});
@@ -444,7 +444,7 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   CHECK_FALSE(failed.at("failed").empty());
   CHECK(parsed(server.cli({"node", "list"})).at("total") == 3);
 
-  fixture.set(link(uuid_b, "b.invalid", "B") + "\nvmess://unsupported-protocol");
+  fixture.set(link(uuid_b, "b.invalid", "B") + "\nsocks://unsupported-protocol");
   auto partial_cmd = server.cli({"sub", "update", source_id});
   CHECK(partial_cmd.code == 4);
   auto partial = xrm::Json::parse(partial_cmd.out);

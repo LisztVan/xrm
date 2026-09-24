@@ -72,9 +72,10 @@ void parse_uri_items(const std::vector<std::string_view>& items, ParseReport& re
     const auto item = trim(items[i]);
     if (item.empty()) continue;
     const auto scheme = uri_scheme(item);
-    if (known_unsupported(scheme)) {
-      add_issue(report, i, IssueKind::unsupported, "unsupported_protocol",
-                "subscription URI protocol is not supported");
+    if (scheme.empty()) {
+      malformed = true;
+      add_issue(report, i, IssueKind::malformed, "invalid_uri",
+                "subscription item is not a URI");
       continue;
     }
     if (known_unsupported(scheme)) {
