@@ -1,0 +1,20 @@
+[Unit]
+Description=XRM local proxy manager daemon
+
+[Service]
+Type=simple
+User=xrm
+Group=xrm
+StateDirectory=xrm
+StateDirectoryMode=0700
+RuntimeDirectory=xrm
+RuntimeDirectoryMode=0700
+UMask=0077
+ExecStart=/usr/bin/xrmd --foreground --socket /run/xrm/xrmd.sock --database /var/lib/xrm/server.sqlite
+Restart=on-failure
+RestartSec=2s
+KillMode=control-group
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target
