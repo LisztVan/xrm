@@ -57,6 +57,7 @@ Json security_settings(const Security& security) {
       if (!value.password.empty()) result["publicKey"] = value.password;
       if (value.short_id) result["shortId"] = *value.short_id;
       if (value.spider_x) result["spiderX"] = *value.spider_x;
+      if (value.mldsa65_verify) result["mldsa65Verify"] = *value.mldsa65_verify;
       return result;
     }
   }, security);
