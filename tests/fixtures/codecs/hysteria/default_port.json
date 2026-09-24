@@ -1,0 +1,10 @@
+{
+  "uri": "hysteria2://password@example.net/#default-port",
+  "name": "default-port",
+  "address": "example.net",
+  "port": 443,
+  "auth": "password",
+  "transport": {
+    "version": 2
+  }
+}

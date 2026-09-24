@@ -1,0 +1,13 @@
+{
+  "uri": "hy2://token%40part@[2001:db8::25]:8443?sni=front.example&insecure=1&udpIdleTimeout=90#edge%20node",
+  "name": "edge node",
+  "address": "2001:db8::25",
+  "port": 8443,
+  "auth": "token@part",
+  "server_name": "front.example",
+  "allow_insecure": true,
+  "transport": {
+    "version": 2,
+    "udpIdleTimeout": 90
+  }
+}
