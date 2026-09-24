@@ -45,3 +45,6 @@ the exact release and asset; missing official checksum acceptance is an
 explicit request flag and defaults to false. `core.install` returns an
 operation; its completion carries the actual registered `CoreInstall`.
 Installation never implies `core.use`.
+The installer defaults release discovery to the official GitHub API URL; its
+constructor accepts an explicit API URL so its HTTP boundary can be tested
+against loopback fixtures without changing product defaults or contacting GitHub.

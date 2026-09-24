@@ -41,7 +41,9 @@ void from_json(const Json&, InstallRequest&);
 
 class CoreInstaller {
  public:
-  CoreInstaller(HttpClient&, ProcessService&, std::filesystem::path cores_root);
+  CoreInstaller(HttpClient&, ProcessService&, std::filesystem::path cores_root,
+                std::string releases_api_url =
+                    "https://api.github.com/repos/XTLS/Xray-core/releases");
   ~CoreInstaller();
   CoreInstaller(const CoreInstaller&) = delete;
   CoreInstaller& operator=(const CoreInstaller&) = delete;
