@@ -126,7 +126,7 @@ TEST_CASE("SUB-03 partial parse accepts valid entries without marking absent nod
 
   const auto parsed = xrm::parse_subscription(
       "vless://00000000-0000-4000-8000-000000000001@new.example:443#new\n"
-      "vmess://opaque\n"
+      "socks://opaque\n"
       "vless://malformed");
   REQUIRE(parsed.has_value());
   REQUIRE(parsed->nodes.size() == 1);

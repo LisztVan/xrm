@@ -45,10 +45,20 @@ std::string_view uri_scheme(std::string_view value) {
 
 bool known_unsupported(std::string_view scheme) {
   const auto normalized = lower(scheme);
-  static constexpr std::array<std::string_view, 10> schemes{
-      "vmess", "trojan", "ss", "socks", "http", "https", "hy2", "hysteria2",
-      "hysteria", "tuic"};
+  static constexpr std::array<std::string_view, 7> schemes{
+      "socks", "http", "https", "hysteria", "tuic", "wireguard", "ssr"};
   return std::find(schemes.begin(), schemes.end(), normalized) != schemes.end();
+}
+
+Result<DecodedNode> decode_uri(std::string_view scheme, std::string_view uri) {
+  const auto normalized = lower(scheme);
+  if (normalized == "vless") return parse_vless_uri(uri);
+  if (normalized == "vmess") return parse_vmess_uri(uri);
+  if (normalized == "trojan") return parse_trojan_uri(uri);
+  if (normalized == "ss") return parse_shadowsocks_uri(uri);
+  if (normalized == "hy2" || normalized == "hysteria2") return parse_hysteria2_uri(uri);
+  return std::unexpected(error(ErrorCode::unsupported,
+                               "subscription URI protocol is not supported", "scheme"));
 }
 
 void add_issue(ParseReport& report, std::size_t index, IssueKind kind,
@@ -67,22 +77,31 @@ void parse_uri_items(const std::vector<std::string_view>& items, ParseReport& re
                 "subscription URI protocol is not supported");
       continue;
     }
-    if (lower(scheme) != "vless") {
-      malformed = true;
-      add_issue(report, i, IssueKind::malformed, "invalid_uri",
-                "subscription item is not a supported URI");
+    if (known_unsupported(scheme)) {
+      add_issue(report, i, IssueKind::unsupported, "unsupported_protocol",
+                "unsupported subscription protocol: " + lower(scheme));
       continue;
     }
-    auto parsed = parse_share_uri(item);
+    auto parsed = decode_uri(scheme, item);
     if (!parsed) {
       const bool unsupported = parsed.error().code == ErrorCode::unsupported;
+      const auto code = unsupported ? "unsupported_uri_feature" : "invalid_uri";
+      const auto message = unsupported
+          ? parsed.error().message + (parsed.error().subject ? " (" + *parsed.error().subject + ")" : "")
+          : "subscription URI is malformed: " + lower(scheme);
       add_issue(report, i, unsupported ? IssueKind::unsupported : IssueKind::malformed,
-                unsupported ? "unsupported_vless_feature" : "invalid_vless_uri",
-                unsupported ? "VLESS URI uses an unsupported feature" : "VLESS URI is malformed");
+                code, message);
       malformed = malformed || !unsupported;
       continue;
     }
-    report.nodes.push_back(std::move(*parsed));
+    if (parsed->node.original_name.empty()) {
+      malformed = true;
+      add_issue(report, i, IssueKind::malformed, "invalid_uri",
+                "subscription URI has no display name");
+      continue;
+    }
+    report.nodes.push_back(ParsedNode{std::nullopt, std::move(parsed->node.original_name),
+                                      std::move(parsed->node.settings)});
   }
   report.structurally_complete = !items.empty() && !malformed;
 }
@@ -225,12 +244,12 @@ Result<ParseReport> parse_content(std::string_view body) {
 
 Result<ParsedNode> parse_share_uri(std::string_view uri) {
   const auto scheme = uri_scheme(trim(uri));
-  if (lower(scheme) != "vless") {
-    if (known_unsupported(scheme))
-      return std::unexpected(error(ErrorCode::unsupported, "subscription URI protocol is not supported", "scheme"));
+  if (known_unsupported(scheme))
+    return std::unexpected(error(ErrorCode::unsupported,
+                                  "unsupported subscription protocol: " + lower(scheme), "scheme"));
+  if (scheme.empty())
     return std::unexpected(error(ErrorCode::invalid_argument, "subscription URI scheme is invalid", "scheme"));
-  }
-  auto decoded = parse_vless_uri(uri);
+  auto decoded = decode_uri(scheme, uri);
   if (!decoded) return std::unexpected(decoded.error());
   return ParsedNode{std::nullopt, decoded->node.original_name, std::move(decoded->node.settings)};
 }

@@ -54,12 +54,8 @@ Result<Json> write_outbound(const Node& node, std::string_view tag) {
   }
 
   const auto& stream = std::get<StreamNode>(node.settings);
-  const auto* vless = std::get_if<VlessSettings>(&stream.protocol);
-  if (!vless)
-    return std::unexpected(error(ErrorCode::unsupported,
-                                 "typed outbound protocol codec is not integrated yet", "protocol"));
-  if (stream.endpoint.address.empty() || stream.endpoint.port == 0 || vless->id.empty())
-    return std::unexpected(error(ErrorCode::invalid_argument, "VLESS endpoint and user id are required", "node"));
+  if (stream.endpoint.address.empty() || stream.endpoint.port == 0)
+    return std::unexpected(error(ErrorCode::invalid_argument, "typed outbound endpoint is required", "node.endpoint"));
   if (const auto* tls = std::get_if<TlsSecurity>(&stream.security)) {
     if (!tls->options.is_object())
       return std::unexpected(error(ErrorCode::invalid_argument, "TLS options must be an object", "security.options"));
@@ -79,16 +75,68 @@ Result<Json> write_outbound(const Node& node, std::string_view tag) {
     }
   }
 
-  Json user{{"id", vless->id}};
-  user["encryption"] = vless->encryption.value_or("none");
-  if (vless->flow) user["flow"] = *vless->flow;
-  if (vless->level) user["level"] = *vless->level;
+  Json settings;
+  std::string_view protocol;
+  if (const auto* vless = std::get_if<VlessSettings>(&stream.protocol)) {
+    if (vless->id.empty())
+      return std::unexpected(error(ErrorCode::invalid_argument, "VLESS user id is required", "node.protocol.id"));
+    Json user{{"id", vless->id}, {"encryption", vless->encryption.value_or("none")}};
+    if (vless->flow) user["flow"] = *vless->flow;
+    if (vless->level) user["level"] = *vless->level;
+    settings = {{"vnext", Json::array({Json{{"address", stream.endpoint.address},
+        {"port", stream.endpoint.port}, {"users", Json::array({std::move(user)})}}})}};
+    protocol = "vless";
+  } else if (const auto* vmess = std::get_if<VmessSettings>(&stream.protocol)) {
+    if (vmess->id.empty())
+      return std::unexpected(error(ErrorCode::invalid_argument, "VMess user id is required", "node.protocol.id"));
+    Json user{{"id", vmess->id}, {"security", vmess->security.value_or("auto")}};
+    if (vmess->level) user["level"] = *vmess->level;
+    settings = {{"vnext", Json::array({Json{{"address", stream.endpoint.address},
+        {"port", stream.endpoint.port}, {"users", Json::array({std::move(user)})}}})}};
+    protocol = "vmess";
+  } else if (const auto* trojan = std::get_if<TrojanSettings>(&stream.protocol)) {
+    if (trojan->password.empty())
+      return std::unexpected(error(ErrorCode::invalid_argument, "Trojan password is required", "node.protocol.password"));
+    settings = {{"servers", Json::array({Json{{"address", stream.endpoint.address},
+        {"port", stream.endpoint.port}, {"password", trojan->password}}})}};
+    protocol = "trojan";
+  } else if (const auto* shadowsocks = std::get_if<ShadowsocksSettings>(&stream.protocol)) {
+    if (shadowsocks->method.empty() || shadowsocks->password.empty())
+      return std::unexpected(error(ErrorCode::invalid_argument, "Shadowsocks method and password are required", "node.protocol"));
+    settings = {{"servers", Json::array({Json{{"address", stream.endpoint.address},
+        {"port", stream.endpoint.port}, {"method", shadowsocks->method},
+        {"password", shadowsocks->password}}})}};
+    protocol = "shadowsocks";
+  } else {
+    const auto& hysteria = std::get<Hysteria2Settings>(stream.protocol);
+    const auto* transport = std::get_if<HysteriaTransport>(&stream.transport);
+    if (!transport || !transport->options.is_object() ||
+        !std::holds_alternative<TlsSecurity>(stream.security))
+      return std::unexpected(error(ErrorCode::invalid_argument,
+                                   "Hysteria2 requires its native transport and TLS settings", "node.streamSettings"));
+    if (transport->options.contains("auth"))
+      return std::unexpected(error(ErrorCode::invalid_argument,
+                                   "Hysteria auth must come from the typed protocol setting", "node.transport.auth"));
+    settings = {{"version", 2}, {"address", stream.endpoint.address}, {"port", stream.endpoint.port}};
+    protocol = "hysteria";
+  }
 
-  Json result{{"tag", tag}, {"protocol", "vless"},
-              {"settings", {{"vnext", Json::array({Json{
-                  {"address", stream.endpoint.address}, {"port", stream.endpoint.port},
-                  {"users", Json::array({std::move(user)})}}})}}},
-              {"streamSettings", write_stream_settings(stream)}};
+  // Xray's native Shadowsocks envelope has no streamSettings for the default
+  // raw/no-security case. Preserve an explicit stream object only when it has
+  // meaningful settings (transport/security/socket/finalmask), otherwise use
+  // the canonical outbound shape from the pinned v26.9.9 fixture.
+  const bool default_shadowsocks_stream =
+      std::holds_alternative<ShadowsocksSettings>(stream.protocol) &&
+      std::holds_alternative<RawTransport>(stream.transport) &&
+      std::holds_alternative<NoSecurity>(stream.security) &&
+      !stream.sockopt && !stream.finalmask;
+  auto stream_settings = write_stream_settings(stream);
+  if (const auto* hysteria = std::get_if<Hysteria2Settings>(&stream.protocol)) {
+    auto& transport = stream_settings["hysteriaSettings"];
+    transport["auth"] = hysteria->auth;
+  }
+  Json result{{"tag", tag}, {"protocol", protocol}, {"settings", std::move(settings)}};
+  if (!default_shadowsocks_stream) result["streamSettings"] = std::move(stream_settings);
   if (stream.mux) result["mux"] = *stream.mux;
   return result;
 }

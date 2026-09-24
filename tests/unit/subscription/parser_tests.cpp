@@ -31,7 +31,7 @@ TEST_CASE("SUB-01 recognizes URI lists and one standard or URL-safe Base64 wrapp
 TEST_CASE("SUB-01 separates malformed, unsupported, HTML, and deep Base64 input") {
   const auto report = xrm::parse_subscription(
       "vless://00000000-0000-4000-8000-000000000001@node.example:443\n"
-      "vmess://opaque\n"
+      "socks://opaque\n"
       "vless://not-a-valid-node");
   REQUIRE(report.has_value());
   REQUIRE(report->nodes.size() == 1);
