@@ -138,7 +138,10 @@ class TuiApp final : public ComponentBase {
       } else refresh_all();
       if (page_ == 6) refresh_stats(true);
     }
-    else if (event == Event::Character("/" ) && page_ == 1) filtering_nodes_ = true;
+    else if (event == Event::Character("/" ) && page_ == 1) {
+      node_filter_.clear();
+      filtering_nodes_ = true;
+    }
     else if (event == Event::Character("u") && page_ == 4) refresh_subscription_inventory();
     else if (event == Event::Character("l") && page_ == 7) fetch_core_releases(false);
     else if (event == Event::Character("p") && page_ == 7) fetch_core_releases(true);
