@@ -4,6 +4,9 @@ target_compile_definitions(xrm_performance_tests PRIVATE
   XRM_PERF_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
   XRM_TEST_MANAGER="$<TARGET_FILE:xrm>"
   XRM_TEST_SERVER="$<TARGET_FILE:xrmd>")
+if(XRM_ENABLE_ASAN)
+  target_compile_definitions(xrm_performance_tests PRIVATE XRM_ASAN_BUILD=1)
+endif()
 add_dependencies(xrm_performance_tests xrm xrmd)
 include(Catch)
 catch_discover_tests(xrm_performance_tests)

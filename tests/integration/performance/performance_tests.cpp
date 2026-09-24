@@ -240,7 +240,14 @@ TEST_CASE("PERF-02 1000-node inventory, group expansion, rendering and bounded b
        << " peak_rss_before_kib=" << process_peak_start << " peak_rss_end_kib=" << process_peak_end;
   INFO(perf.str());
   CHECK(process_peak_end >= rss_end);
+#if !defined(XRM_ASAN_BUILD)
   CHECK(repeat_rss_high <= repeat_rss_start + 32768);
+#else
+  // ASan retains freed allocations in its quarantine, so the normal-build RSS
+  // ceiling is not meaningful here. LeakSanitizer checks live allocations at
+  // process exit; functional resource-bound assertions remain active below.
+  CHECK(repeat_rss_high >= repeat_rss_start);
+#endif
   opened->reset();
   TestDaemon daemon(root);
   REQUIRE(daemon.start());
