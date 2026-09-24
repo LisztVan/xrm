@@ -81,6 +81,11 @@ add_library(xrm_logic STATIC
   src/subscription/parser.cpp
   src/subscription/reconcile.cpp
   src/xray/runtime_assembler.cpp)
+foreach(m4_codec vmess trojan shadowsocks hysteria)
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/xray/codecs/${m4_codec}.cpp")
+    target_sources(xrm_logic PRIVATE "src/xray/codecs/${m4_codec}.cpp")
+  endif()
+endforeach()
 target_sources(xrm_logic PRIVATE src/profile/forms.cpp)
 target_include_directories(xrm_logic PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(xrm_logic PUBLIC xrm_model)
