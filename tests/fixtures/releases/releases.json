@@ -1,0 +1,36 @@
+[
+  {
+    "tag_name": "v26.9.9",
+    "published_at": "2026-09-01T12:34:56Z",
+    "prerelease": false,
+    "assets": [
+      {
+        "name": "Xray-linux-64.zip",
+        "browser_download_url": "{asset_url}",
+        "digest": "sha256:{sha256}"
+      },
+      {
+        "name": "Xray-linux-arm64-v8a.zip",
+        "browser_download_url": "{asset_url}",
+        "digest": "sha256:{sha256}"
+      },
+      {
+        "name": "Xray-windows-64.zip",
+        "browser_download_url": "{asset_url}",
+        "digest": null
+      }
+    ]
+  },
+  {
+    "tag_name": "v26.10.0-rc.1",
+    "published_at": "2026-09-02T08:00:00Z",
+    "prerelease": true,
+    "assets": [
+      {
+        "name": "Xray-linux-64.zip",
+        "browser_download_url": "{asset_url}",
+        "digest": "sha256:{sha256}"
+      }
+    ]
+  }
+]
