@@ -57,6 +57,6 @@ Metrics 多 watcher 与无人 watcher 停止高频采样已有独立 `[MET-02]` 
 
 ## PERF-01 与故障/编辑器验收
 
-PERF-01 要求用同步屏障同时阻塞本机 HTTP 下载和 core check，并由第二真实 UDS 客户端重复调用 status/logs/stop。本轮尚未添加完整的组合屏障测试，也未取得 UDS 测试环境，因此状态为 **NOT RUN**。已有 HTTP-02、LIFE-04 与日志/Metrics 用例各自覆盖的边界不能替代此组合门。
+PERF-01 组合屏障测试已补入 `xrm_performance_tests`。主 Agent 在可创建 loopback TCP 与 UDS 的环境运行后，取得测试用例的 RED→GREEN 证据：用未实现 barrier 的旧 fake-core，HTTP 请求已被 fixture barrier 挂起，connect 已进入核心 check，但 3 秒内没有 fake-core check rendezvous，测试在 `wait_ready` 断言处 RED（19 assertions，18 passed）；实现仅限 `tests/support/fake_core.cpp` 的 test-only UDS READY/RELEASE rendezvous 后，同一 gate 通过（41 assertions）。GREEN 运行中 HTTP 和 core check 两个 barrier 同时保持时，实际 CLI UDS 客户端重复 status/logs 仍成功，测得 p95 分别约 5.36/5.28 ms；`disconnect` stop 成功且响应约 107.806 ms。随后释放 HTTP fixture、等待 refresh CLI 退出，确认 Server status 为 stopped 并完成测试子进程回收。状态：**PASS（主 Agent socket-capable 环境）**。本 agent 自身 sandbox 的 TCP/UDS bind 被策略拒绝；因此上述行为结果明确归于主 Agent 的实测，不冒称在此 sandbox 复现。
 
 外部编辑器、暂停日志、saved/actual 屏幕差异以及长期重复操作的 RSS 斜率是本轮剩余验收项目。这里仅记录现状，不新增 M5 以外产品功能。

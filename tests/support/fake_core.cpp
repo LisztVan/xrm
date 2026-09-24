@@ -1,10 +1,14 @@
 #include <cstdlib>
 #include <csignal>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <thread>
+#include <unistd.h>
 
 namespace {
 
@@ -17,6 +21,35 @@ void write_repeated_from_environment(const char* key, std::ostream& output) {
     const auto count = std::strtoull(value, nullptr, 10);
     for (std::uint64_t index = 0; index < count; ++index) output.put('x');
   }
+}
+
+int wait_at_check_barrier() {
+  const char* path = std::getenv("XRM_FAKE_CORE_CHECK_BARRIER_SOCKET");
+  if (!path) return 0;
+  if (std::char_traits<char>::length(path) >= sizeof(sockaddr_un{}.sun_path)) return 91;
+  const int fd = ::socket(AF_UNIX, SOCK_STREAM, 0);
+  if (fd < 0) return 92;
+  sockaddr_un address{};
+  address.sun_family = AF_UNIX;
+  std::copy(path, path + std::char_traits<char>::length(path), address.sun_path);
+  if (::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
+    ::close(fd);
+    return 93;
+  }
+  constexpr char ready[] = "READY\n";
+  if (::send(fd, ready, sizeof(ready) - 1, 0) != static_cast<ssize_t>(sizeof(ready) - 1)) {
+    ::close(fd);
+    return 94;
+  }
+  std::string received;
+  char buffer[64];
+  while (received.find("RELEASE\n") == std::string::npos) {
+    const auto count = ::recv(fd, buffer, sizeof(buffer), 0);
+    if (count <= 0) { ::close(fd); return 95; }
+    received.append(buffer, static_cast<std::size_t>(count));
+  }
+  ::close(fd);
+  return 0;
 }
 
 }  // namespace
@@ -50,6 +83,7 @@ int main(int argc, char** argv) {
   std::cout.flush();
   std::cerr.flush();
   if (checking) {
+    if (const int barrier = wait_at_check_barrier(); barrier != 0) return barrier;
     if (const char* code = std::getenv("XRM_FAKE_CORE_CHECK_EXIT")) return std::atoi(code);
   }
   if (!checking && std::getenv("XRM_FAKE_CORE_RUN_HANG")) {
