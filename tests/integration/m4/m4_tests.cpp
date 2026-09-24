@@ -76,7 +76,8 @@ TEST_CASE("CLI-03 protocol summaries distinguish typed URI codecs from native ra
              false, std::move(vmess->settings)};
   const auto typed_summary = xrm::summarize_node(typed);
   CHECK(typed_summary.protocol == "vmess");
-  CHECK(typed_summary.support == "typed-uri");
+  CHECK(typed_summary.support ==
+        "typed-uri; Xray v26.9.9 config-verified; traffic-unverified");
 
   xrm::Node raw{"node-raw", std::nullopt, "raw", std::nullopt, {}, true, false,
            xrm::RawOutbound{xrm::Json{{"protocol", "freedom"}, {"settings", xrm::Json::object()}}}};

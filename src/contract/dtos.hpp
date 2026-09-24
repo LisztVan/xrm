@@ -100,7 +100,14 @@ inline NodeSummary summarize_node(const Node& node) {
       if constexpr (std::is_same_v<T, ShadowsocksSettings>) return "shadowsocks";
       if constexpr (std::is_same_v<T, Hysteria2Settings>) return "hysteria2";
     }, stream->protocol);
-    support = "typed-uri";
+    if (protocol == "vless") {
+      support = "typed-uri; Xray v26.9.9 loopback-verified";
+    } else if (protocol == "vmess" || protocol == "trojan" ||
+               protocol == "shadowsocks" || protocol == "hysteria2") {
+      support = "typed-uri; Xray v26.9.9 config-verified; traffic-unverified";
+    } else {
+      support = "typed; URI-unverified; Xray-unverified";
+    }
   }
   return {node.id, name, node.labels, node.enabled, node.source_missing,
           std::move(protocol), std::move(support)};
