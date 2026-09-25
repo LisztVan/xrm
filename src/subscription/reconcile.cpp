@@ -4,7 +4,6 @@
 #include <map>
 #include <set>
 #include <string>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -36,6 +35,20 @@ std::string connection_identity(const NodeSettings& settings) {
   if (!outbound.is_object()) return {};
   outbound.erase("tag");
   return "native\n" + outbound.dump();
+}
+
+std::string named_connection_identity(const NodeSettings& settings,
+                                      const std::string& name) {
+  const auto connection = connection_identity(settings);
+  if (connection.empty()) return {};
+  return Json::array({connection, name}).dump();
+}
+
+std::string row_identity(const NodeSettings& settings, const std::string& name,
+                         const std::optional<std::string>& upstream_id) {
+  const auto connection = connection_identity(settings);
+  if (connection.empty()) return {};
+  return Json::array({connection, name, upstream_id ? Json(*upstream_id) : Json(nullptr)}).dump();
 }
 
 bool settings_equal(const NodeSettings& left, const NodeSettings& right) {
@@ -71,27 +84,15 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
   for (const auto& node : input.old_nodes)
     if (node.source_id == input.source.id) old_nodes.push_back(&node);
 
-  // Identical items in one response describe one connection. Pick the same
-  // display row regardless of provider ordering, before assigning any ID.
-  std::map<std::string, std::size_t> unique_parsed;
+  // A provider may publish multiple distinct information rows using one
+  // connection. Only a fully identical row is a duplicate within a response.
+  std::set<std::string> unique_parsed;
   std::vector<std::size_t> parsed_indices;
   for (std::size_t i = 0; i < input.parsed.nodes.size(); ++i) {
     const auto& node = input.parsed.nodes[i];
-    const auto key = connection_identity(node.settings);
-    if (key.empty()) {
+    const auto key = row_identity(node.settings, node.name, node.upstream_id);
+    if (key.empty() || unique_parsed.insert(key).second)
       parsed_indices.push_back(i);
-      continue;
-    }
-    auto [found, inserted] = unique_parsed.emplace(key, parsed_indices.size());
-    if (inserted) {
-      parsed_indices.push_back(i);
-    } else {
-      const auto& current = input.parsed.nodes[parsed_indices[found->second]];
-      if (std::tie(node.name, node.upstream_id) <
-          std::tie(current.name, current.upstream_id)) {
-        parsed_indices[found->second] = i;
-      }
-    }
   }
 
   std::vector<std::optional<std::size_t>> matched(input.parsed.nodes.size());
@@ -130,11 +131,18 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
     }
   };
 
-  // An exact connection wins over a provider row ID. A reused upstream ID
-  // must never turn two distinct live endpoints into one node.
+  // Match the full source row first. Distinct names sharing connection fields
+  // retain separate IDs; only a sole remaining row may be treated as renamed.
+  match_unique(
+      [](const Node& node) { return row_identity(node.settings, node.original_name, node.upstream_id); },
+      [](const ParsedNode& node) { return row_identity(node.settings, node.name, node.upstream_id); }, true);
+  match_unique(
+      [](const Node& node) { return named_connection_identity(node.settings, node.original_name); },
+      [](const ParsedNode& node) { return named_connection_identity(node.settings, node.name); }, false);
   match_unique(
       [](const Node& node) { return connection_identity(node.settings); },
-      [](const ParsedNode& node) { return connection_identity(node.settings); }, true);
+      [](const ParsedNode& node) { return connection_identity(node.settings); }, false);
+  // A reused upstream ID must not collapse multiple distinct endpoints.
   match_unique(
       [](const Node& node) { return node.upstream_id.value_or(std::string{}); },
       [](const ParsedNode& node) { return node.upstream_id.value_or(std::string{}); }, false);

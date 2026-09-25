@@ -120,7 +120,7 @@ TEST_CASE("SUB-04 a repeated source payload allocates one ID and is stable for t
   xrm::ParseReport parsed;
   parsed.structurally_complete = true;
   parsed.nodes = {
-      vless("B", "same.example", "same-secret"),
+      vless("A", "same.example", "same-secret"),
       vless("A", "same.example", "same-secret"),
       vless("unique", "other.example", "other-secret")};
   std::vector<xrm::Node> stored;
@@ -146,6 +146,79 @@ TEST_CASE("SUB-04 a repeated source payload allocates one ID and is stable for t
   CHECK(std::any_of(stored.begin(), stored.end(), [](const auto& node) {
     return node.original_name == "A";
   }));
+}
+
+TEST_CASE("SUB-04 a 49-row source keeps four named information rows distinct across ten refreshes") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {
+      vless("剩余流量", "info.example", "shared-secret"),
+      vless("套餐到期", "info.example", "shared-secret"),
+      vless("官网", "info.example", "shared-secret"),
+      vless("公告", "info.example", "shared-secret")};
+  for (int i = 0; i < 45; ++i)
+    parsed.nodes.push_back(vless("exit-" + std::to_string(i),
+                                 "exit-" + std::to_string(i) + ".example", "shared-secret"));
+  std::vector<xrm::Node> stored;
+  std::vector<xrm::Id> first_ids;
+  std::size_t generated = 0;
+  for (int iteration = 0; iteration < 10; ++iteration) {
+    std::rotate(parsed.nodes.begin(), parsed.nodes.begin() + 1, parsed.nodes.end());
+    auto result = xrm::reconcile({source, stored, parsed}, [&] {
+      return "info-" + std::to_string(++generated);
+    });
+    REQUIRE(result);
+    CHECK(result->report.added == (iteration == 0 ? 49 : 0));
+    CHECK(result->report.updated == 0);
+    CHECK(result->report.missing == 0);
+    for (const auto& node : result->changes.upserts) {
+      const auto found = std::find_if(stored.begin(), stored.end(),
+                                    [&](const auto& old) { return old.id == node.id; });
+      if (found == stored.end()) stored.push_back(node);
+      else *found = node;
+    }
+    REQUIRE(stored.size() == 49);
+    std::vector<xrm::Id> ids;
+    for (const auto& node : stored) ids.push_back(node.id);
+    std::sort(ids.begin(), ids.end());
+    if (iteration == 0) first_ids = ids;
+    else CHECK(ids == first_ids);
+  }
+  CHECK(generated == 49);
+}
+
+TEST_CASE("SUB-04 named information rows restore matching missing identities") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {
+      vless("剩余流量", "info.example", "shared-secret"),
+      vless("套餐到期", "info.example", "shared-secret"),
+      vless("官网", "info.example", "shared-secret"),
+      vless("公告", "info.example", "shared-secret")};
+  std::vector<xrm::Node> old_nodes;
+  for (std::size_t i = 0; i < parsed.nodes.size(); ++i) {
+    xrm::Node old;
+    old.id = "old-" + std::to_string(i);
+    old.source_id = source.id;
+    old.original_name = parsed.nodes[i].name;
+    old.settings = parsed.nodes[i].settings;
+    old.source_missing = true;
+    old_nodes.push_back(std::move(old));
+  }
+  auto result = xrm::reconcile({source, old_nodes, parsed}, [] { return "wrong-new-id"; });
+  REQUIRE(result);
+  CHECK(result->report.added == 0);
+  CHECK(result->report.updated == 4);
+  CHECK(result->report.missing == 0);
+  REQUIRE(result->changes.upserts.size() == 4);
+  for (std::size_t i = 0; i < result->changes.upserts.size(); ++i) {
+    CHECK(result->changes.upserts[i].id == old_nodes[i].id);
+    CHECK_FALSE(result->changes.upserts[i].source_missing);
+  }
 }
 
 TEST_CASE("SUB-04 exact source-missing identity is restored instead of replaced") {
