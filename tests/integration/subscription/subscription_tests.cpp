@@ -344,6 +344,72 @@ TEST_CASE("SUB-02 refresh updates inventory only and same-source requests coales
   http.shutdown([] {});
 }
 
+TEST_CASE("SUB-04 identical HTTP payload is idempotent across ten refreshes and a service restart", "[SUB-04]") {
+  TempDatabase database;
+  LocalHttpFixture fixture;
+  fixture.respond(200, std::string(node_a) + "\n" + std::string(node_a) + "\n" +
+                       std::string(node_b), "");
+  {
+    auto store = xrm::Store::open(database.path);
+    REQUIRE(store);
+    REQUIRE((*store)->put_source(source("source-A", fixture.url())));
+  }
+
+  std::vector<xrm::Id> first_ids;
+  for (int session = 0; session < 2; ++session) {
+    auto store = xrm::Store::open(database.path);
+    REQUIRE(store);
+    Loop loop;
+    xrm::HttpClient http(loop.value);
+    xrm::SubscriptionService service(**store, http);
+    for (int attempt = session * 5; attempt < (session + 1) * 5; ++attempt) {
+      const auto refresh = refresh_sync(service, loop.value, {"source-A"});
+      REQUIRE(refresh);
+      REQUIRE(refresh->failed.empty());
+      REQUIRE(refresh->completed.size() == 1);
+      const auto& report = refresh->completed.front();
+      CHECK(report.added == (attempt == 0 ? 2 : 0));
+      CHECK(report.updated == 0);
+      CHECK(report.missing == 0);
+      CHECK_FALSE(report.partial);
+
+      const auto inventory = (*store)->list_nodes(
+          xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+      REQUIRE(inventory);
+      REQUIRE(inventory->total == 2);
+      REQUIRE(inventory->items.size() == 2);
+      std::vector<xrm::Id> ids;
+      for (const auto& node : inventory->items) {
+        CHECK_FALSE(node.source_missing);
+        ids.push_back(node.id);
+      }
+      std::sort(ids.begin(), ids.end());
+      if (attempt == 0) {
+        first_ids = ids;
+        const auto original_a = std::find_if(inventory->items.begin(), inventory->items.end(),
+            [](const auto& node) { return node.original_name == "A"; });
+        REQUIRE(original_a != inventory->items.end());
+        auto user_edited = *original_a;
+        user_edited.alias = "My A";
+        user_edited.labels = {"favorite"};
+        user_edited.enabled = false;
+        REQUIRE((*store)->put_node(user_edited));
+      } else {
+        CHECK(ids == first_ids);
+        const auto edited_a = std::find_if(inventory->items.begin(), inventory->items.end(),
+            [](const auto& node) { return node.original_name == "A"; });
+        REQUIRE(edited_a != inventory->items.end());
+        CHECK(edited_a->alias == "My A");
+        CHECK(edited_a->labels == std::vector<std::string>{"favorite"});
+        CHECK_FALSE(edited_a->enabled);
+      }
+    }
+    service.stop_schedule();
+    http.shutdown([] {});
+  }
+  CHECK(fixture.request_count() == 10);
+}
+
 TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-only and HTML retain inventory", "[SUB-03]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
