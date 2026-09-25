@@ -1,9 +1,12 @@
 #include "subscription/reconcile.hpp"
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 #include <utility>
+#include <vector>
 
 namespace xrm {
 namespace {
@@ -68,9 +71,33 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
   for (const auto& node : input.old_nodes)
     if (node.source_id == input.source.id) old_nodes.push_back(&node);
 
+  // Identical items in one response describe one connection. Pick the same
+  // display row regardless of provider ordering, before assigning any ID.
+  std::map<std::string, std::size_t> unique_parsed;
+  std::vector<std::size_t> parsed_indices;
+  for (std::size_t i = 0; i < input.parsed.nodes.size(); ++i) {
+    const auto& node = input.parsed.nodes[i];
+    const auto key = connection_identity(node.settings);
+    if (key.empty()) {
+      parsed_indices.push_back(i);
+      continue;
+    }
+    auto [found, inserted] = unique_parsed.emplace(key, parsed_indices.size());
+    if (inserted) {
+      parsed_indices.push_back(i);
+    } else {
+      const auto& current = input.parsed.nodes[parsed_indices[found->second]];
+      if (std::tie(node.name, node.upstream_id) <
+          std::tie(current.name, current.upstream_id)) {
+        parsed_indices[found->second] = i;
+      }
+    }
+  }
+
   std::vector<std::optional<std::size_t>> matched(input.parsed.nodes.size());
   std::set<std::size_t> used_old;
-  auto match_unique = [&](auto old_key, auto parsed_key) {
+  std::set<std::size_t> present_old;
+  auto match_unique = [&](auto old_key, auto parsed_key, bool allow_equivalent_old) {
     std::map<std::string, std::vector<std::size_t>> old_groups;
     std::map<std::string, std::vector<std::size_t>> parsed_groups;
     for (std::size_t i = 0; i < old_nodes.size(); ++i) {
@@ -78,27 +105,41 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
       const std::string key = old_key(*old_nodes[i]);
       if (!key.empty()) old_groups[key].push_back(i);
     }
-    for (std::size_t i = 0; i < input.parsed.nodes.size(); ++i) {
+    for (const auto i : parsed_indices) {
       if (matched[i]) continue;
       const std::string key = parsed_key(input.parsed.nodes[i]);
       if (!key.empty()) parsed_groups[key].push_back(i);
     }
     for (const auto& [key, old_indices] : old_groups) {
       const auto found = parsed_groups.find(key);
-      if (old_indices.size() != 1 || found == parsed_groups.end() || found->second.size() != 1) continue;
-      matched[found->second.front()] = old_indices.front();
-      used_old.insert(old_indices.front());
+      if (found == parsed_groups.end() || found->second.size() != 1 ||
+          (!allow_equivalent_old && old_indices.size() != 1)) continue;
+      // Historical equivalent duplicates may have references or user edits.
+      // Reuse one stable ID, but leave the others untouched for an explicit
+      // user-reviewed cleanup instead of silently deleting or disabling them.
+      const auto chosen = *std::min_element(old_indices.begin(), old_indices.end(),
+          [&](std::size_t left, std::size_t right) {
+            if (old_nodes[left]->source_missing != old_nodes[right]->source_missing)
+              return !old_nodes[left]->source_missing;
+            return old_nodes[left]->id < old_nodes[right]->id;
+          });
+      matched[found->second.front()] = chosen;
+      used_old.insert(chosen);
+      if (allow_equivalent_old) present_old.insert(old_indices.begin(), old_indices.end());
+      else present_old.insert(chosen);
     }
   };
 
-  match_unique(
-      [](const Node& node) { return node.upstream_id.value_or(std::string{}); },
-      [](const ParsedNode& node) { return node.upstream_id.value_or(std::string{}); });
+  // An exact connection wins over a provider row ID. A reused upstream ID
+  // must never turn two distinct live endpoints into one node.
   match_unique(
       [](const Node& node) { return connection_identity(node.settings); },
-      [](const ParsedNode& node) { return connection_identity(node.settings); });
+      [](const ParsedNode& node) { return connection_identity(node.settings); }, true);
+  match_unique(
+      [](const Node& node) { return node.upstream_id.value_or(std::string{}); },
+      [](const ParsedNode& node) { return node.upstream_id.value_or(std::string{}); }, false);
 
-  for (std::size_t i = 0; i < input.parsed.nodes.size(); ++i) {
+  for (const auto i : parsed_indices) {
     const auto& parsed = input.parsed.nodes[i];
     if (matched[i]) {
       const auto& old = *old_nodes[*matched[i]];
@@ -134,7 +175,7 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
                         !input.parsed.nodes.empty() && input.parsed.issues.empty();
   if (complete) {
     for (std::size_t i = 0; i < old_nodes.size(); ++i) {
-      if (used_old.contains(i) || old_nodes[i]->source_missing) continue;
+      if (present_old.contains(i) || old_nodes[i]->source_missing) continue;
       Node missing = *old_nodes[i];
       missing.source_missing = true;
       result.changes.upserts.push_back(std::move(missing));

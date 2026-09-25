@@ -86,7 +86,7 @@ TEST_CASE("SUB-04 same-name identity changes and cross-source nodes are never me
   CHECK(fresh->source_id == source.id);
 }
 
-TEST_CASE("SUB-04 duplicate identities are treated as ambiguous and complete refresh marks only source nodes missing") {
+TEST_CASE("SUB-04 equivalent entries and historical duplicate records do not generate new identities") {
   xrm::Subscription source;
   source.id = "source-A";
   xrm::Node old1;
@@ -101,11 +101,10 @@ TEST_CASE("SUB-04 duplicate identities are treated as ambiguous and complete ref
   parsed.nodes = {vless("duplicate", "same.example", "same-secret")};
   auto result = xrm::reconcile({source, {old1, old2}, parsed}, [] { return "new"; });
   REQUIRE(result.has_value());
-  CHECK(result->report.added == 1);
-  CHECK(result->report.missing == 2);
-  REQUIRE(result->changes.upserts.size() == 3);
-  CHECK(std::count_if(result->changes.upserts.begin(), result->changes.upserts.end(),
-                      [](const xrm::Node& node) { return node.source_missing; }) == 2);
+  CHECK(result->report.added == 0);
+  CHECK(result->report.updated == 0);
+  CHECK(result->report.missing == 0);
+  CHECK(result->changes.upserts.empty());
 
   parsed.structurally_complete = false;
   auto partial = xrm::reconcile({source, {old1, old2}, parsed}, [] { return "another"; });
@@ -113,6 +112,118 @@ TEST_CASE("SUB-04 duplicate identities are treated as ambiguous and complete ref
   CHECK(partial->report.missing == 0);
   CHECK(std::none_of(partial->changes.upserts.begin(), partial->changes.upserts.end(),
                      [](const xrm::Node& node) { return node.source_missing; }));
+}
+
+TEST_CASE("SUB-04 a repeated source payload allocates one ID and is stable for ten refreshes") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {
+      vless("B", "same.example", "same-secret"),
+      vless("A", "same.example", "same-secret"),
+      vless("unique", "other.example", "other-secret")};
+  std::vector<xrm::Node> stored;
+  std::size_t generated = 0;
+  for (int iteration = 0; iteration < 10; ++iteration) {
+    std::swap(parsed.nodes[0], parsed.nodes[1]);
+    auto result = xrm::reconcile({source, stored, parsed}, [&] {
+      return "id-" + std::to_string(++generated);
+    });
+    REQUIRE(result);
+    CHECK(result->report.added == (iteration == 0 ? 2 : 0));
+    CHECK(result->report.updated == 0);
+    CHECK(result->report.missing == 0);
+    for (auto& node : result->changes.upserts) {
+      const auto found = std::find_if(stored.begin(), stored.end(),
+                                    [&](const auto& old) { return old.id == node.id; });
+      if (found == stored.end()) stored.push_back(node);
+      else *found = node;
+    }
+    REQUIRE(stored.size() == 2);
+    CHECK(generated == 2);
+  }
+  CHECK(std::any_of(stored.begin(), stored.end(), [](const auto& node) {
+    return node.original_name == "A";
+  }));
+}
+
+TEST_CASE("SUB-04 exact source-missing identity is restored instead of replaced") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::Node old;
+  old.id = "selected-node";
+  old.source_id = source.id;
+  old.original_name = "before";
+  old.alias = "my alias";
+  old.labels = {"favorite"};
+  old.enabled = false;
+  old.source_missing = true;
+  old.settings = vless("before", "same.example", "same-secret").settings;
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {vless("after", "same.example", "same-secret")};
+  auto result = xrm::reconcile({source, {old}, parsed}, [] { return "replacement"; });
+  REQUIRE(result);
+  CHECK(result->report.added == 0);
+  CHECK(result->report.updated == 1);
+  REQUIRE(result->changes.upserts.size() == 1);
+  CHECK(result->changes.upserts.front().id == old.id);
+  CHECK_FALSE(result->changes.upserts.front().source_missing);
+  CHECK(result->changes.upserts.front().alias == old.alias);
+  CHECK(result->changes.upserts.front().labels == old.labels);
+  CHECK_FALSE(result->changes.upserts.front().enabled);
+}
+
+TEST_CASE("SUB-04 URI syntax changes do not change canonical connection identity") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  const auto old_report = xrm::parse_subscription(
+      "vless://00000000-0000-4000-8000-000000000001@same.example:443?"
+      "security=none&type=tcp&encryption=none#Old");
+  REQUIRE(old_report);
+  REQUIRE(old_report->nodes.size() == 1);
+  xrm::Node old;
+  old.id = "stable-id";
+  old.source_id = source.id;
+  old.original_name = "Old";
+  old.settings = old_report->nodes.front().settings;
+
+  const auto same_report = xrm::parse_subscription(
+      "vless://00000000-0000-4000-8000-000000000001@same.example:443?"
+      "type=raw&security=none#Old");
+  REQUIRE(same_report);
+  auto result = xrm::reconcile({source, {old}, *same_report}, [] { return "new-id"; });
+  REQUIRE(result);
+  CHECK(result->report.added == 0);
+  CHECK(result->report.updated == 0);
+  CHECK(result->report.missing == 0);
+  CHECK(result->changes.upserts.empty());
+}
+
+TEST_CASE("SUB-04 a shared credential or upstream row does not merge distinct exits") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::Node old;
+  old.id = "old-exit";
+  old.source_id = source.id;
+  old.upstream_id = "provider-row";
+  old.original_name = "same name";
+  old.settings = vless("same name", "exit-a.example", "shared-uuid").settings;
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {
+      vless("same name", "exit-b.example", "shared-uuid", "provider-row"),
+      vless("same name", "exit-a.example", "shared-uuid", "provider-row")};
+  auto result = xrm::reconcile({source, {old}, parsed}, [] { return "new-exit"; });
+  REQUIRE(result);
+  CHECK(result->report.added == 1);
+  CHECK(result->report.updated == 0);
+  CHECK(result->report.missing == 0);
+  REQUIRE(result->changes.upserts.size() == 1);
+  CHECK(result->changes.upserts.front().id == "new-exit");
+  CHECK(std::get<xrm::StreamNode>(result->changes.upserts.front().settings).endpoint.address ==
+        "exit-b.example");
 }
 
 TEST_CASE("SUB-03 partial parse accepts valid entries without marking absent nodes missing") {
