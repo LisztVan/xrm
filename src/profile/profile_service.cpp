@@ -232,11 +232,11 @@ Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
         "Profile 名称不能为空或包含控制字符");
   }
   if (request.preset != "local" && request.preset != "desktop" &&
-      request.preset != "custom") {
+      request.preset != "custom" && request.preset != "tun") {
     return fail<ProfileSettings>(ErrorCode::not_found, "找不到 Profile 预设", request.preset);
   }
 
-  const auto preset = preset_root() / "local";
+  const auto preset = preset_root() / (request.preset == "tun" ? "tun" : "local");
   auto manifest_text = read_text(preset / "modules.json", 64 * 1024);
   if (!manifest_text) return std::unexpected(manifest_text.error());
   Json manifest;
@@ -284,7 +284,11 @@ Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
     std::filesystem::remove_all(staging_dir, ignored);
   };
   for (const auto& module : settings.modules) {
-    const auto source = preset / "modules" / module.filename;
+    // TUN changes only its inbound draft. Other native samples remain the
+    // same checked-in examples as Desktop and are copied once per Profile.
+    const auto source = request.preset == "tun" && module.key != "inbounds"
+        ? preset_root() / "local" / "modules" / module.filename
+        : preset / "modules" / module.filename;
     auto bytes = read_text(source, max_profile_file_bytes);
     if (!bytes) { cleanup(); return std::unexpected(bytes.error()); }
     auto written = replace_text(staging_dir / "modules" / module.filename, *bytes);

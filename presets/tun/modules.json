@@ -1,0 +1,6 @@
+{
+  "append_selected_default": true,
+  "included": ["log", "dns", "outbounds", "routing"],
+  "description": "TUN 配置草稿：原生 TUN 入站默认停用；启用前确认设备、地址、权限和路由。模板创建不修改宿主路由或 DNS。",
+  "tun_traffic_verified": false
+}

@@ -1,0 +1,14 @@
+{
+  "inbounds": [
+    {
+      "tag": "xrm-tun-in",
+      "protocol": "tun",
+      "settings": {
+        "name": "xrm-tun",
+        "mtu": 1500,
+        "gateway": ["198.18.0.1/30"],
+        "autoOutboundsInterface": "auto"
+      }
+    }
+  ]
+}

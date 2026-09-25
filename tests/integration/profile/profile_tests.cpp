@@ -146,6 +146,36 @@ TEST_CASE("P3 Desktop and Custom create separate one-time native samples", "[PRO
   CHECK(read(root.path() / "profiles" / desktop->id / "modules" / "01_dns.json") == before);
 }
 
+TEST_CASE("P3 TUN template is an explicit disabled native draft with no host route automation", "[PROFILE][P3][tun]") {
+  TempRoot root;
+  auto opened = xrm::Store::open(root.path() / "manager.sqlite");
+  REQUIRE(opened);
+  xrm::ProfileService service(**opened, root.path() / "profiles");
+  auto tun = service.create({"TUN draft", "", "tun", {}});
+  REQUIRE(tun);
+  REQUIRE(tun->modules.size() == 15);
+  auto inbound = service.module(tun->id, "inbounds");
+  REQUIRE(inbound);
+  REQUIRE(inbound->document);
+  CHECK_FALSE(inbound->setting.included);
+  const auto native = xrm::Json::parse(inbound->document->source_text);
+  REQUIRE(native.at("inbounds").is_array());
+  REQUIRE(native.at("inbounds").size() == 1);
+  const auto& candidate = native.at("inbounds").front();
+  CHECK(candidate.at("protocol") == "tun");
+  CHECK(candidate.at("settings").at("name") == "xrm-tun");
+  CHECK(candidate.at("settings").at("mtu") == 1500);
+  CHECK(candidate.at("settings").at("autoOutboundsInterface") == "auto");
+  CHECK_FALSE(candidate.at("settings").contains("dns"));
+  CHECK_FALSE(candidate.at("settings").contains("autoSystemRoutingTable"));
+  CHECK_FALSE(candidate.contains("listen"));
+  auto fresh = service.get(tun->id);
+  REQUIRE(fresh);
+  CHECK(std::none_of(fresh->modules.begin(), fresh->modules.end(), [](const auto& setting) {
+    return setting.key == "inbounds" && setting.included;
+  }));
+}
+
 TEST_CASE("UI-11 legacy Profile without source binding remains all-sources and new binding round trips", "[PROFILE][UI-11]") {
   ProfileFixture fixture;
   auto file = fixture.root.path() / "profiles" / fixture.profile.id / "profile.json";
