@@ -21,4 +21,7 @@ set_tests_properties(VLESS-WS-XHTTP PROPERTIES
   LABELS "real_core;product_repair"
   SKIP_RETURN_CODE 77)
 add_test(NAME E2E-07 COMMAND xrm_real_core_tests "[E2E-07]")
-set_tests_properties(E2E-07 PROPERTIES LABELS "real_core;product_repair" SKIP_RETURN_CODE 77)
+# E2E-07 intentionally repairs an old Profile's fixed 127.0.0.1:10808
+# listener, so it cannot share that port with another running case.
+set_tests_properties(E2E-07 PROPERTIES LABELS "real_core;product_repair"
+  SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)

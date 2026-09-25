@@ -6,8 +6,8 @@
 
 - 主机：`Linux 7.2.7+deb14-amd64 x86_64 / debian-work`；Intel Core i7-14700F；GCC 16.2.0；Debug dev 与 ASan presets。
 - 固定真实核心：`/tmp/xrm-g1-xray-v26.9.9/xray`，输出 `Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)`。固定发布二进制在仓库外准备，SHA-256 `1eb9175d0f0a8f8149c9230a7fc5ae66ce332ed20a53155ce61fe62e3f58b7df`；没有改动系统 Xray。
-- 本轮七页工作流整合后的 dev 构建与完整回归：**225/225 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**。使用 `cmake --preset dev -B /tmp/xrm-u-dev`、`cmake --build /tmp/xrm-u-dev -j4`，再以固定 `TMPDIR`、`XRM_TEST_XRAY` 运行 `ctest --test-dir /tmp/xrm-u-dev --output-on-failure -j4`。E2E-07 已扩展到 PTY 中添加 A/B 来源、分别绑定 Home/Office、Local VLESS 表单与 Group，均经真实 loopback 流量验证。
-- 对应 ASan 构建与完整回归：**225/225 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**；命令同上但使用 `asan` preset 与 `/tmp/xrm-u-asan`，总耗时 128.58 秒。默认 10808 端口占用 fixture 已单独串行，避免与并行真实核心用例争端口；不降低端口冲突断言。sanitizer instrumentation 下的 RSS 不作为 Debug 产品上限。
+- 本轮七页工作流整合后的标准 dev 构建与完整回归：**225/225 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**；使用 `cmake --preset dev`、`cmake --build --preset dev -j4` 和固定 `TMPDIR`、`XRM_TEST_XRAY` 的 `ctest --preset dev --output-on-failure -j4`，总耗时 101.80 秒。E2E-07 已扩展到 PTY 中添加 A/B 来源、分别绑定 Home/Office、Local VLESS 表单与 Group，均经真实 loopback 流量验证。
+- 对应 ASan 构建与完整回归：**225/225 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**；使用 `cmake --preset asan -B /tmp/xrm-u-asan`、`cmake --build /tmp/xrm-u-asan -j4` 与固定环境的 `ctest --test-dir /tmp/xrm-u-asan --output-on-failure -j4`，总耗时 160.30 秒。两个会占用默认 10808 的 fixture 单独串行，避免互相争端口；端口冲突行为断言未降低。sanitizer instrumentation 下的 RSS 不作为 Debug 产品上限。
 - 固定核心命令为 `xray run -test -confdir <test-confdir>`、`xray run -confdir <test-confdir>` 以及 RC-01～RC-10/E2E-06 gate 所调用的同一 v26.9.9 binary；没有公网节点，核心行为用例均 loopback。CTest 最终 real-core label 两套构建均无 skip。
 - systemd unit 静态验证及 `xrmd` 子进程归属测试通过；此环境未确认可安全隔离的 systemd 实机测试环境，未启动/停止宿主 systemd unit，故 systemd 实机清理 **NOT RUN**。不要将 PKG-01 的静态/归属证据描述为 systemd 运行态测试。
 - release candidate 总门：**G5 FAIL，待本轮界面定型后的用户复验**。用户已确认旧导航、滚动、订阅更新、联网和日志基本可用；本轮开发者 PTY/真实核心验证了七页导航、两方案来源范围、Local/Group 连接和设置持久化，但这不冒充用户对新工作流的人工验收。生产数据没有被清理或改写；systemd 实机隔离验证仍 NOT RUN。

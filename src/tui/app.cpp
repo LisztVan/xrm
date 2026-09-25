@@ -1098,6 +1098,10 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("[ / ] Change Config section") | dim);
       } else {
       body.push_back(text("Core — system binaries are register-only; managed binaries live under XRM data") | bold);
+      body.push_back(text("Viewing Profile: " +
+          (profile_id_.empty() ? std::string("none — open Profiles before choosing a core") :
+              profile_name(profile_id_)) +
+          " · u Use selected core for this Profile") | dim);
       if (viewing_releases_) {
         body.push_back(text(std::string("Official XTLS/Xray-core releases ") +
             (include_prerelease_ ? "(stable + prerelease)" : "(stable)")) | dim);
@@ -1120,13 +1124,19 @@ class TuiApp final : public ComponentBase {
             ? status_["active"].value("core_id", "") : "";
         for (std::size_t i = 0; i < cores_.size(); ++i) {
           const auto& core = cores_[i];
-          bool selected = false;
-          for (const auto& profile : profiles_)
-            selected = selected || profile.value("core_id", "") == core.value("id", "");
+          const bool selected_here = !profile_id_.empty() &&
+              profile_core_id(profile_id_) == core.value("id", "");
+          const bool selected_elsewhere = std::any_of(profiles_.begin(), profiles_.end(),
+              [&](const Json& profile) {
+                return profile.value("id", "") != profile_id_ &&
+                    profile.value("core_id", "") == core.value("id", "");
+              });
           body.push_back(text((i == selected_ ? "> " : "  ") + core.value("name", "") + "  " +
               core.value("reported_version", "") + "  " +
               (core.value("managed", false) ? "managed" : "system") + "  installed" +
-              (selected ? " selected" : "") + (running == core.value("id", "") ? " running" : "")) |
+              (selected_here ? " selected for viewed Profile" :
+                  selected_elsewhere ? " used by another Profile" : "") +
+              (running == core.value("id", "") ? " running" : "")) |
               (i == selected_ ? inverted : nothing));
           body.push_back(text(core.value("path", "")) | dim);
         }

@@ -550,6 +550,16 @@ TEST_CASE("Config Core removes only an unused managed install", "[UI-CORE][CLI]"
   const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "uses-core",
                                                     "--core", "managed-v-test"}));
   REQUIRE(profile.contains("id"));
+  {
+    CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+    REQUIRE(tui.type("7"));
+    const auto grid = tui.wait_for([](std::string_view screen) {
+      return screen.find("Viewing Profile: uses-core") != std::string_view::npos &&
+             screen.find("selected for viewed Profile") != std::string_view::npos;
+    });
+    CHECK(grid.find("selected for viewed Profile") != std::string::npos);
+    REQUIRE(tui.type("q"));
+  }
   CHECK(cli(daemon.socket(), {"core", "remove", "managed-v-test"}).empty());
   CHECK(std::filesystem::exists(managed_path));
   REQUIRE_FALSE(cli(daemon.socket(), {"profile", "show", profile.at("id").get<std::string>()}).empty());
