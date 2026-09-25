@@ -183,7 +183,8 @@ void to_json(Json& json, const ProfileSettings& value) {
                                     {"asset_dir", std::move(asset_dir)}}},
               {"modules", Json::array()},
               {"additional_node_ids", value.additional_node_ids},
-              {"enabled_source_ids", value.enabled_source_ids}};
+              {"enabled_source_ids", value.enabled_source_ids},
+              {"geodata_resource_ids", value.geodata_resource_ids}};
   for (const auto& module : value.modules) {
     json["modules"].push_back(Json{{"key", module.key},
                                    {"filename", module.filename.generic_string()},
@@ -210,6 +211,7 @@ void from_json(const Json& json, ProfileSettings& value) {
   const auto& asset_dir = environment.at("asset_dir");
   value.environment.asset_dir = asset_dir.is_null()
       ? std::nullopt : std::optional<std::filesystem::path>(asset_dir.get<std::string>());
+  value.geodata_resource_ids = json.value("geodata_resource_ids", std::map<std::string, Id>{});
   value.modules.clear();
   for (const auto& module : json.at("modules")) {
     value.modules.push_back({module.at("key").get<std::string>(),

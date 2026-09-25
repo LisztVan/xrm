@@ -235,23 +235,46 @@ struct CoreManager::Impl {
   static void prepare_work(uv_work_t* request) {
     auto* preparation = static_cast<Preparation*>(request->data);
     auto& build = preparation->build;
+    const auto& profile = build.input.settings.profile;
+    if (!build.assets.empty() && (profile.environment.asset_dir ||
+                                  profile.environment.process_environment.contains("XRAY_LOCATION_ASSET"))) {
+      preparation->error = core_error(ErrorCode::conflict,
+          "不能用Geodata快照覆盖已有的Profile资源目录");
+      return;
+    }
+    if (profile.environment.asset_dir &&
+        profile.environment.process_environment.contains("XRAY_LOCATION_ASSET") &&
+        profile.environment.process_environment.at("XRAY_LOCATION_ASSET") !=
+            profile.environment.asset_dir->string()) {
+      preparation->error = core_error(ErrorCode::conflict,
+          "Profile资源目录与进程XRAY_LOCATION_ASSET设置冲突");
+      return;
+    }
     auto assembled = assemble(build.input);
     if (!assembled) {
       preparation->error = assembled.error();
       return;
     }
     const auto run_id = new_run_id();
+    std::vector<RuntimeWriter::AssetSnapshot> assets;
+    assets.reserve(build.assets.size());
+    for (const auto& asset : build.assets)
+      assets.push_back({asset.immutable_source, asset.runtime_name});
     auto directory = preparation->owner->writer->materialize(
-        *assembled, DirectoryPurpose::candidate, run_id);
+        *assembled, DirectoryPurpose::candidate, run_id, assets);
     if (!directory) {
       preparation->error = directory.error();
       return;
     }
-    const auto& profile = build.input.settings.profile;
     const auto cwd = profile.environment.cwd.empty() ? std::filesystem::current_path()
                                                       : profile.environment.cwd;
+    auto environment = profile.environment.process_environment;
+    if (!assets.empty()) environment["XRAY_LOCATION_ASSET"] = directory->confdir.string();
+    else if (profile.environment.asset_dir &&
+             !environment.contains("XRAY_LOCATION_ASSET"))
+      environment["XRAY_LOCATION_ASSET"] = profile.environment.asset_dir->string();
     preparation->record = RunRecord{run_id, profile.id, build.core.id,
-        RunSpec{build.core.path, directory->confdir, cwd, profile.environment.process_environment},
+        RunSpec{build.core.path, directory->confdir, cwd, std::move(environment)},
         profile.selected, assembled->index, now_millis()};
   }
 

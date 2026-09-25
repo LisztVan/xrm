@@ -1,18 +1,21 @@
 #pragma once
 
 #include "contract/dtos.hpp"
+#include "geodata/cache.hpp"
 #include "infra/http.hpp"
 #include "infra/process.hpp"
 #include "infra/store.hpp"
 #include "profile/profile_service.hpp"
 #include "profile/forms.hpp"
 #include "server/log_buffer.hpp"
+#include "server/node_test_service.hpp"
 #include "server/operations.hpp"
 #include "subscription/subscription_service.hpp"
 #include "xray/control.hpp"
 #include "xray/core_manager.hpp"
 #include "xray/installer.hpp"
 
+#include <map>
 #include <set>
 
 namespace xrm {
@@ -22,6 +25,7 @@ class Application {
   Application(Store& store, ProcessService& processes, HttpClient& http, uv_loop_t& loop,
               std::filesystem::path data_root, std::string application_version,
               Id boot_id, SubscriptionService& subscriptions);
+  ~Application();
 
   Json server_info() const;
   Result<NodeSummary> add_manual_node(std::string name, Json outbound);
@@ -38,6 +42,12 @@ class Application {
   Result<NodeSummary> edit_node_form(const Id& id, std::string_view field, Json value);
   Result<Json> preview_node_history(const Id& source_id) const;
   Result<Json> confirm_node_history(const Id& source_id, const Json& selected);
+  Result<Id> start_node_test(const Id& node_id, NodeTestKind kind,
+                             std::optional<std::string> target_url,
+                             std::optional<Id> profile_id, Milliseconds timeout,
+                             std::size_t max_body_bytes);
+  Result<void> cancel_node_test(const Id& operation_id);
+  Json node_test_results() const;
   Store& store();
   SubscriptionService& subscriptions();
   Result<std::vector<CoreInstall>> list_cores() const;
@@ -58,6 +68,15 @@ class Application {
   Result<BuildInput> build_input(const Id& profile_id);
   Result<void> select(const Id& profile_id, std::optional<Target> target);
   Result<void> set_profile_sources(const Id& profile_id, std::vector<Id> source_ids);
+  Result<void> set_profile_geodata(const Id& profile_id, std::map<std::string, Id> resources);
+  Result<std::vector<GeodataResourceRecord>> list_geodata_resources() const;
+  Result<GeodataResourceRecord> get_geodata_resource(const Id&) const;
+  Result<GeodataResourceRecord> put_geodata_resource(GeodataResourceRecord);
+  Result<void> remove_geodata_resource(const Id&);
+  Result<Id> update_geodata_resource(const Id& resource_id, const Id& core_id);
+  Result<Json> plan_routing_preset(const Id& profile_id, std::string_view preset) const;
+  Result<Json> save_routing_preset(const Id& profile_id, std::string_view preset,
+                                   std::string_view expected_text);
   void connect(const Id& profile_id, std::optional<Target> target,
                Completion<ActivationResult> completion);
   void check(const Id& profile_id, Completion<ActivationResult> completion);
@@ -95,6 +114,8 @@ class Application {
   std::unique_ptr<XrayControl> xray_control_;
   std::unique_ptr<MetricsClient> metrics_client_;
   std::unique_ptr<CoreInstaller> core_installer_;
+  std::unique_ptr<NodeTestService> node_test_service_;
+  std::unique_ptr<GeodataCache> geodata_cache_;
   LogBuffer logs_;
   Operations operations_;
   std::optional<Id> override_run_id_;
@@ -102,6 +123,15 @@ class Application {
   OverrideState override_state_ = OverrideState::none;
   std::set<Id> metrics_viewers_;
   std::optional<Id> metrics_run_id_;
+  std::map<Id, Id> node_test_processes_;
+  std::map<Id, Json> node_test_results_;
+  std::map<Id, Json> node_test_snapshots_;
+  struct GeodataSchedule;
+  GeodataSchedule* geodata_schedule_ = nullptr;
+  std::set<Id> geodata_inflight_;
+  void schedule_geodata_updates();
+  void on_geodata_schedule();
+  Result<std::vector<RuntimeAssetFile>> resolve_runtime_assets(const ProfileSettings&) const;
 };
 
 }  // namespace xrm

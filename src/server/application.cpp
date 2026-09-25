@@ -6,8 +6,10 @@
 #include "xray/codecs/codec.hpp"
 #include "xray/process_adapter.hpp"
 #include "xray/runtime_assembler.hpp"
+#include "profile/routing_presets.hpp"
 
 #include <openssl/evp.h>
+#include <uv.h>
 
 #include <array>
 #include <algorithm>
@@ -16,7 +18,9 @@
 #include <fstream>
 #include <map>
 #include <random>
+#include <stdexcept>
 #include <set>
+#include <utility>
 #include <unistd.h>
 
 namespace xrm {
@@ -81,6 +85,11 @@ std::string snapshot_token(const Json& snapshot) {
 
 }  // namespace
 
+struct Application::GeodataSchedule {
+  uv_timer_t timer{};
+  Application* owner = nullptr;
+};
+
 Application::Application(Store& store, ProcessService& processes,
                          HttpClient& http, uv_loop_t& loop, std::filesystem::path data_root,
                          std::string application_version, Id boot_id,
@@ -94,10 +103,70 @@ Application::Application(Store& store, ProcessService& processes,
       xray_control_(std::make_unique<XrayControl>(processes)),
       metrics_client_(std::make_unique<MetricsClient>(loop, http)),
       core_installer_(std::make_unique<CoreInstaller>(http, processes, data_root_ / "cores")),
+      node_test_service_(std::make_unique<NodeTestService>(loop, processes, http)),
+      geodata_cache_(std::make_unique<GeodataCache>(http, processes, loop, data_root_ / "geodata")),
       operations_(boot_id_) {
   core_manager_->on_output([this](LogStream stream, std::string bytes) {
     logs_.append(stream, bytes);
   });
+  geodata_schedule_ = new GeodataSchedule{};
+  geodata_schedule_->owner = this;
+  if (uv_timer_init(&loop, &geodata_schedule_->timer) != 0) {
+    delete geodata_schedule_;
+    geodata_schedule_ = nullptr;
+    throw std::runtime_error("无法初始化Geodata自动更新计时器");
+  }
+  geodata_schedule_->timer.data = geodata_schedule_;
+  schedule_geodata_updates();
+}
+
+Application::~Application() {
+  if (!geodata_schedule_) return;
+  auto* schedule = std::exchange(geodata_schedule_, nullptr);
+  schedule->owner = nullptr;
+  uv_timer_stop(&schedule->timer);
+  if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&schedule->timer)))
+    uv_close(reinterpret_cast<uv_handle_t*>(&schedule->timer),
+             [](uv_handle_t* handle) { delete static_cast<GeodataSchedule*>(handle->data); });
+}
+
+void Application::schedule_geodata_updates() {
+  if (!geodata_schedule_ || !geodata_schedule_->owner) return;
+  uv_timer_stop(&geodata_schedule_->timer);
+  auto records = store_->geodata_resources();
+  if (!records) return;
+  const auto now = std::chrono::duration_cast<Milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
+  std::optional<std::uint64_t> delay;
+  for (const auto& record : *records) {
+    if (!record.auto_update || record.update_interval.count() <= 0 ||
+        record.validator_core_id.empty() || geodata_inflight_.contains(record.id)) continue;
+    const auto next = record.last_attempt > 0 ?
+        record.last_attempt + std::chrono::duration_cast<Milliseconds>(record.update_interval).count() : now;
+    const auto wait = static_cast<std::uint64_t>(std::max<std::int64_t>(1, next - now));
+    if (!delay || wait < *delay) delay = wait;
+  }
+  if (delay) uv_timer_start(&geodata_schedule_->timer, [](uv_timer_t* timer) {
+    auto* schedule = static_cast<GeodataSchedule*>(timer->data);
+    if (schedule->owner) schedule->owner->on_geodata_schedule();
+  }, *delay, 0);
+}
+
+void Application::on_geodata_schedule() {
+  auto records = store_->geodata_resources();
+  if (!records) return;
+  const auto now = std::chrono::duration_cast<Milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
+  for (const auto& record : *records) {
+    if (!record.auto_update || record.update_interval.count() <= 0 ||
+        record.validator_core_id.empty() || geodata_inflight_.contains(record.id)) continue;
+    const auto interval = std::chrono::duration_cast<Milliseconds>(record.update_interval).count();
+    if (record.last_attempt > 0 && record.last_attempt + interval > now) continue;
+    auto started = update_geodata_resource(record.id, record.validator_core_id);
+    if (!started) (void)store_->commit_geodata_resource_result(record.id,
+        record.settings_revision, std::nullopt, now, started.error().message);
+  }
+  schedule_geodata_updates();
 }
 
 Json Application::server_info() const {
@@ -115,6 +184,129 @@ Result<NodeSummary> Application::add_manual_node(std::string name, Json outbound
             RawOutbound{std::move(outbound)}};
   if (auto stored = store_->put_node(node); !stored) return std::unexpected(stored.error());
   return summarize_node(node);
+}
+
+Result<Id> Application::start_node_test(const Id& node_id, NodeTestKind kind,
+                                        std::optional<std::string> target_url,
+                                        std::optional<Id> profile_id, Milliseconds timeout,
+                                        std::size_t max_body_bytes) {
+  auto node = store_->get_node(node_id);
+  if (!node) return std::unexpected(node.error());
+  if (!node->enabled || node->source_missing)
+    return std::unexpected(invalid("已禁用或已移除节点不能开始新测试", node_id));
+  auto test_settings = store_->load_program_settings();
+  if (!test_settings) return std::unexpected(test_settings.error());
+  const auto configured_tests = test_settings->value("tests", Json::object());
+  const auto concurrency = configured_tests.value("concurrency", 3);
+  if (node_test_processes_.size() >= static_cast<std::size_t>(concurrency))
+    return std::unexpected(AppError{ErrorCode::busy, "节点测试并发上限已达到", node_id, {}});
+  std::filesystem::path core_binary;
+  if (kind == NodeTestKind::url || kind == NodeTestKind::download) {
+    if (!profile_id || profile_id->empty())
+      return std::unexpected(invalid("代理测试需要当前 Profile 与选定核心", "profile_id"));
+    auto profile = profiles_->get(*profile_id);
+    if (!profile) return std::unexpected(profile.error());
+    auto core = store_->get_core(profile->core_id);
+    if (!core) return std::unexpected(core.error());
+    core_binary = core->path;
+    if (!target_url || target_url->empty()) {
+      for (const auto* key : {"observatory", "burstObservatory"}) {
+        auto module = profiles_->module(*profile_id, key);
+        if (!module || !module->setting.included || !module->document) continue;
+        auto parsed = Json::parse(module->document->source_text, nullptr, false);
+        if (!parsed.is_object() || !parsed.contains(key) || !parsed[key].is_object()) continue;
+        const auto& native = parsed[key];
+        if (std::string_view(key) == "observatory" && native.contains("probeUrl") &&
+            native["probeUrl"].is_string())
+          target_url = native["probeUrl"].get<std::string>();
+        else if (std::string_view(key) == "burstObservatory" &&
+                 native.contains("pingConfig") && native["pingConfig"].is_object() &&
+                 native["pingConfig"].contains("destination") &&
+                 native["pingConfig"]["destination"].is_string())
+          target_url = native["pingConfig"]["destination"].get<std::string>();
+        if (target_url && !target_url->empty()) break;
+      }
+    }
+    if (!target_url || target_url->empty()) {
+      if (test_settings->contains("tests") && (*test_settings)["tests"].is_object()) {
+        const auto& tests = (*test_settings)["tests"];
+        if (tests.contains("default_url") && tests["default_url"].is_string())
+          target_url = tests["default_url"].get<std::string>();
+      }
+    }
+    if (!target_url || target_url->empty())
+      return std::unexpected(invalid("请指定测试 URL 或在 Config → Tests 设置默认目标", "target_url"));
+  }
+  NodeTestRequest request;
+  request.node = *node;
+  request.kind = kind;
+  request.target_url = target_url.value_or("");
+  request.timeout = timeout;
+  request.max_body_bytes = max_body_bytes;
+  request.xray_binary = core_binary;
+  request.temporary_root = data_root_ / "node-tests";
+  const Json snapshot = Json(*node).at("settings");
+  const Id operation = operations_.begin();
+  const auto completed = std::make_shared<bool>(false);
+  auto started = node_test_service_->start(std::move(request),
+      [this, operation, node_id, snapshot, completed](Result<NodeTestResult> result) {
+        *completed = true;
+        node_test_processes_.erase(operation);
+        if (!result) {
+          operations_.complete(operation, std::unexpected(result.error()));
+          return;
+        }
+        const auto status = result->status == NodeTestStatus::success ? "success" :
+            result->status == NodeTestStatus::failed ? "failed" :
+            result->status == NodeTestStatus::cancelled ? "cancelled" : "not_applicable";
+        Json output{{"node_id", result->node_id}, {"kind", result->kind == NodeTestKind::icmp ? "icmp" :
+                         result->kind == NodeTestKind::tcp ? "tcp" :
+                         result->kind == NodeTestKind::download ? "download" : "url"},
+                    {"status", status}, {"target", result->target},
+                    {"sampled_at", result->sampled_at},
+                    {"latency_ms", result->latency_ms ? Json(*result->latency_ms) : Json(nullptr)},
+                    {"bytes", result->received_bytes ? Json(*result->received_bytes) : Json(nullptr)},
+                    {"bytes_per_second", result->bytes_per_second ?
+                         Json(*result->bytes_per_second) : Json(nullptr)},
+                    {"message", result->message}};
+        auto current = store_->get_node(node_id);
+        output["stale"] = !current || Json(*current).at("settings") != snapshot;
+        if (current) {
+          node_test_results_[node_id] = output;
+          node_test_snapshots_[node_id] = snapshot;
+        } else {
+          node_test_results_.erase(node_id);
+          node_test_snapshots_.erase(node_id);
+        }
+        operations_.complete(operation, output);
+      });
+  if (!started) {
+    operations_.complete(operation, std::unexpected(started.error()));
+    return std::unexpected(started.error());
+  }
+  if (!*completed) node_test_processes_[operation] = *started;
+  return operation;
+}
+
+Result<void> Application::cancel_node_test(const Id& operation_id) {
+  const auto found = node_test_processes_.find(operation_id);
+  if (found == node_test_processes_.end())
+    return std::unexpected(AppError{ErrorCode::not_found, "没有正在运行的节点测试", operation_id, {}});
+  return node_test_service_->cancel(found->second);
+}
+
+Json Application::node_test_results() const {
+  Json results = Json::array();
+  for (const auto& [id, cached] : node_test_results_) {
+    auto current = store_->get_node(id);
+    if (current) {
+      auto result = cached;
+      if (auto baseline = node_test_snapshots_.find(id); baseline != node_test_snapshots_.end())
+        result["stale"] = Json(*current).at("settings") != baseline->second;
+      results.push_back(std::move(result));
+    }
+  }
+  return results;
 }
 
 Result<NodeSummary> Application::add_manual_typed_node(std::string name, Json settings) {
@@ -477,6 +669,12 @@ Result<void> Application::remove_managed_core(const Id& core_id) {
       return std::unexpected(AppError{ErrorCode::conflict,
           "Xray 仍被 Profile 使用", summary.name, std::nullopt});
   }
+  auto resources = store_->geodata_resources();
+  if (!resources) return std::unexpected(resources.error());
+  for (const auto& resource : *resources)
+    if (resource.validator_core_id == core_id)
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "Xray仍被Geodata资源验证设置引用", resource.name, std::nullopt});
   const auto status = core_manager_->status();
   if (status.active && status.active->core_id == core_id)
     return std::unexpected(AppError{ErrorCode::conflict,
@@ -687,6 +885,230 @@ Result<void> Application::set_profile_sources(const Id& profile_id, std::vector<
   return profiles_->save(profile_id, ProfileEdit{{*current}, std::move(*profile)});
 }
 
+Result<std::vector<RuntimeAssetFile>> Application::resolve_runtime_assets(
+    const ProfileSettings& profile) const {
+  std::vector<RuntimeAssetFile> assets;
+  if (profile.geodata_resource_ids.empty()) return assets;
+  if (profile.environment.asset_dir ||
+      profile.environment.process_environment.contains("XRAY_LOCATION_ASSET")) {
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "Profile已有资源目录设置；不能隐式覆盖或丢弃该目录的其他资源",
+        profile.id, "先明确整理资源目录，再应用共享Geodata绑定"});
+  }
+  for (const auto& [file_name, id] : profile.geodata_resource_ids) {
+    const auto file = std::filesystem::path(file_name);
+    if (file.empty() || file != file.filename() || file == "." || file == "..")
+      return std::unexpected(invalid("Geodata绑定文件名必须是单个文件名", file_name));
+    auto resource = store_->get_geodata_resource(id);
+    if (!resource) return std::unexpected(resource.error());
+    if (resource->file_name != file_name || !resource->current ||
+        resource->current->file_name != file_name) {
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "Geodata资源尚无匹配的已验证版本", id, "先更新资源，再显式连接或应用"});
+    }
+    assets.push_back({resource->current->path, file_name});
+  }
+  return assets;
+}
+
+Result<void> Application::set_profile_geodata(
+    const Id& profile_id, std::map<std::string, Id> resources) {
+  auto profile = profiles_->get(profile_id);
+  if (!profile) return std::unexpected(profile.error());
+  profile->geodata_resource_ids = std::move(resources);
+  auto assets = resolve_runtime_assets(*profile);
+  if (!assets) return std::unexpected(assets.error());
+  auto path = store_->profile_path(profile_id);
+  if (!path) return std::unexpected(path.error());
+  auto current = read_text(*path / "profile.json", 8 * 1024 * 1024);
+  if (!current) return std::unexpected(current.error());
+  return profiles_->save(profile_id, ProfileEdit{{*current}, std::move(*profile)});
+}
+
+Result<std::vector<GeodataResourceRecord>> Application::list_geodata_resources() const {
+  return store_->geodata_resources();
+}
+
+Result<GeodataResourceRecord> Application::get_geodata_resource(const Id& id) const {
+  return store_->get_geodata_resource(id);
+}
+
+Result<GeodataResourceRecord> Application::put_geodata_resource(GeodataResourceRecord record) {
+  if (record.id.empty()) record.id = new_id();
+  if (record.auto_update && record.update_interval.count() > 0 &&
+      record.validator_core_id.empty())
+    return std::unexpected(invalid("自动更新需要指定用于验证的核心", record.id));
+  if (!record.validator_core_id.empty()) {
+    auto core = store_->get_core(record.validator_core_id);
+    if (!core) return std::unexpected(core.error());
+  }
+  auto saved = store_->put_geodata_resource(record);
+  if (saved) schedule_geodata_updates();
+  return saved;
+}
+
+Result<void> Application::remove_geodata_resource(const Id& id) {
+  auto ids = store_->profile_ids();
+  if (!ids) return std::unexpected(ids.error());
+  for (const auto& profile_id : *ids) {
+    auto profile = profiles_->get(profile_id);
+    if (!profile) return std::unexpected(profile.error());
+    for (const auto& [file_name, resource_id] : profile->geodata_resource_ids) {
+      if (resource_id == id) return std::unexpected(AppError{ErrorCode::conflict,
+          "Geodata资源仍被Profile使用", profile->name + ":" + file_name, std::nullopt});
+    }
+  }
+  auto removed = store_->remove_geodata_resource(id);
+  if (removed) schedule_geodata_updates();
+  return removed;
+}
+
+Result<Id> Application::update_geodata_resource(const Id& resource_id, const Id& core_id) {
+  if (geodata_inflight_.contains(resource_id))
+    return std::unexpected(AppError{ErrorCode::busy, "该Geodata资源已有更新任务", resource_id, std::nullopt});
+  auto resource = store_->get_geodata_resource(resource_id);
+  if (!resource) return std::unexpected(resource.error());
+  auto core = store_->get_core(core_id);
+  if (!core) return std::unexpected(core.error());
+  GeodataAcquireRequest request;
+  request.resource_id = resource->id;
+  request.kind = resource->kind;
+  request.file_name = resource->file_name;
+  request.url = resource->url;
+  request.local_source = resource->local_path;
+  request.validator_binary = core->path;
+  const auto revision = resource->settings_revision;
+  const auto operation = operations_.begin();
+  auto accepted = geodata_cache_->acquire(std::move(request),
+      [this, operation, resource_id, revision](Result<GeodataAssetVersion> result) {
+        geodata_inflight_.erase(resource_id);
+        const auto now = std::chrono::duration_cast<Milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        auto saved = store_->commit_geodata_resource_result(resource_id, revision,
+            result ? std::optional<GeodataAssetVersion>(*result) : std::nullopt,
+            now, result ? "success" : result.error().message);
+        if (!saved) operations_.complete(operation, std::unexpected(saved.error()));
+        else if (!result) operations_.complete(operation, std::unexpected(result.error()));
+        else operations_.complete(operation, Json{{"resource_id", resource_id},
+            {"version_id", result->version_id}, {"bytes", result->bytes},
+            {"labels", result->labels}});
+        schedule_geodata_updates();
+      });
+  if (!accepted) {
+    operations_.complete(operation, std::unexpected(accepted.error()));
+    return std::unexpected(accepted.error());
+  }
+  geodata_inflight_.insert(resource_id);
+  schedule_geodata_updates();
+  return operation;
+}
+
+Result<Json> Application::plan_routing_preset(const Id& profile_id,
+                                               std::string_view preset_name) const {
+  RoutingPresetRequest request;
+  if (preset_name == "bypass_mainland") request.preset = RoutingPreset::bypass_mainland;
+  else if (preset_name == "blacklist_proxy") request.preset = RoutingPreset::blacklist_proxy;
+  else if (preset_name == "global_proxy") request.preset = RoutingPreset::global_proxy;
+  else if (preset_name == "direct_only") request.preset = RoutingPreset::direct_only;
+  else if (preset_name == "custom_native") request.preset = RoutingPreset::custom_native;
+  else return std::unexpected(invalid("未知分流预设", std::string(preset_name)));
+  auto profile = profiles_->get(profile_id);
+  if (!profile) return std::unexpected(profile.error());
+  auto routing = profiles_->module(profile_id, "routing");
+  if (!routing) return std::unexpected(routing.error());
+  if (!routing->document) return std::unexpected(invalid("routing模块尚无原生内容", profile_id));
+  request.routing = *routing->document;
+  auto outbounds = profiles_->module(profile_id, "outbounds");
+  if (!outbounds) return std::unexpected(outbounds.error());
+  if (outbounds->document) {
+    try {
+      auto root = Json::parse(outbounds->document->source_text);
+      if (root.contains("outbounds") && root["outbounds"].is_array())
+        for (const auto& outbound : root["outbounds"])
+          if (outbound.is_object() && outbound.contains("tag") && outbound["tag"].is_string())
+            request.outbound_tags.insert(outbound["tag"].get<std::string>());
+    } catch (const Json::exception& error) {
+      return std::unexpected(invalid("outbounds原生内容无效: " + std::string(error.what()), profile_id));
+    }
+  }
+  auto nodes = store_->all_nodes();
+  if (!nodes) return std::unexpected(nodes.error());
+  for (const auto& node : *nodes) {
+    if (!node.enabled || node.source_missing) continue;
+    if (node.source_id && profile->enabled_source_ids &&
+        std::find(profile->enabled_source_ids->begin(), profile->enabled_source_ids->end(),
+                  *node.source_id) == profile->enabled_source_ids->end()) continue;
+    request.outbound_tags.insert(node_tag(node.id));
+  }
+  auto groups = profiles_->groups(profile_id);
+  if (!groups) return std::unexpected(groups.error());
+  for (const auto& group : *groups)
+    if (group.balancer.is_object() && group.balancer.contains("tag") &&
+        group.balancer["tag"].is_string())
+      request.balancer_tags.insert(group.balancer["tag"].get<std::string>());
+  try {
+    const auto root = Json::parse(routing->document->source_text);
+    const auto& native = root.at("routing");
+    if (native.contains("balancers") && native["balancers"].is_array())
+      for (const auto& balancer : native["balancers"])
+        if (balancer.is_object() && balancer.contains("tag") && balancer["tag"].is_string())
+          request.balancer_tags.insert(balancer["tag"].get<std::string>());
+  } catch (const Json::exception& error) {
+    return std::unexpected(invalid("routing原生内容无效: " + std::string(error.what()), profile_id));
+  }
+  request.protected_inbound_tags.insert("api");
+  if (profile->selected) {
+    const auto& selected = *profile->selected;
+    if (selected.kind == TargetKind::node)
+      request.proxy = RoutingProxyTarget{"outboundTag", node_tag(selected.id_or_tag)};
+    else if (selected.kind == TargetKind::group) {
+      const auto found = std::find_if(groups->begin(), groups->end(), [&](const auto& group) {
+        return group.id == selected.id_or_tag;
+      });
+      if (found != groups->end() && found->balancer.contains("tag") &&
+          found->balancer["tag"].is_string())
+        request.proxy = RoutingProxyTarget{"balancerTag", found->balancer["tag"].get<std::string>()};
+    } else if (selected.kind == TargetKind::native_outbound)
+      request.proxy = RoutingProxyTarget{"outboundTag", selected.id_or_tag};
+    else if (selected.kind == TargetKind::native_balancer)
+      request.proxy = RoutingProxyTarget{"balancerTag", selected.id_or_tag};
+  }
+  for (const auto& [file_name, resource_id] : profile->geodata_resource_ids) {
+    auto resource = store_->get_geodata_resource(resource_id);
+    if (!resource) return std::unexpected(resource.error());
+    if (!resource->current || resource->file_name != file_name)
+      return std::unexpected(invalid("分流预设资源尚无匹配的已验证版本", resource_id));
+    if (file_name == "geoip.dat" && resource->kind == GeoAssetKind::geoip)
+      request.geoip_labels.insert(resource->current->labels.begin(),
+                                  resource->current->labels.end());
+    if (file_name == "geosite.dat" && resource->kind == GeoAssetKind::geosite)
+      request.geosite_labels.insert(resource->current->labels.begin(),
+                                    resource->current->labels.end());
+  }
+  auto planned = xrm::plan_routing_preset(request);
+  if (!planned) return std::unexpected(planned.error());
+  return Json{{"before", planned->native_before}, {"after", planned->native_after},
+      {"expected_text", planned->edit.base.expected_text.value_or("")},
+      {"text", planned->edit.text}, {"changed", planned->changed},
+      {"required_geoip_labels", planned->required_geoip_labels},
+      {"required_geosite_labels", planned->required_geosite_labels}};
+}
+
+Result<Json> Application::save_routing_preset(const Id& profile_id,
+                                              std::string_view preset,
+                                              std::string_view expected_text) {
+  auto planned = plan_routing_preset(profile_id, preset);
+  if (!planned) return std::unexpected(planned.error());
+  if (planned->at("expected_text").get<std::string>() != expected_text)
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "routing原文已变化，请重新预览差异", profile_id, std::nullopt});
+  if (!planned->at("changed").get<bool>()) return Json{{"saved", false}, {"changed", false}};
+  auto saved = profiles_->save_module(profile_id,
+      ModuleEdit{"routing", {std::string(expected_text)}, planned->at("text").get<std::string>()});
+  if (!saved) return std::unexpected(saved.error());
+  return Json{{"saved", true}, {"changed", true}, {"runtime_changed", false}};
+}
+
 void Application::connect(const Id& profile_id, std::optional<Target> target,
                           Completion<ActivationResult> completion) {
   if (target) {
@@ -697,8 +1119,10 @@ void Application::connect(const Id& profile_id, std::optional<Target> target,
   if (!input) { completion(std::unexpected(input.error())); return; }
   auto core = store_->get_core(input->settings.profile.core_id);
   if (!core) { completion(std::unexpected(core.error())); return; }
+  auto assets = resolve_runtime_assets(input->settings.profile);
+  if (!assets) { completion(std::unexpected(assets.error())); return; }
   auto accepted = core_manager_->activate(
-      ActivationRequest{ActivationInput{BuildRequest{std::move(*input), std::move(*core)}},
+      ActivationRequest{ActivationInput{BuildRequest{std::move(*input), std::move(*core), std::move(*assets)}},
                         ActivationMode::start_or_replace}, completion);
   if (!accepted) completion(std::unexpected(accepted.error()));
 }
@@ -708,8 +1132,10 @@ void Application::check(const Id& profile_id, Completion<ActivationResult> compl
   if (!input) { completion(std::unexpected(input.error())); return; }
   auto core = store_->get_core(input->settings.profile.core_id);
   if (!core) { completion(std::unexpected(core.error())); return; }
+  auto assets = resolve_runtime_assets(input->settings.profile);
+  if (!assets) { completion(std::unexpected(assets.error())); return; }
   auto accepted = core_manager_->activate(
-      ActivationRequest{ActivationInput{BuildRequest{std::move(*input), std::move(*core)}},
+      ActivationRequest{ActivationInput{BuildRequest{std::move(*input), std::move(*core), std::move(*assets)}},
                         ActivationMode::check_only}, completion);
   if (!accepted) completion(std::unexpected(accepted.error()));
 }
@@ -721,13 +1147,21 @@ void Application::dump(const Id& profile_id, Completion<Json> completion) {
   if (!core) { completion(std::unexpected(core.error())); return; }
   auto files = assemble(*input);
   if (!files) { completion(std::unexpected(files.error())); return; }
+  auto assets = resolve_runtime_assets(input->settings.profile);
+  if (!assets) { completion(std::unexpected(assets.error())); return; }
+  std::vector<RuntimeWriter::AssetSnapshot> snapshots;
+  for (const auto& asset : *assets) snapshots.push_back({asset.immutable_source, asset.runtime_name});
   const auto run_id = "dump-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
-  auto directory = runtime_writer_->materialize(*files, DirectoryPurpose::preview, run_id);
+  auto directory = runtime_writer_->materialize(*files, DirectoryPurpose::preview, run_id, snapshots);
   if (!directory) { completion(std::unexpected(directory.error())); return; }
   const auto& environment = input->settings.profile.environment;
+  auto process_environment = environment.process_environment;
+  if (!assets->empty()) process_environment["XRAY_LOCATION_ASSET"] = directory->confdir.string();
+  else if (environment.asset_dir && !process_environment.contains("XRAY_LOCATION_ASSET"))
+    process_environment["XRAY_LOCATION_ASSET"] = environment.asset_dir->string();
   RunSpec spec{core->path, directory->confdir,
                environment.cwd.empty() ? std::filesystem::current_path() : environment.cwd,
-               environment.process_environment};
+               std::move(process_environment)};
   auto accepted = processes_->execute(dump_command(spec), Milliseconds{30000},
       [completion, confdir = directory->confdir](Result<ProcessResult> result) mutable {
         if (!result) { completion(std::unexpected(result.error())); return; }
@@ -747,8 +1181,12 @@ Result<PreparedDirectory> Application::render(const Id& profile_id) {
   if (!input) return std::unexpected(input.error());
   auto files = assemble(*input);
   if (!files) return std::unexpected(files.error());
+  auto assets = resolve_runtime_assets(input->settings.profile);
+  if (!assets) return std::unexpected(assets.error());
+  std::vector<RuntimeWriter::AssetSnapshot> snapshots;
+  for (const auto& asset : *assets) snapshots.push_back({asset.immutable_source, asset.runtime_name});
   const auto id = "preview-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
-  return runtime_writer_->materialize(*files, DirectoryPurpose::preview, id);
+  return runtime_writer_->materialize(*files, DirectoryPurpose::preview, id, snapshots);
 }
 
 Result<void> Application::export_config(const Id& profile_id, std::string_view source,
@@ -1110,9 +1548,21 @@ void Application::recover(Completion<ActivationResult> completion) {
 }
 
 void Application::shutdown(std::function<void()> drained) {
+  if (geodata_schedule_) {
+    auto* schedule = std::exchange(geodata_schedule_, nullptr);
+    schedule->owner = nullptr;
+    uv_timer_stop(&schedule->timer);
+    if (!uv_is_closing(reinterpret_cast<uv_handle_t*>(&schedule->timer)))
+      uv_close(reinterpret_cast<uv_handle_t*>(&schedule->timer),
+               [](uv_handle_t* handle) { delete static_cast<GeodataSchedule*>(handle->data); });
+  }
   subscriptions_->stop_schedule();
   metrics_client_->shutdown();
-  core_manager_->shutdown(std::move(drained));
+  node_test_service_->shutdown([this, drained = std::move(drained)]() mutable {
+    geodata_cache_->shutdown([this, drained = std::move(drained)]() mutable {
+      core_manager_->shutdown(std::move(drained));
+    });
+  });
 }
 
 }  // namespace xrm

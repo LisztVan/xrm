@@ -74,6 +74,8 @@ Json geodata_record_json(const GeodataResourceRecord& record) {
               {"file_name", record.file_name}, {"url", record.url},
               {"local_path", record.local_path.string()},
               {"auto_update", record.auto_update},
+              {"update_interval_seconds", record.update_interval.count()},
+              {"validator_core_id", record.validator_core_id},
               {"settings_revision", record.settings_revision},
               {"current", std::move(current)},
               {"last_attempt", record.last_attempt},
@@ -91,6 +93,8 @@ GeodataResourceRecord geodata_record_from_json(const Json& json) {
   record.url = json.value("url", std::string{});
   record.local_path = json.value("local_path", std::string{});
   record.auto_update = json.value("auto_update", false);
+  record.update_interval = std::chrono::seconds{json.value("update_interval_seconds", std::int64_t{0})};
+  record.validator_core_id = json.value("validator_core_id", std::string{});
   record.settings_revision = json.at("settings_revision").get<std::uint64_t>();
   if (json.contains("current") && !json.at("current").is_null()) {
     const auto& value = json.at("current");
@@ -201,7 +205,10 @@ Json default_program_settings() {
   return Json{{"appearance", {{"theme", "default"}, {"color_mode", "auto"},
                                   {"density", "comfortable"}, {"icon_mode", "unicode"},
                                   {"reduce_motion", false}, {"cli_color", "auto"}}},
-              {"editor", {{"argv", Json::array()}}}, {"general", Json::object()}};
+              {"editor", {{"argv", Json::array()}}},
+              {"tests", {{"default_url", ""}, {"timeout_ms", 5000},
+                          {"concurrency", 3}, {"max_body_bytes", 8 * 1024 * 1024}}},
+              {"general", Json::object()}};
 }
 
 bool one_of(const Json& value, std::initializer_list<std::string_view> choices) {
@@ -241,6 +248,27 @@ Result<Json> apply_program_settings_patch(Json current, const Json& patch) {
         if (!field.value().empty() && field.value().front().get<std::string>().empty())
           return std::unexpected(invalid("Editor可执行文件不能为空", "editor.argv"));
         current["editor"]["argv"] = field.value();
+      }
+    } else if (it.key() == "tests") {
+      if (!current.contains("tests")) current["tests"] = default_program_settings()["tests"];
+      for (auto field = it.value().begin(); field != it.value().end(); ++field) {
+        const auto& key = field.key();
+        const auto& value = field.value();
+        bool valid = false;
+        if (key == "default_url") valid = value.is_string() &&
+            (value.get<std::string>().empty() ||
+             value.get<std::string>().starts_with("http://") ||
+             value.get<std::string>().starts_with("https://"));
+        else if (key == "timeout_ms" || key == "max_body_bytes" || key == "concurrency") {
+          if (value.is_number_integer()) {
+            const auto number = value.get<std::int64_t>();
+            if (key == "timeout_ms") valid = number >= 100 && number <= 60000;
+            else if (key == "max_body_bytes") valid = number >= 1 && number <= 32 * 1024 * 1024;
+            else valid = number >= 1 && number <= 3;
+          }
+        }
+        if (!valid) return std::unexpected(invalid("不支持的节点测试设置或值", "tests." + key));
+        current["tests"][key] = value;
       }
     } else if (it.key() == "general") {
       if (!it.value().empty())
@@ -873,6 +901,10 @@ Result<GeodataResourceRecord> Store::put_geodata_resource(const GeodataResourceR
   if (!input.local_path.empty() && !input.local_path.is_absolute()) {
     return std::unexpected(invalid("Geodata本地资源必须使用绝对路径", input.local_path.string()));
   }
+  if (input.update_interval.count() < 0 ||
+      input.update_interval > std::chrono::hours{24 * 365}) {
+    return std::unexpected(invalid("Geodata自动更新周期必须在0到365天之间"));
+  }
   auto record = input;
   auto existing = get_geodata_resource(input.id);
   if (existing) {
@@ -882,7 +914,9 @@ Result<GeodataResourceRecord> Store::put_geodata_resource(const GeodataResourceR
     record.last_result = existing->last_result;
     const bool changed = existing->name != input.name || existing->kind != input.kind ||
         existing->file_name != input.file_name || existing->url != input.url ||
-        existing->local_path != input.local_path || existing->auto_update != input.auto_update;
+        existing->local_path != input.local_path || existing->auto_update != input.auto_update ||
+        existing->update_interval != input.update_interval ||
+        existing->validator_core_id != input.validator_core_id;
     record.settings_revision = existing->settings_revision + (changed ? 1 : 0);
     if (existing->kind != input.kind || existing->file_name != input.file_name) {
       record.current.reset();

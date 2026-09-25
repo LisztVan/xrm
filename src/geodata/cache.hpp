@@ -19,6 +19,7 @@ struct GeodataAcquireRequest {
   GeoAssetKind kind = GeoAssetKind::geoip;
   std::string file_name;
   std::string url;
+  std::filesystem::path local_source;
   std::set<std::string> required_labels;
   std::filesystem::path validator_binary;
   std::map<std::string, std::string> headers;

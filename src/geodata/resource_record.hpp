@@ -29,6 +29,8 @@ struct GeodataResourceRecord {
   std::string url;
   std::filesystem::path local_path;
   bool auto_update = false;
+  std::chrono::seconds update_interval{0};
+  Id validator_core_id;
   std::uint64_t settings_revision = 0;
   std::optional<GeodataAssetVersion> current;
   UnixMillis last_attempt = 0;

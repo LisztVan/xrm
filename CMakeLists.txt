@@ -106,6 +106,7 @@ foreach(m4_codec vmess trojan shadowsocks hysteria)
   endif()
 endforeach()
 target_sources(xrm_logic PRIVATE src/profile/forms.cpp)
+target_sources(xrm_logic PRIVATE src/profile/routing_presets.cpp src/geodata/resource_validation.cpp)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/profile/advanced_forms.cpp")
   target_sources(xrm_logic PRIVATE src/profile/advanced_forms.cpp)
 endif()
@@ -125,6 +126,8 @@ add_library(xrm_server_lib STATIC
   src/infra/files.cpp
   src/server/log_buffer.cpp
   src/server/operations.cpp
+  src/server/node_test_service.cpp
+  src/geodata/cache.cpp
   src/profile/profile_service.cpp
   src/profile/groups.cpp
   src/profile/module_actions.cpp
@@ -167,7 +170,7 @@ add_executable(xrm
   src/cli/print.cpp
   src/tui/app.cpp)
 target_include_directories(xrm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(xrm PRIVATE xrm_client_lib CLI11::CLI11 ftxui::component ftxui::dom ftxui::screen)
+target_link_libraries(xrm PRIVATE xrm_client_lib xrm_logic CLI11::CLI11 ftxui::component ftxui::dom ftxui::screen)
 
 if(XRM_BUILD_TESTING)
   add_subdirectory(tests)

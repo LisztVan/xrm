@@ -3,9 +3,11 @@
 #include "infra/process.hpp"
 
 #include <openssl/sha.h>
+#include <openssl/crypto.h>
 #include <uv.h>
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <fstream>
 #include <unordered_map>
@@ -93,8 +95,36 @@ struct GeodataCache::Impl {
 
     static void stage_work(uv_work_t* work) {
       auto* job = static_cast<Job*>(work->data);
+      struct CleanupOpenSslWorkerState {
+        ~CleanupOpenSslWorkerState() { OPENSSL_thread_stop(); }
+      } cleanup;
       try {
         if (job->cancelled) return;
+        if (!job->request.local_source.empty()) {
+          std::ifstream input(job->request.local_source, std::ios::binary);
+          if (!input) {
+            job->stage_error = failure(ErrorCode::io_error,
+                "无法读取本地Geodata资源", job->request.local_source.string());
+            return;
+          }
+          std::array<char, 8192> buffer{};
+          while (input) {
+            input.read(buffer.data(), buffer.size());
+            const auto count = static_cast<std::size_t>(input.gcount());
+            if (count > job->request.max_body_bytes - job->body.size()) {
+              job->stage_error = failure(ErrorCode::too_large,
+                  "本地Geodata资源超过大小上限", job->request.local_source.string());
+              return;
+            }
+            job->body.append(buffer.data(), count);
+            if (job->cancelled) return;
+          }
+          if (input.bad()) {
+            job->stage_error = failure(ErrorCode::io_error,
+                "读取本地Geodata资源失败", job->request.local_source.string());
+            return;
+          }
+        }
         auto inspected = inspect_geodata_bytes(job->request.kind, job->body);
         if (!inspected) { job->stage_error = inspected.error(); return; }
         for (const auto& label : job->request.required_labels)
@@ -201,9 +231,18 @@ struct GeodataCache::Impl {
       if (jobs.size() >= 3)
         return std::unexpected(failure(ErrorCode::busy,
             "同时最多更新三个 Geodata 资源"));
-      if (!callback || request.url.empty() || !safe_segment(request.resource_id))
+      if (!callback || (request.url.empty() == request.local_source.empty()) ||
+          !safe_segment(request.resource_id))
         return std::unexpected(failure(ErrorCode::invalid_argument,
-            "Geodata 需要安全的资源 ID、URL 和回调"));
+            "Geodata 需要安全的资源 ID、唯一来源和回调"));
+      if (!request.local_source.empty()) {
+        std::error_code ec;
+        const auto status = std::filesystem::symlink_status(request.local_source, ec);
+        if (!request.local_source.is_absolute() || ec ||
+            !std::filesystem::is_regular_file(status) || std::filesystem::is_symlink(status))
+          return std::unexpected(failure(ErrorCode::invalid_argument,
+              "本地Geodata来源必须是绝对路径上的普通文件", request.local_source.string()));
+      }
       if (!request.validator_binary.is_absolute() ||
           !std::filesystem::exists(request.validator_binary))
         return std::unexpected(failure(ErrorCode::not_found,
@@ -234,6 +273,15 @@ struct GeodataCache::Impl {
       job->request = std::move(request);
       job->completion = std::move(callback);
       jobs.emplace(id, job);
+      if (!job->request.local_source.empty()) {
+        job->work.data = job.get();
+        if (uv_queue_work(&loop, &job->work, stage_work, staged) != 0) {
+          jobs.erase(id);
+          return std::unexpected(failure(ErrorCode::io_error,
+              "无法安排本地Geodata检查任务"));
+        }
+        return id;
+      }
       HttpRequest fetch;
       fetch.url = job->request.url;
       fetch.headers = job->request.headers;

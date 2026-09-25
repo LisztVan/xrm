@@ -83,6 +83,9 @@ struct ProfileSettings {
   // Missing in older profiles: all global sources remain available.
   // An explicit empty vector means a new profile has not bound a source yet.
   std::optional<std::vector<Id>> enabled_source_ids;
+  // Explicit shared resource references. Runtime snapshots copy validated
+  // asset bytes; the Profile never stores a second copy of those resources.
+  std::map<std::string, Id> geodata_resource_ids;
 };
 
 struct ProfileSnapshot {

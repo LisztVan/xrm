@@ -1,0 +1,4 @@
+add_executable(xrm_node_test_service_tests node_test_service_tests.cpp)
+target_link_libraries(xrm_node_test_service_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+include(Catch)
+catch_discover_tests(xrm_node_test_service_tests)

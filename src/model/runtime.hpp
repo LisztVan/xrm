@@ -108,7 +108,15 @@ struct RuntimeStatus {
   std::optional<std::string> runtime_override;
   std::optional<AppError> last_error;
 };
-struct BuildRequest { BuildInput input; CoreInstall core; };
+struct RuntimeAssetFile {
+  std::filesystem::path immutable_source;
+  std::string runtime_name;
+};
+struct BuildRequest {
+  BuildInput input;
+  CoreInstall core;
+  std::vector<RuntimeAssetFile> assets;
+};
 struct ReplayRequest { RunRecord record; CoreInstall core; };
 using ActivationInput = std::variant<BuildRequest, ReplayRequest>;
 enum class ActivationMode { start_or_replace, check_only, preserve_running_state };

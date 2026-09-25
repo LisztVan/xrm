@@ -56,6 +56,25 @@ Json refresh_result_json(const BatchRefreshResult& result) {
   return Json{{"completed", std::move(completed)}, {"failed", std::move(failed)}};
 }
 
+Json geodata_record_json(const GeodataResourceRecord& record, bool detail) {
+  Json output{{"id", record.id}, {"name", record.name},
+              {"kind", record.kind == GeoAssetKind::geoip ? "geoip" : "geosite"},
+              {"file_name", record.file_name}, {"auto_update", record.auto_update},
+              {"update_interval_seconds", record.update_interval.count()},
+              {"validator_core_id", record.validator_core_id},
+              {"settings_revision", record.settings_revision},
+              {"last_attempt", record.last_attempt}, {"last_success", record.last_success},
+              {"last_result", record.last_result}};
+  if (detail) {
+    output["url"] = record.url;
+    output["local_path"] = record.local_path.string();
+  }
+  output["current"] = record.current ? Json{{"version_id", record.current->version_id},
+      {"bytes", record.current->bytes}, {"labels", record.current->labels},
+      {"path", detail ? record.current->path.string() : std::string{}}} : Json(nullptr);
+  return output;
+}
+
 Result<SubscriptionSummary> subscription_summary(Store& store, const Subscription& source) {
   auto state = store.get_source_state(source.id);
   if (!state) return std::unexpected(state.error());
@@ -353,6 +372,51 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     if (!result) fail(result.error()); else succeed(std::move(*result));
     return;
   }
+  if (method == methods::node_test_start) {
+    std::string node_id, kind;
+    if (!read_string(params, "node_id", node_id) || !read_string(params, "kind", kind)) {
+      fail(bad_params("node.test.start需要node_id和kind")); return;
+    }
+    const auto test_kind = kind == "icmp" ? std::optional(NodeTestKind::icmp) :
+        kind == "tcp" ? std::optional(NodeTestKind::tcp) :
+        kind == "url" ? std::optional(NodeTestKind::url) :
+        kind == "download" ? std::optional(NodeTestKind::download) : std::nullopt;
+    if (!test_kind) { fail(bad_params("kind必须是icmp/tcp/url/download", "kind")); return; }
+    std::optional<std::string> target_url, profile_id;
+    if (params.contains("target_url") && !params["target_url"].is_null()) {
+      if (!params["target_url"].is_string()) { fail(bad_params("target_url必须是字符串")); return; }
+      target_url = params["target_url"].get<std::string>();
+    }
+    if (params.contains("profile_id") && !params["profile_id"].is_null()) {
+      if (!params["profile_id"].is_string()) { fail(bad_params("profile_id必须是字符串")); return; }
+      profile_id = params["profile_id"].get<std::string>();
+    }
+    std::size_t timeout_ms = 5000, max_body_bytes = 8 * 1024 * 1024;
+    if (!read_size(params, "timeout_ms", timeout_ms, timeout_ms) || timeout_ms < 100 ||
+        timeout_ms > 60000 ||
+        !read_size(params, "max_body_bytes", max_body_bytes, max_body_bytes) ||
+        max_body_bytes == 0 || max_body_bytes > 32 * 1024 * 1024) {
+      fail(bad_params("节点测试超时必须为100–60000ms，最大正文为1–32MiB")); return;
+    }
+    auto started = application_->start_node_test(node_id, *test_kind, std::move(target_url),
+        std::move(profile_id), Milliseconds{static_cast<std::int64_t>(timeout_ms)}, max_body_bytes);
+    if (!started) fail(started.error());
+    else succeed(Json{{"status", "accepted"}, {"operation_id", *started}});
+    return;
+  }
+  if (method == methods::node_test_cancel) {
+    std::string operation_id;
+    if (!read_string(params, "operation_id", operation_id)) {
+      fail(bad_params("node.test.cancel需要operation_id")); return;
+    }
+    auto cancelled = application_->cancel_node_test(operation_id);
+    if (!cancelled) fail(cancelled.error()); else succeed(Json{{"cancelled", true}});
+    return;
+  }
+  if (method == methods::node_test_results) {
+    succeed(application_->node_test_results());
+    return;
+  }
   if (method == methods::subscription_list) {
     auto sources = application_->store().list_sources();
     if (!sources) { fail(sources.error()); return; }
@@ -462,6 +526,93 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
       application_->operations().complete(operation, std::unexpected(accepted.error()));
       fail(accepted.error());
     } else succeed(Json{{"status", "accepted"}, {"operation_id", operation}});
+    return;
+  }
+  if (method == methods::geodata_list) {
+    auto records = application_->list_geodata_resources();
+    if (!records) { fail(records.error()); return; }
+    Json result = Json::array();
+    for (const auto& record : *records) result.push_back(geodata_record_json(record, false));
+    succeed(std::move(result)); return;
+  }
+  if (method == methods::geodata_get) {
+    std::string resource_id;
+    if (!read_string(params, "id", resource_id)) { fail(bad_params("geodata.get需要id")); return; }
+    auto record = application_->get_geodata_resource(resource_id);
+    if (!record) fail(record.error()); else succeed(geodata_record_json(*record, true));
+    return;
+  }
+  if (method == methods::geodata_put) {
+    if (!params.is_object()) { fail(bad_params("geodata.put需要对象参数")); return; }
+    GeodataResourceRecord record;
+    if (params.contains("id")) {
+      if (!params["id"].is_string()) { fail(bad_params("id必须是字符串")); return; }
+      record.id = params["id"].get<std::string>();
+      if (!record.id.empty()) {
+        auto old = application_->get_geodata_resource(record.id);
+        if (!old) { fail(old.error()); return; }
+        record = std::move(*old);
+      }
+    }
+    if (params.contains("name")) {
+      if (!params["name"].is_string()) { fail(bad_params("name必须是字符串")); return; }
+      record.name = params["name"].get<std::string>();
+    }
+    if (params.contains("kind")) {
+      if (!params["kind"].is_string()) { fail(bad_params("kind必须是geoip或geosite")); return; }
+      const auto kind = params["kind"].get<std::string>();
+      if (kind != "geoip" && kind != "geosite") { fail(bad_params("kind必须是geoip或geosite")); return; }
+      record.kind = kind == "geoip" ? GeoAssetKind::geoip : GeoAssetKind::geosite;
+    }
+    if (params.contains("file_name")) {
+      if (!params["file_name"].is_string()) { fail(bad_params("file_name必须是字符串")); return; }
+      record.file_name = params["file_name"].get<std::string>();
+    }
+    if (params.contains("url")) {
+      if (!params["url"].is_string()) { fail(bad_params("url必须是字符串")); return; }
+      record.url = params["url"].get<std::string>();
+    }
+    if (params.contains("local_path")) {
+      if (!params["local_path"].is_string()) { fail(bad_params("local_path必须是字符串")); return; }
+      record.local_path = params["local_path"].get<std::string>();
+    }
+    if (params.contains("auto_update")) {
+      if (!params["auto_update"].is_boolean()) { fail(bad_params("auto_update必须是布尔值")); return; }
+      record.auto_update = params["auto_update"].get<bool>();
+    }
+    if (params.contains("update_interval_seconds")) {
+      if (!params["update_interval_seconds"].is_number_integer() ||
+          params["update_interval_seconds"].get<std::int64_t>() < 0) {
+        fail(bad_params("update_interval_seconds必须是非负整数")); return;
+      }
+      record.update_interval = std::chrono::seconds{
+          params["update_interval_seconds"].get<std::int64_t>()};
+    }
+    if (params.contains("validator_core_id")) {
+      if (!params["validator_core_id"].is_string()) {
+        fail(bad_params("validator_core_id必须是字符串")); return;
+      }
+      record.validator_core_id = params["validator_core_id"].get<std::string>();
+    }
+    auto saved = application_->put_geodata_resource(std::move(record));
+    if (!saved) fail(saved.error()); else succeed(geodata_record_json(*saved, true));
+    return;
+  }
+  if (method == methods::geodata_remove) {
+    std::string resource_id;
+    if (!read_string(params, "id", resource_id)) { fail(bad_params("geodata.remove需要id")); return; }
+    auto removed = application_->remove_geodata_resource(resource_id);
+    if (!removed) fail(removed.error()); else succeed(Json{{"removed", resource_id}});
+    return;
+  }
+  if (method == methods::geodata_update) {
+    std::string resource_id, core_id;
+    if (!read_string(params, "id", resource_id) || !read_string(params, "core_id", core_id)) {
+      fail(bad_params("geodata.update需要id与core_id")); return;
+    }
+    auto operation = application_->update_geodata_resource(resource_id, core_id);
+    if (!operation) fail(operation.error());
+    else succeed(Json{{"status", "accepted"}, {"operation_id", *operation}});
     return;
   }
   if (method == methods::core_list) {
@@ -626,6 +777,40 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
       if (!changed) fail(changed.error());
       else succeed(Json{{"saved", true}, {"runtime_changed", false}});
     } catch (const Json::exception& error) { fail(bad_params(error.what(), "source_ids")); }
+    return;
+  }
+  if (method == methods::profile_geodata_set) {
+    std::string id;
+    if (!read_string(params, "profile_id", id) || !params.contains("resources") ||
+        !params.at("resources").is_object()) {
+      fail(bad_params("profile.geodata.set需要profile_id和resources对象")); return;
+    }
+    try {
+      auto resources = params.at("resources").get<std::map<std::string, Id>>();
+      auto changed = application_->set_profile_geodata(id, std::move(resources));
+      if (!changed) fail(changed.error());
+      else succeed(Json{{"saved", true}, {"runtime_changed", false}});
+    } catch (const Json::exception& error) { fail(bad_params(error.what(), "resources")); }
+    return;
+  }
+  if (method == methods::routing_preset_plan || method == methods::routing_preset_save) {
+    std::string profile_id, preset;
+    if (!read_string(params, "profile_id", profile_id) ||
+        !read_string(params, "preset", preset)) {
+      fail(bad_params("routing.preset需要profile_id和preset")); return;
+    }
+    if (method == methods::routing_preset_plan) {
+      auto planned = application_->plan_routing_preset(profile_id, preset);
+      if (!planned) fail(planned.error()); else succeed(std::move(*planned));
+    } else {
+      std::string expected_text;
+      if (!params.contains("expected_text") || !params["expected_text"].is_string()) {
+        fail(bad_params("routing.preset.save需要expected_text")); return;
+      }
+      expected_text = params["expected_text"].get<std::string>();
+      auto saved = application_->save_routing_preset(profile_id, preset, expected_text);
+      if (!saved) fail(saved.error()); else succeed(std::move(*saved));
+    }
     return;
   }
   if (method == methods::module_list || method == methods::module_get) {
@@ -858,7 +1043,12 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     Json files = Json::array();
     for (const auto& entry : std::filesystem::directory_iterator(rendered->confdir))
       files.push_back(entry.path().filename().string());
-    succeed(Json{{"confdir", rendered->confdir.string()}, {"files", std::move(files)}});
+    Json required_environment = Json::object();
+    auto profile = application_->profiles().get(id);
+    if (profile && !profile->geodata_resource_ids.empty())
+      required_environment["XRAY_LOCATION_ASSET"] = rendered->confdir.string();
+    succeed(Json{{"confdir", rendered->confdir.string()}, {"files", std::move(files)},
+                 {"required_environment", std::move(required_environment)}});
     return;
   }
   if (method == methods::config_check) {
@@ -887,7 +1077,24 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     if (!read_string(params, "profile_id", id) || !read_string(params, "source", source) ||
         !read_string(params, "output", output)) { fail(bad_params("config.export缺少参数")); return; }
     auto result = application_->export_config(id, source, output);
-    if (!result) fail(result.error()); else succeed(Json{{"exported", true}, {"output", output}});
+    if (!result) { fail(result.error()); return; }
+    Json required_environment = Json::object();
+    const auto exported_directory = std::filesystem::absolute(output).lexically_normal().string();
+    if (source == "saved") {
+      auto profile = application_->profiles().get(id);
+      if (profile && !profile->geodata_resource_ids.empty())
+        required_environment["XRAY_LOCATION_ASSET"] = exported_directory;
+    } else {
+      auto active = application_->core_manager().status().active;
+      if (active) {
+        const auto asset = active->spec.environment.find("XRAY_LOCATION_ASSET");
+        if (asset != active->spec.environment.end())
+          required_environment["XRAY_LOCATION_ASSET"] =
+              asset->second == active->spec.confdir.string() ? exported_directory : asset->second;
+      }
+    }
+    succeed(Json{{"exported", true}, {"output", output},
+                 {"required_environment", std::move(required_environment)}});
     return;
   }
   if (method == methods::config_files) {
