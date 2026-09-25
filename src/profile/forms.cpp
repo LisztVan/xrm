@@ -150,12 +150,15 @@ Result<ModuleEdit> edit_json_draft(const ModuleDocument& document, const JsonDra
             return std::unexpected(invalid("删除位置超出数组", document.key));
           values.erase(values.begin() + static_cast<Json::difference_type>(position));
           break;
-        case JsonEditAction::array_copy:
+        case JsonEditAction::array_copy: {
           if (position >= size || !edit.destination || *edit.destination > size)
             return std::unexpected(invalid("复制位置超出数组", document.key));
+          // Take a value copy before insertion; the array may reallocate.
+          const auto value = values[position];
           values.insert(values.begin() + static_cast<Json::difference_type>(*edit.destination),
-                        values[position]);
+                        value);
           break;
+        }
         case JsonEditAction::array_move: {
           if (position >= size || !edit.destination || *edit.destination >= size)
             return std::unexpected(invalid("移动位置超出数组", document.key));
