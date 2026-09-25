@@ -6,20 +6,20 @@
 
 - 主机：`Linux 7.2.7+deb14-amd64 x86_64 / debian-work`；Intel Core i7-14700F；GCC 16.2.0；Debug dev 与 ASan presets。
 - 固定真实核心：`/tmp/xrm-g1-xray-v26.9.9/xray`，输出 `Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)`。固定发布二进制在仓库外准备，SHA-256 `1eb9175d0f0a8f8149c9230a7fc5ae66ce332ed20a53155ce61fe62e3f58b7df`；没有改动系统 Xray。
-- 前端契约修复后 dev build 成功；最终完整回归：**197/197 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**，包括 RC-01～RC-10、VLESS-WS-XHTTP、E2E-06 和新增 E2E-07。命令为 `TMPDIR=/home/lisztzy/.cache/xrm-tmp XRM_TEST_XRAY=/tmp/xrm-g1-xray-v26.9.9/xray ctest --preset dev --output-on-failure`。
-- ASan 首轮全量运行暴露进程/PTY 观察窗口的时序问题，以及 PROC-03 fixture 逐字节生成 2.2 MB 输出超过 ASan 下 3 秒测试 deadline；没有降低行为断言。针对短命 fake-core 的测试把观察窗改为 250 ms；PTY 改为等待目标帧/最新日志游标；PROC-03 fixture 改为分块写同样字节数。之后最终完整 ASan 构建与回归 **197/197 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**。ASan PERF-02 1000 节点负载通过，耗时 416.01 秒；该耗时包含 sanitizer instrumentation，不将 allocator RSS 与 Debug 产品 RSS 上限比较。
+- 本轮最终 dev build 成功；完整回归：**214/214 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**，包括 RC-01～RC-10、VLESS-WS-XHTTP、E2E-06 和扩展后的 E2E-07。命令为 `TMPDIR=/home/lisztzy/.cache/xrm-tmp XRM_TEST_XRAY=/tmp/xrm-g1-xray-v26.9.9/xray ctest --preset dev --output-on-failure`。
+- 最终 ASan 构建与完整回归：**214/214 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**，总耗时 416.61 秒。此前针对短命 fake-core 的观察窗、PTY 目标帧及 PROC-03 fixture 的修正没有降低行为断言；sanitizer instrumentation 下的 RSS 不作为 Debug 产品上限。
 - 固定核心命令为 `xray run -test -confdir <test-confdir>`、`xray run -confdir <test-confdir>` 以及 RC-01～RC-10/E2E-06 gate 所调用的同一 v26.9.9 binary；没有公网节点，核心行为用例均 loopback。CTest 最终 real-core label 两套构建均无 skip。
 - systemd unit 静态验证及 `xrmd` 子进程归属测试通过；此环境未确认可安全隔离的 systemd 实机测试环境，未启动/停止宿主 systemd unit，故 systemd 实机清理 **NOT RUN**。不要将 PKG-01 的静态/归属证据描述为 systemd 运行态测试。
-- release candidate 总门：**READY FOR HUMAN RE-VALIDATION**。此前人工失败暴露的问题已修复并有自动回归；本轮前端契约修正、zero-profile/Profile PTY 流程及真实核心 E2E-07 已覆盖。新的完整冷启动人工主流程尚未由用户执行，因此不能声明 G5 PASS。
+- release candidate 总门：**G5 FAIL，待用户复验**。此前人工操作已明确发现导航、滚动、订阅历史库存和现有 Profile 本地入口问题；这些不能由旧自动测试抵消。本轮加入只读历史预览/确认及旧 Profile 本地入口提示，隔离副本与 PTY 定向验证已覆盖，但生产数据未处理、完整人工主流程尚未由用户重新验收，因此不能声明 G5 PASS。
 
 ## I50 / I51 / I52
 
 | Task | 状态 | 证据 | 限制 |
 |---|---|---|---|
 | I50 | PASS（实机环境限制已披露） | `xrm_packaging_tests [packaging]` 2 cases / 48 assertions；PKG-01 unit 静态策略、LIFE-10 验证 xrmd 退出只清理自己拥有的 Xray child、socket 关闭且无关 Xray 存活。 | 没有隔离 systemd 环境，实机启停 NOT RUN。 |
-| I51 | PASS | RC-01～RC-10、VLESS-WS-XHTTP 与 E2E-06 使用固定 v26.9.9 最终代码，12/12 real_core PASS；E2E-06 包含两个 Manager 客户端共用一个 Server，订阅刷新 A→B 时运行 PID、confdir 和所有文件字节不变，显式选择并 connect 后才采用 B，TUI 退出不停止 core，Server 重启后持久状态一致。 | VMess/Trojan/Shadowsocks/Hysteria2 保持 traffic-unverified。 |
+| I51 | PASS | RC-01～RC-10、VLESS-WS-XHTTP、E2E-06 与 E2E-07 使用固定 v26.9.9，13/13 real_core PASS；E2E-06 包含两个 Manager 客户端共用一个 Server，订阅刷新 A→B 时运行 PID、confdir 和所有文件字节不变，显式选择并 connect 后才采用 B，TUI 退出不停止 core，Server 重启后持久状态一致。 | VMess/Trojan/Shadowsocks/Hysteria2 保持 traffic-unverified。 |
 | I52 | PARTIAL | UI-01～UI-09、E2E-07、PERF-01/02 自动验收覆盖完成；真实 80×24 PTY 自动化与固定 v26.9.9 loopback cold-start 流程已通过。 | 用户人工重跑完整 TUI 冷启动流程尚未发生；人工 checklist 结果留空待操作者填写。 |
-| G5 | NOT RUN | 所有自动化与真实核心验收通过后，状态已到人工复验门；本轮没有人工执行记录。 | 按 [tui-manual-acceptance.md](tui-manual-acceptance.md) 完成并记录后才能作最终判定。systemd 实机限制仍为 NOT RUN，且不要求宿主机操作。 |
+| G5 | FAIL | 用户人工操作明确发现旧库存和已有 Profile 的入口缺口；本轮定向修复不能反向抹去失败记录。 | 新入口完成开发者隔离验收后，仍须按 [tui-manual-acceptance.md](tui-manual-acceptance.md) 由用户复验。systemd 实机限制仍为 NOT RUN，且不要求宿主机操作。 |
 
 ## T01–T37 最终追踪
 
@@ -103,6 +103,8 @@ RC-07 是逐模块合法上下文，不是 15 项全部启用的单一巨大配�
 - UI-05 外部编辑器：真实 TUI PTY 与测试 fake-editor 子进程覆盖 `$VISUAL` 优先、`$EDITOR` fallback、均未设置时明确错误、正常 0、nonzero、取消、无效 JSON 草稿保留、另一 CLI 并发修改同一文件后触发 conflict；源文件未被覆盖。fake-editor 只存在于测试 support，生产代码不识别测试模式。
 - Logs Pause：真实 TUI `p` 暂停/恢复；暂停期后台日志仍到达，viewport 稳定，上下键可翻历史；Server 环形 buffer 淘汰旧日志后显示 `older logs dropped / truncated`；Resume 跟随 tail；`q` 后 CLI `status` 仍显示 core running。UI-02/T25 与 5 MB 日志淘汰 PTY 用例均 PASS。
 - 人工复验 **NOT RUN**：自动化完成后，本轮尚无用户复测记录；更新后的 [tui-manual-acceptance.md](tui-manual-acceptance.md) 是待执行 checklist。saved target 与 actual target 的人工观察、真实小终端交互及对用户订阅节点的实际刷新结果仍待用户确认。
+- 旧库存整理（开发者隔离操作）：一致性备份的隔离副本初始为 49 当前 + 52 `source_missing`。应用预览将其中 46 条归为无冲突的冗余历史，6 条因名称/上游身份不同不自动处理；这不是“把历史清零”。真实 TUI 预览后取消保持 52，明确确认一条后为 51。将来源切到缓存响应的本机回放 URL 时，首次响应与备份时的库存并非同一快照，发生一次库存变化；重新建立相同响应基线并再确认一条后为 49 当前 + 51 历史。此后同一响应本机重放 10 次及 Server 重启后再次刷新均报告 `added=0, updated=0, missing=0`，总数 100 和 ID 集合摘要稳定。生产订阅和数据库未改。已知引用和用户属性冲突均默认阻止确认，不展示认证数据。开发者操作不等于用户人工复验。
+- 已有 Profile 本地入口：PTY 覆盖旧空 `inbounds` 的确认/取消和禁用模块仍需单独启用，也覆盖自定义入站保留；扩展 E2E-07 使用固定 Xray 26.9.9 从旧空入站 Profile 的 TUI `i` 确认、TUI 选节点与 Connect，到 127.0.0.1:10808 SOCKS 收到真实 VLESS loopback marker。保存源模块本身不 Connect，退出 TUI 后核心仍运行。
 - PERF-01：本机 HTTP barrier 与 fake-core check UDS barrier 同时阻塞；CLI UDS clients 重复 status/logs 并 stop；41 assertions PASS。实测一个最终 dev 样本：status p50/p95 5.34/5.34 ms，logs 5.19/5.19 ms，stop 106.4 ms。ASan 对应测试 PASS。
 - PERF-02：1000 个虚构节点、1 Profile、1 core；SQLite list/search、组展开/组装渲染、来源 reconcile、CLI status/logs 和 4 MiB bounded logs。dev 单机 p50/p95：node list 57.36/59.17 ms，search 56.60/58.25 ms，assembly/render 35.74/36.61 ms，reconcile 62.83/63.19 ms，log page 0.00211/0.00229 ms。测得初始/结束 RSS 5840/16184 KiB，seed 后 8 MiB log append 0.908 ms，FileSet 504143 B，日志保留上限 4194304 B。ASan 负载运行通过，但 RSS 不与 dev 比作产品内存限制。有限重复测量不证明长期无泄漏。
 
@@ -120,4 +122,4 @@ RC-07 是逐模块合法上下文，不是 15 项全部启用的单一巨大配�
 
 本轮还修复无 source 的 disabled module 打开时 JSON null 转字符串导致 SIGABRT；现在先建立内存草稿，用户显式保存后创建 source，启用仍是单独操作。新增无需 `--profile` 的 TUI 首用流程：订阅添加/更新、节点浏览、登记已有 core、创建/选择 Profile、保存节点选择并 connect；保存不会自动连接，TUI 退出不会 stop core。外部编辑器有 F6/v 明确入口并继续只修改草稿。
 
-G5 当前为 READY FOR HUMAN RE-VALIDATION；唯一剩余的必需证据是用户按更新后的清单真实完成人工 TUI 冷启动主流程并填写结果。systemd 实机运行仍未执行；unit 静态审查和进程归属集成测试已完成，环境限制已披露且本轮不触碰宿主服务。Future / Not in v1：VMess/Trojan/Shadowsocks/Hysteria2 loopback traffic peer 验证；leastLoad 稳定性/真实行为验证；systemd 隔离环境实机验收；长期 RSS 斜率。没有实现 M6 或新增产品范围。
+G5 当前为 FAIL；旧库存只在隔离副本中预览和选择性处理，用户生产库存尚未处理，已有 Profile 本地入口需用户明确确认。完整人工 TUI 复验完成前不能作最终判定。systemd 实机运行仍未执行；unit 静态审查和进程归属集成测试已完成，环境限制已披露且本轮不触碰宿主服务。Future / Not in v1：VMess/Trojan/Shadowsocks/Hysteria2 loopback traffic peer 验证；leastLoad 稳定性/真实行为验证；systemd 隔离环境实机验收；长期 RSS 斜率。没有实现 M6 或新增产品范围。

@@ -111,6 +111,10 @@ xrm config export <profile-id> --source runtime --output ./exported-confdir
 
 TUI 使用 Tab / Shift-Tab 或 `1`–`9` 切换页面，`?` 查看按键帮助，`q` 仅退出界面。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看已收到的历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
 
+旧订阅库存整理：在 `5 Subscriptions` 选中来源后按 `h` 预览当前/历史数量与候选原因；空格只可勾选无属性冲突和已知引用的确定冗余历史记录，`c` 后还要按 `y` 才确认，Esc 取消。预览和取消不写库存；确认也不连接或重启核心。CLI 可用 `xrm node history preview SOURCE_ID`，并按预览返回的 token 执行 `xrm node history confirm SOURCE_ID --id NODE_ID --token TOKEN --yes`。名称/上游身份不同、属性冲突、已知被 Profile/组/观测/原生管理 tag 引用的记录不会自动合并；不要求历史数归零。只在自己的数据上审阅确认，不直接操作数据库。
+
+已有 Profile 若没有本地代理入口，Overview 会提示当前 `inbounds` 状态。在 Overview 或 Modules 按 `i` 检查；确认对话框会明确展示即将追加的 `127.0.0.1:10808` SOCKS 入站及 `modules/02_inbounds.json` 范围。仅按 `y` 才保存源文件，不覆盖已有入站；原本禁用的 `inbounds` 仍需到 Modules 单独启用，随后明确 Connect/Apply。自定义/服务端 Profile 不会被自动改造，也不会修改系统代理、DNS 或路由。端口已被占用时应查看连接错误并在原生 inbounds 编辑器选择合适端口，不会暗中换端口。
+
 在 Native Modules 页按 Enter 打开原生文本草稿，按 `v` 可用 `$VISUAL`（优先）或 `$EDITOR` 打开外部编辑器。变量须指定 executable 和可选的简单、未加引号参数；程序直接 spawn，不经 shell。编辑器只改临时草稿，返回 TUI 后仍须按 Ctrl-S 才保存模块源文件；保存不 connect/restart。缺少两个变量会明确报错。编辑器非零退出时保留 TUI 草稿；源文件在编辑期间被别的客户端修改时，保存会报告冲突并保留草稿，不覆盖外部修改。人工验收步骤见 [tui-manual-acceptance.md](tui-manual-acceptance.md)。
 
 切换核心是显式动作：

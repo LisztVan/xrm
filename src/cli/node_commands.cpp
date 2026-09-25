@@ -1,4 +1,5 @@
 #include "cli/command_options.hpp"
+#include "contract/methods.hpp"
 
 namespace xrm::cli {
 
@@ -78,6 +79,24 @@ void add_node_commands(CLI::App& app, Request& request) {
     }
     request.method = "node.set_labels";
     request.params = {{"id", request.node_id}, {"labels", std::move(values)}};
+  });
+  auto* history = node->add_subcommand("history", "Preview and confirm source-local redundant history cleanup");
+  auto* preview = history->add_subcommand("preview", "Read-only history candidates; no credentials are printed");
+  preview->add_option("source_id", request.subscription_id)->required();
+  preview->callback([&request] {
+    request.method = std::string(methods::node_history_preview);
+    request.params = {{"source_id", request.subscription_id}};
+  });
+  auto* confirm = history->add_subcommand("confirm", "Remove only explicitly selected safe historical records");
+  confirm->add_option("source_id", request.subscription_id)->required();
+  confirm->add_option("--id", request.history_node_ids, "Historical node ID from preview; repeat for multiple")->required();
+  confirm->add_option("--token", request.history_token, "Preview token; stale previews are rejected")->required();
+  confirm->add_flag("--yes", request.history_confirmed, "Confirm deletion of the selected historical records");
+  confirm->callback([&request] {
+    if (!request.history_confirmed) throw CLI::ValidationError("node history confirm requires --yes");
+    request.method = std::string(methods::node_history_confirm);
+    request.params = {{"source_id", request.subscription_id}, {"token", request.history_token},
+                      {"ids", request.history_node_ids}};
   });
 }
 

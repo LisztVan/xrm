@@ -287,6 +287,24 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     if (!changed) fail(changed.error()); else succeed(Json(*changed));
     return;
   }
+  if (method == methods::node_history_preview) {
+    std::string source_id;
+    if (!read_string(params, "source_id", source_id)) { fail(bad_params("source_id required")); return; }
+    auto result = application_->preview_node_history(source_id);
+    if (!result) fail(result.error()); else succeed(std::move(*result));
+    return;
+  }
+  if (method == methods::node_history_confirm) {
+    std::string source_id, token;
+    if (!read_string(params, "source_id", source_id) || !read_string(params, "token", token) ||
+        !params.contains("ids") || !params.at("ids").is_array()) {
+      fail(bad_params("source_id, token and ids required")); return;
+    }
+    Json selected{{"token", token}, {"ids", params.at("ids")}};
+    auto result = application_->confirm_node_history(source_id, selected);
+    if (!result) fail(result.error()); else succeed(std::move(*result));
+    return;
+  }
   if (method == methods::subscription_list) {
     auto sources = application_->store().list_sources();
     if (!sources) { fail(sources.error()); return; }
@@ -563,11 +581,18 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
       fail(bad_params("module.save需要profile_id、module与text")); return;
     }
     text = params["text"].get<std::string>();
+    if (params.contains("expected_absent") && !params["expected_absent"].is_boolean()) {
+      fail(bad_params("expected_absent必须为布尔值")); return;
+    }
+    const bool expected_absent = params.value("expected_absent", false);
+    if (expected_absent && params.contains("expected_text") && !params["expected_text"].is_null()) {
+      fail(bad_params("expected_absent不能与expected_text同时指定")); return;
+    }
     EditBase base;
     if (params.contains("expected_text") && !params["expected_text"].is_null()) {
       if (!params["expected_text"].is_string()) { fail(bad_params("expected_text必须为字符串或null")); return; }
       base.expected_text = params["expected_text"].get<std::string>();
-    } else {
+    } else if (!expected_absent) {
       auto current = application_->profiles().module(id, key);
       if (!current) { fail(current.error()); return; }
       if (current->document) base.expected_text = current->document->source_text;

@@ -25,6 +25,9 @@ struct Request {
   std::string node_id;
   std::string node_alias;
   std::string node_labels;
+  std::vector<std::string> history_node_ids;
+  std::string history_token;
+  bool history_confirmed = false;
   bool keep_nodes_manual = false;
   std::size_t node_offset = 0;
   std::size_t node_limit = 100;

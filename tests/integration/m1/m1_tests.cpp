@@ -143,6 +143,127 @@ Json parsed(const Captured& result) {
   if (result.code != 0 || result.timed_out) return {};
   try { return Json::parse(result.out); } catch (...) { return {}; }
 }
+
+TEST_CASE("historical node preview is read-only and confirmation removes only selected safe rows", "[HISTORY-01]") {
+  TempDirectory temp;
+  auto store = Store::open(temp.path / "state.sqlite");
+  REQUIRE(store);
+  Subscription source;
+  source.id = "history-source";
+  source.name = "fixture";
+  source.url = "http://127.0.0.1/fixture";
+  REQUIRE((*store)->put_source(source));
+  Node current;
+  current.id = "current";
+  current.source_id = source.id;
+  current.original_name = "same name";
+  current.settings = RawOutbound{Json{{"protocol", "freedom"}, {"settings", Json::object()}}};
+  REQUIRE((*store)->put_node(current));
+  Node safe = current;
+  safe.id = "safe-history";
+  safe.source_missing = true;
+  REQUIRE((*store)->put_node(safe));
+  Node second = safe;
+  second.id = "second-history";
+  REQUIRE((*store)->put_node(second));
+  Node renamed = safe;
+  renamed.id = "different-name";
+  renamed.original_name = "another label";
+  REQUIRE((*store)->put_node(renamed));
+  Node customized = safe;
+  customized.id = "user-alias";
+  customized.alias = "my alias";
+  REQUIRE((*store)->put_node(customized));
+  Node referenced = safe;
+  referenced.id = "selected-history";
+  referenced.source_missing = false;
+  REQUIRE((*store)->put_node(referenced));
+  store->reset();
+
+  Server server(temp);
+  REQUIRE(server.start());
+  const auto core = parsed(server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "history core"}));
+  REQUIRE(core.contains("id"));
+  const auto profile = parsed(server.cli({"profile", "create", "--name", "history profile",
+                                          "--core", core.at("id").get<std::string>()}));
+  REQUIRE(profile.contains("id"));
+  REQUIRE(server.cli({"select", "node", profile.at("id").get<std::string>(), referenced.id}).code == 0);
+  auto update_store = Store::open(temp.path / "state.sqlite");
+  REQUIRE(update_store);
+  referenced.source_missing = true;
+  REQUIRE((*update_store)->put_node(referenced));
+  update_store->reset();
+  const auto running_profile = parsed(server.cli({"profile", "create", "--name", "running profile",
+                                                 "--core", core.at("id").get<std::string>()}));
+  REQUIRE(running_profile.contains("id"));
+  REQUIRE(server.cli({"connect", running_profile.at("id").get<std::string>(), "--node", current.id}).code == 0);
+  const auto runtime_before = parsed(server.cli({"status"}));
+  REQUIRE(runtime_before.value("state", "") == "running");
+  const auto confdir = runtime_before.at("active").at("confdir").get<std::string>();
+  std::map<std::string, std::string> runtime_files;
+  for (const auto& file : std::filesystem::directory_iterator(confdir))
+    runtime_files.emplace(file.path().filename().string(), read_file(file.path()));
+  const auto preview_result = server.cli({"node", "history", "preview", source.id});
+  REQUIRE(preview_result.code == 0);
+  const auto preview = parsed(preview_result);
+  REQUIRE(preview.value("current_count", 0) == 1);
+  REQUIRE(preview.value("history_count", 0) == 5);
+  REQUIRE(preview.at("candidates").size() == 5);
+  const auto token = preview.at("token").get<std::string>();
+  REQUIRE_FALSE(token.empty());
+  auto classify = [&](std::string_view id) -> Json {
+    for (const auto& item : preview.at("candidates"))
+      if (item.value("id", "") == id) return item;
+    return Json::object();
+  };
+  CHECK(classify("safe-history").value("eligible", false));
+  CHECK(classify("second-history").value("eligible", false));
+  CHECK_FALSE(classify("different-name").value("eligible", true));
+  CHECK_FALSE(classify("user-alias").value("eligible", true));
+  CHECK_FALSE(classify("selected-history").value("eligible", true));
+  CHECK_FALSE(classify("selected-history").at("references").empty());
+  const auto human_preview = server.cli_text({"node", "history", "preview", source.id});
+  REQUIRE(human_preview.code == 0);
+  CHECK(human_preview.out.find("blocked: user_attributes_differ") != std::string::npos);
+  CHECK(human_preview.out.find("referenced by Profile history profile") != std::string::npos);
+  CHECK(parsed(server.cli({"node", "history", "preview", source.id})).at("token") == token);
+  CHECK(server.cli({"node", "history", "confirm", source.id, "--id", "safe-history",
+                    "--token", token}).code != 0);  // No --yes means cancel.
+  CHECK(parsed(server.cli({"node", "history", "preview", source.id})).value("history_count", 0) == 5);
+  const auto confirmed = server.cli({"node", "history", "confirm", source.id, "--id", "safe-history",
+                                     "--token", token, "--yes"});
+  REQUIRE(confirmed.code == 0);
+  CHECK(parsed(confirmed).value("removed", 0) == 1);
+  const auto after = parsed(server.cli({"node", "history", "preview", source.id}));
+  CHECK(after.value("current_count", 0) == 1);
+  CHECK(after.value("history_count", 0) == 4);
+  const auto runtime_after = parsed(server.cli({"status"}));
+  INFO("runtime before=" << runtime_before.dump() << " after=" << runtime_after.dump());
+  CHECK(runtime_after.at("pid") == runtime_before.at("pid"));
+  CHECK(runtime_after.at("active").at("confdir") == runtime_before.at("active").at("confdir"));
+  std::map<std::string, std::string> files_after;
+  for (const auto& file : std::filesystem::directory_iterator(confdir))
+    files_after.emplace(file.path().filename().string(), read_file(file.path()));
+  CHECK(files_after == runtime_files);
+  CHECK(server.cli({"node", "history", "confirm", source.id, "--id", "second-history",
+                    "--token", token, "--yes"}).code != 0);  // Stale preview.
+  CHECK(parsed(server.cli({"node", "history", "preview", source.id})).value("history_count", 0) == 4);
+  CHECK(server.cli({"node", "history", "confirm", source.id, "--id", "selected-history",
+                    "--token", after.at("token").get<std::string>(), "--yes"}).code != 0);
+  auto changed_store = Store::open(temp.path / "state.sqlite");
+  REQUIRE(changed_store);
+  source.name = "fixture settings changed";
+  REQUIRE((*changed_store)->put_source(source));
+  CHECK(server.cli({"node", "history", "confirm", source.id, "--id", "second-history",
+                    "--token", after.at("token").get<std::string>(), "--yes"}).code != 0);
+  const auto after_source_change = parsed(server.cli({"node", "history", "preview", source.id}));
+  second.labels = {"changed-after-preview"};
+  REQUIRE((*changed_store)->put_node(second));
+  changed_store->reset();
+  CHECK(server.cli({"node", "history", "confirm", source.id, "--id", "second-history",
+                    "--token", after_source_change.at("token").get<std::string>(), "--yes"}).code != 0);
+  CHECK(server.cli({"disconnect"}).code == 0);
+}
 struct TuiProcess { pid_t pid = -1; int master = -1; };
 TuiProcess start_tui(const std::filesystem::path& root, const std::filesystem::path& socket,
                      const std::string& profile) {

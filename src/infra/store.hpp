@@ -22,6 +22,9 @@ class Store {
   Result<std::vector<Node>> all_nodes() const;
   Result<void> put_node(const Node&);
   Result<void> erase_node(const Id&);
+  Result<void> prune_history(const Id& source_id, const SubscriptionState& expected_state,
+                             const std::vector<Node>& expected_nodes,
+                             const std::vector<Id>& selected_ids);
 
   Result<std::vector<Subscription>> list_sources() const;
   Result<Subscription> get_source(const Id&) const;

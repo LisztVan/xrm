@@ -504,6 +504,171 @@ TEST_CASE("TUI navigation shows one matching selected tab in the current termina
   REQUIRE(tui.type("q"));
 }
 
+TEST_CASE("TUI history preview cancels and confirms selected safe records", "[HISTORY-TUI]") {
+  TempDir temp;
+  auto store = Store::open(temp.path / "state.sqlite");
+  REQUIRE(store);
+  Subscription source;
+  source.id = "history-source";
+  source.name = "History Fixture";
+  source.url = "http://127.0.0.1/fixture";
+  REQUIRE((*store)->put_source(source));
+  Node current;
+  current.id = "current";
+  current.source_id = source.id;
+  current.original_name = "Current Node";
+  current.settings = RawOutbound{Json{{"protocol", "freedom"}, {"settings", Json::object()}}};
+  REQUIRE((*store)->put_node(current));
+  Node old = current;
+  old.id = "old-safe";
+  old.source_missing = true;
+  REQUIRE((*store)->put_node(old));
+  Node different = old;
+  different.id = "old-different";
+  different.original_name = "Different Name";
+  REQUIRE((*store)->put_node(different));
+  store->reset();
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("5"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("[5 Subscriptions]") != std::string_view::npos &&
+           grid.find("History Fixture") != std::string_view::npos;
+  }).find("History Fixture") != std::string::npos);
+  REQUIRE(tui.type("h"));
+  auto grid = tui.wait_for([](std::string_view value) {
+    return value.find("History cleanup") != std::string_view::npos &&
+           value.find("current 1") != std::string_view::npos &&
+           value.find("historical 2") != std::string_view::npos;
+  });
+  INFO("history preview grid: " << grid);
+  REQUIRE(grid.find("History cleanup") != std::string::npos);
+  CHECK(Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id})).value("history_count", 0) == 2);
+  REQUIRE(tui.key("Escape"));
+  CHECK(Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id})).value("history_count", 0) == 2);
+  REQUIRE(tui.type("h"));
+  grid = tui.wait_for([](std::string_view value) { return value.find("History cleanup") != std::string_view::npos; });
+  REQUIRE(grid.find("History cleanup") != std::string::npos);
+  // The fixture rows are ordered by stable ID; the distinct-name row is blocked.
+  REQUIRE(tui.key("Down"));
+  REQUIRE(tui.key("Space"));
+  REQUIRE(tui.type("c"));
+  grid = tui.wait_for([](std::string_view value) { return value.find("Confirm deletion") != std::string_view::npos; });
+  REQUIRE(grid.find("Confirm deletion") != std::string::npos);
+  REQUIRE(tui.key("Escape"));
+  CHECK(Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id})).value("history_count", 0) == 2);
+  REQUIRE(tui.type("c"));
+  REQUIRE(tui.type("y"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("Removed 1 selected historical records") != std::string_view::npos;
+  });
+  INFO("history result grid: " << grid);
+  REQUIRE(grid.find("Removed 1 selected historical records") != std::string::npos);
+  const auto after = Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id}));
+  CHECK(after.value("current_count", 0) == 1);
+  CHECK(after.value("history_count", 0) == 1);
+  CHECK(after.at("candidates").front().value("id", "") == "old-different");
+}
+
+TEST_CASE("TUI offers confirmed local SOCKS repair for an existing empty-inbounds Profile", "[PROFILE-LOCAL-TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE,
+                                                      "--name", "legacy fixture"}));
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Legacy",
+                                                         "--core", core.at("id").get<std::string>()}));
+  const auto id = profile.at("id").get<std::string>();
+  REQUIRE_FALSE(cli(daemon.socket(), {"config", "edit", id, "inbounds", "--text", "{\"inbounds\":[]}"}).empty());
+  REQUIRE_FALSE(cli(daemon.socket(), {"config", "disable", id, "inbounds"}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  auto grid = tui.wait_for([](std::string_view value) {
+    return value.find("Current: Overview") != std::string_view::npos &&
+           value.find("inbounds disabled") != std::string_view::npos;
+  });
+  INFO("legacy profile before repair: " << grid);
+  REQUIRE(grid.find("inbounds disabled") != std::string::npos);
+  const int occupied = ::socket(AF_INET, SOCK_STREAM, 0);
+  REQUIRE(occupied >= 0);
+  const int reuse = 1;
+  REQUIRE(::setsockopt(occupied, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == 0);
+  sockaddr_in occupied_address{};
+  occupied_address.sin_family = AF_INET;
+  occupied_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  occupied_address.sin_port = htons(10808);
+  REQUIRE(::bind(occupied, reinterpret_cast<const sockaddr*>(&occupied_address), sizeof(occupied_address)) == 0);
+  REQUIRE(::listen(occupied, 1) == 0);
+  REQUIRE(tui.type("i"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("127.0.0.1:10808 is currently unavailable") != std::string_view::npos;
+  });
+  REQUIRE(grid.find("127.0.0.1:10808 is currently unavailable") != std::string::npos);
+  ::close(occupied);
+  REQUIRE(tui.type("i"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("Add local proxy entry") != std::string_view::npos &&
+           value.find("127.0.0.1:10808") != std::string_view::npos;
+  });
+  REQUIRE(grid.find("Add local proxy entry") != std::string::npos);
+  REQUIRE(tui.key("Escape"));
+  auto before = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
+  REQUIRE(before.value("ok", false));
+  CHECK(before["result"].at("text") == "{\"inbounds\":[]}");
+  REQUIRE(tui.type("i"));
+  REQUIRE(tui.wait_for([](std::string_view value) {
+    return value.find("Add local proxy entry") != std::string_view::npos;
+  }).find("Add local proxy entry") != std::string::npos);
+  REQUIRE(tui.type("y"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("enable inbounds in Modules") != std::string_view::npos;
+  });
+  INFO("legacy profile after confirmed source save: " << grid);
+  REQUIRE(grid.find("enable inbounds in Modules") != std::string::npos);
+  auto after = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
+  REQUIRE(after.value("ok", false));
+  CHECK_FALSE(after["result"].value("included", true));
+  const auto body = Json::parse(after["result"].at("text").get<std::string>());
+  REQUIRE(body.at("inbounds").size() == 1);
+  CHECK(body["inbounds"][0].value("protocol", "") == "socks");
+  CHECK(body["inbounds"][0].value("listen", "") == "127.0.0.1");
+  CHECK(body["inbounds"][0].value("port", 0) == 10808);
+}
+
+TEST_CASE("TUI local-use entry keeps an existing custom inbound intact", "[PROFILE-LOCAL-TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE,
+                                                      "--name", "custom fixture"}));
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Custom",
+                                                         "--core", core.at("id").get<std::string>()}));
+  const auto id = profile.at("id").get<std::string>();
+  const auto custom = R"({"inbounds":[{"tag":"my-server","listen":"127.0.0.1","port":14001,"protocol":"vless","settings":{"clients":[],"unknown":"kept"},"vendor":{"flag":true}}]})";
+  REQUIRE_FALSE(cli(daemon.socket(), {"config", "edit", id, "inbounds", "--text", custom}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.wait_for([](std::string_view value) {
+    return value.find("no local SOCKS entry") != std::string_view::npos;
+  }).find("no local SOCKS entry") != std::string::npos);
+  REQUIRE(tui.type("i"));
+  REQUIRE(tui.wait_for([](std::string_view value) {
+    return value.find("Existing inbounds are preserved") != std::string_view::npos;
+  }).find("Existing inbounds are preserved") != std::string::npos);
+  REQUIRE(tui.type("y"));
+  REQUIRE(tui.wait_for([](std::string_view value) {
+    return value.find("Local SOCKS 127.0.0.1:10808 saved") != std::string_view::npos;
+  }).find("Local SOCKS 127.0.0.1:10808 saved") != std::string::npos);
+  auto changed = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
+  REQUIRE(changed.value("ok", false));
+  const auto body = Json::parse(changed["result"].at("text").get<std::string>());
+  REQUIRE(body.at("inbounds").size() == 2);
+  CHECK(body["inbounds"][0] == Json::parse(custom).at("inbounds")[0]);
+  CHECK(body["inbounds"][1].value("protocol", "") == "socks");
+  const auto stale_creation = raw_rpc(daemon.socket(), "module.save", Json{
+      {"profile_id", id}, {"module", "inbounds"}, {"text", "{\"inbounds\":[]}"},
+      {"expected_absent", true}});
+  CHECK_FALSE(stale_creation.value("ok", true));
+  const auto after_rejected = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
+  CHECK(after_rejected.at("result").at("text") == changed.at("result").at("text"));
+}
+
 TEST_CASE("TUI node viewport follows the selected row across a 1205-node subscription", "[UI-SCROLL][TUI]") {
   TempDir temp;
   std::string payload;

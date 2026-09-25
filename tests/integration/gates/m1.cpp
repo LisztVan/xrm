@@ -489,12 +489,14 @@ struct TuiProcess {
 };
 
 TuiProcess start_tui_without_profile(const std::filesystem::path& socket,
-                                     const std::filesystem::path& visual) {
+                                     const std::filesystem::path& visual,
+                                     const std::string& profile = {}) {
   int master = -1, slave = -1;
   if (::openpty(&master, &slave, nullptr, nullptr, nullptr) != 0) return {};
   winsize size{24, 80, 0, 0};
   (void)::ioctl(slave, TIOCSWINSZ, &size);
   std::vector<std::string> args{XRM_TEST_MANAGER, "--socket", socket.string(), "tui"};
+  if (!profile.empty()) { args.push_back("--profile"); args.push_back(profile); }
   std::vector<char*> argv;
   for (auto& arg : args) argv.push_back(arg.data());
   argv.push_back(nullptr);
@@ -1077,7 +1079,7 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   constexpr std::string_view uuid = "10000000-0000-4000-8000-000000000007";
   constexpr std::string_view marker = "XRM-E2E-07-TUI-COLD-START-MARKER-61f2";
   LoopbackHttp http;
-  REQUIRE(http.start(std::string(marker), 1));
+  REQUIRE(http.start(std::string(marker), 2));
 
   const auto peer_config = temp.path / "vless-peer.json";
   const Json peer{{"log", Json{{"loglevel", "warning"}}},
@@ -1190,6 +1192,49 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   const auto after_exit = server.json(server.cli({"status"}));
   CHECK(after_exit.value("state", "") == "running");
   CHECK(after_exit.at("active").value("profile_id", "") == before_edit.at("active").value("profile_id", ""));
+
+  // An existing Profile with an empty inbound source must remain untouched
+  // until its local-use entry is explicitly confirmed in the real TUI.
+  const auto legacy = server.json(server.cli({"profile", "create", "--name", "Existing Empty Inbounds",
+      "--core", profile_rows.front().value("core_id", "")}));
+  REQUIRE(legacy.contains("id"));
+  const auto legacy_id = legacy.at("id").get<std::string>();
+  REQUIRE(server.cli({"config", "edit", legacy_id, "inbounds", "--text", "{\"inbounds\":[]}"}).code == 0);
+  auto legacy_tui = start_tui_without_profile(server.socket_path(), editor, legacy_id);
+  TuiProcessGuard legacy_guard{legacy_tui};
+  REQUIRE(legacy_tui.pid > 0);
+  const auto missing_entry = tui_wait_for(legacy_tui, "no local SOCKS entry", 5s);
+  INFO("existing Profile before confirmed repair: " << missing_entry);
+  REQUIRE(missing_entry.find("no local SOCKS entry") != std::string::npos);
+  tui_keys(legacy_tui, "i");
+  const auto confirmation = tui_wait_for(legacy_tui, "Add local proxy entry", 5s);
+  REQUIRE(confirmation.find("127.0.0.1:10808") != std::string::npos);
+  tui_keys(legacy_tui, "y");
+  const auto saved_entry = tui_wait_for(legacy_tui, "Local SOCKS 127.0.0.1:10808 saved", 5s);
+  INFO("existing Profile entry saved: " << saved_entry);
+  REQUIRE(saved_entry.find("Local SOCKS 127.0.0.1:10808 saved") != std::string::npos);
+  tui_keys(legacy_tui, "2s");
+  tui_keys(legacy_tui, "c");
+  Json legacy_running;
+  const auto legacy_deadline = std::chrono::steady_clock::now() + 20s;
+  while (std::chrono::steady_clock::now() < legacy_deadline) {
+    legacy_running = server.json(server.cli({"status"}));
+    if (legacy_running.value("state", "") == "running" &&
+        legacy_running.at("active").value("profile_id", "") == legacy_id) break;
+    ::poll(nullptr, 0, 40);
+  }
+  INFO("existing Profile runtime: " << legacy_running.dump());
+  REQUIRE(legacy_running.value("state", "") == "running");
+  REQUIRE(legacy_running.at("active").value("profile_id", "") == legacy_id);
+  REQUIRE(wait_for_socks(10808));
+  const auto legacy_marker = wait_for_socks_marker(10808, http.port(), marker);
+  INFO("existing Profile loopback marker: " << legacy_marker);
+  REQUIRE(legacy_marker.find(marker) != std::string::npos);
+  const auto legacy_feedback = tui_wait_for(legacy_tui, "Xray core running", 8s);
+  INFO("existing Profile TUI connect feedback: " << legacy_feedback);
+  REQUIRE(legacy_feedback.find("Xray core running") != std::string::npos);
+  REQUIRE(stop_tui(legacy_tui));
+  CHECK(server.json(server.cli({"status"})).value("state", "") == "running");
   CHECK(server.cli({"disconnect"}).code == 0);
   CHECK(server.stop());
 }

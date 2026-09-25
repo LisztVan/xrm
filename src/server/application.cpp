@@ -5,11 +5,16 @@
 #include "xray/process_adapter.hpp"
 #include "xray/runtime_assembler.hpp"
 
+#include <openssl/evp.h>
+
 #include <array>
+#include <algorithm>
 #include <charconv>
 #include <chrono>
 #include <fstream>
+#include <map>
 #include <random>
+#include <set>
 #include <unistd.h>
 
 namespace xrm {
@@ -34,6 +39,42 @@ Id new_id() {
 
 AppError invalid(std::string message, std::string subject) {
   return {ErrorCode::invalid_argument, std::move(message), std::move(subject), std::nullopt};
+}
+
+Result<std::vector<Node>> source_nodes(Store& store, const Id& source_id) {
+  std::vector<Node> nodes;
+  std::size_t offset = 0;
+  for (;;) {
+    auto page = store.list_nodes(NodeQuery{.source_id = source_id, .include_missing = true}, {offset, 1000});
+    if (!page) return std::unexpected(page.error());
+    nodes.insert(nodes.end(), page->items.begin(), page->items.end());
+    if (!page->next_offset) break;
+    offset = *page->next_offset;
+  }
+  return nodes;
+}
+
+Json connection_settings(const Node& node) {
+  Json settings = Json(node).at("settings");
+  if (settings.value("kind", "") == "raw" && settings.contains("value") &&
+      settings["value"].is_object()) settings["value"].erase("tag");
+  return settings;
+}
+
+std::string snapshot_token(const Json& snapshot) {
+  const auto bytes = snapshot.dump();
+  std::array<unsigned char, EVP_MAX_MD_SIZE> digest{};
+  unsigned length = 0;
+  if (EVP_Digest(bytes.data(), bytes.size(), digest.data(), &length, EVP_sha256(), nullptr) != 1)
+    return {};
+  constexpr char hex[] = "0123456789abcdef";
+  std::string token;
+  token.reserve(length * 2);
+  for (unsigned index = 0; index < length; ++index) {
+    token.push_back(hex[digest[index] >> 4]);
+    token.push_back(hex[digest[index] & 0x0f]);
+  }
+  return token;
 }
 
 }  // namespace
@@ -87,6 +128,144 @@ Result<Page<NodeSummary>> Application::list_nodes(const NodeQuery& query,
 }
 
 Result<Node> Application::get_node(const Id& id) const { return store_->get_node(id); }
+
+Result<Json> Application::preview_node_history(const Id& source_id) const {
+  auto source = store_->get_source(source_id);
+  if (!source) return std::unexpected(source.error());
+  auto state = store_->get_source_state(source_id);
+  if (!state) return std::unexpected(state.error());
+  auto nodes = source_nodes(*store_, source_id);
+  if (!nodes) return std::unexpected(nodes.error());
+
+  std::map<Id, std::vector<std::string>> references;
+  auto profiles = profiles_->list();
+  if (!profiles) return std::unexpected(profiles.error());
+  for (const auto& summary : *profiles) {
+    auto profile = profiles_->get(summary.id);
+    if (!profile) return std::unexpected(profile.error());
+    const auto prefix = "Profile " + summary.name;
+    if (profile->selected && profile->selected->kind == TargetKind::node)
+      references[profile->selected->id_or_tag].push_back(prefix + " default selection");
+    for (const auto& id : profile->additional_node_ids)
+      references[id].push_back(prefix + " additional nodes");
+    auto groups = profiles_->groups(summary.id);
+    if (!groups) return std::unexpected(groups.error());
+    for (const auto& group : *groups) {
+      if (group.selected_node_id)
+        references[*group.selected_node_id].push_back(prefix + " group " + group.name + " selected node");
+      if (const auto* explicit_ids = std::get_if<ExplicitMembers>(&group.members))
+        for (const auto& id : explicit_ids->node_ids)
+          references[id].push_back(prefix + " group " + group.name + " explicit members");
+    }
+    auto observation = profiles_->observation(summary.id);
+    if (!observation) return std::unexpected(observation.error());
+    for (const auto& id : observation->additional_node_ids)
+      references[id].push_back(prefix + " observation additional nodes");
+    auto modules = profiles_->modules(summary.id);
+    if (!modules) return std::unexpected(modules.error());
+    for (const auto& module : *modules) {
+      if (!module.document) continue;
+      for (const auto& node : *nodes) {
+        if (!node.source_missing) continue;
+        if (module.document->source_text.find(node_tag(node.id)) != std::string::npos)
+          references[node.id].push_back(prefix + " module " + module.descriptor.key + " managed tag");
+      }
+    }
+  }
+  auto runtime = runtime_status();
+  if (runtime && runtime->contains("actual_target") && (*runtime)["actual_target"].is_object()) {
+    const auto& target = (*runtime)["actual_target"];
+    if (target.value("kind", "") == "node")
+      references[target.value("id_or_tag", "")].push_back("currently running target");
+  }
+
+  std::map<std::string, std::vector<const Node*>> current_by_row;
+  std::map<std::string, std::vector<const Node*>> current_by_connection;
+  std::size_t current_count = 0;
+  std::size_t history_count = 0;
+  auto row_key = [](const Node& node) {
+    return Json::array({connection_settings(node), node.original_name,
+                        node.upstream_id ? Json(*node.upstream_id) : Json(nullptr)}).dump();
+  };
+  for (const auto& node : *nodes) {
+    if (node.source_missing) { ++history_count; continue; }
+    ++current_count;
+    current_by_row[row_key(node)].push_back(&node);
+    current_by_connection[connection_settings(node).dump()].push_back(&node);
+  }
+  Json candidates = Json::array();
+  for (const auto& node : *nodes) {
+    if (!node.source_missing) continue;
+    const auto exact = current_by_row.find(row_key(node));
+    const auto same_connection = current_by_connection.find(connection_settings(node).dump());
+    const Node* keeper = nullptr;
+    std::string reason;
+    if (exact != current_by_row.end() && exact->second.size() == 1) {
+      keeper = exact->second.front();
+      reason = "redundant_history";
+    } else if (exact != current_by_row.end()) reason = "ambiguous_current";
+    else if (same_connection != current_by_connection.end()) {
+      if (same_connection->second.size() == 1) keeper = same_connection->second.front();
+      reason = "different_name_or_upstream_id";
+    } else reason = "removed_from_source";
+    Json blockers = Json::array();
+    if (reason != "redundant_history") blockers.push_back(reason);
+    if (keeper && (node.alias != keeper->alias || node.labels != keeper->labels ||
+                   node.enabled != keeper->enabled)) blockers.push_back("user_attributes_differ");
+    const auto found_refs = references.find(node.id);
+    Json node_refs = found_refs == references.end() ? Json::array() : Json(found_refs->second);
+    if (!node_refs.empty()) blockers.push_back("known_reference");
+    candidates.push_back(Json{{"id", node.id}, {"name", node.alias.value_or(node.original_name)},
+        {"original_name", node.original_name}, {"status", "history_source_missing"},
+        {"source_name", source->name}, {"keep_id", keeper ? keeper->id : ""},
+        {"keep_name", keeper ? keeper->alias.value_or(keeper->original_name) : ""},
+        {"keep_status", keeper ? "current" : "none"}, {"reason", reason},
+        {"eligible", blockers.empty()}, {"blockers", std::move(blockers)},
+        {"references", std::move(node_refs)}});
+  }
+  Json stored_nodes = Json::array();
+  for (const auto& node : *nodes) stored_nodes.push_back(Json(node));
+  const auto token = snapshot_token(Json{{"source", Json(*source)}, {"state", Json(*state)},
+                                   {"nodes", std::move(stored_nodes)}, {"references", references}});
+  if (token.empty()) return std::unexpected(AppError{ErrorCode::io_error,
+      "无法生成历史预览令牌", source_id, std::nullopt});
+  return Json{{"source_id", source_id}, {"source_name", source->name}, {"token", token},
+              {"current_count", current_count}, {"history_count", history_count},
+              {"candidates", std::move(candidates)}};
+}
+
+Result<Json> Application::confirm_node_history(const Id& source_id, const Json& selected) {
+  if (!selected.is_object() || !selected.contains("token") || !selected["token"].is_string() ||
+      !selected.contains("ids") || !selected["ids"].is_array() || selected["ids"].empty())
+    return std::unexpected(invalid("预览令牌和待处理ID不能为空", "selection"));
+  std::vector<Id> ids;
+  for (const auto& id : selected["ids"]) {
+    if (!id.is_string() || id.get<std::string>().empty())
+      return std::unexpected(invalid("历史记录ID无效", "ids"));
+    ids.push_back(id.get<std::string>());
+  }
+  if (std::set<Id>(ids.begin(), ids.end()).size() != ids.size())
+    return std::unexpected(invalid("历史记录ID重复", "ids"));
+  auto preview = preview_node_history(source_id);
+  if (!preview) return std::unexpected(preview.error());
+  if (preview->at("token") != selected.at("token"))
+    return std::unexpected(AppError{ErrorCode::conflict, "来源、引用或节点已变化，请重新预览",
+                                    source_id, std::nullopt});
+  for (const auto& id : ids) {
+    const auto found = std::find_if((*preview)["candidates"].begin(), (*preview)["candidates"].end(),
+        [&](const Json& candidate) { return candidate.value("id", "") == id; });
+    if (found == (*preview)["candidates"].end() || !found->value("eligible", false))
+      return std::unexpected(AppError{ErrorCode::conflict, "所选记录不是可安全处理的历史重复项",
+                                      id, "重新预览并检查引用或属性冲突"});
+  }
+  auto state = store_->get_source_state(source_id);
+  if (!state) return std::unexpected(state.error());
+  auto nodes = source_nodes(*store_, source_id);
+  if (!nodes) return std::unexpected(nodes.error());
+  if (auto pruned = store_->prune_history(source_id, *state, *nodes, ids); !pruned)
+    return std::unexpected(pruned.error());
+  return Json{{"removed", ids.size()}, {"source_id", source_id}, {"runtime_changed", false}};
+}
 
 Result<NodeSummary> Application::copy_node(const Id& id, std::string new_name) {
   if (new_name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));

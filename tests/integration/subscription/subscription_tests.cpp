@@ -394,6 +394,27 @@ TEST_CASE("SUB-04 identical HTTP payload is idempotent across ten refreshes and 
         user_edited.labels = {"favorite"};
         user_edited.enabled = false;
         REQUIRE((*store)->put_node(user_edited));
+        // A historical duplicate removed through the same scoped Store transaction
+        // must not be recreated by later identical refreshes or service restart.
+        const auto original_b = std::find_if(inventory->items.begin(), inventory->items.end(),
+            [](const auto& node) { return node.original_name == "B"; });
+        REQUIRE(original_b != inventory->items.end());
+        auto redundant_history = *original_b;
+        redundant_history.id = "old-duplicate-B";
+        redundant_history.source_missing = true;
+        REQUIRE((*store)->put_node(redundant_history));
+        const auto expected_state = (*store)->get_source_state("source-A");
+        REQUIRE(expected_state);
+        const auto before_cleanup = (*store)->list_nodes(
+            xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+        REQUIRE(before_cleanup);
+        REQUIRE(before_cleanup->total == 3);
+        REQUIRE((*store)->prune_history("source-A", *expected_state, before_cleanup->items,
+                                        {redundant_history.id}));
+        const auto cleaned = (*store)->list_nodes(
+            xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+        REQUIRE(cleaned);
+        CHECK(cleaned->total == 2);
       } else {
         CHECK(ids == first_ids);
         const auto edited_a = std::find_if(inventory->items.begin(), inventory->items.end(),

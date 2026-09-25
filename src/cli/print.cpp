@@ -1,6 +1,7 @@
 #include "cli/command_options.hpp"
 
 #include "client/rpc_client.hpp"
+#include "contract/methods.hpp"
 #include "contract/wire.hpp"
 
 #include <uv.h>
@@ -337,6 +338,24 @@ int print_result(const Request& request, const Result<Json>& result) {
                 << (node.value("source_missing", false) ? "source_missing" : "available")
                 << (node.value("enabled", false) ? "" : "\tdisabled") << '\n';
     }
+  } else if (request.method == methods::node_history_preview) {
+    std::cout << result->value("source_name", "") << ": "
+              << result->value("current_count", 0) << " current, "
+              << result->value("history_count", 0) << " historical\n";
+    for (const auto& item : result->value("candidates", Json::array())) {
+      std::cout << (item.value("eligible", false) ? "[safe] " : "[keep] ")
+                << item.value("name", "") << " [" << item.value("id", "") << "] -> "
+                << item.value("keep_name", "none") << " [" << item.value("keep_id", "") << "] "
+                << item.value("reason", "") << '\n';
+      for (const auto& reference : item.value("references", Json::array()))
+        if (reference.is_string()) std::cout << "  referenced by " << reference.get<std::string>() << '\n';
+      for (const auto& blocker : item.value("blockers", Json::array()))
+        if (blocker.is_string() && blocker != "known_reference")
+          std::cout << "  blocked: " << blocker.get<std::string>() << '\n';
+    }
+    std::cout << "Preview token: " << result->value("token", "") << '\n';
+  } else if (request.method == methods::node_history_confirm) {
+    std::cout << "Removed " << result->value("removed", 0) << " selected historical records; runtime unchanged\n";
   } else if (request.method == "subscription.list") {
     for (const auto& source : *result) {
       std::cout << source.value("id", "") << '\t' << source.value("name", "") << '\t'

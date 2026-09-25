@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <memory>
+#include <set>
 #include <string_view>
 #include <utility>
 
@@ -307,6 +308,54 @@ Result<void> Store::erase_node(const Id& id) {
   bind_text(statement.get(), 1, id);
   if (sqlite3_step(statement.get()) != SQLITE_DONE) return std::unexpected(statement.error("删除节点失败"));
   if (sqlite3_changes(impl_->db) == 0) return std::unexpected(missing("节点", id));
+  return {};
+}
+
+Result<void> Store::prune_history(const Id& source_id, const SubscriptionState& expected_state,
+                                  const std::vector<Node>& expected_nodes,
+                                  const std::vector<Id>& selected_ids) {
+  if (selected_ids.empty()) return std::unexpected(invalid("至少选择一条历史记录", "ids"));
+  if (auto started = exec(impl_->db, "BEGIN IMMEDIATE", [] { return "开始历史节点整理事务失败"; }); !started)
+    return started;
+  auto rollback = [&] { sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr); };
+  auto stale = [&]() -> Result<void> {
+    rollback();
+    return std::unexpected(AppError{ErrorCode::conflict, "来源或节点已变化，请重新预览", source_id, std::nullopt});
+  };
+  auto state = get_source_state(source_id);
+  if (!state || Json(*state) != Json(expected_state)) return stale();
+  std::vector<Node> actual;
+  std::size_t offset = 0;
+  for (;;) {
+    auto page = list_nodes(NodeQuery{.source_id = source_id, .include_missing = true}, {offset, 1000});
+    if (!page) { rollback(); return std::unexpected(page.error()); }
+    actual.insert(actual.end(), page->items.begin(), page->items.end());
+    if (!page->next_offset) break;
+    offset = *page->next_offset;
+  }
+  if (actual.size() != expected_nodes.size()) return stale();
+  for (std::size_t index = 0; index < actual.size(); ++index)
+    if (Json(actual[index]) != Json(expected_nodes[index])) return stale();
+  std::set<Id> unique_ids(selected_ids.begin(), selected_ids.end());
+  if (unique_ids.size() != selected_ids.size()) return stale();
+  for (const auto& id : selected_ids) {
+    const auto found = std::find_if(actual.begin(), actual.end(), [&](const Node& node) {
+      return node.id == id && node.source_missing;
+    });
+    if (found == actual.end()) return stale();
+    Statement statement(impl_->db, "DELETE FROM nodes WHERE id=?1 AND source_id=?2 AND source_missing=1");
+    if (!statement.ready()) { rollback(); return std::unexpected(statement.error("准备整理历史节点失败")); }
+    bind_text(statement.get(), 1, id);
+    bind_text(statement.get(), 2, source_id);
+    if (sqlite3_step(statement.get()) != SQLITE_DONE || sqlite3_changes(impl_->db) != 1) {
+      rollback();
+      return std::unexpected(db_error(impl_->db, "整理历史节点失败"));
+    }
+  }
+  if (auto committed = exec(impl_->db, "COMMIT", [] { return "提交历史节点整理失败"; }); !committed) {
+    rollback();
+    return committed;
+  }
   return {};
 }
 

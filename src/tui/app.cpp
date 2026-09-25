@@ -9,6 +9,8 @@
 #include <ftxui/dom/elements.hpp>
 #include <uv.h>
 #include <sys/utsname.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 #include <algorithm>
 #include <array>
@@ -16,6 +18,7 @@
 #include <cctype>
 #include <map>
 #include <optional>
+#include <set>
 #include <chrono>
 #include <ctime>
 #include <memory>
@@ -49,11 +52,11 @@ struct PageNav {
 };
 // This is the visual order, numeric key order, and Tab order.
 constexpr std::array<PageNav, 9> kPages{{
-    {"Overview", "c Connect   d Stop   r Refresh   ? help"},
+    {"Overview", "c Connect   i Local entry   d Stop   r Refresh   ? help"},
     {"Nodes", "↑↓ PgUp/PgDn Home/End   / Search   f Removed   x Toggle   s Select   c Connect   ? help"},
-    {"Modules", "↑↓ Move   Enter Edit Native   e Enable/Disable   ? help"},
+    {"Modules", "↑↓ Move   Enter Edit Native   e Enable/Disable   i Local entry   ? help"},
     {"Logs", "↑↓ History   p Pause/Resume   r Refresh   ? help"},
-    {"Subscriptions", "↑↓ Move   Enter Details   a Add   u Update   ? help"},
+    {"Subscriptions", "↑↓ Move   Enter Details   a Add   u Update   h History   ? help"},
     {"Groups", "↑↓ Move   Enter Details   s Select   m Choose Member   ? help"},
     {"Stats", "r Refresh   ? help"},
     {"Cores", "↑↓ Move   a Register   l Releases   i Install   u Use   r Refresh   ? help"},
@@ -129,6 +132,38 @@ std::string short_update_time(const Json& source) {
   char buffer[20]{};
   if (std::strftime(buffer, sizeof(buffer), "%m-%d %H:%M", &local) == 0) return "unknown";
   return buffer;
+}
+
+std::string inbound_text_field(const Json& inbound, std::string_view key) {
+  const auto field = inbound.find(std::string(key));
+  return field != inbound.end() && field->is_string() ? field->get<std::string>() : "";
+}
+
+int inbound_port(const Json& inbound) {
+  const auto port = inbound.find("port");
+  return port != inbound.end() && port->is_number_integer() ? port->get<int>() : 0;
+}
+
+bool local_socks_port_available() {
+  const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+  if (fd < 0) return false;
+  const int reuse = 1;
+  (void)::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+  sockaddr_in address{};
+  address.sin_family = AF_INET;
+  address.sin_port = htons(10808);
+  address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  const bool available = ::bind(fd, reinterpret_cast<const sockaddr*>(&address), sizeof(address)) == 0;
+  ::close(fd);
+  return available;
+}
+
+std::string history_reason(std::string_view code) {
+  if (code == "redundant_history") return "同来源、同名称和连接配置的历史冗余";
+  if (code == "different_name_or_upstream_id") return "连接相同，但名称或来源身份不同；暂不处理";
+  if (code == "ambiguous_current") return "有多个当前保留对象；暂不处理";
+  if (code == "removed_from_source") return "来源已移除，当前无等价保留对象";
+  return std::string(code);
 }
 
 Result<Json> rpc(const std::string& socket, std::string method, Json params = Json::object()) {
@@ -410,6 +445,33 @@ class TuiApp final : public ComponentBase {
       if (event.is_character()) prompt_text_ += event.character();
       return true;
     }
+    if (history_open_) {
+      const auto& candidates = history_preview_.at("candidates");
+      if (history_confirm_) {
+        if (event == Event::Character("y")) confirm_history();
+        else if (event == Event::Character("n") || event == Event::Escape) {
+          history_confirm_ = false;
+          message_ = "history cleanup cancelled; inventory unchanged";
+        }
+        return true;
+      }
+      if (event == Event::Escape || event == Event::Character("q")) {
+        history_open_ = false;
+        history_selected_ids_.clear();
+        message_ = "history preview closed; inventory unchanged";
+      } else if (event == Event::ArrowDown && !candidates.empty()) {
+        history_index_ = std::min(history_index_ + 1, candidates.size() - 1);
+      } else if (event == Event::ArrowUp && history_index_ > 0) --history_index_;
+      else if (event == Event::Character(" ") && history_index_ < candidates.size()) {
+        const auto& item = candidates[history_index_];
+        if (!item.value("eligible", false)) message_ = "Cannot select: " + item.at("blockers").dump();
+        else {
+          const auto id = item.value("id", "");
+          if (!history_selected_ids_.erase(id)) history_selected_ids_.insert(id);
+        }
+      } else if (event == Event::Character("c") && !history_selected_ids_.empty()) history_confirm_ = true;
+      return true;
+    }
     if (node_detail_) {
       if (event == Event::Escape || event == Event::CtrlQ) node_detail_ = false;
       else if (event == Event::Character("t"))
@@ -444,6 +506,14 @@ class TuiApp final : public ComponentBase {
           page_ = 8;
           begin_profile_prompt(false);
         }
+      }
+      return true;
+    }
+    if (local_entry_confirm_) {
+      if (event == Event::Character("y")) add_local_entry();
+      else if (event == Event::Character("n") || event == Event::Escape) {
+        local_entry_confirm_ = false;
+        message_ = "local proxy entry unchanged";
       }
       return true;
     }
@@ -540,6 +610,8 @@ class TuiApp final : public ComponentBase {
       filtering_nodes_ = true;
     }
     else if (event == Event::Character("u") && page_ == 4) refresh_subscription_inventory();
+    else if (event == Event::Character("h") && page_ == 4) open_history();
+    else if (event == Event::Character("i") && (page_ == 0 || page_ == 2)) inspect_local_entry();
     else if (event == Event::Character("a") && page_ == 4) begin_prompt(Prompt::subscription_name, "Subscription name");
     else if (event == Event::Character("a") && page_ == 7) begin_prompt(Prompt::core_path, "Absolute path to an existing Xray executable");
     else if (event == Event::Character("l") && page_ == 7) fetch_core_releases(false);
@@ -596,6 +668,9 @@ class TuiApp final : public ComponentBase {
           core_version.substr(0, core_version.find(" ("))) | bold | color(Color::Cyan));
       body.push_back(text("LOCAL PROXY  " +
           (proxy_entries_.empty() ? "No entry in running configuration" : proxy_entries_.front())) | bold);
+      if (!profile_id_.empty())
+        body.push_back(text("LOCAL-USE SETUP  " + local_entry_status_ + " · i Inspect/add") |
+            color(Color::Yellow));
       if (state_.runtime.operation_state == AsyncUiState::starting ||
           state_.runtime.operation_state == AsyncUiState::running) {
         static constexpr std::array<const char*, 4> spinner{"⠋", "⠙", "⠹", "⠸"};
@@ -684,6 +759,8 @@ class TuiApp final : public ComponentBase {
       if (profile_id_.empty()) {
         body.push_back(text("No profile selected") | color(Color::Yellow));
         body.push_back(text("Create a profile to use this feature") | color(Color::Yellow));
+      } else {
+        body.push_back(text("i Inspect local proxy entry; any change requires confirmation") | dim);
       }
       for (std::size_t i = 0; i < modules_.size(); ++i) {
         const auto& module = modules_[i];
@@ -749,6 +826,7 @@ class TuiApp final : public ComponentBase {
           body.push_back(text("Enter or Esc closes details; URL and credentials are hidden") | dim);
         }
       }
+      body.push_back(text("h Preview historical/duplicate nodes for the selected source (no changes)") | dim);
     } else if (page_ == 6) {
       body.push_back(text("Stats — shared server sample; no client-side rate calculation") | bold);
       body.push_back(text("Core: " + status_.value("state", "unknown")));
@@ -913,6 +991,55 @@ class TuiApp final : public ComponentBase {
                     text("Module editor: F6/v external editor; F2 save"),
                     text("q quit; core continues   Esc or ? close")})) | center});
     }
+    if (history_open_) {
+      Elements rows{text("History preview · " + history_preview_.value("source_name", "") +
+          " · current " + std::to_string(history_preview_.value("current_count", 0)) +
+          " · historical " + std::to_string(history_preview_.value("history_count", 0))) | bold,
+          text("Space selects safe records; blocked records stay untouched") | dim};
+      const auto& candidates = history_preview_.at("candidates");
+      const auto visible = static_cast<std::size_t>(std::max(3, std::min(8, screen_->dimy() - 18)));
+      const auto start = history_index_ < visible ? 0 : history_index_ - visible + 1;
+      const auto end = std::min(candidates.size(), start + visible);
+      rows.push_back(text("Candidates " + std::to_string(start + (candidates.empty() ? 0 : 1)) +
+          "-" + std::to_string(end) + "/" + std::to_string(candidates.size())) | dim);
+      for (std::size_t i = start; i < end; ++i) {
+        const auto& item = candidates[i];
+        const auto id = item.value("id", "");
+        const auto marker = history_selected_ids_.contains(id) ? "[x] " : "[ ] ";
+        auto line = text(std::string(i == history_index_ ? "▸ " : "  ") + marker +
+            short_utf8(item.value("name", ""), 28) + " → keep " +
+            short_utf8(item.value("keep_name", "none"), 24) +
+            (item.value("eligible", false) ? " · 可处理" : " · 暂不处理"));
+        if (i == history_index_) line = line | inverted | focus;
+        rows.push_back(std::move(line));
+      }
+      if (history_index_ < candidates.size()) {
+        const auto& item = candidates[history_index_];
+        rows.push_back(paragraph("Source: " + item.value("source_name", "") +
+            " · record: historical/source_missing · keep: " + item.value("keep_status", "none")));
+        rows.push_back(paragraph("Reason: " + history_reason(item.value("reason", ""))));
+        rows.push_back(paragraph("Blockers: " + item.value("blockers", Json::array()).dump() +
+            " · references: " + item.value("references", Json::array()).dump()));
+      }
+      rows.push_back(text("↑↓ Move   Space Select   c Confirm selected   Esc Cancel") | dim);
+      auto dialog = window(text("History cleanup") | bold, vbox(std::move(rows)) |
+          size(WIDTH, LESS_THAN, std::max(40, screen_->dimx() - 4)) |
+          size(HEIGHT, LESS_THAN, std::max(8, screen_->dimy() - 4))) | center;
+      if (history_confirm_)
+        dialog = window(text("Confirm deletion") | bold,
+            vbox({text("Remove " + std::to_string(history_selected_ids_.size()) +
+                       " selected safe historical records?"),
+                  text("No profile, module, or running core will change."),
+                  text("y Confirm   n/Esc Cancel") | dim})) | center;
+      return dbox({base | dim, std::move(dialog)});
+    }
+    if (local_entry_confirm_) return dbox({base | dim,
+        window(text("Add local proxy entry") | bold,
+            vbox({text("Profile: " + profile_name(profile_id_)),
+                  text("Append SOCKS 127.0.0.1:10808 to modules/02_inbounds.json"),
+                  text("Existing inbounds are preserved; no system proxy/DNS changes."),
+                  text("Save source only; explicit Connect/Apply required."),
+                  text("y Confirm   n/Esc Cancel") | dim})) | center});
     return base;
   }
 
@@ -1282,6 +1409,98 @@ class TuiApp final : public ComponentBase {
     if (response && response->is_array()) subscriptions_ = response->get<std::vector<Json>>();
     selected_ = std::min(selected_, subscriptions_.empty() ? 0 : subscriptions_.size() - 1);
   }
+  void open_history() {
+    if (selected_ >= subscriptions_.size()) { message_ = "Select a subscription first"; return; }
+    const auto source_id = subscriptions_[selected_].value("id", "");
+    auto preview = rpc(socket_, std::string(methods::node_history_preview), Json{{"source_id", source_id}});
+    if (!preview) { message_ = "History preview failed: " + preview.error().message; return; }
+    history_preview_ = std::move(*preview);
+    history_source_id_ = source_id;
+    history_index_ = 0;
+    history_selected_ids_.clear();
+    history_open_ = true;
+    history_confirm_ = false;
+  }
+  void confirm_history() {
+    Json ids = Json::array();
+    for (const auto& id : history_selected_ids_) ids.push_back(id);
+    auto result = rpc(socket_, std::string(methods::node_history_confirm),
+        Json{{"source_id", history_source_id_}, {"token", history_preview_.at("token")}, {"ids", ids}});
+    history_confirm_ = false;
+    if (!result) {
+      message_ = "History cleanup failed: " + result.error().message + "; reopen preview";
+      history_open_ = false;
+      return;
+    }
+    const auto removed = result->value("removed", 0);
+    history_open_ = false;
+    history_selected_ids_.clear();
+    message_ = "Removed " + std::to_string(removed) + " selected historical records; running core unchanged";
+    refresh_subscriptions();
+    refresh_nodes();
+  }
+  void inspect_local_entry() {
+    if (profile_id_.empty()) { message_ = "Select or create a Profile first"; return; }
+    auto view = rpc(socket_, std::string(methods::module_get),
+        Json{{"profile_id", profile_id_}, {"module", "inbounds"}});
+    if (!view) { message_ = "Cannot inspect inbounds: " + view.error().message; return; }
+    local_entry_included_ = view->value("included", false);
+    local_entry_base_text_.reset();
+    Json module{{"inbounds", Json::array()}};
+    if (view->contains("text") && (*view)["text"].is_string()) {
+      local_entry_base_text_ = (*view)["text"].get<std::string>();
+      module = Json::parse(*local_entry_base_text_, nullptr, false);
+      if (module.is_discarded() || !module.is_object() || !module.contains("inbounds") ||
+          !module["inbounds"].is_array()) {
+        message_ = "Inbounds source is not an editable native array; open Modules → inbounds";
+        return;
+      }
+    }
+    for (const auto& inbound : module["inbounds"]) {
+      if (!inbound.is_object()) continue;
+      const auto listen = inbound_text_field(inbound, "listen");
+      const auto port = inbound_port(inbound);
+      if (port == 10808 || inbound_text_field(inbound, "tag") == "local-socks") {
+        message_ = "Port 10808 or tag local-socks already configured; inspect Modules → inbounds. "
+            "No source changed.";
+        return;
+      }
+      if (inbound_text_field(inbound, "protocol") == "socks" &&
+          (listen == "127.0.0.1" || listen == "::1" || listen == "0.0.0.0" ||
+           listen == "::" || listen.empty())) {
+        message_ = local_entry_included_
+            ? "This Profile already has a SOCKS entry; inspect Modules → inbounds"
+            : "Local SOCKS entry exists but inbounds is disabled; enable it in Modules";
+        return;
+      }
+    }
+    if (!local_socks_port_available()) {
+      message_ = "127.0.0.1:10808 is currently unavailable; inspect Modules → inbounds "
+          "and choose a free port. No source changed.";
+      return;
+    }
+    local_entry_proposed_ = std::move(module);
+    local_entry_proposed_["inbounds"].push_back(Json{
+        {"tag", "local-socks"}, {"listen", "127.0.0.1"}, {"port", 10808},
+        {"protocol", "socks"}, {"settings", Json{{"auth", "noauth"}, {"udp", true}}}});
+    local_entry_confirm_ = true;
+  }
+  void add_local_entry() {
+    local_entry_confirm_ = false;
+    auto result = rpc(socket_, std::string(methods::module_save),
+        Json{{"profile_id", profile_id_}, {"module", "inbounds"},
+             {"text", local_entry_proposed_.dump(2) + "\n"},
+             {"expected_text", local_entry_base_text_ ? Json(*local_entry_base_text_) : Json(nullptr)},
+             {"expected_absent", !local_entry_base_text_}});
+    if (!result) {
+      message_ = "Local entry not saved: " + result.error().message + "; inspect inbounds and retry";
+      return;
+    }
+    message_ = local_entry_included_
+        ? "Local SOCKS 127.0.0.1:10808 saved; explicitly Connect/Apply to use it"
+        : "Local SOCKS 127.0.0.1:10808 saved; enable inbounds in Modules, then Connect";
+    refresh_modules();
+  }
   void refresh_groups() {
     if (profile_id_.empty()) return;
     std::string selected_id = state_.highlighted_group_id.value_or(std::string{});
@@ -1635,11 +1854,38 @@ class TuiApp final : public ComponentBase {
     }
   }
   void refresh_modules() {
-    if (profile_id_.empty()) return;
+    if (profile_id_.empty()) { local_entry_status_ = "no Profile"; return; }
     auto response = rpc(socket_, std::string(methods::module_list), Json{{"profile_id", profile_id_}});
     modules_.clear();
     if (response && response->is_array()) modules_ = response->get<std::vector<Json>>();
     selected_ = std::min(selected_, modules_.empty() ? 0 : modules_.size() - 1);
+    local_entry_status_ = "no local SOCKS entry (custom/server Profiles may be intentional)";
+    for (const auto& module : modules_) {
+      if (module.value("key", "") != "inbounds") continue;
+      if (!module.value("included", false)) {
+        local_entry_status_ = "inbounds disabled";
+        break;
+      }
+      if (!module.contains("text") || !module["text"].is_string()) break;
+      auto source = Json::parse(module["text"].get<std::string>(), nullptr, false);
+      if (source.is_discarded() || !source.is_object() || !source.contains("inbounds") ||
+          !source["inbounds"].is_array()) {
+        local_entry_status_ = "inbounds source needs native inspection";
+        break;
+      }
+      for (const auto& inbound : source["inbounds"]) {
+        if (!inbound.is_object()) continue;
+        const auto listen = inbound_text_field(inbound, "listen");
+        if (inbound_text_field(inbound, "protocol") == "socks" &&
+            (listen == "127.0.0.1" || listen == "::1" || listen == "0.0.0.0" ||
+             listen == "::" || listen.empty())) {
+          local_entry_status_ = "SOCKS " + (listen.empty() ? "default-listen" : listen) + ":" +
+              std::to_string(inbound_port(inbound)) + " configured";
+          break;
+        }
+      }
+      break;
+    }
   }
   void refresh_logs() {
     if (page_ == 3) log_poll_state_->cursor.store(log_cursor_);
@@ -1951,6 +2197,16 @@ class TuiApp final : public ComponentBase {
   bool filtering_nodes_ = false;
   bool node_detail_ = false;
   bool subscription_detail_ = false;
+  bool history_open_ = false;
+  bool history_confirm_ = false;
+  Json history_preview_ = Json::object();
+  std::string history_source_id_;
+  std::set<std::string> history_selected_ids_;
+  std::size_t history_index_ = 0;
+  bool local_entry_confirm_ = false;
+  bool local_entry_included_ = false;
+  Json local_entry_proposed_ = Json::object();
+  std::optional<std::string> local_entry_base_text_;
   bool editing_group_ = false;
   bool editing_node_ = false;
   bool editing_dirty_ = false;
@@ -1970,6 +2226,7 @@ class TuiApp final : public ComponentBase {
   bool show_missing_nodes_ = false;
   std::vector<Json> subscriptions_;
   std::vector<Json> modules_;
+  std::string local_entry_status_ = "not inspected";
   Json status_ = Json::object();
   std::vector<std::string> proxy_entries_;
   std::optional<std::string> runtime_error_;
