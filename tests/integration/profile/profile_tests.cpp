@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "infra/store.hpp"
+#include "profile/forms.hpp"
 #include "profile/profile_service.hpp"
 
 #include <algorithm>
@@ -74,6 +75,109 @@ TEST_CASE("local first-use Profile provides a loopback SOCKS entrance", "[PROFIL
   CHECK(entrance.value("port", 0) == 10808);
   CHECK(entrance.value("protocol", "") == "socks");
   CHECK(entrance.at("settings").value("auth", "") == "noauth");
+}
+
+TEST_CASE("an existing empty-inbounds Profile needs an explicit source edit and include", "[PROFILE][legacy-inbound]") {
+  ProfileFixture fixture;
+  auto existing = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(existing);
+  REQUIRE(existing->document);
+  REQUIRE(fixture.service->save_module(fixture.profile.id,
+      xrm::ModuleEdit{"inbounds", {existing->document->source_text}, "{\"inbounds\": []}\n"}));
+  REQUIRE(fixture.service->include_module(fixture.profile.id, "inbounds", false));
+
+  const auto before = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(before);
+  REQUIRE(before->document);
+  CHECK_FALSE(before->setting.included);
+  CHECK(xrm::Json::parse(before->document->source_text)["inbounds"].empty());
+
+  // Merely opening/planning the action must not persist a listening socket.
+  const xrm::Json proposed = {
+      {"tag", "local-socks"}, {"listen", "127.0.0.1"}, {"port", 10808},
+      {"protocol", "socks"}, {"settings", {{"auth", "noauth"}, {"udp", true}}}};
+  auto edit = xrm::edit_native_list(*before->document,
+      {xrm::CollectionKind::inbounds, xrm::ListAction::insert, 0, std::nullopt, proposed});
+  REQUIRE(edit);
+  auto unchanged = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(unchanged);
+  REQUIRE(unchanged->document);
+  CHECK(unchanged->document->source_text == before->document->source_text);
+  CHECK_FALSE(unchanged->setting.included);
+
+  REQUIRE(fixture.service->save_module(fixture.profile.id, *edit));
+  auto saved = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(saved);
+  REQUIRE(saved->document);
+  CHECK_FALSE(saved->setting.included);
+  const auto body = xrm::Json::parse(saved->document->source_text);
+  REQUIRE(body["inbounds"].size() == 1);
+  CHECK(body["inbounds"][0] == proposed);
+
+  REQUIRE(fixture.service->include_module(fixture.profile.id, "inbounds", true));
+  auto included = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(included);
+  CHECK(included->setting.included);
+  REQUIRE(included->document);
+  CHECK(xrm::Json::parse(included->document->source_text)["inbounds"][0] == proposed);
+}
+
+TEST_CASE("an included legacy empty-inbounds Profile remains empty until the user saves", "[PROFILE][legacy-inbound]") {
+  ProfileFixture fixture;
+  auto original = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(original);
+  REQUIRE(original->document);
+  REQUIRE(fixture.service->save_module(fixture.profile.id,
+      xrm::ModuleEdit{"inbounds", {original->document->source_text}, "{\"inbounds\": []}\n"}));
+
+  auto legacy = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(legacy);
+  REQUIRE(legacy->document);
+  REQUIRE(legacy->setting.included);
+  REQUIRE(xrm::Json::parse(legacy->document->source_text)["inbounds"].empty());
+
+  const xrm::Json proposed = {
+      {"tag", "local-socks"}, {"listen", "127.0.0.1"}, {"port", 10808},
+      {"protocol", "socks"}, {"settings", {{"auth", "noauth"}, {"udp", true}}}};
+  auto preview = xrm::edit_native_list(*legacy->document,
+      {xrm::CollectionKind::inbounds, xrm::ListAction::insert, 0, std::nullopt, proposed});
+  REQUIRE(preview);
+  auto before_confirmation = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(before_confirmation);
+  REQUIRE(before_confirmation->document);
+  CHECK(before_confirmation->document->source_text == legacy->document->source_text);
+
+  REQUIRE(fixture.service->save_module(fixture.profile.id, *preview));
+  auto saved = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(saved);
+  REQUIRE(saved->document);
+  CHECK(saved->setting.included);
+  CHECK(xrm::Json::parse(saved->document->source_text)["inbounds"][0] == proposed);
+}
+
+TEST_CASE("custom inbound is preserved while inspecting a Profile for a local entrance", "[PROFILE][custom-inbound]") {
+  ProfileFixture fixture;
+  const std::string original = R"({"inbounds":[{"tag":"my-server","listen":"127.0.0.1","port":14001,"protocol":"vless","settings":{"clients":[],"unknown":"kept"},"vendor":{"flag":true}}]})";
+  auto before = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(before);
+  REQUIRE(before->document);
+  REQUIRE(fixture.service->save_module(fixture.profile.id,
+      xrm::ModuleEdit{"inbounds", {before->document->source_text}, original}));
+
+  auto inspected = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(inspected);
+  REQUIRE(inspected->document);
+  REQUIRE(inspected->setting.included);
+  const auto parsed = xrm::Json::parse(inspected->document->source_text);
+  REQUIRE(parsed["inbounds"].size() == 1);
+  CHECK(parsed["inbounds"][0]["protocol"] == "vless");
+  CHECK(parsed["inbounds"][0]["vendor"]["flag"] == true);
+
+  auto after = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(after);
+  REQUIRE(after->document);
+  CHECK(after->document->source_text == original);
+  CHECK(after->setting.included);
 }
 
 TEST_CASE("MOD-02/03 all native modules can be independently read, edited and toggled", "[MOD-02][MOD-03]") {
