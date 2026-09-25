@@ -3,6 +3,7 @@
 #include "model/node.hpp"
 #include "model/runtime.hpp"
 #include "model/subscription.hpp"
+#include "geodata/resource_record.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -45,6 +46,14 @@ class Store {
   Result<CoreInstall> get_core(const Id&) const;
   Result<void> put_core(const CoreInstall&);
   Result<void> remove_core(const Id&);
+
+  Result<std::vector<GeodataResourceRecord>> geodata_resources() const;
+  Result<GeodataResourceRecord> get_geodata_resource(const Id&) const;
+  Result<GeodataResourceRecord> put_geodata_resource(const GeodataResourceRecord&);
+  Result<void> commit_geodata_resource_result(const Id&, std::uint64_t expected_revision,
+                                               std::optional<GeodataAssetVersion> version,
+                                               UnixMillis attempted_at, std::string result);
+  Result<void> remove_geodata_resource(const Id&);
 
   Result<Json> load_program_settings() const;
   Result<Json> update_program_settings(const Json& patch);

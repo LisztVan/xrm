@@ -59,6 +59,59 @@ std::string column_text(sqlite3_stmt* statement, int column) {
                : std::string{};
 }
 
+Json geodata_record_json(const GeodataResourceRecord& record) {
+  Json current = nullptr;
+  if (record.current) {
+    const auto& version = *record.current;
+    current = Json{{"resource_id", version.resource_id},
+                   {"kind", version.kind == GeoAssetKind::geoip ? "geoip" : "geosite"},
+                   {"file_name", version.file_name}, {"version_id", version.version_id},
+                   {"asset_dir", version.asset_dir.string()}, {"path", version.path.string()},
+                   {"labels", version.labels}, {"bytes", version.bytes}};
+  }
+  return Json{{"id", record.id}, {"name", record.name},
+              {"kind", record.kind == GeoAssetKind::geoip ? "geoip" : "geosite"},
+              {"file_name", record.file_name}, {"url", record.url},
+              {"local_path", record.local_path.string()},
+              {"auto_update", record.auto_update},
+              {"settings_revision", record.settings_revision},
+              {"current", std::move(current)},
+              {"last_attempt", record.last_attempt},
+              {"last_success", record.last_success},
+              {"last_result", record.last_result}};
+}
+
+GeodataResourceRecord geodata_record_from_json(const Json& json) {
+  GeodataResourceRecord record;
+  record.id = json.at("id").get<std::string>();
+  record.name = json.at("name").get<std::string>();
+  record.kind = json.at("kind").get<std::string>() == "geoip" ?
+      GeoAssetKind::geoip : GeoAssetKind::geosite;
+  record.file_name = json.at("file_name").get<std::string>();
+  record.url = json.value("url", std::string{});
+  record.local_path = json.value("local_path", std::string{});
+  record.auto_update = json.value("auto_update", false);
+  record.settings_revision = json.at("settings_revision").get<std::uint64_t>();
+  if (json.contains("current") && !json.at("current").is_null()) {
+    const auto& value = json.at("current");
+    GeodataAssetVersion version;
+    version.resource_id = value.at("resource_id").get<std::string>();
+    version.kind = value.at("kind").get<std::string>() == "geoip" ?
+        GeoAssetKind::geoip : GeoAssetKind::geosite;
+    version.file_name = value.at("file_name").get<std::string>();
+    version.version_id = value.at("version_id").get<std::string>();
+    version.asset_dir = value.at("asset_dir").get<std::string>();
+    version.path = value.at("path").get<std::string>();
+    version.labels = value.at("labels").get<std::set<std::string>>();
+    version.bytes = value.at("bytes").get<std::size_t>();
+    record.current = std::move(version);
+  }
+  record.last_attempt = json.value("last_attempt", UnixMillis{0});
+  record.last_success = json.value("last_success", UnixMillis{0});
+  record.last_result = json.value("last_result", std::string{});
+  return record;
+}
+
 template <class F>
 Result<void> exec(sqlite3* db, std::string_view sql, F&& operation) {
   char* message = nullptr;
@@ -265,6 +318,9 @@ Result<std::unique_ptr<Store>> Store::open(std::filesystem::path database) {
       "CREATE TABLE IF NOT EXISTS cores ("
       "id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, path TEXT NOT NULL,"
       "reported_version TEXT NOT NULL, managed INTEGER NOT NULL);"
+      "CREATE TABLE IF NOT EXISTS geodata_resources ("
+      "id TEXT PRIMARY KEY NOT NULL, settings_revision INTEGER NOT NULL,"
+      "record_json TEXT NOT NULL);"
       "CREATE TABLE IF NOT EXISTS runtime_state ("
       "id INTEGER PRIMARY KEY CHECK(id=1), document_json TEXT NOT NULL);"
       "CREATE TABLE IF NOT EXISTS program_settings ("
@@ -772,6 +828,129 @@ Result<void> Store::put_core(const CoreInstall& core) {
   bind_text(statement.get(), 4, core.reported_version);
   sqlite3_bind_int(statement.get(), 5, core.managed ? 1 : 0);
   if (sqlite3_step(statement.get()) != SQLITE_DONE) return std::unexpected(statement.error("保存核心登记失败"));
+  return {};
+}
+
+Result<std::vector<GeodataResourceRecord>> Store::geodata_resources() const {
+  Statement statement(impl_->db, "SELECT record_json FROM geodata_resources ORDER BY id");
+  if (!statement.ready()) return std::unexpected(statement.error("准备读取Geodata资源列表失败"));
+  std::vector<GeodataResourceRecord> records;
+  for (;;) {
+    const int status = sqlite3_step(statement.get());
+    if (status == SQLITE_DONE) return records;
+    if (status != SQLITE_ROW) return std::unexpected(statement.error("读取Geodata资源列表失败"));
+    try {
+      records.push_back(geodata_record_from_json(Json::parse(column_text(statement.get(), 0))));
+    } catch (const Json::exception& error) {
+      return std::unexpected(AppError{ErrorCode::storage_error,
+          "Geodata资源元数据损坏: " + std::string(error.what()), std::nullopt, std::nullopt});
+    }
+  }
+}
+
+Result<GeodataResourceRecord> Store::get_geodata_resource(const Id& id) const {
+  Statement statement(impl_->db, "SELECT record_json FROM geodata_resources WHERE id=?1");
+  if (!statement.ready()) return std::unexpected(statement.error("准备读取Geodata资源失败"));
+  bind_text(statement.get(), 1, id);
+  const int status = sqlite3_step(statement.get());
+  if (status == SQLITE_DONE) return std::unexpected(missing("Geodata资源", id));
+  if (status != SQLITE_ROW) return std::unexpected(statement.error("读取Geodata资源失败"));
+  try {
+    return geodata_record_from_json(Json::parse(column_text(statement.get(), 0)));
+  } catch (const Json::exception& error) {
+    return std::unexpected(AppError{ErrorCode::storage_error,
+        "Geodata资源元数据损坏: " + std::string(error.what()), id, std::nullopt});
+  }
+}
+
+Result<GeodataResourceRecord> Store::put_geodata_resource(const GeodataResourceRecord& input) {
+  const std::filesystem::path filename(input.file_name);
+  if (input.id.empty() || input.name.empty() || input.file_name.empty() ||
+      filename != filename.filename() || filename == "." || filename == ".." ||
+      (input.url.empty() == input.local_path.empty())) {
+    return std::unexpected(invalid("Geodata资源需要ID、名称、文件名和唯一的URL或本地路径"));
+  }
+  if (!input.local_path.empty() && !input.local_path.is_absolute()) {
+    return std::unexpected(invalid("Geodata本地资源必须使用绝对路径", input.local_path.string()));
+  }
+  auto record = input;
+  auto existing = get_geodata_resource(input.id);
+  if (existing) {
+    record.current = existing->current;
+    record.last_attempt = existing->last_attempt;
+    record.last_success = existing->last_success;
+    record.last_result = existing->last_result;
+    const bool changed = existing->name != input.name || existing->kind != input.kind ||
+        existing->file_name != input.file_name || existing->url != input.url ||
+        existing->local_path != input.local_path || existing->auto_update != input.auto_update;
+    record.settings_revision = existing->settings_revision + (changed ? 1 : 0);
+    if (existing->kind != input.kind || existing->file_name != input.file_name) {
+      record.current.reset();
+    }
+  } else if (existing.error().code == ErrorCode::not_found) {
+    record.settings_revision = 1;
+    record.current.reset();
+    record.last_attempt = 0;
+    record.last_success = 0;
+    record.last_result.clear();
+  } else {
+    return std::unexpected(existing.error());
+  }
+  Statement statement(impl_->db, "INSERT INTO geodata_resources(id,settings_revision,record_json) "
+      "VALUES(?1,?2,?3) ON CONFLICT(id) DO UPDATE SET "
+      "settings_revision=excluded.settings_revision,record_json=excluded.record_json");
+  if (!statement.ready()) return std::unexpected(statement.error("准备保存Geodata资源失败"));
+  bind_text(statement.get(), 1, record.id);
+  sqlite3_bind_int64(statement.get(), 2, static_cast<sqlite3_int64>(record.settings_revision));
+  bind_text(statement.get(), 3, geodata_record_json(record).dump());
+  if (sqlite3_step(statement.get()) != SQLITE_DONE)
+    return std::unexpected(statement.error("保存Geodata资源失败"));
+  return record;
+}
+
+Result<void> Store::commit_geodata_resource_result(
+    const Id& id, std::uint64_t expected_revision,
+    std::optional<GeodataAssetVersion> version, UnixMillis attempted_at,
+    std::string result) {
+  auto record = get_geodata_resource(id);
+  if (!record) return std::unexpected(record.error());
+  if (record->settings_revision != expected_revision) {
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "Geodata资源设置在获取期间已变化", id, std::nullopt});
+  }
+  if (version && (version->resource_id != id || version->kind != record->kind ||
+                  version->file_name != record->file_name || version->version_id.empty() ||
+                  version->path.empty())) {
+    return std::unexpected(invalid("Geodata版本与资源不匹配", id));
+  }
+  record->last_attempt = attempted_at;
+  record->last_result = std::move(result);
+  if (version) {
+    record->current = std::move(version);
+    record->last_success = attempted_at;
+  }
+  Statement statement(impl_->db, "UPDATE geodata_resources SET record_json=?1 "
+                              "WHERE id=?2 AND settings_revision=?3");
+  if (!statement.ready()) return std::unexpected(statement.error("准备更新Geodata版本失败"));
+  bind_text(statement.get(), 1, geodata_record_json(*record).dump());
+  bind_text(statement.get(), 2, id);
+  sqlite3_bind_int64(statement.get(), 3, static_cast<sqlite3_int64>(expected_revision));
+  if (sqlite3_step(statement.get()) != SQLITE_DONE)
+    return std::unexpected(statement.error("更新Geodata版本失败"));
+  if (sqlite3_changes(impl_->db) != 1) {
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "Geodata资源设置在获取期间已变化", id, std::nullopt});
+  }
+  return {};
+}
+
+Result<void> Store::remove_geodata_resource(const Id& id) {
+  Statement statement(impl_->db, "DELETE FROM geodata_resources WHERE id=?1");
+  if (!statement.ready()) return std::unexpected(statement.error("准备删除Geodata资源失败"));
+  bind_text(statement.get(), 1, id);
+  if (sqlite3_step(statement.get()) != SQLITE_DONE)
+    return std::unexpected(statement.error("删除Geodata资源失败"));
+  if (sqlite3_changes(impl_->db) != 1) return std::unexpected(missing("Geodata资源", id));
   return {};
 }
 

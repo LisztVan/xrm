@@ -1,0 +1,4 @@
+add_executable(xrm_geodata_store_writer_tests geodata_store_writer_tests.cpp)
+target_link_libraries(xrm_geodata_store_writer_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+include(Catch)
+catch_discover_tests(xrm_geodata_store_writer_tests)

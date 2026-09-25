@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geodata/resource_validation.hpp"
+#include "geodata/resource_record.hpp"
 #include "infra/http.hpp"
 
 #include <filesystem>
@@ -25,17 +25,6 @@ struct GeodataAcquireRequest {
   DownloadRoute route;
   Milliseconds timeout{30000};
   std::size_t max_body_bytes = 64 * 1024 * 1024;
-};
-
-struct GeodataAssetVersion {
-  Id resource_id;
-  GeoAssetKind kind = GeoAssetKind::geoip;
-  std::string file_name;
-  std::string version_id;  // SHA-256 of the validated bytes.
-  std::filesystem::path asset_dir;
-  std::filesystem::path path;
-  std::set<std::string> labels;
-  std::size_t bytes = 0;
 };
 
 // Downloads and validates into a private immutable cache. The Server persists

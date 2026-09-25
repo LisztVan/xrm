@@ -95,7 +95,8 @@ RuntimeWriter::RuntimeWriter(std::filesystem::path data_root)
 
 Result<PreparedDirectory> RuntimeWriter::materialize(const PreparedFiles& files,
                                                      DirectoryPurpose purpose,
-                                                     const Id& id) {
+                                                     const Id& id,
+                                                     std::span<const AssetSnapshot> assets) {
   const auto purpose_text = purpose_name(purpose);
   if (!purpose_text) {
     return std::unexpected(AppError{ErrorCode::invalid_argument,
@@ -118,6 +119,24 @@ Result<PreparedDirectory> RuntimeWriter::materialize(const PreparedFiles& files,
       return std::unexpected(AppError{ErrorCode::conflict,
                                       "Runtime FileSet contains a duplicate filename",
                                       file.relative_name.string(), std::nullopt});
+    }
+  }
+  for (const auto& asset : assets) {
+    if (!valid_filename(asset.runtime_name)) {
+      return std::unexpected(invalid_path("Runtime asset name must be a plain filename",
+                                          asset.runtime_name));
+    }
+    if (!names.insert(asset.runtime_name).second) {
+      return std::unexpected(AppError{ErrorCode::conflict,
+                                      "Runtime asset filename conflicts with another output",
+                                      asset.runtime_name, std::nullopt});
+    }
+    std::error_code asset_ec;
+    const auto status = std::filesystem::symlink_status(asset.immutable_source, asset_ec);
+    if (asset_ec || !std::filesystem::is_regular_file(status) ||
+        std::filesystem::is_symlink(status)) {
+      return std::unexpected(io_error("Runtime asset source must be a regular file",
+                                      asset.immutable_source));
     }
   }
 
@@ -193,6 +212,22 @@ Result<PreparedDirectory> RuntimeWriter::materialize(const PreparedFiles& files,
     if (!file_perms) {
       remove_tree_ignoring_errors(confdir);
       return std::unexpected(file_perms.error());
+    }
+  }
+
+  for (const auto& asset : assets) {
+    const auto destination = confdir / asset.runtime_name;
+    ec.clear();
+    std::filesystem::copy_file(asset.immutable_source, destination,
+                               std::filesystem::copy_options::none, ec);
+    if (ec) {
+      remove_tree_ignoring_errors(confdir);
+      return std::unexpected(io_error("Could not snapshot runtime asset", destination));
+    }
+    auto asset_perms = set_file_permissions(destination);
+    if (!asset_perms) {
+      remove_tree_ignoring_errors(confdir);
+      return std::unexpected(asset_perms.error());
     }
   }
 
