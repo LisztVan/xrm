@@ -516,6 +516,31 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   http.shutdown([] {});
 }
 
+TEST_CASE("P2 source usage metadata comes from HTTP response header without becoming a node") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path);
+  REQUIRE(opened);
+  LocalHttpFixture fixture;
+  REQUIRE((*opened)->put_source(source("source-A", fixture.url())));
+  fixture.respond(200, std::string(node_a),
+      "subscription-userinfo: upload=1024; download=2048; total=4096; expire=2147483647\r\n");
+  Loop loop;
+  xrm::HttpClient http(loop.value);
+  xrm::SubscriptionService service(**opened, http);
+  auto result = refresh_sync(service, loop.value, {"source-A"});
+  REQUIRE(result);
+  REQUIRE(result->completed.size() == 1);
+  auto state = (*opened)->get_source_state("source-A");
+  REQUIRE(state);
+  REQUIRE(state->reported_usage);
+  CHECK(*state->reported_usage == "upload=1024; download=2048; total=4096; expire=2147483647");
+  const auto nodes = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
+  REQUIRE(nodes);
+  CHECK(nodes->total == 1);
+  service.stop_schedule();
+  http.shutdown([] {});
+}
+
 TEST_CASE("SUB-05 an old response cannot commit after its source changes or is deleted", "[SUB-05]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);

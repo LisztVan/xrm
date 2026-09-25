@@ -306,6 +306,12 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
     report.partial = report.partial || !structurally_complete;
     SubscriptionState next_state = state;
     next_state.last_attempt = now_millis();
+    // Providers commonly publish usage as response metadata rather than as
+    // synthetic proxy nodes. Keep the original bounded header for display;
+    // no numbers are inferred when the provider did not send it.
+    const auto usage = header_value(*response, "subscription-userinfo");
+    if (usage.empty()) next_state.reported_usage.reset();
+    else if (usage.size() <= 4096) next_state.reported_usage = usage;
     const bool complete = structurally_complete && !report.partial &&
                           report.malformed == 0 && report.unsupported == 0;
     if (complete) {
