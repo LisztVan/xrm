@@ -687,6 +687,14 @@ TEST_CASE("UI-12 local VLESS form saves a manual node and Group as a Profile out
     return screen.find("routing") != std::string_view::npos;
   });
   CHECK(grid.find("routing") != std::string::npos);
+  for (int row = 0; row < 4; ++row) REQUIRE(tui.key("Down"));
+  REQUIRE(tui.type("g"));
+  grid = tui.wait_for([](std::string_view screen) {
+    return screen.find("Current: Nodes") != std::string_view::npos &&
+           screen.find("Local group") != std::string_view::npos &&
+           screen.find("Group selection is persistent") != std::string_view::npos;
+  });
+  CHECK(grid.find("Local group") != std::string::npos);
   REQUIRE(tui.type("q"));
 }
 

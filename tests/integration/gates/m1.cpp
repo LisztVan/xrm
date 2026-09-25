@@ -1073,9 +1073,13 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   TempDirectory temp;
   const auto vless_port = free_loopback_port();
   const auto socks_port = free_loopback_port();
+  const auto metrics_port = free_loopback_port();
   REQUIRE(vless_port.has_value());
   REQUIRE(socks_port.has_value());
+  REQUIRE(metrics_port.has_value());
   REQUIRE(*vless_port != *socks_port);
+  REQUIRE(*metrics_port != *socks_port);
+  REQUIRE(*metrics_port != *vless_port);
   constexpr std::string_view uuid = "10000000-0000-4000-8000-000000000007";
   constexpr std::string_view marker = "XRM-E2E-07-TUI-COLD-START-MARKER-61f2";
   LoopbackHttp http;
@@ -1271,9 +1275,51 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   CHECK(read_file(group_confdir / "90_nodes_tail.json").find(
       node_tag(local_row->value("id", ""))) != std::string::npos);
 
+  // Enable real native counters through the product action, then explicitly
+  // reconnect. Overview must consume the Server's sampled Xray counters.
+  const auto home_id = profile_rows.front().value("id", "");
+  const auto stats_action = server.cli({"config", "statistics", "enable", home_id,
+      "--metrics-listen", "127.0.0.1:" + std::to_string(*metrics_port)});
+  INFO("native statistics action: " << stats_action.out << stats_action.err);
+  REQUIRE(stats_action.code == 0);
+  CHECK(server.json(server.cli({"status"})).value("pid", Json(nullptr)) ==
+      group_running.value("pid", Json(nullptr)));
+  const auto stats_connect = server.cli({"connect", home_id});
+  INFO("statistics connect: " << stats_connect.out << stats_connect.err);
+  REQUIRE(stats_connect.code == 0);
+  Json stats_running;
+  const auto stats_deadline = std::chrono::steady_clock::now() + 20s;
+  while (std::chrono::steady_clock::now() < stats_deadline) {
+    stats_running = server.json(server.cli({"status"}));
+    if (stats_running.value("state", "") == "running" &&
+        stats_running.at("active").value("run_id", "") !=
+            group_running.at("active").value("run_id", "")) break;
+    ::poll(nullptr, 0, 40);
+  }
+  REQUIRE(stats_running.value("state", "") == "running");
+  REQUIRE(stats_running.at("active").value("run_id", "") !=
+      group_running.at("active").value("run_id", ""));
+  REQUIRE(wait_for_port(*metrics_port));
+  CHECK(wait_for_socks_marker(*socks_port, http.port(), marker).find(marker) != std::string::npos);
+  INFO("statistics modules: " << server.cli({"config", "modules", home_id}).out);
+  INFO("statistics RPC: " << server.cli({"stats"}).out);
+  tui_keys(tui, "1");
+  std::string overview_stats;
+  const auto overview_deadline = std::chrono::steady_clock::now() + 12s;
+  while (std::chrono::steady_clock::now() < overview_deadline) {
+    overview_stats += tui_read(tui, 500ms);
+    if (overview_stats.find("Cumulative inbound/") != std::string::npos ||
+        overview_stats.find("Cumulative outbound/") != std::string::npos ||
+        overview_stats.find("Cumulative user/") != std::string::npos) break;
+  }
+  INFO("Overview real statistics screen: " << overview_stats);
+  CHECK((overview_stats.find("Cumulative inbound/") != std::string::npos ||
+        overview_stats.find("Cumulative outbound/") != std::string::npos ||
+        overview_stats.find("Cumulative user/") != std::string::npos));
+
   // Viewing another Profile and binding the second source must not switch the
   // one running Xray process or duplicate the global node inventory.
-  const auto before_office = group_running;
+  const auto before_office = stats_running;
   tui_keys(tui, "2n");
   const auto office_prompt = tui_wait_for(tui, "New Profile name", 5s);
   INFO("Office creation prompt: " << office_prompt);
@@ -1308,7 +1354,7 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   tui_keys(tui, "2\x1b[A\r");  // Return to the Home viewing context.
 
   // Open and save a disabled native example without applying it.
-  const auto before_edit = group_running;
+  const auto before_edit = stats_running;
   tui_keys(tui, "3\x1b[A\r");
   auto disabled = tui_read(tui);
   CHECK(disabled.find("Native module editor") != std::string::npos);

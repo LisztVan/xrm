@@ -21,6 +21,7 @@
 #include <optional>
 #include <set>
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <memory>
 #include <mutex>
@@ -817,6 +818,23 @@ class TuiApp final : public ComponentBase {
         const auto& sample = stats_["sample"];
         body.push_back(text("Sample: " +
             (sample.contains("received_at") ? sample["received_at"].dump() : "pending")) | dim);
+        if (sample.contains("traffic") && sample["traffic"].is_array() &&
+            !sample["traffic"].empty()) {
+          const auto& counters = sample["traffic"];
+          const auto counter = std::find_if(counters.begin(), counters.end(), [](const Json& item) {
+            return (item.contains("uplink") && item["uplink"].is_number_unsigned() &&
+                    item["uplink"].get<std::uint64_t>() > 0) ||
+                   (item.contains("downlink") && item["downlink"].is_number_unsigned() &&
+                    item["downlink"].get<std::uint64_t>() > 0);
+          });
+          const auto& shown = counter == counters.end() ? counters.front() : *counter;
+          body.push_back(text("Cumulative " + shown.value("scope", "") + "/" +
+              shown.value("tag", "") + "  ↓ " +
+              (shown.contains("downlink") && !shown["downlink"].is_null()
+                  ? shown["downlink"].dump() + " B" : "unavailable") + "  ↑ " +
+              (shown.contains("uplink") && !shown["uplink"].is_null()
+                  ? shown["uplink"].dump() + " B" : "unavailable")));
+        } else body.push_back(text("Cumulative traffic: unavailable"));
         if (stats_.contains("rates") && stats_["rates"].is_array() && !stats_["rates"].empty()) {
           const auto& rate = stats_["rates"].front();
           body.push_back(text("↓ " + (rate.contains("downlink_bytes_per_second") && !rate["downlink_bytes_per_second"].is_null()
