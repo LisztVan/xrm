@@ -58,7 +58,7 @@ xrm --socket "$HOME/.cache/xrm/run/xrmd.sock" server info
    xrm config modules <profile-id>
    ```
 
-   新 Profile 先不绑定全局来源；`profile sources set` 用明确的来源 ID 列表替换当前绑定，不传 `--source` 表示不使用任何订阅。旧 Profile 若没有此字段，继续沿用“使用全部来源”的兼容语义。Profile 可暂不选核心而保存，但 Connect 前必须在 Config → Core 或 CLI 中指定可用核心。标准本地样例默认启用 log、dns、inbounds、outbounds、routing，其余模块有可编辑的禁用样例。
+   新 Profile 先不绑定全局来源；`profile sources set` 用明确的来源 ID 列表替换当前绑定，不传 `--source` 表示不使用任何订阅。旧 Profile 若没有此字段，继续沿用“使用全部来源”的兼容语义。Profile 可暂不选核心而保存，但 Connect 前必须在 Config → Core 或 CLI 中指定可用核心。CLI `profile create` 目前使用标准本地样例；TUI 创建时可先选 Desktop、TUN 或 Custom。Desktop 默认启用 log、dns、inbounds、outbounds、routing，其余模块有可编辑的禁用样例；Custom 的原生模块初始不启用。TUN 创建的是待检查的原生入站草稿，不会仅因创建方案就接管系统网络。
 
 4. 按需配置原生模块。模块正文仍是 Xray 原生 JSON，未知字段通过原生编辑保留；`config show --source` 查看已保存设置，`config show --runtime` 查看当前活动运行文件：
 
@@ -110,13 +110,63 @@ xrm config export <profile-id> --source runtime --output ./exported-confdir
 
 `disconnect`/`core stop` 是显式停止。退出 TUI 不会停止核心。导出运行目录后，可在相同 Xray 二进制、工作目录、环境变量和外部资源路径条件下独立运行；导出不会打包证书/私钥等外部资源。
 
-无 Profile 的 TUI 首用：`4 Subscriptions` → `a` 输入名称和订阅 URL → `u` 更新库存；`7 Config` → `Core` 中按 `a` 登记已有 Xray；`2 Profiles` → `n` 创建有名称的标准本地方案；回 `4 Subscriptions` 选中来源按 `b`，明确将该来源用于当前 Profile；`5 Nodes` 选择节点并按 `s` 保存，或按 `c` 选用并连接。订阅可先于 Profile 管理；选择与保存不自动连接。唯一 Profile 会自动进入浏览上下文；切换浏览不影响正在运行的 Profile。
+无 Profile 的 TUI 首用：`4 Subscriptions` → `a` 输入名称和订阅 URL → `u` 更新库存；`7 Config` → Core 中按 `a` 登记已有 Xray；`2 Profiles` → `n` 选 Desktop 模板并填写名称；回 Subscriptions 选中来源按 `b`，明确将该来源用于当前 Profile；`5 Nodes` 选择节点并按 `s` 保存，或按 `c` 选用并连接。订阅可先于 Profile 管理；选择与保存不自动连接。唯一 Profile 会自动进入浏览上下文；切换浏览不影响正在运行的 Profile。
 
-顶层只有 `Overview / Profiles / Modules / Subscriptions / Nodes / Logs / Config` 七页。用 Tab / Shift-Tab 或 `1`–`7` 切换，`?` 查看当前页按键，`q` 仅退出界面。Nodes 用 `[`/`]` 切换“全部订阅 / 单来源 / Local / Groups”；`a` 添加手工节点、分享链接、原生 outbound 或 Group。Config 用 `[`/`]` 切换 `Core / Appearance / Editor / General`；Appearance 的预览可保存或取消，Editor 可保存直接执行的 argv 并测试临时草稿。Overview 同时显示运行状态和可用统计，不会把未观测值显示成零。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
+顶层固定 `Overview / Profiles / Modules / Subscriptions / Nodes / Logs / Config` 七页。两级 Tab 都在顶端；`Tab` / `Shift-Tab` 只移动**当前焦点层**，`Enter` 从顶层进入二级导航、再进入内容，`Esc` 退一层。顶层可用 `1`–`7` 直达页面，`?` 或 F1 看帮助；文本输入和弹窗不会把这些字符当页面快捷键。`q` 退出 TUI，不停止核心。Nodes 的二级分类包括全部订阅、各来源、Local、Groups；内容区上下键、PageUp/PageDown、Home/End 浏览。Config 二级页为 Core、Geodata、Tests、Appearance、Editor、General。80×24 是正常布局下限，缩得更小时显示保护提示，放大后恢复草稿与选择。
+
+Modules 顶部第二行是 15 个原生模块 key：在二级导航按 Tab 切模块，Enter 进入当前内容；原文编辑支持 F2 保存、F6 调外部编辑器。结构化 JSON 草稿用 `a/e/d/r/c` 添加、改标量、删除、重命名、复制数组项，`[`/`]` 调整数组顺序，F4 在结构视图与原文间切换。结构与原文操作的是**同一份未保存草稿**；无效原文会保留供修正，不能可靠地覆盖结构视图。保存只写当前模块源文件，不自动 Connect/Apply。未知字段仍可在原文中查看编辑；禁用或尚无 source 的模块也能打开。
+
+Overview 使用真实 Server 采样显示速率与有界短时图；没有采样或重启后的间隔不画成零流量。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
 
 命令行的程序偏好独立于 Xray 原生配置：`xrm settings show` 查看，`xrm settings set theme dark` 修改外观，`xrm settings editor set '["/usr/bin/vi"]'` 设置外部编辑器。脚本需要机器可读输出时使用现有 `--json`，不会混入终端配色。核心资源仍用 `xrm core ...`，原生模块仍用 `xrm config ...`；这三类设置不会相互覆盖。
 
-旧订阅库存整理：在 `4 Subscriptions` 选中来源后按 `h` 预览当前/历史数量与候选原因；空格只可勾选无属性冲突和已知引用的确定冗余历史记录，`c` 后还要按 `y` 才确认，Esc 取消。预览和取消不写库存；确认也不连接或重启核心。CLI 可用 `xrm node history preview SOURCE_ID`，并按预览返回的 token 执行 `xrm node history confirm SOURCE_ID --id NODE_ID --token TOKEN --yes`。名称/上游身份不同、属性冲突、已知被 Profile/组/观测/原生管理 tag 引用的记录不会自动合并；不要求历史数归零。只在自己的数据上审阅确认，不直接操作数据库。
+新订阅的**完整成功**刷新会按来源内连接身份去重，并把已消失条目从当前节点库存真实移除；下载失败、部分解析失败不据缺席删除，Local 节点不受订阅刷新影响。订阅响应中的明确说明项可在来源详情中查看，不按“可连接节点”累计。若旧库存仍有历史重复项，可在 `4 Subscriptions` 选中来源按 `h` 预览候选；空格只勾选无属性冲突和已知引用的确定冗余记录，`c`、`y` 明确确认，Esc 取消。CLI 仍有 `xrm node history preview SOURCE_ID` 和带预览 token 的 `xrm node history confirm`。这是针对旧库存的审阅入口，不应把新订阅的正常刷新当成永久保留 `source_missing` 的机制。不要在生产数据上执行未经查看的批量清理。
+
+移除节点不会为旧运行实例即时改配置：已经启动的 Xray 使用其不可变多文件运行目录和 RunRecord，当前 PID/文件不因订阅更新变化。Overview 仍可解释正在使用的旧目标；下一次明确 Connect/Apply 从最新库存重新组装。已删除节点不再作为新连接候选；保存的选择若引用失效，会明确报错而非自动直连或改绑。
+
+### 显式节点测试
+
+在 Nodes 内容区高亮一个节点按 `t`，弹窗中分别选 `1` ICMP、`2` TCP、`3` 真实代理 URL、`4` 限量下载。CLI 使用相同 Server 测试能力，例如：
+
+```sh
+xrm node test <node-id> --kind icmp
+xrm node test <node-id> --kind tcp
+xrm node test <node-id> --kind url --profile home --url 'http://127.0.0.1:<test-port>/marker'
+xrm node test <node-id> --kind download --profile home --url 'http://127.0.0.1:<test-port>/bytes' --max-bytes 1048576
+xrm operation get <returned-operation-id>
+xrm node test-results
+xrm node test-cancel <operation-id>
+```
+
+ICMP 只测节点主机的回声响应；本机没有 `ping` 或缺权限时会如实报告，不代表节点离线。TCP 只测地址/端口建连，纯 UDP/QUIC 不适用；TCP 成功**不证明代理认证正确**。URL/下载测试使用所选 Profile 的核心另起受控临时 Xray，测试请求走其 loopback SOCKS 入口；它们不会切换生产出口，也不会回退直接访问目标。下载还受正文大小和超时约束，不是自动批量测所有节点。目标 URL 优先使用本次 `--url`，否则使用当前 Profile 已启用观测模块的目标，再否则使用 Config → Tests 的默认 URL；`burstObservatory.pingConfig.connectivity` 不是代理测试目标。Observatory 本身是后台 HTTPing，不是 ICMP、下载或即时测试 RPC。测试结果记录类型、目标、采样时间和成功/失败/不适用/取消；节点参数后来变化时旧结果会标记过期。测试需要真实流量、可能消耗订阅额度；本指南中的 loopback URL 只是本机测试示例，绝不自动测试你的真实订阅。
+
+### Geodata 与分流预设
+
+共享资源在 `7 Config → Geodata` 管理：`a` 登记 GeoIP/GeoSite 的 URL 或本地 `.dat`，`u` 下载/校验并形成缓存版本；通过已登记的 Xray 验证后，`b` 才把所选文件绑定到**当前浏览的 Profile**。`t` 设置该缓存资源的自动更新间隔，`d` 只移除未被绑定的资源元信息。Profile 绑定的是共享缓存的资源版本，不复制订阅节点；缓存更新不会改当前运行 FileSet，明确 Connect/Apply 才取得新版本。原生 `modules/geodata` 与进程启动前资源路径是不同层，不能用编辑 Xray `env` 模块代替资产绑定。资源缺失、类型或预设需要的标签不匹配时，不要把配置检查通过误当分流已经生效。
+
+对应的命令式入口可用于脚本。名称必须精确且唯一，也可直接使用 ID；`add` 仅登记，`update` 才下载/校验，`bind` 需要已验证版本。`--json` 输出不含颜色或界面装饰。
+
+```sh
+xrm geodata list
+xrm geodata add My-GeoIP geoip geoip.dat --url 'https://example.invalid/geoip.dat'
+# 或：xrm geodata add Local-GeoIP geoip geoip.dat --file /absolute/path/geoip.dat
+xrm geodata update My-GeoIP --core local-xray
+xrm geodata bind home My-GeoIP
+xrm geodata remove My-GeoIP  # 仅限未被 Profile 引用的资源
+```
+
+在当前 Profile 的 Profiles 页面，或 Modules → `routing` 中按 `p`，选择“绕过大陆 / 黑名单代理 / Global / 全直连 / 自定义原生”。先看弹窗中的依赖、**当前原生 routing JSON 与拟保存 JSON 的差异**；`y` 才保存到该 Profile 的 routing 源模块，Esc 取消。前几种预设需要相应已验证的 GeoIP/GeoSite 标签及可用的出口；缺资源时应先回 Geodata 处理。重复选择相同未改动预设不会叠加规则。保存只改变源文件，必须再明确 Connect/Apply 才改变当前 Xray；已有手写未知字段与静态 balancer 不应被预设覆盖。Global 的名称也不表示毫无例外：其局域网和 UDP/443 等行为以预览中的原生规则为准。
+
+CLI 的对应操作是先预览，再明确保存。`plan` 返回 `before`、`after`、依赖和精确原文基线 `expected_text`；审阅结果后把基线存入文件，`save --expected-file` 会在源文件已变化时拒绝，不会静默重做一份新计划：
+
+```sh
+xrm --json routing preset plan home bypass_mainland > /tmp/xrm-routing-plan.json
+# 审阅 /tmp/xrm-routing-plan.json 中的 before、after 和所需资源
+jq -j .expected_text /tmp/xrm-routing-plan.json > /tmp/xrm-routing-base.json
+xrm routing preset save home bypass_mainland --expected-file /tmp/xrm-routing-base.json
+```
+
+`jq -j` 不追加换行，避免改变基线字节。可用预设标识为 `bypass_mainland`、`blacklist_proxy`、`global_proxy`、`direct_only`、`custom_native`。保存只修改原生 `routing` 源模块，不是运行配置应用动作；之后根据需要显式 `xrm config apply home` 或 `xrm connect home`。
 
 已有 Profile 若没有本地代理入口，Overview 会提示当前 `inbounds` 状态。在 Overview 或 Modules 按 `i` 检查；确认对话框会明确展示即将追加的 `127.0.0.1:10808` SOCKS 入站及 `modules/02_inbounds.json` 范围。仅按 `y` 才保存源文件，不覆盖已有入站；原本禁用的 `inbounds` 仍需到 Modules 单独启用，随后明确 Connect/Apply。自定义/服务端 Profile 不会被自动改造，也不会修改系统代理、DNS 或路由。端口已被占用时应查看连接错误并在原生 inbounds 编辑器选择合适端口，不会暗中换端口。
 
