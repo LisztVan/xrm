@@ -110,3 +110,54 @@ TEST_CASE("DB-01 core registrations and Profile paths are persistent indexes", "
   REQUIRE(*path == "/tmp/xrm-profile-fixture");
   REQUIRE((*reopened)->profile_ids() == std::vector<xrm::Id>{"profile-1"});
 }
+
+TEST_CASE("XRM program settings persist without touching Profile or core state", "[SETTINGS]") {
+  TempDatabase database;
+  {
+    auto opened = xrm::Store::open(database.path());
+    REQUIRE(opened);
+    REQUIRE((*opened)->put_core({"core-1", "system", "/usr/bin/xray", "fixture", false}));
+    REQUIRE((*opened)->register_profile("profile-1", "/tmp/xrm-settings-fixture"));
+    REQUIRE((*opened)->save_runtime(xrm::RuntimePersistent{.desired_running = true}));
+    auto defaults = (*opened)->load_program_settings();
+    REQUIRE(defaults);
+    REQUIRE(defaults->at("appearance").at("theme") == "default");
+    REQUIRE(defaults->at("appearance").at("icon_mode") == "unicode");
+    REQUIRE(defaults->at("editor").at("argv") == xrm::Json::array());
+    auto updated = (*opened)->update_program_settings(xrm::Json{
+        {"appearance", {{"theme", "dark"}, {"reduce_motion", true}}},
+        {"editor", {{"argv", xrm::Json::array({"/usr/bin/vi", "-n"})}}}});
+    REQUIRE(updated);
+    REQUIRE(updated->at("appearance").at("theme") == "dark");
+    REQUIRE(updated->at("appearance").at("reduce_motion") == true);
+    REQUIRE(updated->at("appearance").at("icon_mode") == "unicode");
+    REQUIRE(updated->at("editor").at("argv") == xrm::Json::array({"/usr/bin/vi", "-n"}));
+  }
+  auto reopened = xrm::Store::open(database.path());
+  REQUIRE(reopened);
+  auto persisted = (*reopened)->load_program_settings();
+  REQUIRE(persisted);
+  REQUIRE(persisted->at("appearance").at("theme") == "dark");
+  REQUIRE(persisted->at("editor").at("argv") == xrm::Json::array({"/usr/bin/vi", "-n"}));
+  REQUIRE((*reopened)->get_core("core-1"));
+  REQUIRE((*reopened)->profile_path("profile-1"));
+  const auto runtime = (*reopened)->load_runtime();
+  REQUIRE(runtime);
+  REQUIRE(runtime->desired_running);
+}
+
+TEST_CASE("Program settings reject unknown and malformed patches without partial writes", "[SETTINGS]") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path());
+  REQUIRE(opened);
+  const auto original = (*opened)->load_program_settings();
+  REQUIRE(original);
+  REQUIRE_FALSE((*opened)->update_program_settings(xrm::Json{{"appearance", {{"theme", "dark"},
+                                                              {"unknown", "unexpected"}}}}));
+  REQUIRE_FALSE((*opened)->update_program_settings(xrm::Json{{"editor", {{"argv", "sh -c arbitrary"}}}}));
+  REQUIRE_FALSE((*opened)->update_program_settings(xrm::Json{{"appearance", {{"color_mode", "bad"}}}}));
+  REQUIRE_FALSE((*opened)->update_program_settings(xrm::Json{{"general", {{"imaginary", true}}}}));
+  const auto unchanged = (*opened)->load_program_settings();
+  REQUIRE(unchanged);
+  REQUIRE(*unchanged == *original);
+}

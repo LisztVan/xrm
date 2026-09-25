@@ -101,6 +101,23 @@ std::string display_error(const Json& error) {
   return error.at("message").get<std::string>();
 }
 
+bool human_color_enabled(const Request& request, const Json& result) {
+  static std::optional<std::string> saved_preference;
+  if (request.method == "settings.get" || request.method == "settings.update") {
+    saved_preference = result.value("appearance", Json::object()).value("cli_color", "auto");
+  } else if (!saved_preference) {
+    auto settings = call_rpc_once(request.socket, "settings.get", Json::object());
+    saved_preference = settings && settings->is_object()
+        ? settings->value("appearance", Json::object()).value("cli_color", "auto") : "auto";
+  }
+  return *saved_preference == "always" || (*saved_preference == "auto" && ::isatty(STDOUT_FILENO));
+}
+
+std::string colored(std::string_view text, std::string_view ansi, bool enabled) {
+  if (!enabled) return std::string(text);
+  return "\x1b[" + std::string(ansi) + "m" + std::string(text) + "\x1b[0m";
+}
+
 bool is_uuid(std::string_view value) {
   if (value.size() != 36) return false;
   for (std::size_t i = 0; i < value.size(); ++i) {
@@ -273,10 +290,18 @@ int print_result(const Request& request, const Result<Json>& result) {
     std::cout << result->dump() << '\n';
     return refresh_exit_code(request, *result);
   }
+  const bool color = human_color_enabled(request, *result);
 
   if (request.method == "server.info") {
-    std::cout << "xrmd " << result->value("version", "unknown")
+    std::cout << colored("xrmd", "1;36", color) << ' ' << result->value("version", "unknown")
               << " (protocol " << result->value("protocol", 0) << ")\n";
+  } else if (request.method == "settings.get" || request.method == "settings.update") {
+    std::cout << colored("Appearance:", "1;36", color) << ' '
+              << result->value("appearance", Json::object()).dump(2)
+              << '\n' << colored("Editor argv:", "1;36", color) << ' '
+              << result->value("editor", Json::object()).value("argv", Json::array()).dump()
+              << '\n' << colored("General:", "1;36", color)
+              << " no adjustable settings\n";
   } else if (request.method == "core.register") {
     std::cout << "Registered " << result->value("name", "") << " "
               << result->value("reported_version", "") << " ["
@@ -415,7 +440,8 @@ int print_result(const Request& request, const Result<Json>& result) {
   } else if (request.method == "connection.select") {
     std::cout << "selection saved; runtime unchanged\n";
   } else if (request.method == "runtime.status") {
-    std::cout << "state: " << result->value("state", "unknown") << "\nhealth: "
+    std::cout << colored("state:", "1;36", color) << ' ' << result->value("state", "unknown")
+              << '\n' << colored("health:", "1;36", color) << ' '
               << result->value("health", "unknown") << "\n";
     if (result->contains("saved_target")) std::cout << "saved target: " << result->at("saved_target").dump() << '\n';
     if (result->contains("actual_target")) std::cout << "applied target: " << result->at("actual_target").dump() << '\n';
@@ -428,7 +454,7 @@ int print_result(const Request& request, const Result<Json>& result) {
                 << result->at("active").value("confdir", "") << '\n';
   } else if (request.method == "runtime.stats") {
     const auto availability = result->value("availability", "unknown");
-    std::cout << "metrics: " << availability << '\n';
+    std::cout << colored("metrics:", "1;36", color) << ' ' << availability << '\n';
     if (availability != "available") {
       const auto missing_key = result->contains("missing_conditions") ? "missing_conditions" : "missing";
       if (result->contains(missing_key) && result->at(missing_key).is_array()) {

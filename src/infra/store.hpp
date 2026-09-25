@@ -46,6 +46,9 @@ class Store {
   Result<void> put_core(const CoreInstall&);
   Result<void> remove_core(const Id&);
 
+  Result<Json> load_program_settings() const;
+  Result<Json> update_program_settings(const Json& patch);
+
  private:
   struct Impl;
   explicit Store(std::unique_ptr<Impl> impl);

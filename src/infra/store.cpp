@@ -144,6 +144,61 @@ bool request_settings_equal(const Subscription& left, const Subscription& right)
   return a == b;
 }
 
+Json default_program_settings() {
+  return Json{{"appearance", {{"theme", "default"}, {"color_mode", "auto"},
+                                  {"density", "comfortable"}, {"icon_mode", "unicode"},
+                                  {"reduce_motion", false}, {"cli_color", "auto"}}},
+              {"editor", {{"argv", Json::array()}}}, {"general", Json::object()}};
+}
+
+bool one_of(const Json& value, std::initializer_list<std::string_view> choices) {
+  if (!value.is_string()) return false;
+  const auto text = value.get<std::string>();
+  return std::find(choices.begin(), choices.end(), text) != choices.end();
+}
+
+Result<Json> apply_program_settings_patch(Json current, const Json& patch) {
+  if (!patch.is_object())
+    return std::unexpected(invalid("程序设置补丁必须是对象", "patch"));
+  for (auto it = patch.begin(); it != patch.end(); ++it) {
+    if (!it.value().is_object())
+      return std::unexpected(invalid("设置分组必须是对象", it.key()));
+    if (it.key() == "appearance") {
+      for (auto field = it.value().begin(); field != it.value().end(); ++field) {
+        const auto& key = field.key();
+        const auto& value = field.value();
+        bool valid = false;
+        if (key == "theme") valid = one_of(value, {"default", "dark", "light"});
+        else if (key == "color_mode") valid = one_of(value, {"auto", "truecolor", "256", "none"});
+        else if (key == "density") valid = one_of(value, {"comfortable", "compact"});
+        else if (key == "icon_mode") valid = one_of(value, {"unicode", "ascii"});
+        else if (key == "cli_color") valid = one_of(value, {"auto", "always", "never"});
+        else if (key == "reduce_motion") valid = value.is_boolean();
+        if (!valid) return std::unexpected(invalid("不支持的界面设置或值", "appearance." + key));
+        current["appearance"][key] = value;
+      }
+    } else if (it.key() == "editor") {
+      for (auto field = it.value().begin(); field != it.value().end(); ++field) {
+        if (field.key() != "argv" || !field.value().is_array())
+          return std::unexpected(invalid("Editor只支持argv数组", "editor." + field.key()));
+        for (const auto& arg : field.value()) {
+          if (!arg.is_string() || arg.get<std::string>().find('\0') != std::string::npos)
+            return std::unexpected(invalid("Editor argv必须是无NUL字符串", "editor.argv"));
+        }
+        if (!field.value().empty() && field.value().front().get<std::string>().empty())
+          return std::unexpected(invalid("Editor可执行文件不能为空", "editor.argv"));
+        current["editor"]["argv"] = field.value();
+      }
+    } else if (it.key() == "general") {
+      if (!it.value().empty())
+        return std::unexpected(invalid("当前没有可调整的General设置", "general"));
+    } else {
+      return std::unexpected(invalid("不支持的程序设置分组", it.key()));
+    }
+  }
+  return current;
+}
+
 Result<void> upsert_node_row(sqlite3* db, const Node& node) {
   if (node.id.empty()) return std::unexpected(invalid("节点ID不能为空", "id"));
   if (node.original_name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
@@ -211,6 +266,8 @@ Result<std::unique_ptr<Store>> Store::open(std::filesystem::path database) {
       "id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, path TEXT NOT NULL,"
       "reported_version TEXT NOT NULL, managed INTEGER NOT NULL);"
       "CREATE TABLE IF NOT EXISTS runtime_state ("
+      "id INTEGER PRIMARY KEY CHECK(id=1), document_json TEXT NOT NULL);"
+      "CREATE TABLE IF NOT EXISTS program_settings ("
       "id INTEGER PRIMARY KEY CHECK(id=1), document_json TEXT NOT NULL);";
   char* message = nullptr;
   const int schema_status = sqlite3_exec(handle, schema, nullptr, nullptr, &message);
@@ -746,6 +803,39 @@ Result<void> Store::remove_core(const Id& id) {
   if (sqlite3_step(statement.get()) != SQLITE_DONE) return std::unexpected(statement.error("删除核心登记失败"));
   if (sqlite3_changes(impl_->db) == 0) return std::unexpected(missing("核心", id));
   return {};
+}
+
+Result<Json> Store::load_program_settings() const {
+  Statement statement(impl_->db, "SELECT document_json FROM program_settings WHERE id=1");
+  if (!statement.ready()) return std::unexpected(statement.error("准备读取程序设置失败"));
+  const int status = sqlite3_step(statement.get());
+  if (status == SQLITE_DONE) return default_program_settings();
+  if (status != SQLITE_ROW) return std::unexpected(statement.error("读取程序设置失败"));
+  try {
+    auto stored = Json::parse(column_text(statement.get(), 0));
+    if (!stored.is_object())
+      return std::unexpected(AppError{ErrorCode::storage_error,
+          "程序设置JSON不是对象", std::nullopt, std::nullopt});
+    return stored;
+  } catch (const Json::exception& error) {
+    return std::unexpected(AppError{ErrorCode::storage_error,
+        "程序设置JSON损坏: " + std::string(error.what()), std::nullopt, std::nullopt});
+  }
+}
+
+Result<Json> Store::update_program_settings(const Json& patch) {
+  auto current = load_program_settings();
+  if (!current) return std::unexpected(current.error());
+  auto next = apply_program_settings_patch(std::move(*current), patch);
+  if (!next) return std::unexpected(next.error());
+  Statement statement(impl_->db, "INSERT INTO program_settings(id,document_json) VALUES(1,?1) "
+                                 "ON CONFLICT(id) DO UPDATE SET document_json=excluded.document_json");
+  if (!statement.ready()) return std::unexpected(statement.error("准备保存程序设置失败"));
+  const auto serialized = next->dump();
+  bind_text(statement.get(), 1, serialized);
+  if (sqlite3_step(statement.get()) != SQLITE_DONE)
+    return std::unexpected(statement.error("保存程序设置失败"));
+  return next;
 }
 
 }  // namespace xrm
