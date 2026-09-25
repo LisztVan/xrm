@@ -17,6 +17,20 @@ struct ModuleChange { ModuleEdit edit; bool include_after_save = true; };
 struct ModuleChangePlan { std::vector<ModuleChange> changes; std::vector<Notice> notices; };
 struct SaveManyResult { std::vector<std::string> saved; std::optional<AppError> failure; };
 
+// A structured edit of the same source text used by the native editor. The
+// returned ModuleEdit keeps the caller's original text as its conflict base.
+enum class JsonEditAction { set, erase, rename_key, array_insert, array_erase,
+                            array_copy, array_move };
+struct JsonDraftEdit {
+  JsonEditAction action = JsonEditAction::set;
+  std::string pointer;
+  std::optional<Json> value;
+  std::optional<std::string> new_key;
+  std::optional<std::size_t> index;
+  std::optional<std::size_t> destination;
+};
+Result<ModuleEdit> edit_json_draft(const ModuleDocument&, const JsonDraftEdit&);
+
 Result<ModuleEdit> set_log_level(const ModuleDocument&, std::optional<std::string>);
 Result<ModuleEdit> replace_dns_servers(const ModuleDocument&, std::vector<Json>);
 Result<ModuleEdit> replace_dns_hosts(const ModuleDocument&, Json hosts);

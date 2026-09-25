@@ -94,6 +94,86 @@ bool duplicate_tag(const Json& values, const Json& value, std::optional<std::siz
 
 }  // namespace
 
+Result<ModuleEdit> edit_json_draft(const ModuleDocument& document, const JsonDraftEdit& edit) {
+  auto parsed = parse_document(document);
+  if (!parsed) return std::unexpected(parsed.error());
+  const auto root_prefix = "/" + document.key;
+  const bool native_root_array = edit.pointer == root_prefix &&
+      (edit.action == JsonEditAction::array_insert ||
+       edit.action == JsonEditAction::array_erase ||
+       edit.action == JsonEditAction::array_copy ||
+       edit.action == JsonEditAction::array_move);
+  if (!native_root_array &&
+      (edit.pointer.size() <= root_prefix.size() ||
+       edit.pointer.compare(0, root_prefix.size(), root_prefix) != 0 ||
+       edit.pointer[root_prefix.size()] != '/')) {
+    return std::unexpected(invalid("结构编辑只能修改当前原生模块内部字段", document.key));
+  }
+  try {
+    const auto pointer = Json::json_pointer(edit.pointer);
+    if (edit.action == JsonEditAction::set || edit.action == JsonEditAction::erase ||
+        edit.action == JsonEditAction::rename_key) {
+      auto& parent = parsed->at(pointer.parent_pointer());
+      if (!parent.is_object())
+        return std::unexpected(invalid("字段的父级必须是 JSON 对象", document.key));
+      const auto& key = pointer.back();
+      if (edit.action == JsonEditAction::set) {
+        if (!edit.value)
+          return std::unexpected(invalid("设置字段需要带类型的 JSON 值", document.key));
+        parent[key] = *edit.value;
+      } else {
+        if (!parent.contains(key))
+          return std::unexpected(invalid("要修改的字段不存在", document.key));
+        if (edit.action == JsonEditAction::erase) parent.erase(key);
+        else {
+          if (!edit.new_key || edit.new_key->empty() || parent.contains(*edit.new_key))
+            return std::unexpected(invalid("新字段名为空或已存在", document.key));
+          auto value = std::move(parent[key]);
+          parent.erase(key);
+          parent[*edit.new_key] = std::move(value);
+        }
+      }
+    } else {
+      auto& values = parsed->at(pointer);
+      if (!values.is_array() || !edit.index)
+        return std::unexpected(invalid("数组操作需要数组路径和位置", document.key));
+      const auto size = values.size();
+      const auto position = *edit.index;
+      switch (edit.action) {
+        case JsonEditAction::array_insert:
+          if (position > size || !edit.value)
+            return std::unexpected(invalid("插入需要有效位置和 JSON 值", document.key));
+          values.insert(values.begin() + static_cast<Json::difference_type>(position), *edit.value);
+          break;
+        case JsonEditAction::array_erase:
+          if (position >= size)
+            return std::unexpected(invalid("删除位置超出数组", document.key));
+          values.erase(values.begin() + static_cast<Json::difference_type>(position));
+          break;
+        case JsonEditAction::array_copy:
+          if (position >= size || !edit.destination || *edit.destination > size)
+            return std::unexpected(invalid("复制位置超出数组", document.key));
+          values.insert(values.begin() + static_cast<Json::difference_type>(*edit.destination),
+                        values[position]);
+          break;
+        case JsonEditAction::array_move: {
+          if (position >= size || !edit.destination || *edit.destination >= size)
+            return std::unexpected(invalid("移动位置超出数组", document.key));
+          auto value = values[position];
+          values.erase(values.begin() + static_cast<Json::difference_type>(position));
+          values.insert(values.begin() + static_cast<Json::difference_type>(*edit.destination),
+                        std::move(value));
+          break;
+        }
+        default: break;
+      }
+    }
+  } catch (const std::exception& exception) {
+    return std::unexpected(invalid("结构编辑路径无效：" + std::string(exception.what()), document.key));
+  }
+  return ModuleEdit{document.key, {document.source_text}, parsed->dump(2) + "\n"};
+}
+
 Result<ModuleEdit> set_log_level(const ModuleDocument& document, std::optional<std::string> level) {
   return update_object(document, "log", [&](Json& native) {
     if (level) native["loglevel"] = *level;

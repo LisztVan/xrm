@@ -109,6 +109,43 @@ TEST_CASE("UI-11 local template can be saved before a core is registered and off
   }
 }
 
+TEST_CASE("P3 Desktop and Custom create separate one-time native samples", "[PROFILE][P3]") {
+  TempRoot root;
+  auto opened = xrm::Store::open(root.path() / "manager.sqlite");
+  REQUIRE(opened);
+  xrm::ProfileService service(**opened, root.path() / "profiles");
+  auto desktop = service.create({"Desktop", "", "desktop", {}});
+  REQUIRE(desktop);
+  auto custom = service.create({"Custom", "", "custom", {}});
+  REQUIRE(custom);
+  REQUIRE(desktop->modules.size() == 15);
+  REQUIRE(custom->modules.size() == 15);
+  const std::set<std::string> baseline{"log", "dns", "inbounds", "outbounds", "routing"};
+  for (const auto& item : desktop->modules) {
+    INFO(item.key);
+    CHECK(item.included == baseline.contains(item.key));
+    auto native = service.module(desktop->id, item.key);
+    REQUIRE(native);
+    REQUIRE(native->document);
+    CHECK(xrm::Json::parse(native->document->source_text).contains(item.key));
+  }
+  for (const auto& item : custom->modules) {
+    INFO(item.key);
+    CHECK_FALSE(item.included);
+    auto native = service.module(custom->id, item.key);
+    REQUIRE(native);
+    REQUIRE(native->document);
+    CHECK(xrm::Json::parse(native->document->source_text).contains(item.key));
+  }
+  const auto before = read(root.path() / "profiles" / desktop->id / "modules" / "01_dns.json");
+  auto custom_dns = service.module(custom->id, "dns");
+  REQUIRE(custom_dns);
+  REQUIRE(custom_dns->document);
+  REQUIRE(service.save_module(custom->id,
+      {"dns", {custom_dns->document->source_text}, R"({"dns":{"servers":["localhost"]}})"}));
+  CHECK(read(root.path() / "profiles" / desktop->id / "modules" / "01_dns.json") == before);
+}
+
 TEST_CASE("UI-11 legacy Profile without source binding remains all-sources and new binding round trips", "[PROFILE][UI-11]") {
   ProfileFixture fixture;
   auto file = fixture.root.path() / "profiles" / fixture.profile.id / "profile.json";

@@ -231,8 +231,9 @@ Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
     return fail<ProfileSettings>(ErrorCode::invalid_argument,
         "Profile 名称不能为空或包含控制字符");
   }
-  if (request.preset != "local") {
-    return fail<ProfileSettings>(ErrorCode::not_found, "找不到本地 Profile 预设", request.preset);
+  if (request.preset != "local" && request.preset != "desktop" &&
+      request.preset != "custom") {
+    return fail<ProfileSettings>(ErrorCode::not_found, "找不到 Profile 预设", request.preset);
   }
 
   const auto preset = preset_root() / "local";
@@ -254,7 +255,8 @@ Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
   settings.name = request.name;
   settings.core_id = request.core_id;
   settings.enabled_source_ids = std::vector<Id>{};
-  settings.append_selected_default = manifest.value("append_selected_default", false);
+  settings.append_selected_default = request.preset != "custom" &&
+      manifest.value("append_selected_default", false);
   settings.environment = request.environment;
   settings.modules = default_module_settings();
   std::set<std::string> included;
@@ -264,7 +266,8 @@ Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
     }
     included.insert(key.get<std::string>());
   }
-  for (auto& module : settings.modules) module.included = included.contains(module.key);
+  for (auto& module : settings.modules)
+    module.included = request.preset != "custom" && included.contains(module.key);
   if (auto valid = validate_settings(settings); !valid) return std::unexpected(valid.error());
 
   std::error_code fs_error;

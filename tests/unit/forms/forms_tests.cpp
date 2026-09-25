@@ -145,3 +145,65 @@ TEST_CASE("FORM-01 safe structured forms reject comments and malformed JSON with
   REQUIRE_FALSE(result);
   CHECK(result.error().hint.has_value());
 }
+
+TEST_CASE("P3 structured native edits keep one module draft and native types", "[P3][FORM-01]") {
+  const auto original = doc("dns", {{"dns", {{"servers", Json::array({"one", "two"})},
+      {"hosts", {{"old.test", "127.0.0.1"}}}, {"unknown", {{"nested", true}}}}},
+      {"outside", 7}});
+  auto added = edit_json_draft(original, {JsonEditAction::set, "/dns/hosts/new.test", "127.0.0.2"});
+  REQUIRE(added);
+  CHECK(added->base.expected_text == original.source_text);
+  CHECK(body(*added)["dns"]["unknown"]["nested"] == true);
+  CHECK(body(*added)["outside"] == 7);
+  auto bool_edit = edit_json_draft({"dns", "module.json", added->text},
+      {JsonEditAction::set, "/dns/unknown/nested", false});
+  REQUIRE(bool_edit);
+  CHECK(body(*bool_edit)["dns"]["unknown"]["nested"].is_boolean());
+  CHECK(body(*bool_edit)["dns"]["unknown"]["nested"] == false);
+  auto rename = edit_json_draft({"dns", "module.json", bool_edit->text},
+      {JsonEditAction::rename_key, "/dns/hosts/old.test", {}, "renamed.test"});
+  REQUIRE(rename);
+  CHECK(body(*rename)["dns"]["hosts"]["renamed.test"] == "127.0.0.1");
+  CHECK_FALSE(body(*rename)["dns"]["hosts"].contains("old.test"));
+  auto removed = edit_json_draft({"dns", "module.json", rename->text},
+      {JsonEditAction::erase, "/dns/hosts/new.test"});
+  REQUIRE(removed);
+  CHECK_FALSE(body(*removed)["dns"]["hosts"].contains("new.test"));
+  CHECK(body(*removed)["dns"]["unknown"]["nested"] == false);
+}
+
+TEST_CASE("P3 structured array actions keep route order and reject invalid drafts", "[P3][FORM-06]") {
+  const auto routing = doc("routing", {{"routing", {{"rules", Json::array({
+      {{"outboundTag", "a"}, {"unknown", 1}}, {{"outboundTag", "b"}, {"unknown", 2}}})},
+      {"balancers", Json::array({{{"tag", "static"}, {"selector", Json::array({"a"})}}})},
+      {"domainStrategy", "AsIs"}}}});
+  auto copied = edit_json_draft(routing,
+      {JsonEditAction::array_copy, "/routing/rules", {}, {}, 0, 2});
+  REQUIRE(copied);
+  CHECK(body(*copied)["routing"]["rules"].size() == 3);
+  auto moved = edit_json_draft({"routing", "module.json", copied->text},
+      {JsonEditAction::array_move, "/routing/rules", {}, {}, 2, 0});
+  REQUIRE(moved);
+  CHECK(body(*moved)["routing"]["rules"][0]["outboundTag"] == "a");
+  CHECK(body(*moved)["routing"]["rules"][2]["outboundTag"] == "b");
+  CHECK(body(*moved)["routing"]["balancers"][0]["tag"] == "static");
+  auto inserted = edit_json_draft({"routing", "module.json", moved->text},
+      {JsonEditAction::array_insert, "/routing/rules", Json{{"outboundTag", "c"}}, {}, 1});
+  REQUIRE(inserted);
+  CHECK(body(*inserted)["routing"]["rules"][1]["outboundTag"] == "c");
+  auto erased = edit_json_draft({"routing", "module.json", inserted->text},
+      {JsonEditAction::array_erase, "/routing/rules", {}, {}, 1});
+  REQUIRE(erased);
+  CHECK(body(*erased)["routing"]["rules"].size() == 3);
+  CHECK_FALSE(edit_json_draft({"routing", "module.json", "{broken"},
+      {JsonEditAction::set, "/routing/domainStrategy", "IPIfNonMatch"}));
+  CHECK_FALSE(edit_json_draft(routing,
+      {JsonEditAction::erase, "/routing"}));
+  CHECK_FALSE(edit_json_draft(routing,
+      {JsonEditAction::set, "/outside", 9}));
+  const auto inbounds = doc("inbounds", {{"inbounds", Json::array()}});
+  auto inbound_insert = edit_json_draft(inbounds, {JsonEditAction::array_insert,
+      "/inbounds", Json{{"tag", "local"}, {"protocol", "socks"}}, {}, 0});
+  REQUIRE(inbound_insert);
+  CHECK(body(*inbound_insert)["inbounds"][0]["tag"] == "local");
+}
