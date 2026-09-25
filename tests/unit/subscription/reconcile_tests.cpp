@@ -76,13 +76,13 @@ TEST_CASE("SUB-04 same-name identity changes and cross-source nodes are never me
   parsed.nodes = {vless("same", "one.example", "new-secret")};
   auto result = xrm::reconcile({source, {old, other_source}, parsed}, [] { return "fresh"; });
   REQUIRE(result.has_value());
-  REQUIRE(result->changes.upserts.size() == 2);
+  REQUIRE(result->changes.upserts.size() == 1);
   const auto fresh = std::find_if(result->changes.upserts.begin(), result->changes.upserts.end(),
                                   [](const xrm::Node& node) { return node.id == "fresh"; });
   REQUIRE(fresh != result->changes.upserts.end());
   CHECK(result->report.added == 1);
   CHECK(result->report.missing == 1);
-  CHECK(result->changes.erase_ids.empty());
+  CHECK(result->changes.erase_ids == std::vector<xrm::Id>{"existing"});
   CHECK(fresh->source_id == source.id);
 }
 
@@ -103,8 +103,9 @@ TEST_CASE("SUB-04 equivalent entries and historical duplicate records do not gen
   REQUIRE(result.has_value());
   CHECK(result->report.added == 0);
   CHECK(result->report.updated == 0);
-  CHECK(result->report.missing == 0);
+  CHECK(result->report.missing == 1);
   CHECK(result->changes.upserts.empty());
+  CHECK(result->changes.erase_ids == std::vector<xrm::Id>{"old-2"});
 
   parsed.structurally_complete = false;
   auto partial = xrm::reconcile({source, {old1, old2}, parsed}, [] { return "another"; });
@@ -148,7 +149,7 @@ TEST_CASE("SUB-04 a repeated source payload allocates one ID and is stable for t
   }));
 }
 
-TEST_CASE("SUB-04 a 49-row source keeps four named information rows distinct across ten refreshes") {
+TEST_CASE("SUB-04 a source with repeated connection rows retains one identity across ten refreshes") {
   xrm::Subscription source;
   source.id = "source-A";
   xrm::ParseReport parsed;
@@ -170,7 +171,7 @@ TEST_CASE("SUB-04 a 49-row source keeps four named information rows distinct acr
       return "info-" + std::to_string(++generated);
     });
     REQUIRE(result);
-    CHECK(result->report.added == (iteration == 0 ? 49 : 0));
+    CHECK(result->report.added == (iteration == 0 ? 46 : 0));
     CHECK(result->report.updated == 0);
     CHECK(result->report.missing == 0);
     for (const auto& node : result->changes.upserts) {
@@ -179,17 +180,17 @@ TEST_CASE("SUB-04 a 49-row source keeps four named information rows distinct acr
       if (found == stored.end()) stored.push_back(node);
       else *found = node;
     }
-    REQUIRE(stored.size() == 49);
+    REQUIRE(stored.size() == 46);
     std::vector<xrm::Id> ids;
     for (const auto& node : stored) ids.push_back(node.id);
     std::sort(ids.begin(), ids.end());
     if (iteration == 0) first_ids = ids;
     else CHECK(ids == first_ids);
   }
-  CHECK(generated == 49);
+  CHECK(generated == 46);
 }
 
-TEST_CASE("SUB-04 named information rows restore matching missing identities") {
+TEST_CASE("SUB-04 equivalent missing history rows retain one and remove redundant records") {
   xrm::Subscription source;
   source.id = "source-A";
   xrm::ParseReport parsed;
@@ -212,13 +213,12 @@ TEST_CASE("SUB-04 named information rows restore matching missing identities") {
   auto result = xrm::reconcile({source, old_nodes, parsed}, [] { return "wrong-new-id"; });
   REQUIRE(result);
   CHECK(result->report.added == 0);
-  CHECK(result->report.updated == 4);
-  CHECK(result->report.missing == 0);
-  REQUIRE(result->changes.upserts.size() == 4);
-  for (std::size_t i = 0; i < result->changes.upserts.size(); ++i) {
-    CHECK(result->changes.upserts[i].id == old_nodes[i].id);
-    CHECK_FALSE(result->changes.upserts[i].source_missing);
-  }
+  CHECK(result->report.updated == 1);
+  CHECK(result->report.missing == 3);
+  REQUIRE(result->changes.upserts.size() == 1);
+  CHECK(result->changes.upserts.front().id == "old-0");
+  CHECK_FALSE(result->changes.upserts.front().source_missing);
+  CHECK(result->changes.erase_ids.size() == 3);
 }
 
 TEST_CASE("SUB-04 exact source-missing identity is restored instead of replaced") {
@@ -336,7 +336,7 @@ TEST_CASE("SUB-03 partial parse accepts valid entries without marking absent nod
   CHECK(empty->report.missing == 0);
 }
 
-TEST_CASE("SUB-04 explicit upstream identity takes precedence over changed connection fields") {
+TEST_CASE("SUB-04 upstream row ID cannot overwrite changed connection identity") {
   xrm::Subscription source;
   source.id = "source-A";
   xrm::Node old;
@@ -351,10 +351,12 @@ TEST_CASE("SUB-04 explicit upstream identity takes precedence over changed conne
   parsed.nodes = {vless("after", "new.example", "new-secret", "source-row-7")};
   auto result = xrm::reconcile({source, {old}, parsed}, [] { return "unexpected-new"; });
   REQUIRE(result.has_value());
-  CHECK(result->report.added == 0);
-  CHECK(result->report.updated == 1);
+  CHECK(result->report.added == 1);
+  CHECK(result->report.updated == 0);
+  CHECK(result->report.missing == 1);
   REQUIRE(result->changes.upserts.size() == 1);
-  CHECK(result->changes.upserts.front().id == old.id);
+  CHECK(result->changes.upserts.front().id == "unexpected-new");
+  CHECK(result->changes.erase_ids == std::vector<xrm::Id>{old.id});
   CHECK(result->changes.upserts.front().upstream_id == old.upstream_id);
 }
 
@@ -390,10 +392,56 @@ TEST_CASE("SUB-04 same endpoint and credential with changed transport or securit
     REQUIRE(result.has_value());
     CHECK(result->report.added == 1);
     CHECK(result->report.missing == 1);
-    REQUIRE(result->changes.upserts.size() == 2);
+    REQUIRE(result->changes.upserts.size() == 1);
     CHECK(std::any_of(result->changes.upserts.begin(), result->changes.upserts.end(),
                       [](const xrm::Node& node) { return node.id == "new-vless"; }));
-    CHECK(std::any_of(result->changes.upserts.begin(), result->changes.upserts.end(),
-                      [](const xrm::Node& node) { return node.id == "old-vless" && node.source_missing; }));
+    CHECK(result->changes.erase_ids == std::vector<xrm::Id>{"old-vless"});
   }
+}
+
+TEST_CASE("P2 complete refresh physically removes absent source rows; partial refresh does not") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::Node old;
+  old.id = "old-a";
+  old.source_id = source.id;
+  old.original_name = "A";
+  old.settings = vless("A", "a.example", "secret-a").settings;
+  xrm::ParseReport replacement;
+  replacement.structurally_complete = true;
+  replacement.nodes = {vless("B", "b.example", "secret-b")};
+  auto complete = xrm::reconcile({source, {old}, replacement}, [] { return "new-b"; });
+  REQUIRE(complete);
+  CHECK(complete->report.missing == 1);
+  CHECK(complete->changes.erase_ids == std::vector<xrm::Id>{"old-a"});
+  CHECK(std::none_of(complete->changes.upserts.begin(), complete->changes.upserts.end(),
+                     [](const xrm::Node& node) { return node.source_missing; }));
+
+  replacement.issues.push_back({1, xrm::IssueKind::malformed, "bad", "bad row"});
+  auto partial = xrm::reconcile({source, {old}, replacement}, [] { return "new-b"; });
+  REQUIRE(partial);
+  CHECK(partial->report.missing == 0);
+  CHECK(partial->changes.erase_ids.empty());
+}
+
+TEST_CASE("P2 equivalent source rows with different names collapse to one connection") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {vless("First", "same.example", "same-secret"),
+                  vless("Renamed", "same.example", "same-secret")};
+  std::size_t created = 0;
+  auto first = xrm::reconcile({source, {}, parsed}, [&] { return "id-" + std::to_string(++created); });
+  REQUIRE(first);
+  CHECK(first->report.added == 1);
+  REQUIRE(first->changes.upserts.size() == 1);
+  CHECK(created == 1);
+  auto second = xrm::reconcile({source, first->changes.upserts, parsed},
+                               [&] { return "id-" + std::to_string(++created); });
+  REQUIRE(second);
+  CHECK(second->report.added == 0);
+  CHECK(second->report.updated == 0);
+  CHECK(second->changes.erase_ids.empty());
+  CHECK(created == 1);
 }

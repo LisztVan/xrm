@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -35,20 +36,6 @@ std::string connection_identity(const NodeSettings& settings) {
   if (!outbound.is_object()) return {};
   outbound.erase("tag");
   return "native\n" + outbound.dump();
-}
-
-std::string named_connection_identity(const NodeSettings& settings,
-                                      const std::string& name) {
-  const auto connection = connection_identity(settings);
-  if (connection.empty()) return {};
-  return Json::array({connection, name}).dump();
-}
-
-std::string row_identity(const NodeSettings& settings, const std::string& name,
-                         const std::optional<std::string>& upstream_id) {
-  const auto connection = connection_identity(settings);
-  if (connection.empty()) return {};
-  return Json::array({connection, name, upstream_id ? Json(*upstream_id) : Json(nullptr)}).dump();
 }
 
 bool settings_equal(const NodeSettings& left, const NodeSettings& right) {
@@ -84,73 +71,57 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
   for (const auto& node : input.old_nodes)
     if (node.source_id == input.source.id) old_nodes.push_back(&node);
 
-  // A provider may publish multiple distinct information rows using one
-  // connection. Only a fully identical row is a duplicate within a response.
-  std::set<std::string> unique_parsed;
-  std::vector<std::size_t> parsed_indices;
+  // Connection settings, not display names or provider row order, identify
+  // one usable exit within a source. The parser has already normalized URI
+  // syntax and known equivalent defaults into NodeSettings.
+  std::map<std::string, std::vector<std::size_t>> parsed_by_connection;
   for (std::size_t i = 0; i < input.parsed.nodes.size(); ++i) {
     const auto& node = input.parsed.nodes[i];
-    const auto key = row_identity(node.settings, node.name, node.upstream_id);
-    if (key.empty() || unique_parsed.insert(key).second)
-      parsed_indices.push_back(i);
+    parsed_by_connection[connection_identity(node.settings)].push_back(i);
   }
-
-  std::vector<std::optional<std::size_t>> matched(input.parsed.nodes.size());
-  std::set<std::size_t> used_old;
-  std::set<std::size_t> present_old;
-  auto match_unique = [&](auto old_key, auto parsed_key, bool allow_equivalent_old) {
-    std::map<std::string, std::vector<std::size_t>> old_groups;
-    std::map<std::string, std::vector<std::size_t>> parsed_groups;
-    for (std::size_t i = 0; i < old_nodes.size(); ++i) {
-      if (used_old.contains(i)) continue;
-      const std::string key = old_key(*old_nodes[i]);
-      if (!key.empty()) old_groups[key].push_back(i);
-    }
-    for (const auto i : parsed_indices) {
-      if (matched[i]) continue;
-      const std::string key = parsed_key(input.parsed.nodes[i]);
-      if (!key.empty()) parsed_groups[key].push_back(i);
-    }
-    for (const auto& [key, old_indices] : old_groups) {
-      const auto found = parsed_groups.find(key);
-      if (found == parsed_groups.end() || found->second.size() != 1 ||
-          (!allow_equivalent_old && old_indices.size() != 1)) continue;
-      // Historical equivalent duplicates may have references or user edits.
-      // Reuse one stable ID, but leave the others untouched for an explicit
-      // user-reviewed cleanup instead of silently deleting or disabling them.
-      const auto chosen = *std::min_element(old_indices.begin(), old_indices.end(),
-          [&](std::size_t left, std::size_t right) {
-            if (old_nodes[left]->source_missing != old_nodes[right]->source_missing)
-              return !old_nodes[left]->source_missing;
-            return old_nodes[left]->id < old_nodes[right]->id;
-          });
-      matched[found->second.front()] = chosen;
-      used_old.insert(chosen);
-      if (allow_equivalent_old) present_old.insert(old_indices.begin(), old_indices.end());
-      else present_old.insert(chosen);
-    }
+  std::map<std::string, std::vector<std::size_t>> old_by_connection;
+  for (std::size_t i = 0; i < old_nodes.size(); ++i)
+    old_by_connection[connection_identity(old_nodes[i]->settings)].push_back(i);
+  std::set<std::size_t> retained_old;
+  const bool complete = input.parsed.structurally_complete &&
+                        !input.parsed.nodes.empty() && input.parsed.issues.empty();
+  auto customized = [](const Node& node) {
+    return node.alias.has_value() || !node.labels.empty() || !node.enabled;
   };
-
-  // Match the full source row first. Distinct names sharing connection fields
-  // retain separate IDs; only a sole remaining row may be treated as renamed.
-  match_unique(
-      [](const Node& node) { return row_identity(node.settings, node.original_name, node.upstream_id); },
-      [](const ParsedNode& node) { return row_identity(node.settings, node.name, node.upstream_id); }, true);
-  match_unique(
-      [](const Node& node) { return named_connection_identity(node.settings, node.original_name); },
-      [](const ParsedNode& node) { return named_connection_identity(node.settings, node.name); }, false);
-  match_unique(
-      [](const Node& node) { return connection_identity(node.settings); },
-      [](const ParsedNode& node) { return connection_identity(node.settings); }, false);
-  // A reused upstream ID must not collapse multiple distinct endpoints.
-  match_unique(
-      [](const Node& node) { return node.upstream_id.value_or(std::string{}); },
-      [](const ParsedNode& node) { return node.upstream_id.value_or(std::string{}); }, false);
-
-  for (const auto i : parsed_indices) {
-    const auto& parsed = input.parsed.nodes[i];
-    if (matched[i]) {
-      const auto& old = *old_nodes[*matched[i]];
+  for (const auto& [connection, parsed_indices] : parsed_by_connection) {
+    if (connection.empty()) continue;
+    const auto old_found = old_by_connection.find(connection);
+    const std::vector<std::size_t> empty_old;
+    const auto& old_indices = old_found == old_by_connection.end() ? empty_old : old_found->second;
+    auto selected_old = old_indices.end();
+    if (!old_indices.empty()) {
+      selected_old = std::min_element(old_indices.begin(), old_indices.end(),
+          [&](std::size_t left, std::size_t right) {
+            const auto& a = *old_nodes[left];
+            const auto& b = *old_nodes[right];
+            if (customized(a) != customized(b)) return customized(a);
+            if (a.source_missing != b.source_missing) return !a.source_missing;
+            return a.id < b.id;
+          });
+      retained_old.insert(*selected_old);
+    }
+    // Preserve the prior provider name when it is still one of the equivalent
+    // rows; otherwise pick a deterministic name, independent of payload order.
+    auto selected_parsed = *std::min_element(parsed_indices.begin(), parsed_indices.end(),
+        [&](std::size_t left, std::size_t right) {
+          const auto& a = input.parsed.nodes[left];
+          const auto& b = input.parsed.nodes[right];
+          return std::tie(a.name, a.upstream_id) < std::tie(b.name, b.upstream_id);
+        });
+    if (selected_old != old_indices.end()) {
+      const auto& old = *old_nodes[*selected_old];
+      const auto name_match = std::find_if(parsed_indices.begin(), parsed_indices.end(),
+          [&](std::size_t i) { return input.parsed.nodes[i].name == old.original_name; });
+      if (name_match != parsed_indices.end()) selected_parsed = *name_match;
+    }
+    const auto& parsed = input.parsed.nodes[selected_parsed];
+    if (selected_old != old_indices.end()) {
+      const auto& old = *old_nodes[*selected_old];
       Node updated = old;
       updated.original_name = parsed.name;
       updated.settings = parsed.settings;
@@ -162,31 +133,43 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
         ++result.report.updated;
         result.report.changed = true;
       }
-      continue;
+    } else {
+      Node added;
+      added.id = make_id();
+      if (added.id.empty())
+        return std::unexpected(error(ErrorCode::invalid_argument, "node id generator returned an empty id", "make_id"));
+      added.source_id = input.source.id;
+      added.original_name = parsed.name;
+      added.upstream_id = parsed.upstream_id;
+      added.settings = parsed.settings;
+      result.changes.upserts.push_back(std::move(added));
+      ++result.report.added;
+      result.report.changed = true;
     }
-
-    Node added;
-    added.id = make_id();
-    if (added.id.empty())
-      return std::unexpected(error(ErrorCode::invalid_argument, "node id generator returned an empty id", "make_id"));
-    added.source_id = input.source.id;
-    added.original_name = parsed.name;
-    added.upstream_id = parsed.upstream_id;
-    added.settings = parsed.settings;
-    result.changes.upserts.push_back(std::move(added));
-    ++result.report.added;
-    result.report.changed = true;
+    if (complete) for (const auto index : old_indices) {
+      if (retained_old.contains(index)) continue;
+      const auto& duplicate = *old_nodes[index];
+      const auto& keeper = *old_nodes[*selected_old];
+      // Conflicting user attributes need an explicit application-level choice.
+      if (customized(duplicate) &&
+          (duplicate.alias != keeper.alias || duplicate.labels != keeper.labels ||
+           duplicate.enabled != keeper.enabled)) {
+        retained_old.insert(index);
+        continue;
+      }
+      result.changes.erase_ids.push_back(duplicate.id);
+      ++result.report.missing;
+      result.report.changed = true;
+    }
   }
 
   // A list with any parse issue cannot prove that absent old nodes disappeared.
-  const bool complete = input.parsed.structurally_complete &&
-                        !input.parsed.nodes.empty() && input.parsed.issues.empty();
   if (complete) {
     for (std::size_t i = 0; i < old_nodes.size(); ++i) {
-      if (present_old.contains(i) || old_nodes[i]->source_missing) continue;
-      Node missing = *old_nodes[i];
-      missing.source_missing = true;
-      result.changes.upserts.push_back(std::move(missing));
+      if (retained_old.contains(i)) continue;
+      const auto& old = *old_nodes[i];
+      if (parsed_by_connection.contains(connection_identity(old.settings))) continue;
+      result.changes.erase_ids.push_back(old.id);
       ++result.report.missing;
       result.report.changed = true;
     }

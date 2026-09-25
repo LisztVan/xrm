@@ -502,6 +502,16 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   REQUIRE(retained_after_http_failure);
   CHECK(std::any_of(retained_after_http_failure->items.begin(), retained_after_http_failure->items.end(),
                     [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
+  fixture.respond(200, std::string(node_b));
+  auto complete = refresh_sync(service, loop.value, {"source-A"});
+  REQUIRE(complete);
+  REQUIRE(complete->completed.size() == 1);
+  CHECK(complete->completed.front().missing == 1);
+  CHECK_FALSE((*opened)->get_node(old_id));
+  const auto current = (*opened)->list_nodes(
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+  REQUIRE(current);
+  CHECK(current->total == 1);
   service.stop_schedule();
   http.shutdown([] {});
 }
