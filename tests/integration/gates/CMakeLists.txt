@@ -25,3 +25,6 @@ add_test(NAME E2E-07 COMMAND xrm_real_core_tests "[E2E-07]")
 # listener, so it cannot share that port with another running case.
 set_tests_properties(E2E-07 PROPERTIES LABELS "real_core;product_repair"
   SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)
+add_test(NAME GROUP-TUI-E2E COMMAND xrm_real_core_tests "[GROUP-TUI-E2E]")
+set_tests_properties(GROUP-TUI-E2E PROPERTIES LABELS "real_core;integration"
+  SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)

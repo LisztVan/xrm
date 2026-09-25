@@ -1430,3 +1430,171 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   CHECK(server.cli({"disconnect"}).code == 0);
   CHECK(server.stop());
 }
+
+TEST_CASE("TUI manual Group selection A then B reaches the corresponding real Xray exit",
+          "[real_core][GROUP-TUI-E2E]") {
+  const auto xray = real_xray();
+  if (xray.empty() || !xray.is_absolute() || !std::filesystem::is_regular_file(xray) ||
+      ::access(xray.c_str(), X_OK) != 0)
+    SKIP("GROUP-TUI-E2E requires XRM_TEST_XRAY fixed v26.9.9");
+
+  TempDirectory temp;
+  const auto peer_a_port = free_loopback_port();
+  const auto peer_b_port = free_loopback_port();
+  const auto socks_port = free_loopback_port();
+  REQUIRE((peer_a_port && peer_b_port && socks_port));
+  LoopbackHttp http_a, http_b;
+  REQUIRE(http_a.start("XRM-TUI-GROUP-EXIT-A-9d31", 8));
+  REQUIRE(http_b.start("XRM-TUI-GROUP-EXIT-B-2c74", 8));
+  constexpr std::string_view uuid_a = "30000000-0000-4000-8000-000000000001";
+  constexpr std::string_view uuid_b = "30000000-0000-4000-8000-000000000002";
+  const auto start_peer = [&](std::string_view name, std::uint16_t listen_port,
+                              std::string_view uuid, std::uint16_t destination_port,
+                              OwnedProcess& process) {
+    const Json config{{"log", Json{{"loglevel", "warning"}}},
+        {"inbounds", Json::array({Json{{"listen", "127.0.0.1"}, {"port", listen_port},
+            {"protocol", "vless"}, {"tag", std::string(name)},
+            {"settings", Json{{"clients", Json::array({Json{{"id", uuid}}})}, {"decryption", "none"}}}}})},
+        {"outbounds", Json::array({Json{{"protocol", "freedom"}, {"tag", "direct"},
+            {"settings", Json{{"finalRules", Json::array({Json{{"action", "allow"}, {"network", "tcp"},
+                {"port", std::to_string(destination_port)}, {"ip", Json::array({"127.0.0.0/8"})}}})}}}}})}};
+    const auto path = temp.path / (std::string(name) + ".json");
+    { std::ofstream output(path); REQUIRE(output.good()); output << config.dump(2) << '\n'; }
+    REQUIRE(process.start(xray, {"run", "-c", path.string()}, temp.path));
+    REQUIRE(wait_for_port(listen_port));
+  };
+  OwnedProcess peer_a, peer_b;
+  start_peer("group-peer-a", *peer_a_port, uuid_a, http_a.port(), peer_a);
+  start_peer("group-peer-b", *peer_b_port, uuid_b, http_b.port(), peer_b);
+
+  XrmServer server(temp);
+  REQUIRE(server.start());
+  auto tui = start_tui_without_profile(server.socket_path(), "/bin/true");
+  TuiProcessGuard tui_guard{tui};
+  REQUIRE(tui.pid > 0);
+  REQUIRE(tui_wait_for(tui, "Overview", 5s).find("Overview") != std::string::npos);
+  tui_keys(tui, "7a");
+  tui_keys(tui, xray.string() + "\r");
+  tui_keys(tui, "2n1TUI Group A-B\r");
+  REQUIRE(tui_wait_for(tui, "Profile selected for editing", 5s).find("TUI Group A-B") != std::string::npos);
+  const auto profiles = server.json(server.cli({"profile", "list"}));
+  REQUIRE(profiles.is_array());
+  REQUIRE(profiles.size() == 1);
+  const auto profile_id = profiles.front().value("id", "");
+  // Only the disposable listener port is set outside the UI. The Group,
+  // members, saved target and both connects below all go through real TUI keys.
+  REQUIRE(edit_module(server, profile_id, "inbounds", inbound_config(*socks_port)));
+  REQUIRE(enable_module(server, profile_id, "inbounds"));
+
+  const auto add_local = [&](std::string_view name, std::uint16_t port, std::string_view uuid) {
+    tui_keys(tui, "5a1");
+    for (const auto& field : {std::string("vless"), std::string(name), std::string("127.0.0.1"),
+                               std::to_string(port), std::string(uuid), std::string("raw"), std::string("none")})
+      tui_keys(tui, field + "\r");
+    REQUIRE(tui_wait_for(tui, "Manual node saved to Local", 5s).find("Manual node saved to Local") != std::string::npos);
+    const auto current = server.json(server.cli({"node", "list", "--limit", "20"}));
+    REQUIRE(std::any_of(current.at("items").begin(), current.at("items").end(),
+        [&](const Json& row) { return row.value("name", "") == name; }));
+  };
+  add_local("Exit A", *peer_a_port, uuid_a);
+  add_local("Exit B", *peer_b_port, uuid_b);
+  const auto inventory = server.json(server.cli({"node", "list", "--limit", "20"}));
+  REQUIRE(inventory.at("items").size() == 2);
+  const auto find_id = [&](std::string_view name) {
+    const auto found = std::find_if(inventory.at("items").begin(), inventory.at("items").end(),
+        [&](const Json& row) { return row.value("name", "") == name; });
+    return found == inventory.at("items").end() ? std::string{} : found->value("id", "");
+  };
+  const auto id_a = find_id("Exit A"), id_b = find_id("Exit B");
+  REQUIRE_FALSE(id_a.empty());
+  REQUIRE_FALSE(id_b.empty());
+
+  tui_keys(tui, "/Exit A\r");
+  REQUIRE(tui_wait_for(tui, "Search: Exit A", 5s).find("Exit A") != std::string::npos);
+  tui_keys(tui, "a4");
+  // Manual mode fixes the underlying strategy to random and goes directly to
+  // the member scope prompt; unlike automatic mode it has no strategy prompt.
+  for (const auto& field : {"TUI manual exits", "manual", "local"})
+    tui_keys(tui, std::string(field) + "\r");
+  const auto group_screen = tui_wait_for(tui, "Group saved as a routing balancer", 5s);
+  INFO("manual Group creation screen: " << group_screen.substr(group_screen.size() > 1200 ? group_screen.size() - 1200 : 0));
+  REQUIRE(group_screen.find("TUI manual exits") != std::string::npos);
+  const auto groups = server.json(server.cli({"group", "list", profile_id}));
+  REQUIRE(groups.size() == 1);
+  const auto group_id = groups.front().value("id", "");
+  REQUIRE_FALSE(group_id.empty());
+  REQUIRE(groups.front().at("members").value("include_local", false));
+  REQUIRE(groups.front().value("selection_mode", "") == "manual");
+  REQUIRE(groups.front().value("selected_node_id", "") == id_a);
+
+  tui_keys(tui, "sc");
+  Json running_a;
+  const auto deadline_a = std::chrono::steady_clock::now() + 20s;
+  while (std::chrono::steady_clock::now() < deadline_a) {
+    running_a = server.json(server.cli({"status"}));
+    if (running_a.value("state", "") == "running") break;
+    ::poll(nullptr, 0, 40);
+  }
+  INFO("TUI Group A runtime: " << running_a.dump());
+  REQUIRE(running_a.value("state", "") == "running");
+  REQUIRE(running_a.at("active").at("selection").value("kind", "") == "group");
+  REQUIRE(running_a.at("active").at("selection").value("id_or_tag", "") == group_id);
+  REQUIRE(wait_for_socks(*socks_port));
+  const auto route_selector = [&](const Json& runtime) {
+    const auto path = std::filesystem::path(runtime.at("active").value("confdir", "")) / "04_routing.json";
+    const auto routing = Json::parse(read_file(path)).at("routing");
+    const auto& balancers = routing.at("balancers");
+    const auto found = std::find_if(balancers.begin(), balancers.end(), [&](const Json& value) {
+      return value.value("tag", "") == groups.front().at("balancer").value("tag", "");
+    });
+    return found == balancers.end() ? Json(nullptr) : found->at("selector");
+  };
+  REQUIRE(route_selector(running_a) == Json::array({node_tag(id_a)}));
+  const auto marker_a = wait_for_socks_marker(*socks_port, http_a.port(), "XRM-TUI-GROUP-EXIT-A-9d31");
+  INFO("TUI selected A traffic: " << marker_a);
+  REQUIRE(marker_a.find("XRM-TUI-GROUP-EXIT-A-9d31") != std::string::npos);
+  const auto run_a = running_a.at("active").value("run_id", "");
+  // The daemon can report running before the Manager consumes the operation's
+  // completion event. Wait for the actual UI feedback before starting another
+  // Connect, especially under ASan.
+  REQUIRE(tui_wait_for(tui, "Xray core running", 8s).find("Xray core running") != std::string::npos);
+
+  // Group -> choose member -> Nodes -> B -> save member -> Group -> connect.
+  tui_keys(tui, "m");
+  REQUIRE(tui_wait_for(tui, "choose a candidate on Nodes and press m", 5s).find("Nodes") != std::string::npos);
+  // The earlier A search is deliberately retained for this category. Change
+  // the visible filter through the normal Nodes search before choosing B.
+  tui_keys(tui, "/Exit B\r");
+  REQUIRE(tui_wait_for(tui, "Search: Exit B", 5s).find("Exit B") != std::string::npos);
+  tui_keys(tui, "m");
+  const auto selected_b = tui_wait_for(tui, "manual group member saved", 5s);
+  INFO("manual member B save screen: " << selected_b.substr(selected_b.size() > 1200 ? selected_b.size() - 1200 : 0));
+  REQUIRE(selected_b.find("manual group member saved") != std::string::npos);
+  REQUIRE(server.json(server.cli({"group", "show", profile_id, group_id})).value("selected_node_id", "") == id_b);
+  tui_keys(tui, "g");
+  REQUIRE(tui_wait_for(tui, "Group selection is persistent", 5s).find("TUI manual exits") != std::string::npos);
+  tui_keys(tui, "c");
+  REQUIRE(tui_wait_for(tui, "Connect started", 5s).find("Connect started") != std::string::npos);
+  Json running_b;
+  const auto deadline_b = std::chrono::steady_clock::now() + 20s;
+  while (std::chrono::steady_clock::now() < deadline_b) {
+    running_b = server.json(server.cli({"status"}));
+    if (running_b.value("state", "") == "running" &&
+        running_b.at("active").value("run_id", "") != run_a) break;
+    ::poll(nullptr, 0, 40);
+  }
+  INFO("TUI Group B runtime: " << running_b.dump());
+  REQUIRE(running_b.value("state", "") == "running");
+  REQUIRE(running_b.at("active").value("run_id", "") != run_a);
+  REQUIRE(route_selector(running_b) == Json::array({node_tag(id_b)}));
+  const auto marker_b = wait_for_socks_marker(*socks_port, http_b.port(), "XRM-TUI-GROUP-EXIT-B-2c74");
+  INFO("TUI selected B traffic: " << marker_b);
+  REQUIRE(marker_b.find("XRM-TUI-GROUP-EXIT-B-2c74") != std::string::npos);
+  REQUIRE(http_a.served() >= 1);
+  REQUIRE(http_b.served() >= 1);
+  REQUIRE(tui_wait_for(tui, "Xray core running", 8s).find("Xray core running") != std::string::npos);
+  REQUIRE(stop_tui(tui));
+  CHECK(server.json(server.cli({"status"})).value("state", "") == "running");
+  CHECK(server.cli({"disconnect"}).code == 0);
+  CHECK(server.stop());
+}
