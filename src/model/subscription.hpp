@@ -25,6 +25,9 @@ struct Subscription {
   bool auto_refresh = true;
   std::chrono::seconds interval{21600};
   DownloadRoute route;
+  // null: built-in conservative information prefixes; []: disable this
+  // classification for a source. Explicit prefixes are exact starts-with.
+  std::optional<std::vector<std::string>> info_name_prefixes;
   std::uint64_t settings_revision = 0;
 };
 
@@ -35,6 +38,7 @@ struct SubscriptionState {
   std::optional<std::string> last_modified;
   std::string last_result;
   std::optional<std::string> reported_usage;
+  std::vector<std::string> reported_notices;
   std::size_t last_unsupported_count = 0;
   std::size_t last_malformed_count = 0;
 };

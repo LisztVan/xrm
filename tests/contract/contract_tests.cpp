@@ -81,10 +81,12 @@ TEST_CASE("C2 subscription DTO summary does not disclose its URL", "[CT-02]") {
   source.url = "https://user:secret@example.invalid/sub?id=hidden";
   source.headers.emplace("Authorization", "Bearer hidden");
   source.settings_revision = 3;
+  source.info_name_prefixes = std::vector<std::string>{"剩余流量："};
   const auto source_copy = xrm::Json(source).get<xrm::Subscription>();
   REQUIRE(source_copy.url == source.url);
   REQUIRE(source_copy.headers == source.headers);
   REQUIRE(source_copy.settings_revision == 3);
+  REQUIRE(source_copy.info_name_prefixes == source.info_name_prefixes);
 
   xrm::Node node;
   node.id = "node-1";
@@ -98,8 +100,10 @@ TEST_CASE("C2 subscription DTO summary does not disclose its URL", "[CT-02]") {
   state.last_result = "partial";
   state.last_unsupported_count = 2;
   state.last_malformed_count = 1;
+  state.reported_notices = {"剩余流量：1GB"};
   const auto decoded_state = xrm::Json(state).get<xrm::SubscriptionState>();
   REQUIRE(decoded_state.last_result == "partial");
   REQUIRE(decoded_state.last_unsupported_count == 2);
   REQUIRE(decoded_state.last_malformed_count == 1);
+  REQUIRE(decoded_state.reported_notices == state.reported_notices);
 }

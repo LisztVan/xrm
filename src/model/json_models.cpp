@@ -181,6 +181,7 @@ void to_json(Json& json, const Subscription& value) {
               {"user_agent", value.user_agent}, {"headers", value.headers},
               {"auto_refresh", value.auto_refresh}, {"interval_seconds", value.interval.count()},
               {"route", Json{{"proxy_url", optional_string(value.route.proxy_url)}}},
+              {"info_name_prefixes", value.info_name_prefixes ? Json(*value.info_name_prefixes) : Json(nullptr)},
               {"settings_revision", value.settings_revision}};
 }
 
@@ -193,6 +194,10 @@ void from_json(const Json& json, Subscription& value) {
   value.auto_refresh = json.at("auto_refresh").get<bool>();
   value.interval = std::chrono::seconds(json.at("interval_seconds").get<std::int64_t>());
   value.route.proxy_url = read_optional_string(json.at("route"), "proxy_url");
+  value.info_name_prefixes = json.contains("info_name_prefixes") &&
+      !json.at("info_name_prefixes").is_null()
+      ? std::optional<std::vector<std::string>>(json.at("info_name_prefixes").get<std::vector<std::string>>())
+      : std::nullopt;
   value.settings_revision = json.at("settings_revision").get<std::uint64_t>();
 }
 
@@ -203,6 +208,7 @@ void to_json(Json& json, const SubscriptionState& value) {
               {"last_modified", optional_string(value.last_modified)},
               {"last_result", value.last_result},
               {"reported_usage", optional_string(value.reported_usage)},
+              {"reported_notices", value.reported_notices},
               {"last_unsupported_count", value.last_unsupported_count},
               {"last_malformed_count", value.last_malformed_count}};
 }
@@ -214,6 +220,7 @@ void from_json(const Json& json, SubscriptionState& value) {
   value.last_modified = read_optional_string(json, "last_modified");
   value.last_result = json.at("last_result").get<std::string>();
   value.reported_usage = read_optional_string(json, "reported_usage");
+  value.reported_notices = json.value("reported_notices", std::vector<std::string>{});
   value.last_unsupported_count = json.value("last_unsupported_count", std::size_t{0});
   value.last_malformed_count = json.value("last_malformed_count", std::size_t{0});
 }
