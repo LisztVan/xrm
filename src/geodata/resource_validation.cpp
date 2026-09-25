@@ -14,7 +14,10 @@ AppError invalid(std::string message, std::string subject) {
 
 bool safe_label(const std::string& label) {
   return !label.empty() && std::all_of(label.begin(), label.end(), [](unsigned char ch) {
-    return std::isalnum(ch) || ch == '-' || ch == '_';
+    // Official geosite.dat contains labels such as CATEGORY-SCHOLAR-!CN.
+    // A rule reference uses ':' as its separator; other visible ASCII is
+    // retained until the selected Xray binary checks the actual tag.
+    return ch >= 0x21 && ch <= 0x7e && ch != ':' && ch != '/' && ch != '\\';
   });
 }
 

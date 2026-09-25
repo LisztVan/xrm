@@ -114,6 +114,8 @@ TEST_CASE("P5 geodata validation fixture is type-specific and rejects traversal"
   REQUIRE(site);
   const Json site_config = Json::parse(site->front().bytes);
   CHECK(site_config["routing"]["rules"][0]["domain"] == Json::array({"ext:geosite.dat:cn"}));
+  CHECK(geodata_validation_files(GeoAssetKind::geosite, "geosite.dat",
+                                  {"category-scholar-!cn"}));
 }
 
 TEST_CASE("P5 geodata inspection rejects empty and wrong-type bytes") {

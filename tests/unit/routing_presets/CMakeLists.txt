@@ -6,3 +6,7 @@ catch_discover_tests(xrm_routing_preset_tests)
 add_executable(xrm_geodata_real_tests geodata_real_tests.cpp)
 target_link_libraries(xrm_geodata_real_tests PRIVATE xrm_logic Catch2::Catch2WithMain)
 catch_discover_tests(xrm_geodata_real_tests PROPERTIES LABELS real_core)
+
+add_executable(xrm_geodata_cache_tests geodata_cache_tests.cpp)
+target_link_libraries(xrm_geodata_cache_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+catch_discover_tests(xrm_geodata_cache_tests PROPERTIES LABELS real_core)
