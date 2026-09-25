@@ -40,8 +40,8 @@ std::string connection_identity(const NodeSettings& settings) {
 
 bool settings_equal(const NodeSettings& left, const NodeSettings& right) {
   if (left.index() != right.index()) return false;
-  if (const auto* a = std::get_if<RawOutbound>(&left))
-    return a->value == std::get<RawOutbound>(right).value;
+  if (std::holds_alternative<RawOutbound>(left))
+    return connection_identity(left) == connection_identity(right);
   const auto& a = std::get<StreamNode>(left);
   const auto& b = std::get<StreamNode>(right);
   Node left_node, right_node;

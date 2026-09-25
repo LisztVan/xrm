@@ -445,3 +445,24 @@ TEST_CASE("P2 equivalent source rows with different names collapse to one connec
   CHECK(second->changes.erase_ids.empty());
   CHECK(created == 1);
 }
+
+TEST_CASE("P2 raw outbound display tag does not trigger a connection update") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::Node old;
+  old.id = "stable-raw";
+  old.source_id = source.id;
+  old.original_name = "Current";
+  old.settings = xrm::RawOutbound{xrm::Json{{"tag", "provider-old"},
+      {"protocol", "freedom"}, {"settings", xrm::Json::object()}}};
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes.push_back({std::nullopt, "Current", xrm::RawOutbound{xrm::Json{
+      {"tag", "provider-new"}, {"protocol", "freedom"},
+      {"settings", xrm::Json::object()}}}});
+  auto result = xrm::reconcile({source, {old}, parsed}, [] { return "unexpected-id"; });
+  REQUIRE(result);
+  CHECK(result->report.added == 0);
+  CHECK(result->report.updated == 0);
+  CHECK(result->changes.upserts.empty());
+}
