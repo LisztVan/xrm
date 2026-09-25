@@ -3,10 +3,13 @@
 
 #include "client/rpc_client.hpp"
 #include "contract/methods.hpp"
+#include "profile/forms.hpp"
+#include "tui/table_view.hpp"
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/terminal.hpp>
 #include <uv.h>
 #include <sys/utsname.h>
 #include <netinet/in.h>
@@ -23,6 +26,7 @@
 #include <chrono>
 #include <cstdint>
 #include <ctime>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <cerrno>
@@ -30,6 +34,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <sstream>
 #include <spawn.h>
 #include <system_error>
@@ -57,12 +62,18 @@ struct PageNav {
 constexpr std::array<PageNav, 7> kPages{{
     {"Overview", "c Connect   i Local entry   d Stop   r Refresh   ? Help", 0},
     {"Profiles", "↑↓ Move   Enter Open   n New   r Rename   c Clone   d Delete   ? Help", 8},
-    {"Modules", "↑↓ Move   Enter Edit Native   e Enable/Disable   g Routing Groups   i Local entry   ? Help", 2},
+    {"Modules", "Tab Module   f Find key   Enter Edit Native   e Enable/Disable   p Routing preset   ? Help", 2},
     {"Subscriptions", "↑↓ Move   Enter Details   a Add   b Use in Profile   u Update   h History   ? Help", 4},
-    {"Nodes", "↑↓ Move   [ ] Category   / Search   g Groups   s Select   c Connect   ? Help", 1},
+    {"Nodes", "↑↓ Move   [ ] Category   / Search   s Select   c Connect   t Test   ? Help", 1},
     {"Logs", "↑↓ History   p Pause/Resume   r Refresh   ? Help", 3},
-    {"Config", "[ ] Section   Core: a Register   l Releases   i Install   u Use   ? Help", 7},
+    {"Config", "[ ] Section   Enter Content   Core / Geodata / Tests / Appearance / Editor / General   ? Help", 7},
 }};
+constexpr std::array<const char*, 6> kConfigSections{
+    "Core", "Geodata", "Tests", "Appearance", "Editor", "General"};
+constexpr std::size_t kAppearanceSection = 3;
+constexpr std::size_t kEditorSection = 4;
+constexpr std::size_t kTestsSection = 2;
+constexpr std::size_t kGeodataSection = 1;
 
 class DraftFile {
  public:
@@ -123,6 +134,7 @@ std::string short_utf8(std::string_view value, std::size_t max_chars) {
   if (offset == value.size()) return std::string(value);
   return std::string(value.substr(0, offset)) + "…";
 }
+
 
 std::string short_update_time(const Json& source) {
   if (!source.contains("last_attempt") || !source["last_attempt"].is_number_integer())
@@ -212,13 +224,26 @@ Result<std::vector<Json>> fetch_all_nodes(const std::string& socket) {
 
 class TuiApp final : public ComponentBase {
  public:
+  enum class FocusLayer { top, secondary, content };
   enum class Prompt { none, subscription_name, subscription_url, subscription_use_profile, core_path, core_remove_confirm,
                       profile_name, profile_clone_name, profile_rename_name, editor_argv,
+                      tests_default_url, tests_timeout, tests_concurrency, tests_max_bytes,
                       node_protocol, node_name, node_address, node_port, node_auth, node_ss_method,
                       node_transport, node_security, node_server_name, node_reality_key,
                       node_uri, node_raw_name, node_raw_json, node_copy_name,
                       node_replace_json, node_remove_confirm, group_name, group_mode,
-                      group_strategy, group_scope, group_remove_confirm };
+                      group_strategy, group_scope, group_remove_confirm,
+                      structure_key, structure_value, structure_rename,
+                      geodata_name, geodata_kind, geodata_file, geodata_source,
+                      geodata_remove_confirm, geodata_interval, module_find };
+  struct StructureRow {
+    std::string pointer;
+    std::string label;
+    bool object = false;
+    bool array = false;
+    bool array_element = false;
+    std::size_t array_index = 0;
+  };
   struct NodeDraft {
     std::string protocol, name, address, auth, method, transport = "raw", security = "none", server_name, reality_key;
     std::uint16_t port = 0;
@@ -252,6 +277,11 @@ class TuiApp final : public ComponentBase {
     RuntimePageState runtime;
     std::vector<Toast> toasts;
   };
+  struct TrafficPoint {
+    UnixMillis sampled_at = 0;
+    double downlink = 0;
+    double uplink = 0;
+  };
   struct EditorSnapshot { std::string text; std::size_t cursor = 0; };
   struct SubscriptionRefreshEvent {
     std::optional<Json> result;
@@ -266,11 +296,24 @@ class TuiApp final : public ComponentBase {
     std::optional<std::string> error;
     std::optional<Json> status;
   };
+  struct NodeTestEvent {
+    std::string node_id;
+    std::optional<Json> result;
+    std::optional<std::string> error;
+  };
+  struct GeodataUpdateEvent {
+    std::optional<Json> result;
+    std::optional<std::string> error;
+    std::vector<Json> resources;
+    bool loaded = false;
+  };
   struct AsyncMailbox {
     std::mutex mutex;
     std::optional<SubscriptionRefreshEvent> subscription_refresh;
+    std::optional<GeodataUpdateEvent> geodata_update;
     bool subscription_running = false;
     std::vector<RuntimeOperationEvent> runtime_operations;
+    std::vector<NodeTestEvent> node_tests;
     std::optional<Json> logs;
     bool metrics_due = false;
   };
@@ -375,6 +418,8 @@ class TuiApp final : public ComponentBase {
       std::optional<SubscriptionRefreshEvent> completed;
       bool subscription_running = false;
       std::vector<RuntimeOperationEvent> runtime_completed;
+      std::vector<NodeTestEvent> node_tests_completed;
+      std::optional<GeodataUpdateEvent> geodata_completed;
       std::optional<Json> logs_completed;
       bool metrics_due = false;
       {
@@ -385,6 +430,10 @@ class TuiApp final : public ComponentBase {
         async_mailbox_->subscription_running = false;
         runtime_completed = std::move(async_mailbox_->runtime_operations);
         async_mailbox_->runtime_operations.clear();
+        node_tests_completed = std::move(async_mailbox_->node_tests);
+        async_mailbox_->node_tests.clear();
+        geodata_completed = std::move(async_mailbox_->geodata_update);
+        async_mailbox_->geodata_update.reset();
         logs_completed = std::move(async_mailbox_->logs);
         async_mailbox_->logs.reset();
         metrics_due = async_mailbox_->metrics_due;
@@ -393,14 +442,30 @@ class TuiApp final : public ComponentBase {
       if (subscription_running) state_.subscriptions.update_state = AsyncUiState::running;
       if (completed) apply_subscription_refresh(std::move(*completed));
       for (auto& result : runtime_completed) apply_runtime_operation(std::move(result));
+      for (auto& result : node_tests_completed) apply_node_test(std::move(result));
+      if (geodata_completed) {
+        geodata_updating_ = false;
+        if (geodata_completed->loaded) geodata_ = std::move(geodata_completed->resources);
+        if (geodata_completed->error) {
+          message_ = "Geodata update failed: " + *geodata_completed->error + "; last good kept";
+          push_toast(Toast::Level::error, message_);
+        } else {
+          message_ = "Geodata validated and cached; running FileSet unchanged until explicit Apply/Connect";
+          push_toast(Toast::Level::success, message_);
+        }
+      }
       if (logs_completed) apply_logs(std::move(*logs_completed));
       if (metrics_due && page_ == 0) refresh_stats(true);
       const auto now = std::chrono::steady_clock::now();
       std::erase_if(state_.toasts, [&](const Toast& toast) { return toast.expires <= now; });
       log_poll_state_->animation.store(!appearance_draft_.value("reduce_motion", false) &&
-          !state_.toasts.empty());
+          (!state_.toasts.empty() || geodata_updating_));
       return true;
     }
+    // The terminal owns its size. Keep the current draft and background work,
+    // but do not route page actions into a layout that cannot display them.
+    const auto terminal = Terminal::Size();
+    if (terminal.dimx < 80 || terminal.dimy < 24) return true;
     if (filtering_nodes_) {
       if (event == Event::Escape) {
         node_filter_ = node_filter_before_edit_;
@@ -423,10 +488,31 @@ class TuiApp final : public ComponentBase {
       return true;
     }
     if (editing_) {
+      if (prompt_ != Prompt::none) {
+        if (event == Event::Escape || event == Event::CtrlQ) {
+          prompt_ = Prompt::none; prompt_text_.clear(); message_ = "structured edit cancelled";
+        } else if (event == Event::Return) submit_prompt();
+        else if (event == Event::Backspace && !prompt_text_.empty()) {
+          prompt_text_.erase(previous_utf8(prompt_text_, prompt_text_.size()));
+        } else if (event.is_character()) prompt_text_ += event.character();
+        return true;
+      }
       if (event == Event::Escape || event == Event::CtrlQ) {
         editing_ = false; editing_group_ = false; editing_node_ = false; return true;
       }
       if (event == Event::CtrlS || event == Event::F2) { save_editor(); return true; }
+      if (event == Event::F4 && !editing_node_ && !editing_group_) {
+        if (!editing_structured_) {
+          refresh_structure_rows();
+          if (structure_rows_.empty()) {
+            message_ = "Structured view needs valid strict native JSON; text draft retained";
+            return true;
+          }
+          editing_structured_ = true;
+        } else editing_structured_ = false;
+        return true;
+      }
+      if (editing_structured_) return handle_structure_event(event);
       if ((event == Event::Character("v") || event == Event::F6) && !editing_node_ && !editing_group_) {
         open_external_editor();
         return true;
@@ -477,6 +563,37 @@ class TuiApp final : public ComponentBase {
         return true;
       }
       if (event.is_character()) prompt_text_ += event.character();
+      return true;
+    }
+    if (preset_plan_) {
+      if (event == Event::Escape || event == Event::Character("n")) {
+        preset_plan_.reset(); message_ = "Routing preset preview cancelled; source unchanged";
+      } else if (event == Event::Character("y")) {
+        auto saved = rpc(socket_, std::string(methods::routing_preset_save),
+            Json{{"profile_id", profile_id_}, {"preset", preset_name_},
+                 {"expected_text", preset_plan_->value("expected_text", Json(nullptr))}});
+        if (!saved) message_ = "Routing preset not saved: " + saved.error().message;
+        else {
+          message_ = "Routing preset saved to native source; explicit Apply/Connect required";
+          push_toast(Toast::Level::success, message_);
+          preset_plan_.reset(); refresh_modules();
+        }
+      }
+      return true;
+    }
+    if (preset_menu_) {
+      if (event == Event::Escape) { preset_menu_ = false; return true; }
+      if (event.is_character() && event.character().size() == 1 &&
+          event.character()[0] >= '1' && event.character()[0] <= '5') {
+        static constexpr std::array<const char*, 5> names{
+            "bypass_mainland", "blacklist_proxy", "global_proxy", "direct_only", "custom_native"};
+        preset_name_ = names[static_cast<std::size_t>(event.character()[0] - '1')];
+        preset_menu_ = false;
+        auto plan = rpc(socket_, std::string(methods::routing_preset_plan),
+            Json{{"profile_id", profile_id_}, {"preset", preset_name_}});
+        if (!plan) message_ = "Routing preset preview failed: " + plan.error().message;
+        else preset_plan_ = std::move(*plan);
+      }
       return true;
     }
     if (history_open_) {
@@ -542,6 +659,38 @@ class TuiApp final : public ComponentBase {
         show_help_ = false;
       return true;
     }
+    if (profile_template_menu_) {
+      if (event == Event::Escape || event == Event::CtrlQ) {
+        profile_template_menu_ = false;
+        message_ = "Profile creation cancelled";
+      } else if (event == Event::Character("1") || event == Event::Character("2") ||
+                 event == Event::Character("3")) {
+        new_profile_preset_ = event == Event::Character("2") ? "tun" :
+            event == Event::Character("3") ? "custom" : "desktop";
+        profile_template_menu_ = false;
+        begin_prompt(Prompt::profile_name, "New " + new_profile_preset_ + " Profile name");
+      } else if (event.is_character()) {
+        // Older keyboard flows typed the name immediately after 'n'. Treat
+        // that as Desktop, without making it a separate create path.
+        new_profile_preset_ = "desktop";
+        profile_template_menu_ = false;
+        begin_prompt(Prompt::profile_name, "New Desktop Profile name");
+        prompt_text_ = event.character();
+      }
+      return true;
+    }
+    if (node_test_menu_) {
+      if (event == Event::Escape || event == Event::CtrlQ) node_test_menu_ = false;
+      else if (event == Event::Character("1") || event == Event::Character("2") ||
+               event == Event::Character("3") || event == Event::Character("4")) {
+        const auto kind = event == Event::Character("1") ? "icmp" :
+            event == Event::Character("2") ? "tcp" :
+            event == Event::Character("3") ? "url" : "download";
+        node_test_menu_ = false;
+        start_node_test(kind);
+      }
+      return true;
+    }
     if (add_outlet_menu_) {
       if (event == Event::Escape || event == Event::Character("q")) add_outlet_menu_ = false;
       else if (event == Event::Character("1")) {
@@ -582,13 +731,19 @@ class TuiApp final : public ComponentBase {
       }
       return true;
     }
-    if (page_ == 7 && config_section_ == 1 && event == Event::Escape && appearance_dirty_) {
+    if (page_ == 7 && config_section_ == kAppearanceSection && event == Event::Escape && appearance_dirty_) {
       appearance_draft_ = program_settings_.value("appearance", Json::object());
       appearance_dirty_ = false;
       message_ = "Appearance preview cancelled; saved settings unchanged";
       return true;
     }
-    if (event == Event::Character("q") || event == Event::Escape) {
+    if (event == Event::Escape) {
+      if (focus_layer_ == FocusLayer::content)
+        focus_layer_ = has_secondary_nav() ? FocusLayer::secondary : FocusLayer::top;
+      else if (focus_layer_ == FocusLayer::secondary) focus_layer_ = FocusLayer::top;
+      return true;
+    }
+    if (event == Event::Character("q")) {
       stop_stats_watch();
       ui_poster_->alive.store(false);
       {
@@ -598,11 +753,16 @@ class TuiApp final : public ComponentBase {
       screen_->Exit();
       return true;
     }
-    if (event == Event::Character("?")) { show_help_ = true; return true; }
-    if (page_ == 7 && config_section_ == 1 && event == Event::Character("s")) {
+    if (event == Event::Character("?") || event == Event::F1) { show_help_ = true; return true; }
+    if (event == Event::Return && focus_layer_ != FocusLayer::content) {
+      focus_layer_ = focus_layer_ == FocusLayer::top && has_secondary_nav()
+          ? FocusLayer::secondary : FocusLayer::content;
+      return true;
+    }
+    if (page_ == 7 && config_section_ == kAppearanceSection && event == Event::Character("s")) {
       save_appearance(); return true;
     }
-    if (page_ == 7 && config_section_ == 1 && event.is_character()) {
+    if (page_ == 7 && config_section_ == kAppearanceSection && event.is_character()) {
       const auto key = event.character();
       if (key == "t") { cycle_appearance("theme", {"default", "dark", "light"}); return true; }
       if (key == "c") { cycle_appearance("color_mode", {"auto", "truecolor", "256", "none"}); return true; }
@@ -613,18 +773,57 @@ class TuiApp final : public ComponentBase {
         appearance_dirty_ = true; return true;
       }
     }
-    if (page_ == 7 && config_section_ == 2 && event == Event::Character("e")) {
+    if (page_ == 7 && config_section_ == kEditorSection && event == Event::Character("e")) {
       begin_prompt(Prompt::editor_argv, "Editor argv as JSON array, e.g. [\"/usr/bin/vi\"]"); return true;
     }
-    if (page_ == 7 && config_section_ == 2 && event == Event::Character("t")) {
+    if (page_ == 7 && config_section_ == kEditorSection && event == Event::Character("t")) {
       test_configured_editor(); return true;
+    }
+    if (page_ == 7 && config_section_ == kTestsSection && event.is_character()) {
+      const auto key = event.character();
+      if (key == "u") { begin_prompt(Prompt::tests_default_url, "Default HTTP(S) test URL (empty clears)"); return true; }
+      if (key == "o") { begin_prompt(Prompt::tests_timeout, "Node test timeout in milliseconds (100–60000)"); return true; }
+      if (key == "c") { begin_prompt(Prompt::tests_concurrency, "Concurrent node tests (1–3)"); return true; }
+      if (key == "b") { begin_prompt(Prompt::tests_max_bytes, "Download maximum bytes (1–33554432)"); return true; }
+    }
+    if (page_ == 7 && config_section_ == kGeodataSection && event.is_character()) {
+      const auto key = event.character();
+      if (key == "a") { begin_prompt(Prompt::geodata_name, "Shared Geodata resource name"); return true; }
+      if (key == "r") { refresh_geodata(); return true; }
+      if (key == "d" && selected_ < geodata_.size()) {
+        begin_prompt(Prompt::geodata_remove_confirm, "Type DELETE to remove unbound resource metadata");
+        return true;
+      }
+      if (key == "b" && selected_ < geodata_.size()) { bind_selected_geodata(); return true; }
+      if (key == "u" && selected_ < geodata_.size()) { start_geodata_update(); return true; }
+      if (key == "t" && selected_ < geodata_.size()) {
+        begin_prompt(Prompt::geodata_interval,
+            "Auto-update interval in seconds (0 disables; requires selected Xray core)");
+        return true;
+      }
     }
     if (page_ == 8 && event == Event::Character("n")) { begin_profile_prompt(false); return true; }
     if (page_ == 8 && event == Event::Character("c")) { begin_profile_prompt(true); return true; }
     if (page_ == 8 && event == Event::Character("r")) { begin_profile_prompt(false, true); return true; }
     if (page_ == 8 && event == Event::Character("d")) { remove_selected_profile(); return true; }
-    if (event == Event::Tab) { navigate_top_page((top_page_index() + 1) % kPages.size()); return true; }
-    if (event == Event::TabReverse) { navigate_top_page((top_page_index() + kPages.size() - 1) % kPages.size()); return true; }
+    if (event == Event::Tab || event == Event::TabReverse) {
+      const auto step = event == Event::Tab ? 1 : -1;
+      if (focus_layer_ == FocusLayer::top)
+        navigate_top_page((top_page_index() + kPages.size() + step) % kPages.size());
+      else if (focus_layer_ == FocusLayer::secondary) {
+        if (page_ == 1 || page_ == 5) move_node_category(step);
+        else if (page_ == 7) {
+          config_section_ = (config_section_ + kConfigSections.size() + step) % kConfigSections.size();
+          if (config_section_ == kGeodataSection) refresh_geodata();
+        }
+        else if (page_ == 2 && !modules_.empty()) {
+          selected_ = (selected_ + modules_.size() + step) % modules_.size();
+          page_selections_[2] = selected_;
+          module_preview_runtime_ = false;
+        }
+      }
+      return true;
+    }
     if (event.is_character() && event.character().size() == 1 &&
         event.character()[0] >= '1' && event.character()[0] <= '7') {
       navigate_top_page(event.character()[0] - '1');
@@ -639,10 +838,12 @@ class TuiApp final : public ComponentBase {
       move_node_category(1); return true;
     }
     if (page_ == 7 && event == Event::Character("[")) {
-      config_section_ = (config_section_ + 3) % 4; return true;
+      config_section_ = (config_section_ + kConfigSections.size() - 1) % kConfigSections.size();
+      if (config_section_ == kGeodataSection) refresh_geodata(); return true;
     }
     if (page_ == 7 && event == Event::Character("]")) {
-      config_section_ = (config_section_ + 1) % 4; return true;
+      config_section_ = (config_section_ + 1) % kConfigSections.size();
+      if (config_section_ == kGeodataSection) refresh_geodata(); return true;
     }
     else if (event == Event::ArrowDown && page_ == 3) {
       const auto tail = log_entries_.size() > kLogViewportRows ? log_entries_.size() - kLogViewportRows : 0;
@@ -686,6 +887,14 @@ class TuiApp final : public ComponentBase {
     }
     else if (event == Event::Return && page_ == 8 && selected_ < profiles_.size()) select_profile_context();
     else if (event == Event::Character("e") && page_ == 2) toggle_module();
+    else if (event == Event::Character("v") && page_ == 2) toggle_module_preview();
+    else if (event == Event::Character("f") && page_ == 2)
+      begin_prompt(Prompt::module_find, "Find native module key (exact key or unique substring)");
+    else if (event == Event::Character("p") && page_ == 2 &&
+             selected_ < modules_.size() && modules_[selected_].value("key", "") == "routing" &&
+             !profile_id_.empty()) preset_menu_ = true;
+    else if (event == Event::Character("p") && page_ == 8 && !profile_id_.empty())
+      preset_menu_ = true;
     else if (event == Event::Character("g") && page_ == 2 && selected_ < modules_.size() &&
              modules_[selected_].value("key", "") == "routing") {
       node_category_ = "groups";
@@ -693,6 +902,8 @@ class TuiApp final : public ComponentBase {
       message_ = "Dynamic Groups share this Profile's routing output; static native balancers remain in routing source";
     }
     else if (event == Event::Character("s") && page_ == 1) select_node();
+    else if (event == Event::Character("t") && page_ == 1 && selected_ < nodes_.size())
+      node_test_menu_ = true;
     else if (event == Event::Character("x") && page_ == 1) toggle_node_enabled();
     else if (event == Event::Character("s") && page_ == 5) select_group();
     else if (event == Event::Character("m") && page_ == 5) choose_group_member();
@@ -745,6 +956,14 @@ class TuiApp final : public ComponentBase {
   }
 
   Element OnRender() override {
+    const auto terminal = Terminal::Size();
+    if (terminal.dimx < 80 || terminal.dimy < 24) {
+      return vbox({text("Terminal too small") | bold,
+          text(std::to_string(terminal.dimx) + "x" + std::to_string(terminal.dimy) +
+              " available; 80x24 required"),
+          text("Resize to resume. Drafts, selection and running core are preserved.")}) |
+          center | border | flex;
+    }
     const auto theme = appearance_draft_.value("theme", "default");
     const auto accent = theme == "light" ? Color::Blue :
         theme == "dark" ? Color::Cyan : Color::Green;
@@ -765,6 +984,24 @@ class TuiApp final : public ComponentBase {
           (use_colors ? color(accent) : nothing),
       hbox(std::move(tabs)) | hscroll_indicator | xframe,
     };
+    if (page_ == 1 || page_ == 5) header.push_back(node_category_tabs());
+    else if (page_ == 7) {
+      Elements section_tabs;
+      for (std::size_t i = 0; i < kConfigSections.size(); ++i)
+        section_tabs.push_back(text(i == config_section_ ? "[" + std::string(kConfigSections[i]) + "] " :
+            " " + std::string(kConfigSections[i]) + " ") |
+            (i == config_section_ ? inverted : nothing) |
+            (i == config_section_ ? focus : nothing));
+      header.push_back(hbox(std::move(section_tabs)) | xframe);
+    } else if (page_ == 2 && !modules_.empty()) {
+      Elements module_tabs;
+      for (std::size_t i = 0; i < modules_.size(); ++i) {
+        const auto key = modules_[i].value("key", "");
+        module_tabs.push_back(text(i == selected_ ? "[" + key + "] " : " " + key + " ") |
+            (i == selected_ ? inverted : nothing) | (i == selected_ ? focus : nothing));
+      }
+      header.push_back(hbox(std::move(module_tabs)) | xframe);
+    }
     Elements body;
     if (editing_) {
       body.push_back(text("Native module editor — " + editing_key_ +
@@ -777,9 +1014,29 @@ class TuiApp final : public ComponentBase {
       }
       if (draft_json_invalid_)
         body.push_back(text("Draft is not valid strict JSON; source can be saved, but form/runtime checks may reject it") | color(Color::Yellow));
-      auto visible = draft_;
-      visible.insert(edit_cursor_, "█");
-      body.push_back(paragraph(visible) | border | flex);
+      if (editing_structured_ && !editing_node_ && !editing_group_) {
+        body.push_back(text("Structured JSON · a Add  e Edit scalar  d Delete  r Rename  c Copy array item  [ ] Reorder  F4 Native text") | bold);
+        const auto terminal_rows = std::max(5, terminal.dimy - 13);
+        const auto start = structure_selected_ >= static_cast<std::size_t>(terminal_rows)
+            ? structure_selected_ - static_cast<std::size_t>(terminal_rows) + 1 : 0;
+        Elements rows;
+        for (std::size_t i = start;
+             i < structure_rows_.size() && i < start + static_cast<std::size_t>(terminal_rows); ++i) {
+          auto row = text((i == structure_selected_ ? "▸ " : "  ") +
+              short_utf8(structure_rows_[i].label, terminal.dimx >= 125 ? 52 :
+                  static_cast<std::size_t>(terminal.dimx - 12)));
+          if (i == structure_selected_) row = row | inverted | focus;
+          rows.push_back(std::move(row));
+        }
+        auto structure = vbox(std::move(rows)) | border | flex;
+        if (terminal.dimx >= 125)
+          body.push_back(hbox({std::move(structure), paragraph(draft_) | border | flex}));
+        else body.push_back(std::move(structure));
+      } else {
+        auto visible = draft_;
+        visible.insert(edit_cursor_, "█");
+        body.push_back(paragraph(visible) | border | flex);
+      }
     } else if (page_ == 0) {
       body.push_back(text("XRM Dashboard") | bold | color(Color::Cyan));
       if (profile_id_.empty())
@@ -850,6 +1107,36 @@ class TuiApp final : public ComponentBase {
                   ? observation["latency_ms"].dump() + " ms" : "unavailable")));
         } else body.push_back(text("Latency: unmeasured"));
       }
+      if (traffic_history_.empty()) {
+        body.push_back(window(text("Traffic · observed samples only"),
+            text("Waiting for two valid metric samples; missing time is not zero traffic") |
+            dim));
+      } else {
+        const auto chart = [&](bool downlink) {
+          std::vector<double> values;
+          values.reserve(traffic_history_.size());
+          for (const auto& point : traffic_history_)
+            values.push_back(downlink ? point.downlink : point.uplink);
+          const auto peak = std::max(1.0, *std::max_element(values.begin(), values.end()));
+          auto drawing = graph([values = std::move(values), peak](int width, int height) {
+            std::vector<int> columns(static_cast<std::size_t>(width), 0);
+            if (width <= 0 || height <= 0) return columns;
+            for (int x = 0; x < width; ++x) {
+              const auto index = std::min(values.size() - 1,
+                  static_cast<std::size_t>(x) * values.size() /
+                      static_cast<std::size_t>(width));
+              columns[static_cast<std::size_t>(x)] = static_cast<int>(
+                  values[index] / peak * static_cast<double>(height - 1));
+            }
+            return columns;
+          }) | size(HEIGHT, EQUAL, terminal.dimy >= 35 ? 6 : 3) | flex;
+          return window(text(downlink ? "↓ Download B/s" : "↑ Upload B/s"),
+              drawing | (downlink ? color(Color::Cyan) : color(Color::Green))) | flex;
+        };
+        body.push_back(hbox({chart(true), chart(false)}));
+        body.push_back(text("Observed " + std::to_string(traffic_history_.size()) +
+            " samples · no history while no viewer is active · latest rates above") | dim);
+      }
       body.push_back(text("Runtime files: " + active_confdir()) | dim);
       if (!compact_density) {
         body.push_back(text("Core running is separate from proxy listener readiness and remote connectivity") | dim);
@@ -861,7 +1148,6 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("Press c to Create Default Profile, Open Profiles, or Cancel.") | color(Color::Yellow));
       }
     } else if (page_ == 1) {
-      body.push_back(node_category_tabs());
       if (node_detail_ && selected_ < nodes_.size()) {
         const auto& node = nodes_[selected_];
         body.push_back(text("Node details (Esc returns)") | bold);
@@ -879,42 +1165,60 @@ class TuiApp final : public ComponentBase {
             std::to_string(nodes_.size()) + (show_missing_nodes_ ? " (all)" : " (current)")) | bold);
         body.push_back(text("Search: " + (node_filter_.empty() ? "—" : node_filter_) +
                             "   f Show removed: " + (show_missing_nodes_ ? "on" : "off")) | dim);
-        body.push_back(text(screen_->dimx() < 95
-            ? "   Status  Name                     Protocol / Transport    Security"
-            : "   Status  Name                             Protocol / Transport    Security   Source   Latency") | bold);
+        const bool ascii_icons = appearance_draft_.value("icon_mode", "unicode") == "ascii";
+        tui::TableView<Json> table({
+            {"State", 8, 0, 0, false, [this, ascii_icons](const Json& node) {
+              const auto id = node.value("id", "");
+              const bool actual = status_.contains("active") && status_["active"].is_object() &&
+                  status_["active"].contains("selection") &&
+                  status_["active"]["selection"].is_object() &&
+                  status_["active"]["selection"].value("kind", "") == "node" &&
+                  status_["active"]["selection"].value("id_or_tag", "") == id;
+              if (actual) return std::string(ascii_icons ? "* Run" : "● Run");
+              if (expected_selection_ == "node:" + id)
+                return std::string(ascii_icons ? "+ Save" : "◆ Save");
+              if (node.value("source_missing", false)) return std::string("Removed");
+              return std::string(node.value("enabled", true) ? "" : "Off");
+            }},
+            {"Name", 20, 0, 1, false, [](const Json& node) {
+              return node.value("name", "");
+            }},
+            {"Protocol / Transport", 23, 1, 0, false, [](const Json& node) {
+              return node.value("protocol", "") + "/" + node.value("transport", "—");
+            }},
+            {"Security", 12, 1, 0, false, [](const Json& node) {
+              return node.value("security", "—");
+            }},
+            {"Source", 18, 3, 0, false, [this](const Json& node) {
+              if (node.contains("source_id") && node["source_id"].is_string()) {
+                for (const auto& source : subscriptions_)
+                  if (source.value("id", "") == node["source_id"].get<std::string>())
+                    return source.value("name", "Subscription");
+                return std::string("Subscription");
+              }
+              return std::string("Local");
+            }},
+            {"Test", 12, 4, 0, true, [this](const Json& node) {
+              const auto id = node.value("id", "");
+              if (pending_node_tests_.contains(id)) return std::string("testing ⠋");
+              const auto found = node_test_results_.find(id);
+              if (found == node_test_results_.end()) return std::string("--");
+              const auto& result = found->second;
+              if (result.value("stale", false)) return std::string("stale");
+              if (result.value("status", "") != "success") return result.value("status", "--");
+              if (result.contains("latency_ms") && result["latency_ms"].is_number())
+                return std::to_string(static_cast<int>(result["latency_ms"].get<double>())) + " ms";
+              if (result.contains("bytes_per_second") && result["bytes_per_second"].is_number())
+                return std::to_string(static_cast<int>(result["bytes_per_second"].get<double>() / 1024)) + " KiB/s";
+              return std::string("success");
+            }},
+        }, terminal.dimx - 4);
+        body.push_back(table.header());
         if (nodes_.empty())
           body.push_back(text("No nodes in this view. Update a subscription, clear search, or press f for removed nodes.") | dim);
         for (std::size_t i = 0; i < nodes_.size(); ++i) {
           const auto& node = nodes_[i];
-          const auto id = node.value("id", "");
-          const auto saved = expected_selection_ == "node:" + id;
-          const auto actual = status_.contains("active") && status_["active"].is_object() &&
-              status_["active"].contains("selection") && status_["active"]["selection"].is_object() &&
-              status_["active"]["selection"].value("kind", "") == "node" &&
-              status_["active"]["selection"].value("id_or_tag", "") == id;
-      const bool ascii_icons = appearance_draft_.value("icon_mode", "unicode") == "ascii";
-      const std::string marker = actual ? (ascii_icons ? "*" : "●") :
-          saved ? (ascii_icons ? "+" : "◆") :
-          node.value("source_missing", false) ? (ascii_icons ? "x" : "×") :
-          node.value("enabled", true) ? (ascii_icons ? "." : "·") :
-          (ascii_icons ? "o" : "○");
-          std::string source = "Manual";
-          if (node.contains("source_id") && node["source_id"].is_string()) {
-            source = "Subscription";
-            for (const auto& item : subscriptions_)
-              if (item.value("id", "") == node["source_id"].get<std::string>()) {
-                source = item.value("name", "Subscription"); break;
-              }
-          }
-          const auto compact = screen_->dimx() < 95;
-          const auto name = short_utf8(node.value("name", ""), compact ? 24 : 32);
-          const auto row = std::string(i == selected_ ? "▸ " : "  ") + marker + "  " + name +
-              "   " + node.value("protocol", "") + "/" + node.value("transport", "—") +
-              "   " + node.value("security", "—") +
-              (compact ? "" : "   " + short_utf8(source, 18) + "   --");
-          auto element = text(row) | (i == selected_ ? inverted : nothing);
-          if (i == selected_) element = element | focus;
-          body.push_back(std::move(element));
+          body.push_back(table.row(node, i == selected_));
         }
         if (selected_ < nodes_.size()) {
           const auto& selected = nodes_[selected_];
@@ -925,20 +1229,77 @@ class TuiApp final : public ComponentBase {
         }
       }
     } else if (page_ == 2) {
-      body.push_back(text("Native Modules — Enter Edit Native; inside choose Open External Editor (F6). e toggles inclusion. Disabled sources remain editable; empty modules create only on Save.") | bold);
-      if (!compact_density)
-        body.push_back(text("routing contains native rules/static balancers; select routing and press g to edit dynamic Groups in Nodes") | dim);
+      body.push_back(text("Native Modules · 15 Xray root keys · Tab changes module · Enter edits draft · routing: p Presets") | bold);
       if (profile_id_.empty()) {
         body.push_back(text("No profile selected") | color(Color::Yellow));
         body.push_back(text("Create a profile to use this feature") | color(Color::Yellow));
-      } else {
-        body.push_back(text("i Inspect local proxy entry; any change requires confirmation") | dim);
-      }
-      for (std::size_t i = 0; i < modules_.size(); ++i) {
-        const auto& module = modules_[i];
-        const auto row = module.value("key", "") + " [" + (module.value("included", false) ? "enabled" : "disabled") +
-            "]  source:" + module.value("source_file", "") + "  runtime:" + module.value("runtime_file", "");
-        body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
+      } else if (selected_ < modules_.size()) {
+        const auto& module = modules_[selected_];
+        const auto key = module.value("key", "");
+        const bool has_source = module.contains("text") && module["text"].is_string();
+        body.push_back(text("Native key: " + key + " · " +
+            (module.value("included", false) ? "included" : "disabled") +
+            (has_source ? " · source exists" : " · no source (draft only until Save)")) |
+            (module.value("included", false) ? color(Color::Green) : color(Color::Yellow)));
+        body.push_back(text("source: " + module.value("source_file", "") +
+            " · runtime: " + module.value("runtime_file", "") +
+            " · v Switch source/runtime preview") | dim);
+        if (key == "routing" || key == "geodata") {
+          const auto bound = profile_settings_.value("geodata_resource_ids", Json::object());
+          std::string names;
+          if (bound.is_object()) for (auto it = bound.begin(); it != bound.end(); ++it) {
+            if (!names.empty()) names += ", ";
+            names += it.key();
+          }
+          body.push_back(text("Profile Geodata assets: " +
+              (names.empty() ? "none · Config → Geodata to validate/bind required .dat labels" : names)) | dim);
+        }
+        body.push_back(text("e Enable/Disable  Enter Edit Native  F6 in editor opens external editor  i Inspect local entry") | dim);
+        const auto source = module_preview_runtime_ ? module_runtime_text_ :
+            has_source ? module["text"].get<std::string>() :
+            Json{{key, Json::object()}}.dump(2) + "\n";
+        const auto parsed = Json::parse(source, nullptr, false);
+        if (parsed.is_discarded()) {
+          body.push_back(text("Source has comments or invalid strict JSON; use native editor, structured view is unavailable") |
+              color(Color::Yellow));
+          body.push_back(text(module_preview_runtime_ ? "Native JSON · active runtime snapshot" :
+              "Native JSON (source text, unmodified)") | bold);
+          body.push_back(paragraph(source) | border | flex);
+        } else {
+          Elements structure;
+          structure.push_back(text("Structure · native JSON types") | bold);
+          std::function<void(const Json&, std::string, int)> visit = [&](const Json& value,
+              std::string label, int depth) {
+            if (structure.size() >= 18) return;
+            const auto kind = value.is_object() ? "object" : value.is_array() ? "array" :
+                value.is_string() ? "string" : value.is_boolean() ? "bool" :
+                value.is_null() ? "null" : "number";
+            structure.push_back(text(std::string(static_cast<std::size_t>(depth) * 2, ' ') +
+                short_utf8(label, 26) + " : " + kind +
+                (value.is_structured() ? " (" + std::to_string(value.size()) + ")" :
+                    " = " + short_utf8(value.dump(), 22))));
+            if (depth >= 3) return;
+            if (value.is_object()) for (auto it = value.begin(); it != value.end(); ++it)
+              visit(it.value(), it.key(), depth + 1);
+            else if (value.is_array()) for (std::size_t i = 0; i < value.size(); ++i)
+              visit(value[i], "[" + std::to_string(i) + "]", depth + 1);
+          };
+          visit(parsed, key, 0);
+          Elements native_lines{text(module_preview_runtime_ ?
+              "Native JSON · active runtime snapshot (read-only)" :
+              "Native JSON · source preview (not runtime)") | bold};
+          std::istringstream stream(source);
+          std::string line;
+          std::size_t count = 0;
+          while (count < 17 && std::getline(stream, line)) {
+            native_lines.push_back(text(short_utf8(line, terminal.dimx >= 125 ? 52 : 70)));
+            ++count;
+          }
+          if (stream.good()) native_lines.push_back(text("… open native editor for full text") | dim);
+          if (terminal.dimx >= 125) body.push_back(hbox({vbox(std::move(structure)) | flex,
+              separator(), vbox(std::move(native_lines)) | flex}));
+          else body.push_back(vbox(std::move(native_lines)));
+        }
       }
     } else if (page_ == 3) {
       const auto mode = logs_paused_ ? "PAUSED" : "FOLLOW";
@@ -970,21 +1331,35 @@ class TuiApp final : public ComponentBase {
             (state_.subscriptions.update_state == AsyncUiState::starting
                 ? " Contacting xrmd…" : " Updating subscription inventory…")) | color(Color::Cyan));
       }
+      tui::TableView<Json> source_table({
+          {"Name", 24, 0, 1, false, [](const Json& source) {
+            return source.value("name", "");
+          }},
+          {"Nodes", 8, 0, 0, true, [](const Json& source) {
+            return std::to_string(source.value("node_count", 0));
+          }},
+          {"Last update", 13, 2, 0, false, [](const Json& source) {
+            return short_update_time(source);
+          }},
+          {"Result", 13, 1, 0, false, [this](const Json& source) {
+            if ((state_.subscriptions.update_state == AsyncUiState::starting ||
+                 state_.subscriptions.update_state == AsyncUiState::running) &&
+                state_.subscriptions.updating_source_id == source.value("id", ""))
+              return std::string("⠋ updating");
+            return source.value("last_result", "never");
+          }},
+          {"Auto", 7, 3, 0, false, [](const Json& source) {
+            return source.value("auto_refresh", false) ? std::string("on") : std::string("off");
+          }},
+          {"Profile", 9, 4, 0, false, [this](const Json& source) {
+            return profile_id_.empty() ? std::string("—") :
+                source_enabled_for_view(source.value("id", "")) ? std::string("on") : std::string("off");
+          }},
+        }, terminal.dimx - 4);
+      body.push_back(source_table.header());
       for (std::size_t i = 0; i < subscriptions_.size(); ++i) {
         const auto& source = subscriptions_[i];
-        const auto row = short_utf8(source.value("name", ""), 26) + "  " +
-            std::to_string(source.value("node_count", 0)) + " current  " + short_update_time(source) + "  " +
-            source.value("last_result", "never") +
-            "  auto:" + (source.value("auto_refresh", false) ? "on" : "off") +
-            "  profile:" + (profile_id_.empty() ? "—" :
-                source_enabled_for_view(source.value("id", "")) ? "on" : "off") +
-            ((state_.subscriptions.update_state == AsyncUiState::starting ||
-              state_.subscriptions.update_state == AsyncUiState::running) &&
-              state_.subscriptions.updating_source_id == source.value("id", "")
-                ? "  ⠋ updating" : "");
-        auto element = text((i == selected_ ? "▸ " : "  ") + row) | (i == selected_ ? inverted : nothing);
-        if (i == selected_) element = element | focus;
-        body.push_back(std::move(element));
+        body.push_back(source_table.row(source, i == selected_));
       }
       if (subscriptions_.empty()) body.push_back(text("No subscriptions yet. Press a to paste a local or remote URL.") | dim);
       if (selected_ < subscriptions_.size()) {
@@ -1059,7 +1434,6 @@ class TuiApp final : public ComponentBase {
       }
       body.push_back(text("r refreshes the shared server sample") | dim);
     } else if (page_ == 5) {
-      body.push_back(node_category_tabs());
       body.push_back(text("Groups — Enter edits binding; s saves as target; m chooses manual member; D removes") | bold);
       if (profile_id_.empty()) {
         body.push_back(text("No profile selected") | color(Color::Yellow));
@@ -1076,17 +1450,52 @@ class TuiApp final : public ComponentBase {
       }
       body.push_back(text("Group selection is persistent; runtime override is separate") | dim);
     } else if (page_ == 7) {
-      static constexpr std::array<const char*, 4> sections{"Core", "Appearance", "Editor", "General"};
       body.push_back(text("Config — XRM settings and Xray core resources") | bold);
-      Elements section_tabs;
-      for (std::size_t i = 0; i < sections.size(); ++i)
-        section_tabs.push_back(text(i == config_section_ ? "[" + std::string(sections[i]) + "] " :
-            " " + std::string(sections[i]) + " ") |
-            (i == config_section_ ? inverted : nothing));
-      body.push_back(hbox(std::move(section_tabs)) | xframe);
       if (config_section_ != 0) {
-        body.push_back(text(std::string(sections[config_section_]) + " settings") | bold);
-        if (config_section_ == 1) {
+        body.push_back(text(std::string(kConfigSections[config_section_]) + " settings") | bold);
+        if (config_section_ == kGeodataSection) {
+          body.push_back(text("Shared Geodata · validated .dat resources, not Xray native env") | bold);
+          if (geodata_updating_) body.push_back(text("⠋ Validating/download in background · interface remains usable") |
+              color(Color::Cyan));
+          body.push_back(text("a Add URL/local file   u Validate/update   t Auto interval   b Bind to Profile   d Remove   r Refresh") | dim);
+          body.push_back(text("Cache updates never replace a running FileSet; explicit Connect/Apply snapshots the selected version") | dim);
+          if (geodata_.empty()) body.push_back(text("No shared resources. Add a GeoIP or GeoSite source.") | color(Color::Yellow));
+          else {
+            tui::TableView<Json> resource_table({
+                {"Name", 22, 0, 1, false, [](const Json& item) { return item.value("name", ""); }},
+                {"Type", 9, 1, 0, false, [](const Json& item) { return item.value("kind", ""); }},
+                {"File", 18, 2, 0, false, [](const Json& item) { return item.value("file_name", ""); }},
+                {"Version", 14, 3, 0, false, [](const Json& item) {
+                  return item.contains("current") && item["current"].is_object()
+                      ? short_utf8(item["current"].value("version_id", ""), 12) : "not downloaded";
+                }},
+                {"Result", 17, 4, 0, false, [](const Json& item) { return item.value("last_result", "never"); }},
+            }, terminal.dimx - 4);
+            body.push_back(resource_table.header());
+            for (std::size_t i = 0; i < geodata_.size(); ++i)
+              body.push_back(resource_table.row(geodata_[i], i == selected_));
+            if (selected_ < geodata_.size()) {
+              const auto& item = geodata_[selected_];
+              const auto binding = profile_settings_.value("geodata_resource_ids", Json::object());
+              const auto file = item.value("file_name", "");
+              body.push_back(text("Selected: " + item.value("name", "") + " · " +
+                  (binding.is_object() && binding.value(file, "") == item.value("id", "")
+                      ? "bound to viewed Profile" : "not bound here") +
+                  " · auto update " + (item.value("auto_update", false) ? "on" : "off")) | dim);
+              body.push_back(text("Interval: " + std::to_string(item.value("update_interval_seconds", 0)) +
+                  " s · validator core: " +
+                  (item.value("validator_core_id", "").empty() ? "not selected" : "selected")) | dim);
+            }
+          }
+        } else if (config_section_ == kTestsSection) {
+          const auto tests = program_settings_.value("tests", Json::object());
+          body.push_back(text("Default HTTP(S) target: " + tests.value("default_url", "(none)")));
+          body.push_back(text("Timeout: " + std::to_string(tests.value("timeout_ms", 5000)) + " ms"));
+          body.push_back(text("Concurrency: " + std::to_string(tests.value("concurrency", 3)) +
+              "   Download cap: " + std::to_string(tests.value("max_body_bytes", 8 * 1024 * 1024)) + " B"));
+          body.push_back(text("ICMP tests host only; TCP tests port only; URL/download use isolated Xray") | dim);
+          body.push_back(text("u URL   o Timeout   c Concurrency   b Byte cap · no automatic bulk testing") | dim);
+        } else if (config_section_ == kAppearanceSection) {
           const auto field = [&](std::string_view key) {
             if (appearance_draft_.contains(std::string(key)))
               return appearance_draft_.at(std::string(key)).dump();
@@ -1099,7 +1508,7 @@ class TuiApp final : public ComponentBase {
               "t/c/d/i/m Preview   s Save   [ ] Section") |
               (appearance_dirty_ ? color(Color::Yellow) : dim));
           body.push_back(text("Font family and size remain terminal settings; XRM does not change them") | dim);
-        } else if (config_section_ == 2) {
+        } else if (config_section_ == kEditorSection) {
           const auto argv = program_settings_.value("editor", Json::object()).value("argv", Json::array());
           body.push_back(text("Explicit editor argv: " + (argv.empty() ? "not configured" : argv.dump())));
           body.push_back(text("Manager VISUAL: " + std::string(std::getenv("VISUAL") ? std::getenv("VISUAL") : "not set")));
@@ -1140,23 +1549,28 @@ class TuiApp final : public ComponentBase {
       } else {
         const auto running = status_.contains("active") && status_["active"].is_object()
             ? status_["active"].value("core_id", "") : "";
+        tui::TableView<Json> core_table({
+            {"Core", 24, 0, 1, false, [](const Json& core) {
+              return core.value("name", "");
+            }},
+            {"Version", 22, 2, 0, false, [](const Json& core) {
+              return core.value("reported_version", "unknown");
+            }},
+            {"Origin", 10, 1, 0, false, [](const Json& core) {
+              return core.value("managed", false) ? std::string("managed") : std::string("system");
+            }},
+            {"State", 17, 0, 0, false, [this, &running](const Json& core) {
+              if (running == core.value("id", "")) return std::string("running");
+              if (!profile_id_.empty() && profile_core_id(profile_id_) == core.value("id", ""))
+                return std::string("selected");
+              return std::string("installed");
+            }},
+        }, terminal.dimx - 4);
+        body.push_back(core_table.header());
         for (std::size_t i = 0; i < cores_.size(); ++i) {
           const auto& core = cores_[i];
-          const bool selected_here = !profile_id_.empty() &&
-              profile_core_id(profile_id_) == core.value("id", "");
-          const bool selected_elsewhere = std::any_of(profiles_.begin(), profiles_.end(),
-              [&](const Json& profile) {
-                return profile.value("id", "") != profile_id_ &&
-                    profile.value("core_id", "") == core.value("id", "");
-              });
-          body.push_back(text((i == selected_ ? "> " : "  ") + core.value("name", "") + "  " +
-              core.value("reported_version", "") + "  " +
-              (core.value("managed", false) ? "managed" : "system") + "  installed" +
-              (selected_here ? " selected for viewed Profile" :
-                  selected_elsewhere ? " used by another Profile" : "") +
-              (running == core.value("id", "") ? " running" : "")) |
-              (i == selected_ ? inverted : nothing));
-          body.push_back(text(core.value("path", "")) | dim);
+          body.push_back(core_table.row(core, i == selected_));
+          if (i == selected_) body.push_back(text("Path: " + core.value("path", "")) | dim);
         }
         body.push_back(text("a register   Enter choose for new Profile   l releases   i install   u use here   D remove unused managed") | dim);
       }
@@ -1192,17 +1606,6 @@ class TuiApp final : public ComponentBase {
       body.push_back(text("No profile selected — n Create Default Profile   o Open Profiles   Esc Cancel") | color(Color::Yellow));
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
     Elements footer_lines;
-    if (!state_.toasts.empty() &&
-        !(runtime_error_ && state_.toasts.back().text.starts_with("Connect failed:"))) {
-      const auto& toast = state_.toasts.back();
-      const auto shade = toast.level == Toast::Level::success ? Color::Green :
-          toast.level == Toast::Level::warning ? Color::Yellow :
-          toast.level == Toast::Level::error ? Color::Red : Color::Cyan;
-      footer_lines.push_back(paragraph(toast.text) | color(shade) | bold);
-    }
-    if (!message_.empty() && !(runtime_error_ && message_.starts_with("Connect failed:")) &&
-        (state_.toasts.empty() || state_.toasts.back().text != message_))
-      footer_lines.push_back(paragraph(message_) | color(Color::Yellow));
     std::string help_bar = std::string(kPages[top_page_index()].help) +
         "   Tab/Shift-Tab Pages   q Quit";
     if (page_ == 5) help_bar = "Nodes/Groups: ↑↓ Move   Enter Edit   s Select   m Choose Member   n Nodes   ? Help";
@@ -1210,10 +1613,38 @@ class TuiApp final : public ComponentBase {
     else if (editing_) help_bar = "↑↓←→ Move   F2 Save   F6 Open External Editor   Esc Close";
     if (runtime_error_)
       footer_lines.push_back(paragraph("Connection failed: " + *runtime_error_) | color(Color::Red) | bold);
-    footer_lines.push_back(paragraph(help_bar) | dim);
+    else if (!message_.empty() && (state_.toasts.empty() ||
+                 state_.toasts.back().text != message_))
+      footer_lines.push_back(text(short_utf8(message_, static_cast<std::size_t>(terminal.dimx - 8))) |
+          color(Color::Yellow));
+    footer_lines.push_back(text(std::string("Focus: ") +
+        (focus_layer_ == FocusLayer::top ? "TopNav" :
+         focus_layer_ == FocusLayer::secondary ? "SecondaryNav" : "Content") +
+        " · " + (focus_layer_ == FocusLayer::top ? "Tab page  Enter in" :
+                focus_layer_ == FocusLayer::secondary ? "Tab section  Enter content  Esc back" :
+                "Esc back")) | dim);
+    footer_lines.push_back(text(short_utf8(help_bar, static_cast<std::size_t>(terminal.dimx - 8))) | dim);
     Element footer = vbox(std::move(footer_lines));
     auto base = vbox({vbox(std::move(header)), separator(), vbox(std::move(body)) | vscroll_indicator | yframe | flex,
                       separator(), std::move(footer)}) | border | flex;
+    if (!state_.toasts.empty()) {
+      Elements notices;
+      const auto first = state_.toasts.size() > 3 ? state_.toasts.size() - 3 : 0;
+      for (std::size_t i = first; i < state_.toasts.size(); ++i) {
+        const auto& toast = state_.toasts[i];
+        const auto shade = toast.level == Toast::Level::success ? Color::Green :
+            toast.level == Toast::Level::warning ? Color::Yellow :
+            toast.level == Toast::Level::error ? Color::Red : Color::Cyan;
+        const auto symbol = toast.level == Toast::Level::success ? "✓" :
+            toast.level == Toast::Level::warning ? "!" :
+            toast.level == Toast::Level::error ? "✗" : "·";
+        notices.push_back(text(std::string(symbol) + " " +
+            short_utf8(toast.text, terminal.dimx < 100 ? 32 : 45)) |
+            color(shade) | bold | border);
+      }
+      base = dbox({base, vbox({text("") | size(HEIGHT, EQUAL, 5),
+          hbox({filler(), vbox(std::move(notices))}), filler()})});
+    }
     if (prompt_ != Prompt::none) {
       auto dialog = window(text(prompt_label_) | bold,
           vbox({text(prompt_text_ + "█") | border | size(WIDTH, LESS_THAN, 56),
@@ -1289,10 +1720,49 @@ class TuiApp final : public ComponentBase {
                   text("3 Custom native Xray outbound"),
                   text("4 Group — routing balancer binding"),
                   text("Esc Cancel") | dim})) | center});
+    if (preset_menu_) return dbox({base | dim,
+        window(text("Routing preset · native routing.rules") | bold,
+            vbox({text("1 Bypass mainland · GeoIP/GeoSite assets required"),
+                  text("2 Blacklist proxy · GeoIP/GeoSite assets required"),
+                  text("3 Global proxy · contains LAN/UDP-443 exceptions"),
+                  text("4 Direct only · all traffic direct"),
+                  text("5 Custom native · keep user rules"),
+                  text("Choose to inspect JSON diff; Esc Cancel") | dim})) | center});
+    if (preset_plan_) {
+      Elements rows{text("Profile: " + profile_name(profile_id_) + " · preset: " + preset_name_),
+          text("Changed: " + std::string(preset_plan_->value("changed", false) ? "yes" : "no")),
+          text("Required GeoIP labels: " + preset_plan_->value("required_geoip_labels", Json::array()).dump()),
+          text("Required GeoSite labels: " + preset_plan_->value("required_geosite_labels", Json::array()).dump()),
+          text("JSON diff · modules/routing source → proposed native JSON") | bold};
+      const auto before = preset_plan_->value("before", Json::object());
+      const auto after = preset_plan_->value("after", Json::object());
+      rows.push_back(text("Before: " + short_utf8(before.dump(), 68)) | dim);
+      rows.push_back(text("After:  " + short_utf8(after.dump(), 68)));
+      rows.push_back(text("y Confirm Save source only · n/Esc Cancel · no runtime Apply") | dim);
+      return dbox({base | dim, window(text("Routing preset plan"), vbox(std::move(rows)) |
+          size(WIDTH, LESS_THAN, std::max(54, terminal.dimx - 4))) | center});
+    }
+    if (node_test_menu_) return dbox({base | dim,
+        window(text("Test selected node · isolated from production core") | bold,
+            vbox({text("1 ICMP  · host reachability; not proxy authentication"),
+                  text("2 TCP    · port handshake; not proxy authentication"),
+                  text("3 URL    · HTTP through an independent temporary Xray"),
+                  text("4 Download · bounded bytes through temporary Xray"),
+                  text("URL uses Profile observer target or Config → Tests default; Esc Cancel") | dim})) | center});
+    if (profile_template_menu_) return dbox({base | dim,
+        window(text("Create Profile · choose a template") | bold,
+            vbox({text("1 Desktop · local SOCKS/HTTP; no system proxy changes"),
+                  text("2 TUN · disabled draft; requires explicit permission and review"),
+                  text("3 Custom · all 15 native modules available, initially disabled"),
+                  text("Template is copied once. Choose a core separately; Connect is explicit."),
+                  text("Esc Cancel") | dim})) | center});
     return base;
   }
 
  private:
+  bool has_secondary_nav() const {
+    return page_ == 1 || page_ == 5 || page_ == 2 || page_ == 7;
+  }
   std::size_t top_page_index() const {
     if (page_ == 5) return 4;  // Groups are a Nodes category.
     if (page_ == 6) return 0;  // Legacy Stats content belongs to Overview.
@@ -1326,7 +1796,7 @@ class TuiApp final : public ComponentBase {
     for (const auto& [key, label] : node_categories()) {
       auto item = text(key == node_category_ ? "[" + short_utf8(label, 18) + "] " :
           " " + short_utf8(label, 18) + " ");
-      if (key == node_category_) item = item | inverted;
+      if (key == node_category_) item = item | inverted | focus;
       tabs.push_back(std::move(item));
     }
     return hbox(std::move(tabs)) | xframe;
@@ -1356,7 +1826,8 @@ class TuiApp final : public ComponentBase {
     if (page_ == 4) return subscriptions_.size();
     if (page_ == 5) return groups_.size();
     if (page_ == 7) return config_section_ == 0 ?
-        (viewing_releases_ ? core_releases_.size() : cores_.size()) : 0;
+        (viewing_releases_ ? core_releases_.size() : cores_.size()) :
+        config_section_ == kGeodataSection ? geodata_.size() : 0;
     if (page_ == 8) return profiles_.size();
     return 0;
   }
@@ -1513,7 +1984,7 @@ class TuiApp final : public ComponentBase {
     else if (rename) prompt_profile_id_ = profiles_[selected_].value("id", "");
     if (clone) begin_prompt(Prompt::profile_clone_name, "Copy name");
     else if (rename) begin_prompt(Prompt::profile_rename_name, "New Profile name");
-    else begin_prompt(Prompt::profile_name, "New Profile name");
+    else profile_template_menu_ = true;
   }
   void save_prompted_subscription(bool use_for_profile) {
     auto added = rpc(socket_, std::string(methods::subscription_add),
@@ -1667,6 +2138,135 @@ class TuiApp final : public ComponentBase {
     const auto completed = prompt_;
     prompt_ = Prompt::none;
     prompt_text_.clear();
+    if (completed == Prompt::module_find) {
+      std::vector<std::size_t> matches;
+      for (std::size_t i = 0; i < modules_.size(); ++i) {
+        const auto key = modules_[i].value("key", "");
+        if (key == value) { matches = {i}; break; }
+        if (key.find(value) != std::string::npos && !value.empty()) matches.push_back(i);
+      }
+      if (matches.size() == 1) {
+        selected_ = matches.front();
+        page_selections_[2] = selected_;
+        focus_layer_ = FocusLayer::secondary;
+        message_ = "Viewing native module " + modules_[selected_].value("key", "");
+      } else message_ = matches.empty() ? "No native module matches that key" :
+          "Multiple module keys match; enter the exact native key";
+      return;
+    }
+    if (completed == Prompt::geodata_name) {
+      if (value.empty()) { message_ = "Resource name is required"; return; }
+      geodata_draft_name_ = value;
+      begin_prompt(Prompt::geodata_kind, "Resource type: geoip or geosite");
+      return;
+    }
+    if (completed == Prompt::geodata_kind) {
+      if (value != "geoip" && value != "geosite") {
+        message_ = "Resource type must be geoip or geosite"; return;
+      }
+      geodata_draft_kind_ = value;
+      begin_prompt(Prompt::geodata_file,
+          value == "geoip" ? "Runtime filename (e.g. geoip.dat)" :
+              "Runtime filename (e.g. geosite.dat)");
+      return;
+    }
+    if (completed == Prompt::geodata_file) {
+      if (value.empty()) { message_ = "Resource filename is required"; return; }
+      geodata_draft_file_ = value;
+      begin_prompt(Prompt::geodata_source, "HTTPS/HTTP URL or absolute local .dat path");
+      return;
+    }
+    if (completed == Prompt::geodata_source) {
+      Json params{{"name", geodata_draft_name_}, {"kind", geodata_draft_kind_},
+                  {"file_name", geodata_draft_file_}, {"auto_update", false}};
+      if (value.starts_with("http://") || value.starts_with("https://")) params["url"] = value;
+      else params["local_path"] = value;
+      auto added = rpc(socket_, std::string(methods::geodata_put), std::move(params));
+      if (!added) message_ = "Geodata not added: " + added.error().message;
+      else {
+        message_ = "Shared Geodata resource registered; update/validate before binding it to a Profile";
+        push_toast(Toast::Level::success, message_);
+        refresh_geodata();
+      }
+      return;
+    }
+    if (completed == Prompt::geodata_remove_confirm) {
+      if (value != "DELETE") { message_ = "Geodata removal cancelled"; return; }
+      if (selected_ >= geodata_.size()) return;
+      const auto id = geodata_[selected_].value("id", "");
+      auto removed = rpc(socket_, std::string(methods::geodata_remove), Json{{"id", id}});
+      if (!removed) message_ = "Geodata not removed: " + removed.error().message;
+      else { message_ = "Unbound Geodata resource removed; running core unchanged"; refresh_geodata(); }
+      return;
+    }
+    if (completed == Prompt::geodata_interval) {
+      if (selected_ >= geodata_.size()) return;
+      std::uint64_t seconds = 0;
+      auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), seconds);
+      if (error != std::errc{} || end != value.data() + value.size() || seconds > 604800) {
+        message_ = "Auto-update interval must be 0–604800 seconds"; return;
+      }
+      std::string core_id = profile_settings_.value("core_id", "");
+      if (core_id.empty()) core_id = selected_core_for_profile_;
+      if (seconds && core_id.empty()) {
+        message_ = "Choose a validator Xray in Config → Core before scheduling updates"; return;
+      }
+      auto updated = rpc(socket_, std::string(methods::geodata_put),
+          Json{{"id", geodata_[selected_].value("id", "")},
+               {"auto_update", seconds != 0}, {"update_interval_seconds", seconds},
+               {"validator_core_id", core_id}});
+      if (!updated) message_ = "Geodata schedule not saved: " + updated.error().message;
+      else {
+        message_ = seconds ? "Geodata cache schedule saved; running core unchanged" :
+            "Geodata cache auto-update disabled; running core unchanged";
+        refresh_geodata();
+      }
+      return;
+    }
+    if (completed == Prompt::structure_key) {
+      if (value.empty()) { message_ = "JSON object key cannot be empty"; return; }
+      pending_json_edit_.pointer += "/" + pointer_token(value);
+      begin_prompt(Prompt::structure_value,
+          "Typed JSON value (e.g. \"text\", 42, true, null, {}, [])");
+      return;
+    }
+    if (completed == Prompt::structure_value) {
+      auto parsed = Json::parse(value, nullptr, false);
+      if (parsed.is_discarded()) {
+        message_ = "Invalid JSON value; draft unchanged (quote strings)";
+        return;
+      }
+      pending_json_edit_.value = std::move(parsed);
+      apply_structure_edit(pending_json_edit_);
+      return;
+    }
+    if (completed == Prompt::structure_rename) {
+      if (value.empty()) { message_ = "New JSON key cannot be empty"; return; }
+      pending_json_edit_.new_key = value;
+      apply_structure_edit(pending_json_edit_);
+      return;
+    }
+    if (completed == Prompt::tests_default_url || completed == Prompt::tests_timeout ||
+        completed == Prompt::tests_concurrency || completed == Prompt::tests_max_bytes) {
+      std::string key = completed == Prompt::tests_default_url ? "default_url" :
+          completed == Prompt::tests_timeout ? "timeout_ms" :
+          completed == Prompt::tests_concurrency ? "concurrency" : "max_body_bytes";
+      Json setting = value;
+      if (completed != Prompt::tests_default_url) {
+        std::uint64_t parsed = 0;
+        auto [end, error] = std::from_chars(value.data(), value.data() + value.size(), parsed);
+        if (error != std::errc{} || end != value.data() + value.size()) {
+          message_ = "Node test setting needs a decimal number";
+          return;
+        }
+        setting = parsed;
+      }
+      auto saved = rpc(socket_, std::string(methods::settings_update),
+          Json{{"patch", {{"tests", {{key, setting}}}}}});
+      if (!saved) message_ = "Test setting not saved: " + saved.error().message;
+      else { program_settings_ = std::move(*saved); message_ = "Test setting saved; production core unchanged"; }
+      return;
+    }
     if (completed == Prompt::subscription_url) {
       if (value.empty()) { message_ = "subscription URL cannot be empty"; return; }
       prompt_subscription_url_ = value;
@@ -1882,7 +2482,7 @@ class TuiApp final : public ComponentBase {
         profile_id_ = created->value("id", "");
       } else {
         auto created = rpc(socket_, std::string(methods::profile_create), Json{
-            {"name", value}, {"core_id", selected_core_for_profile_}, {"preset", "local"}});
+            {"name", value}, {"core_id", selected_core_for_profile_}, {"preset", new_profile_preset_}});
         if (!created) { message_ = created.error().message; return; }
         profile_id_ = created->value("id", "");
       }
@@ -1974,7 +2574,10 @@ class TuiApp final : public ComponentBase {
     if (watch) {
       if (!stats_rpc_) stats_rpc_ = std::make_unique<RpcSession>(socket_);
       auto response = stats_rpc_->call(std::string(methods::runtime_stats), Json{{"watch", true}});
-      if (response) stats_ = std::move(*response);
+      if (response) {
+        stats_ = std::move(*response);
+        record_traffic_point();
+      }
       else stats_ = Json{{"availability", "unavailable"}, {"reason", response.error().message}};
       stats_watching_ = response.has_value();
       return;
@@ -1986,6 +2589,32 @@ class TuiApp final : public ComponentBase {
     stats_rpc_->close();
     stats_rpc_.reset();
     stats_watching_ = false;
+  }
+  void record_traffic_point() {
+    if (!stats_.contains("sample") || !stats_["sample"].is_object()) return;
+    const auto& sample = stats_["sample"];
+    if (!sample.contains("run_id") || !sample["run_id"].is_string() ||
+        !sample.contains("received_at") || !sample["received_at"].is_number_integer()) return;
+    const auto run_id = sample["run_id"].get<std::string>();
+    const auto at = sample["received_at"].get<UnixMillis>();
+    if (traffic_run_id_ != run_id ||
+        (!traffic_history_.empty() && at - traffic_history_.back().sampled_at > 5000)) {
+      traffic_history_.clear();
+      traffic_run_id_ = run_id;
+    }
+    if (!traffic_history_.empty() && at <= traffic_history_.back().sampled_at) return;
+    if (!stats_.contains("rates") || !stats_["rates"].is_array()) return;
+    for (const auto& rate : stats_["rates"]) {
+      if (!rate.is_object() || !rate.contains("downlink_bytes_per_second") ||
+          !rate.contains("uplink_bytes_per_second") ||
+          !rate["downlink_bytes_per_second"].is_number() ||
+          !rate["uplink_bytes_per_second"].is_number()) continue;
+      traffic_history_.push_back(TrafficPoint{at,
+          std::max(0.0, rate["downlink_bytes_per_second"].get<double>()),
+          std::max(0.0, rate["uplink_bytes_per_second"].get<double>())});
+      while (traffic_history_.size() > 150) traffic_history_.pop_front();
+      return;
+    }
   }
   void refresh_expected() {
     expected_selection_.clear();
@@ -2200,6 +2829,97 @@ class TuiApp final : public ComponentBase {
       selected_core_for_profile_ = cores_.front().value("id", "");
     viewing_releases_ = false;
   }
+  void refresh_geodata() {
+    const auto previous = selected_ < geodata_.size() ? geodata_[selected_].value("id", "") : "";
+    auto response = rpc(socket_, std::string(methods::geodata_list));
+    if (!response || !response->is_array()) {
+      message_ = response ? "Invalid Geodata list response" : response.error().message;
+      return;
+    }
+    geodata_ = response->get<std::vector<Json>>();
+    const auto found = std::find_if(geodata_.begin(), geodata_.end(), [&](const Json& row) {
+      return row.value("id", "") == previous;
+    });
+    selected_ = found != geodata_.end() ? static_cast<std::size_t>(found - geodata_.begin()) :
+        std::min(selected_, geodata_.empty() ? 0 : geodata_.size() - 1);
+  }
+  void bind_selected_geodata() {
+    if (profile_id_.empty()) {
+      message_ = "Open a Profile before binding a shared Geodata resource";
+      return;
+    }
+    if (selected_ >= geodata_.size()) return;
+    const auto& item = geodata_[selected_];
+    auto resources = profile_settings_.value("geodata_resource_ids", Json::object());
+    if (!resources.is_object()) resources = Json::object();
+    const auto file = item.value("file_name", "");
+    const bool was_bound = resources.value(file, "") == item.value("id", "");
+    if (was_bound) resources.erase(file);
+    else {
+      if (!item.contains("current") || !item["current"].is_object()) {
+        message_ = "Validate/update this resource before binding; no Profile changed";
+        return;
+      }
+      resources[file] = item.value("id", "");
+    }
+    auto bound = rpc(socket_, std::string(methods::profile_geodata_set),
+        Json{{"profile_id", profile_id_}, {"resources", resources}});
+    if (!bound) message_ = "Geodata binding not saved: " + bound.error().message;
+    else {
+      refresh_expected();
+      message_ = std::string(was_bound ? "Profile asset unbound" : "Profile asset binding saved") +
+          "; running core unchanged until explicit Apply/Connect";
+      push_toast(Toast::Level::success, message_);
+    }
+  }
+  void start_geodata_update() {
+    if (geodata_updating_ || selected_ >= geodata_.size()) return;
+    std::string core_id = profile_settings_.value("core_id", "");
+    if (core_id.empty()) core_id = selected_core_for_profile_;
+    if (core_id.empty()) {
+      message_ = "Select/register an Xray core in Config → Core to validate Geodata";
+      return;
+    }
+    const auto resource_id = geodata_[selected_].value("id", "");
+    geodata_updating_ = true;
+    message_ = "Validating Geodata with selected Xray; production core unchanged";
+    log_poll_state_->animation.store(!appearance_draft_.value("reduce_motion", false));
+    const auto socket = socket_;
+    const auto mailbox = async_mailbox_;
+    const auto poster = ui_poster_;
+    std::thread([socket, mailbox, poster, resource_id, core_id] {
+      GeodataUpdateEvent event;
+      auto accepted = rpc(socket, std::string(methods::geodata_update),
+          Json{{"id", resource_id}, {"core_id", core_id}});
+      if (!accepted) event.error = accepted.error().message;
+      else if (!accepted->contains("operation_id")) event.error = "xrmd did not return a Geodata operation ID";
+      else {
+        const auto id = accepted->at("operation_id").get<std::string>();
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(75);
+        while (poster->alive.load()) {
+          auto progress = rpc(socket, std::string(methods::operation_get), Json{{"operation_id", id}});
+          if (!progress) { event.error = progress.error().message; break; }
+          const auto state = progress->value("status", "");
+          if (state == "succeeded") { event.result = progress->value("result", Json::object()); break; }
+          if (state == "failed") {
+            event.error = progress->value("error", Json::object()).value("message", "validation failed");
+            break;
+          }
+          if (std::chrono::steady_clock::now() >= deadline) {
+            event.error = "Geodata update is still running; inspect operation status"; break;
+          }
+          std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        }
+      }
+      if (!poster->alive.load()) return;
+      auto listed = rpc(socket, std::string(methods::geodata_list));
+      if (listed && listed->is_array()) {
+        event.resources = listed->get<std::vector<Json>>(); event.loaded = true;
+      }
+      { std::lock_guard lock(mailbox->mutex); mailbox->geodata_update = std::move(event); }
+      post_ui_event(poster);
+    }).detach();
+  }
   void poll_core_operation() {
     if (pending_core_operation_.empty()) return;
     auto state = rpc(socket_, std::string(methods::operation_get),
@@ -2390,6 +3110,7 @@ class TuiApp final : public ComponentBase {
     } else {
       std::size_t added = 0, updated = 0, unsupported = 0, malformed = 0;
       if (event.result) {
+        state_.subscriptions.operation_error.reset();
         for (const auto& source : event.result->value("completed", Json::array())) {
           added += source.value("added", std::size_t{0});
           updated += source.value("updated", std::size_t{0});
@@ -2400,6 +3121,8 @@ class TuiApp final : public ComponentBase {
           state_.subscriptions.update_state = AsyncUiState::partial;
           const auto& first_failure = event.result->at("failed").front();
           const auto details = first_failure.value("error", Json::object());
+          if (details.is_object())
+            state_.subscriptions.operation_error = details.value("message", "update failed");
           message_ = "Subscription update partial: " + std::to_string(added) + " added, " +
               std::to_string(updated) + " updated; " + std::to_string(event.result->at("failed").size()) +
               " source(s) failed" +
@@ -2430,6 +3153,74 @@ class TuiApp final : public ComponentBase {
         std::chrono::steady_clock::now() + std::chrono::seconds(level == Toast::Level::error ? 8 : 4)});
     if (state_.toasts.size() > 4) state_.toasts.erase(state_.toasts.begin());
     log_poll_state_->animation.store(!appearance_draft_.value("reduce_motion", false));
+  }
+  void start_node_test(std::string kind) {
+    if (selected_ >= nodes_.size()) return;
+    const auto id = nodes_[selected_].value("id", "");
+    if (id.empty() || pending_node_tests_.contains(id)) return;
+    if ((kind == "url" || kind == "download") && profile_id_.empty()) {
+      message_ = "Proxy test needs a viewed Profile with a selected Xray core";
+      return;
+    }
+    pending_node_tests_.insert(id);
+    message_ = kind + " test started for " + nodes_[selected_].value("name", "");
+    push_toast(Toast::Level::info, message_);
+    Json params{{"node_id", id}, {"kind", kind}};
+    if (!profile_id_.empty()) params["profile_id"] = profile_id_;
+    const auto socket = socket_;
+    const auto mailbox = async_mailbox_;
+    const auto poster = ui_poster_;
+    std::thread([socket, mailbox, poster, id, params = std::move(params)]() mutable {
+      NodeTestEvent event;
+      event.node_id = id;
+      auto accepted = rpc(socket, std::string(methods::node_test_start), std::move(params));
+      if (!accepted) event.error = accepted.error().message;
+      else if (accepted->value("status", "") != "accepted" || !accepted->contains("operation_id"))
+        event.error = "xrmd did not accept the node test";
+      else {
+        const auto operation = accepted->at("operation_id").get<std::string>();
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(70);
+        while (poster->alive.load()) {
+          auto state = rpc(socket, std::string(methods::operation_get),
+                           Json{{"operation_id", operation}});
+          if (!state) { event.error = state.error().message; break; }
+          if (state->value("status", "") == "succeeded") {
+            event.result = state->value("result", Json::object());
+            break;
+          }
+          if (state->value("status", "") == "failed") {
+            event.error = state->value("error", Json::object()).value("message", "node test failed");
+            break;
+          }
+          if (std::chrono::steady_clock::now() >= deadline) {
+            event.error = "Node test still running after 70 seconds; check operation status";
+            break;
+          }
+          std::this_thread::sleep_for(std::chrono::milliseconds(150));
+        }
+      }
+      if (!poster->alive.load()) return;
+      {
+        std::lock_guard lock(mailbox->mutex);
+        mailbox->node_tests.push_back(std::move(event));
+      }
+      post_ui_event(poster);
+    }).detach();
+  }
+  void apply_node_test(NodeTestEvent event) {
+    pending_node_tests_.erase(event.node_id);
+    if (event.error) {
+      message_ = "Node test failed: " + *event.error;
+      push_toast(Toast::Level::error, message_);
+      return;
+    }
+    if (!event.result) return;
+    node_test_results_[event.node_id] = *event.result;
+    const auto status = event.result->value("status", "unknown");
+    message_ = "Node " + event.result->value("kind", "") + " test: " + status +
+        " · " + event.result->value("message", "");
+    push_toast(status == "success" ? Toast::Level::success :
+        status == "not_applicable" ? Toast::Level::warning : Toast::Level::error, message_);
   }
   void start_runtime_operation(std::string method, Json params, std::string label) {
     const bool is_stop = label == "Stop";
@@ -2560,6 +3351,42 @@ class TuiApp final : public ComponentBase {
       break;
     }
   }
+  void toggle_module_preview() {
+    if (module_preview_runtime_) {
+      module_preview_runtime_ = false;
+      message_ = "Showing saved source module; draft edits remain separate";
+      return;
+    }
+    if (profile_id_.empty() || selected_ >= modules_.size() ||
+        !status_.contains("active") || !status_["active"].is_object() ||
+        status_["active"].value("profile_id", "") != profile_id_) {
+      message_ = "Runtime preview unavailable: no running FileSet for the viewed Profile";
+      return;
+    }
+    const auto& module = modules_[selected_];
+    const auto filename = module.value("runtime_file", "");
+    const auto key = module.value("key", "");
+    auto response = rpc(socket_, std::string(methods::config_files),
+        Json{{"profile_id", profile_id_}, {"source", "runtime"}});
+    if (!response || !response->contains("files") || !(*response)["files"].is_array()) {
+      message_ = response ? "Runtime files response invalid" : response.error().message;
+      return;
+    }
+    std::string viewed;
+    for (const auto& file : (*response)["files"]) {
+      if (file.value("file", "") != filename &&
+          !(key == "outbounds" && file.value("file", "") == "90_nodes_tail.json")) continue;
+      if (!viewed.empty()) viewed += "\n";
+      viewed += "// " + file.value("file", "") + "\n" + file.value("text", "");
+    }
+    if (viewed.empty()) {
+      message_ = "Runtime preview unavailable: module is not included in the active FileSet";
+      return;
+    }
+    module_runtime_text_ = std::move(viewed);
+    module_preview_runtime_ = true;
+    message_ = "Showing read-only active runtime files; edits still use saved source draft";
+  }
   void refresh_logs() {
     if (page_ == 3) log_poll_state_->cursor.store(log_cursor_);
   }
@@ -2624,7 +3451,131 @@ class TuiApp final : public ComponentBase {
     editing_dirty_ = false;
     draft_json_invalid_ = false;
     editor_undo_.clear();
+    editing_structured_ = false;
+    structure_rows_.clear();
+    structure_selected_ = 0;
     editing_ = true;
+  }
+  static std::string pointer_token(std::string_view key) {
+    std::string out;
+    for (const char ch : key) {
+      if (ch == '~') out += "~0";
+      else if (ch == '/') out += "~1";
+      else out += ch;
+    }
+    return out;
+  }
+  void refresh_structure_rows() {
+    structure_rows_.clear();
+    const auto parsed = Json::parse(draft_, nullptr, false);
+    if (!parsed.is_object() || !parsed.contains(editing_key_)) return;
+    std::function<void(const Json&, const std::string&, const std::string&, int, bool, std::size_t)> visit =
+        [&](const Json& value, const std::string& pointer, const std::string& name,
+            int depth, bool array_element, std::size_t array_index) {
+      if (structure_rows_.size() >= 512) return;
+      const auto kind = value.is_object() ? "object" : value.is_array() ? "array" :
+          value.is_string() ? "string" : value.is_boolean() ? "bool" :
+          value.is_null() ? "null" : "number";
+      const auto label = std::string(static_cast<std::size_t>(depth) * 2, ' ') + name +
+          " : " + kind + (value.is_structured() ? " (" + std::to_string(value.size()) + ")" :
+              " = " + short_utf8(value.dump(), 42));
+      structure_rows_.push_back(StructureRow{pointer, label, value.is_object(),
+          value.is_array(), array_element, array_index});
+      if (value.is_object()) for (auto it = value.begin(); it != value.end(); ++it)
+        visit(it.value(), pointer + "/" + pointer_token(it.key()), it.key(), depth + 1,
+              false, 0);
+      else if (value.is_array()) for (std::size_t i = 0; i < value.size(); ++i)
+        visit(value[i], pointer + "/" + std::to_string(i), "[" + std::to_string(i) + "]",
+              depth + 1, true, i);
+    };
+    visit(parsed[editing_key_], "/" + pointer_token(editing_key_), editing_key_, 0, false, 0);
+    structure_selected_ = std::min(structure_selected_,
+        structure_rows_.empty() ? 0 : structure_rows_.size() - 1);
+  }
+  void apply_structure_edit(JsonDraftEdit edit) {
+    const ModuleDocument source{editing_key_, {}, draft_};
+    auto result = edit_json_draft(source, edit);
+    if (!result) { message_ = result.error().message; return; }
+    remember_editor_state();
+    draft_ = std::move(result->text);
+    state_.module_draft = draft_;
+    edit_cursor_ = draft_.size();
+    editing_dirty_ = !editing_base_text_ || draft_ != *editing_base_text_;
+    draft_json_invalid_ = false;
+    refresh_structure_rows();
+    message_ = "Structured JSON draft changed; F2 Save is explicit; runtime unchanged";
+  }
+  bool handle_structure_event(const Event& event) {
+    if (event == Event::F4) {
+      editing_structured_ = false;
+      message_ = "Native text view; both views edit the same draft";
+      return true;
+    }
+    if (structure_rows_.empty()) return true;
+    if (event == Event::ArrowDown || event == Event::PageDown)
+      structure_selected_ = std::min(structure_selected_ + (event == Event::PageDown ? 8u : 1u),
+          structure_rows_.size() - 1);
+    else if (event == Event::ArrowUp || event == Event::PageUp)
+      structure_selected_ = structure_selected_ > (event == Event::PageUp ? 8u : 1u)
+          ? structure_selected_ - (event == Event::PageUp ? 8u : 1u) : 0;
+    else if (event == Event::Home) structure_selected_ = 0;
+    else if (event == Event::End) structure_selected_ = structure_rows_.size() - 1;
+    else if (event == Event::Character("a")) {
+      const auto& row = structure_rows_[structure_selected_];
+      if (row.object) {
+        pending_json_edit_ = JsonDraftEdit{JsonEditAction::set, row.pointer};
+        begin_prompt(Prompt::structure_key, "New object key (native JSON; value follows)");
+      } else if (row.array) {
+        pending_json_edit_ = JsonDraftEdit{JsonEditAction::array_insert, row.pointer};
+        const auto parsed = Json::parse(draft_);
+        pending_json_edit_.index = parsed.at(Json::json_pointer(row.pointer)).size();
+        begin_prompt(Prompt::structure_value, "JSON value to append (quoted string, number, true/false/null, object, array)");
+      } else message_ = "Select an object or array to add an item";
+    } else if (event == Event::Character("e")) {
+      const auto& row = structure_rows_[structure_selected_];
+      if (row.object || row.array || row.pointer == "/" + editing_key_) {
+        message_ = "Select a scalar field to edit; object/array items are edited individually";
+      } else if (row.array_element) {
+        pending_json_edit_ = JsonDraftEdit{JsonEditAction::array_replace,
+            row.pointer.substr(0, row.pointer.find_last_of('/'))};
+        pending_json_edit_.index = row.array_index;
+        begin_prompt(Prompt::structure_value, "New typed JSON array value (position preserved)");
+      } else {
+        pending_json_edit_ = JsonDraftEdit{JsonEditAction::set, row.pointer};
+        begin_prompt(Prompt::structure_value, "New typed JSON value (quotes required for strings)");
+      }
+    } else if (event == Event::Character("d")) {
+      const auto& row = structure_rows_[structure_selected_];
+      if (row.pointer == "/" + editing_key_) message_ = "Native module root cannot be removed here; disable the module instead";
+      else if (row.array_element) {
+        auto path = row.pointer.substr(0, row.pointer.find_last_of('/'));
+        JsonDraftEdit edit{JsonEditAction::array_erase, path}; edit.index = row.array_index;
+        apply_structure_edit(std::move(edit));
+      } else apply_structure_edit(JsonDraftEdit{JsonEditAction::erase, row.pointer});
+    } else if (event == Event::Character("r")) {
+      const auto& row = structure_rows_[structure_selected_];
+      if (row.array_element || row.pointer == "/" + editing_key_)
+        message_ = "Select an object field to rename";
+      else {
+        pending_json_edit_ = JsonDraftEdit{JsonEditAction::rename_key, row.pointer};
+        begin_prompt(Prompt::structure_rename, "New object key");
+      }
+    } else if (event == Event::Character("c") || event == Event::Character("[") ||
+               event == Event::Character("]")) {
+      const auto& row = structure_rows_[structure_selected_];
+      if (!row.array_element) { message_ = "Select an array item to copy or reorder"; return true; }
+      const auto path = row.pointer.substr(0, row.pointer.find_last_of('/'));
+      const auto parsed = Json::parse(draft_);
+      const auto size = parsed.at(Json::json_pointer(path)).size();
+      JsonDraftEdit edit{event == Event::Character("c") ? JsonEditAction::array_copy :
+          JsonEditAction::array_move, path};
+      edit.index = row.array_index;
+      edit.destination = event == Event::Character("c") ? row.array_index + 1 :
+          event == Event::Character("[") ? (row.array_index ? row.array_index - 1 : 0) :
+          std::min(row.array_index + 1, size - 1);
+      apply_structure_edit(std::move(edit));
+    }
+    return true;
   }
   void open_external_editor() {
     std::optional<std::vector<std::string>> args;
@@ -2850,6 +3801,8 @@ class TuiApp final : public ComponentBase {
         ? status_["active"].value("confdir", "") : "—";
   }
   std::string actual_selection() const {
+    const Json* active = status_.contains("active") && status_["active"].is_object()
+        ? &status_["active"] : nullptr;
     const Json* actual = nullptr;
     if (status_.contains("actual_target") && status_["actual_target"].is_object())
       actual = &status_["actual_target"];
@@ -2858,6 +3811,14 @@ class TuiApp final : public ComponentBase {
       actual = &status_["active"]["selection"];
     if (!actual) return "none";
     const auto& target = *actual;
+    if (active && target.value("kind", "") == "node" &&
+        active->contains("selection_display_name") &&
+        (*active)["selection_display_name"].is_string()) {
+      std::string label = "node: " + (*active)["selection_display_name"].get<std::string>();
+      if (active->value("selection_in_inventory", true) == false)
+        label += " (running snapshot; removed from source)";
+      return label;
+    }
     return display_target(target.value("kind", ""), target.value("id_or_tag", ""));
   }
   std::string expected_selection() const {
@@ -2894,6 +3855,11 @@ class TuiApp final : public ComponentBase {
   std::string prompt_subscription_name_;
   std::string prompt_subscription_url_;
   bool add_outlet_menu_ = false;
+  bool node_test_menu_ = false;
+  std::set<std::string> pending_node_tests_;
+  std::map<std::string, Json> node_test_results_;
+  bool profile_template_menu_ = false;
+  std::string new_profile_preset_ = "desktop";
   NodeDraft node_draft_;
   std::string raw_node_name_;
   std::string prompt_node_id_;
@@ -2908,6 +3874,7 @@ class TuiApp final : public ComponentBase {
   ScreenInteractive* screen_;
   int& page_ = state_.page;
   std::size_t config_section_ = 0;
+  FocusLayer focus_layer_ = FocusLayer::top;
   std::size_t selected_ = 0;
   std::array<std::size_t, 9> page_selections_{};
   bool editing_ = false;
@@ -2926,6 +3893,13 @@ class TuiApp final : public ComponentBase {
   std::optional<std::string> local_entry_base_text_;
   bool editing_group_ = false;
   bool editing_node_ = false;
+  bool preset_menu_ = false;
+  std::optional<Json> preset_plan_;
+  std::string preset_name_;
+  bool editing_structured_ = false;
+  std::vector<StructureRow> structure_rows_;
+  std::size_t structure_selected_ = 0;
+  JsonDraftEdit pending_json_edit_;
   bool editing_dirty_ = false;
   bool editing_module_included_ = false;
   bool editing_module_unconfigured_ = false;
@@ -2947,7 +3921,14 @@ class TuiApp final : public ComponentBase {
   std::size_t node_missing_count_ = 0;
   bool show_missing_nodes_ = false;
   std::vector<Json> subscriptions_;
+  std::vector<Json> geodata_;
+  bool geodata_updating_ = false;
+  std::string geodata_draft_name_;
+  std::string geodata_draft_kind_;
+  std::string geodata_draft_file_;
   std::vector<Json> modules_;
+  bool module_preview_runtime_ = false;
+  std::string module_runtime_text_;
   std::string local_entry_status_ = "not inspected";
   Json status_ = Json::object();
   std::vector<std::string> proxy_entries_;
@@ -2965,6 +3946,8 @@ class TuiApp final : public ComponentBase {
   std::shared_ptr<UiEventPoster> ui_poster_ = std::make_shared<UiEventPoster>();
   bool stop_pending_ = false;
   Json stats_ = Json::object();
+  std::deque<TrafficPoint> traffic_history_;
+  std::string traffic_run_id_;
   std::unique_ptr<RpcSession> stats_rpc_;
   bool stats_watching_ = false;
   std::string message_;

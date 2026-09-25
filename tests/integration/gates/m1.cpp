@@ -1169,6 +1169,9 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   tui_keys(tui, "7a");
   tui_keys(tui, xray.string() + "\r");
   tui_keys(tui, "2n");
+  REQUIRE(tui_wait_for(tui, "Create Profile · choose a template", 5s).find(
+      "Create Profile · choose a template") != std::string::npos);
+  tui_keys(tui, "1"); // Desktop, then name; TUN remains an explicit separate choice.
   tui_keys(tui, "Cold Start\r");
   tui_keys(tui, "4");
   point_to_source(source_a);
@@ -1192,7 +1195,8 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
 
   // Configure the local client listener via Modules -> Inbounds -> external
   // editor, then explicitly save the source document.
-  tui_keys(tui, "3\x1b[B\x1b[B\r");
+  tui_keys(tui, "3\r\t\t\r\r");  // Modules → inbounds tab → content → native editor.
+  REQUIRE(tui_wait_for(tui, "Native module editor", 5s).find("Native module editor") != std::string::npos);
   tui_keys(tui, "v");
   tui_keys(tui, "\x13");
   const auto after_module_save = tui_read(tui);
@@ -1321,9 +1325,12 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   // one running Xray process or duplicate the global node inventory.
   const auto before_office = stats_running;
   tui_keys(tui, "2n");
-  const auto office_prompt = tui_wait_for(tui, "New Profile name", 5s);
+  REQUIRE(tui_wait_for(tui, "Create Profile · choose a template", 5s).find(
+      "Create Profile · choose a template") != std::string::npos);
+  tui_keys(tui, "1");
+  const auto office_prompt = tui_wait_for(tui, "New desktop Profile name", 5s);
   INFO("Office creation prompt: " << office_prompt);
-  REQUIRE(office_prompt.find("New Profile name") != std::string::npos);
+  REQUIRE(office_prompt.find("New desktop Profile name") != std::string::npos);
   tui_keys(tui, "Office\r");
   const auto office_created = tui_wait_for(tui, "Profile selected for editing", 5s);
   INFO("Office created screen: " << office_created);
@@ -1355,7 +1362,9 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
 
   // Open and save a disabled native example without applying it.
   const auto before_edit = stats_running;
-  tui_keys(tui, "3\x1b[A\r");
+  tui_keys(tui, "3f");
+  REQUIRE(tui_wait_for(tui, "Find native module key", 5s).find("Find native module key") != std::string::npos);
+  tui_keys(tui, "api\r\r\r"); // Disabled api module: select tab, enter content, open draft.
   auto disabled = tui_read(tui);
   CHECK(disabled.find("Native module editor") != std::string::npos);
   tui_keys(tui, "\x13");

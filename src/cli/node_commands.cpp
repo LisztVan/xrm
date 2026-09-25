@@ -108,6 +108,33 @@ void add_node_commands(CLI::App& app, Request& request) {
     request.params = {{"id", request.node_id}, {"labels", std::move(values)}};
   });
   auto* history = node->add_subcommand("history", "Preview and confirm source-local redundant history cleanup");
+  auto* test = node->add_subcommand("test", "Explicit ICMP, TCP, proxy URL or bounded download test");
+  test->add_option("id", request.node_id)->required();
+  test->add_option("--kind", request.node_test_kind)->check(
+      CLI::IsMember({"icmp", "tcp", "url", "download"}));
+  test->add_option("--profile", request.profile_id, "Profile name or ID for isolated Xray proxy tests");
+  test->add_option("--url", request.node_test_url, "Explicit HTTP(S) target for URL/download test");
+  test->add_option("--timeout-ms", request.node_test_timeout_ms, "Bounded timeout (100–60000 ms)");
+  test->add_option("--max-bytes", request.node_test_max_body_bytes, "Download body cap (up to 32 MiB)");
+  test->callback([&request] {
+    request.method = std::string(methods::node_test_start);
+    request.params = {{"node_id", request.node_id}, {"kind", request.node_test_kind},
+        {"timeout_ms", request.node_test_timeout_ms},
+        {"max_body_bytes", request.node_test_max_body_bytes}};
+    if (!request.profile_id.empty()) request.params["profile_id"] = request.profile_id;
+    if (!request.node_test_url.empty()) request.params["target_url"] = request.node_test_url;
+  });
+  auto* results = node->add_subcommand("test-results", "Show this Server session's observed node tests");
+  results->callback([&request] {
+    request.method = std::string(methods::node_test_results);
+    request.params = Json::object();
+  });
+  auto* cancel_test = node->add_subcommand("test-cancel", "Cancel one in-flight node test");
+  cancel_test->add_option("operation_id", request.operation_id)->required();
+  cancel_test->callback([&request] {
+    request.method = std::string(methods::node_test_cancel);
+    request.params = {{"operation_id", request.operation_id}};
+  });
   auto* preview = history->add_subcommand("preview", "Read-only history candidates; no credentials are printed");
   preview->add_option("source_id", request.subscription_id)->required();
   preview->callback([&request] {

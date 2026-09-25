@@ -6,3 +6,14 @@ catch_discover_tests(xrm_geodata_store_writer_tests)
 add_executable(xrm_geodata_application_real_tests geodata_application_real_tests.cpp)
 target_link_libraries(xrm_geodata_application_real_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
 catch_discover_tests(xrm_geodata_application_real_tests PROPERTIES LABELS real_core)
+
+add_executable(xrm_geodata_cli_tests cli_tests.cpp)
+target_link_libraries(xrm_geodata_cli_tests PRIVATE xrm_model Catch2::Catch2WithMain)
+target_compile_definitions(xrm_geodata_cli_tests PRIVATE
+  XRM_CLI_BINARY="$<TARGET_FILE:xrm>"
+  XRM_DAEMON_BINARY="$<TARGET_FILE:xrmd>")
+catch_discover_tests(xrm_geodata_cli_tests)
+
+add_executable(xrm_geodata_preset_real_tests routing_preset_real_tests.cpp)
+target_link_libraries(xrm_geodata_preset_real_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+catch_discover_tests(xrm_geodata_preset_real_tests PROPERTIES LABELS real_core)

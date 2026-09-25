@@ -140,6 +140,11 @@ Result<ModuleEdit> edit_json_draft(const ModuleDocument& document, const JsonDra
       const auto size = values.size();
       const auto position = *edit.index;
       switch (edit.action) {
+        case JsonEditAction::array_replace:
+          if (position >= size || !edit.value)
+            return std::unexpected(invalid("替换需要有效位置和 JSON 值", document.key));
+          values[position] = *edit.value;
+          break;
         case JsonEditAction::array_insert:
           if (position > size || !edit.value)
             return std::unexpected(invalid("插入需要有效位置和 JSON 值", document.key));

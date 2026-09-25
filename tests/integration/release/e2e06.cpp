@@ -481,7 +481,7 @@ TEST_CASE("E2E-06 two Manager clients complete the inventory-to-running lifecycl
   REQUIRE(refresh_b.code == 0);
   REQUIRE(subscription.requests() == 2);
   const auto nodes_b = parsed(server.cli({"node", "list"})).at("items");
-  REQUIRE(nodes_b.size() == 2);
+  REQUIRE(nodes_b.size() == 1); // A is gone from source inventory; its active FileSet is immutable.
   const auto node_b = std::find_if(nodes_b.begin(), nodes_b.end(), [](const Json& item) {
     return item.value("name", "") == "Subscription B" && !item.value("source_missing", false);
   });
@@ -525,7 +525,7 @@ TEST_CASE("E2E-06 two Manager clients complete the inventory-to-running lifecycl
   CHECK(recovered_status.at("state") == "stopped");
   CHECK(parsed(server.cli({"profile", "show", profile_id})).at("selected").at("id_or_tag") == node_b_id);
   const auto recovered_nodes = parsed(server.cli({"node", "list"})).at("items");
-  CHECK(recovered_nodes.size() == 2);
+  CHECK(recovered_nodes.size() == 1);
   CHECK(parsed(server.cli({"sub", "list"})).size() == 1);
   CHECK(subscription.requests() == 2);  // No write replay or auto-refresh on reconnect.
   CHECK(std::filesystem::exists(server.database_path()));

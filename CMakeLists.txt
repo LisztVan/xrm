@@ -167,6 +167,8 @@ add_executable(xrm
   src/cli/subscription_commands.cpp
   src/cli/core_commands.cpp
   src/cli/settings_commands.cpp
+  src/cli/geodata_commands.cpp
+  src/cli/routing_preset_commands.cpp
   src/cli/print.cpp
   src/tui/app.cpp)
 target_include_directories(xrm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

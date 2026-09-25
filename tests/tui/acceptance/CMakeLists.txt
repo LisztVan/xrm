@@ -1,6 +1,6 @@
 add_executable(xrm_tui_acceptance_tests acceptance_tests.cpp)
 target_link_libraries(xrm_tui_acceptance_tests PRIVATE
-  xrm_model xrm_logic xrm_server_lib Catch2::Catch2WithMain util)
+  xrm_model xrm_logic xrm_server_lib Catch2::Catch2WithMain ftxui::screen util)
 target_compile_definitions(xrm_tui_acceptance_tests PRIVATE
   XRM_TEST_MANAGER="$<TARGET_FILE:xrm>"
   XRM_TEST_SERVER="$<TARGET_FILE:xrmd>"

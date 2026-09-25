@@ -168,6 +168,8 @@ xrm routing preset save home bypass_mainland --expected-file /tmp/xrm-routing-ba
 
 `jq -j` 不追加换行，避免改变基线字节。可用预设标识为 `bypass_mainland`、`blacklist_proxy`、`global_proxy`、`direct_only`、`custom_native`。保存只修改原生 `routing` 源模块，不是运行配置应用动作；之后根据需要显式 `xrm config apply home` 或 `xrm connect home`。
 
+分流行为参考 [v2rayN 固定提交 e1cb99c](https://github.com/2dust/v2rayN/tree/e1cb99cd6ec1c134ea8260814d2a27e8b0ab862e) 的初始化与预设语义；XRM 独立生成原生规则，未复制其源码或样例文件。v2rayN 的许可证为 [GPL-3.0](https://raw.githubusercontent.com/2dust/v2rayN/e1cb99cd6ec1c134ea8260814d2a27e8b0ab862e/LICENSE)。用户自行选择 Geodata 来源，须遵守该资源自身的许可证与更新约束。
+
 已有 Profile 若没有本地代理入口，Overview 会提示当前 `inbounds` 状态。在 Overview 或 Modules 按 `i` 检查；确认对话框会明确展示即将追加的 `127.0.0.1:10808` SOCKS 入站及 `modules/02_inbounds.json` 范围。仅按 `y` 才保存源文件，不覆盖已有入站；原本禁用的 `inbounds` 仍需到 Modules 单独启用，随后明确 Connect/Apply。自定义/服务端 Profile 不会被自动改造，也不会修改系统代理、DNS 或路由。端口已被占用时应查看连接错误并在原生 inbounds 编辑器选择合适端口，不会暗中换端口。
 
 在 Modules 页按 Enter 打开原生文本草稿，按 `v` 可打开外部编辑器。顺序是 `Config → Editor` 中保存的 argv、Manager 主机的 `$VISUAL`、`$EDITOR`；程序直接 spawn，不经 shell。编辑器只改临时草稿，返回 TUI 后仍须按 Ctrl-S 才保存模块源文件；保存不 connect/restart。未配置时会提示；非零退出保留草稿；源文件冲突也保留草稿，不覆盖外部修改。人工验收步骤见 [tui-manual-acceptance.md](tui-manual-acceptance.md)。

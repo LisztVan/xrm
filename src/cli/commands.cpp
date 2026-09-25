@@ -37,6 +37,8 @@ int run_cli(int argc, char** argv) {
   add_subscription_commands(app, request);
   add_profile_commands(app, request);
   add_runtime_commands(app, request);
+  add_geodata_commands(app, request);
+  add_routing_preset_commands(app, request);
   add_settings_commands(app, request);
   bool stats_watch = false;
   auto* stats = app.add_subcommand("stats", "Show server-sampled Xray traffic and observations");
@@ -70,6 +72,8 @@ int run_cli(int argc, char** argv) {
     return 2;
   }
   if (request.method == "tui") return run_tui(request.socket, tui_profile);
+  if (auto handled = execute_geodata_cli(request)) return *handled;
+  if (auto handled = execute_routing_preset_cli(request)) return *handled;
   if (request.method == methods::runtime_stats) {
     stop_stats_watch = 0;
     RpcSession session(request.socket);

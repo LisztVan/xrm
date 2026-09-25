@@ -161,3 +161,19 @@ TEST_CASE("Program settings reject unknown and malformed patches without partial
   REQUIRE(unchanged);
   REQUIRE(*unchanged == *original);
 }
+
+TEST_CASE("P4 test defaults persist separately from Xray native modules", "[P4-SETTINGS]") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path()); REQUIRE(opened);
+  const auto saved = (*opened)->update_program_settings(xrm::Json{{"tests", {
+      {"default_url", "http://127.0.0.1:18080/ping"}, {"timeout_ms", 4000},
+      {"concurrency", 2}, {"max_body_bytes", 1048576}}}});
+  REQUIRE(saved);
+  CHECK(saved->at("tests").at("default_url") == "http://127.0.0.1:18080/ping");
+  CHECK_FALSE((*opened)->update_program_settings(xrm::Json{{"tests", {
+      {"concurrency", 1000}}}}));
+  opened->reset();
+  auto reopened = xrm::Store::open(database.path()); REQUIRE(reopened);
+  auto persisted = (*reopened)->load_program_settings(); REQUIRE(persisted);
+  CHECK(persisted->at("tests").at("max_body_bytes") == 1048576);
+}

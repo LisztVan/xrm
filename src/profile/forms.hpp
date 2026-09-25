@@ -20,7 +20,7 @@ struct SaveManyResult { std::vector<std::string> saved; std::optional<AppError> 
 // A structured edit of the same source text used by the native editor. The
 // returned ModuleEdit keeps the caller's original text as its conflict base.
 enum class JsonEditAction { set, erase, rename_key, array_insert, array_erase,
-                            array_copy, array_move };
+                            array_copy, array_move, array_replace };
 struct JsonDraftEdit {
   JsonEditAction action = JsonEditAction::set;
   std::string pointer;

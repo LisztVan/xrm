@@ -376,6 +376,12 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   REQUIRE(server.cli({"node", "labels", id_a, "--values", "lab-one,lab-two"}).code == 0);
   REQUIRE(server.cli({"select", "node", profile_id, id_a}).code == 0);
   REQUIRE(server.cli({"connect", profile_id}).code == 0);
+  auto copied = parsed(server.cli({"node", "copy", id_a, "--name", "A manual copy"}));
+  REQUIRE(copied.contains("id"));
+  CHECK(copied.at("id") != id_a);
+  auto copied_detail = parsed(server.cli({"node", "show", copied.at("id").get<std::string>()}));
+  CHECK(copied_detail.at("source_id").is_null());
+  CHECK(copied_detail.at("settings").at("protocol").at("id") == uuid_a);
   auto active_before = parsed(server.cli({"status"}));
   REQUIRE(active_before.at("state") == "running");
   const auto pid_before = active_before.at("pid");
@@ -392,17 +398,16 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   REQUIRE(updated.contains("completed"));
   REQUIRE(updated.at("failed").empty());
   auto nodes_b = parsed(server.cli({"node", "list"})).at("items");
-  REQUIRE(nodes_b.size() == 2);
+  REQUIRE(nodes_b.size() == 2); // B plus the explicit Local copy; A is physically removed.
   const auto node_b = std::find_if(nodes_b.begin(), nodes_b.end(), [](const auto& node) {
     return node.value("name", "") == "B" && !node.value("source_missing", false);
   });
   REQUIRE(node_b != nodes_b.end());
   const auto id_b = node_b->at("id").get<std::string>();
   auto missing_a = std::find_if(nodes_b.begin(), nodes_b.end(), [&](const auto& node) { return node.at("id") == id_a; });
-  REQUIRE(missing_a != nodes_b.end());
-  CHECK(missing_a->at("source_missing") == true);
-  CHECK(missing_a->at("name") == "A preserved alias");
-  CHECK(missing_a->at("labels") == xrm::Json::array({"lab-one", "lab-two"}));
+  CHECK(missing_a == nodes_b.end());
+  CHECK((nodes_b.front().at("id") == copied.at("id") ||
+         nodes_b.back().at("id") == copied.at("id")));
   auto active_after_refresh = parsed(server.cli({"status"}));
   CHECK(active_after_refresh.at("pid") == pid_before);
   CHECK(active_after_refresh.at("active").at("confdir") == confdir_before.string());
@@ -418,12 +423,6 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   auto stale_connect = server.cli({"connect", profile_id});
   CHECK(stale_connect.code != 0);
   CHECK(parsed(server.cli({"status"})).at("pid") == pid_before);
-  auto copied = parsed(server.cli({"node", "copy", id_a, "--name", "A manual copy"}));
-  REQUIRE(copied.contains("id"));
-  CHECK(copied.at("id") != id_a);
-  auto copied_detail = parsed(server.cli({"node", "show", copied.at("id").get<std::string>()}));
-  CHECK(copied_detail.at("source_id").is_null());
-  CHECK(copied_detail.at("settings").at("protocol").at("id") == uuid_a);
 
   REQUIRE(server.cli({"select", "node", profile_id, id_b}).code == 0);
   REQUIRE(server.cli({"connect", profile_id}).code == 0);
@@ -443,7 +442,7 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   auto failed = xrm::Json::parse(failed_cmd.out);
   REQUIRE(failed.contains("failed"));
   CHECK_FALSE(failed.at("failed").empty());
-  CHECK(parsed(server.cli({"node", "list"})).at("total") == 3);
+  CHECK(parsed(server.cli({"node", "list"})).at("total") == 2);
 
   fixture.set(link(uuid_b, "b.invalid", "B") + "\nsocks://unsupported-protocol");
   auto partial_cmd = server.cli({"sub", "update", source_id});
@@ -453,8 +452,7 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   CHECK(partial.at("completed")[0].at("partial") == true);
   const auto after_partial = parsed(server.cli({"node", "list"})).at("items");
   auto still_missing_a = std::find_if(after_partial.begin(), after_partial.end(), [&](const auto& node) { return node.at("id") == id_a; });
-  REQUIRE(still_missing_a != after_partial.end());
-  CHECK(still_missing_a->at("source_missing") == true);
+  CHECK(still_missing_a == after_partial.end());
   auto source_rows = parsed(server.cli({"sub", "list"}));
   CHECK(source_rows[0].at("last_result") == "partial");
   CHECK(source_rows[0].at("unsupported_count") == 1);
@@ -463,8 +461,7 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   REQUIRE(server.cli({"sub", "update", source_id}).code == 0);
   auto missing_b = parsed(server.cli({"node", "list"})).at("items");
   auto b_row = std::find_if(missing_b.begin(), missing_b.end(), [&](const auto& node) { return node.at("id") == id_b; });
-  REQUIRE(b_row != missing_b.end());
-  CHECK(b_row->at("source_missing") == true);
+  CHECK(b_row == missing_b.end());
   auto manual_after_refresh = parsed(server.cli({"node", "show", copied.at("id").get<std::string>()}));
   CHECK(manual_after_refresh.at("source_id").is_null());
   CHECK(manual_after_refresh.at("settings").at("protocol").at("id") == uuid_a);

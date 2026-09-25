@@ -266,6 +266,15 @@ TEST_CASE("historical node preview is read-only and confirmation removes only se
   changed_store->reset();
   CHECK(server.cli({"node", "history", "confirm", source.id, "--id", "second-history",
                     "--token", after_source_change.at("token").get<std::string>(), "--yes"}).code != 0);
+  auto live_store = Store::open(temp.path / "state.sqlite");
+  REQUIRE(live_store);
+  REQUIRE((*live_store)->erase_node(current.id));
+  live_store->reset();
+  const auto removed_status = parsed(server.cli({"status"}));
+  REQUIRE(removed_status.at("state") == "running");
+  CHECK(removed_status.at("active").at("selection_display_name") == current.original_name);
+  CHECK_FALSE(removed_status.at("active").at("selection_in_inventory").get<bool>());
+  CHECK(removed_status.at("active").at("confdir") == runtime_before.at("active").at("confdir"));
   CHECK(server.cli({"disconnect"}).code == 0);
 }
 struct TuiProcess { pid_t pid = -1; int master = -1; };
@@ -864,7 +873,8 @@ TEST_CASE("UI-01 text keys do not fire global actions and TUI exit leaves core r
   REQUIRE(tui.master >= 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(300));
   send_tui(tui.master, "3");
-  send_tui(tui.master, "\r");
+  // TopNav -> Modules secondary keys -> content -> native editor.
+  send_tui(tui.master, "\r\r\r");
   send_tui(tui.master, "qe ");
   int status = 0;
   CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
@@ -924,9 +934,9 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   auto tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
   REQUIRE(tui.pid > 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(250));
-  send_tui(tui.master, "5]");
+  send_tui(tui.master, "5\r\t\r"); // Nodes → Local category → list content.
   (void)read_tui(tui.master, std::chrono::milliseconds(250));
-  send_tui(tui.master, "\r");
+  send_tui(tui.master, "\r"); // Open the highlighted Local node.
   const auto details = read_tui(tui.master, std::chrono::milliseconds(250));
   CHECK(details.find("Native subobject: transport") != std::string::npos);
   send_tui(tui.master, "e");

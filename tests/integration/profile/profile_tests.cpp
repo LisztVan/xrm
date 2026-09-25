@@ -202,6 +202,27 @@ TEST_CASE("UI-11 legacy Profile without source binding remains all-sources and n
   CHECK(*cloned->enabled_source_ids == *reopened->enabled_source_ids);
 }
 
+TEST_CASE("P5 geodata resource bindings are explicit Profile references and survive clone", "[PROFILE][P5]") {
+  ProfileFixture fixture;
+  auto file = fixture.root.path() / "profiles" / fixture.profile.id / "profile.json";
+  auto original = xrm::Json::parse(read(file));
+  original.erase("geodata_resource_ids");
+  { std::ofstream output(file, std::ios::binary | std::ios::trunc);
+    output << original.dump(2) << '\n'; }
+  auto legacy = fixture.service->get(fixture.profile.id);
+  REQUIRE(legacy);
+  CHECK(legacy->geodata_resource_ids.empty());
+  legacy->geodata_resource_ids["geoip.dat"] = "resource-ip";
+  legacy->geodata_resource_ids["geosite.dat"] = "resource-site";
+  REQUIRE(fixture.service->save(fixture.profile.id, {{read(file)}, *legacy}));
+  const auto reopened = fixture.service->get(fixture.profile.id);
+  REQUIRE(reopened);
+  CHECK(reopened->geodata_resource_ids == legacy->geodata_resource_ids);
+  const auto clone = fixture.service->clone(fixture.profile.id, "Geo Copy");
+  REQUIRE(clone);
+  CHECK(clone->geodata_resource_ids == legacy->geodata_resource_ids);
+}
+
 TEST_CASE("an existing empty-inbounds Profile needs an explicit source edit and include", "[PROFILE][legacy-inbound]") {
   ProfileFixture fixture;
   auto existing = fixture.service->module(fixture.profile.id, "inbounds");
@@ -584,7 +605,7 @@ TEST_CASE("DB-05 Profile and source module text live in files, not SQLite mirror
   }
   sqlite3_finalize(query);
   sqlite3_close(raw_database);
-  CHECK(tables == std::set<std::string>{"cores", "nodes", "profiles", "program_settings",
+  CHECK(tables == std::set<std::string>{"cores", "geodata_resources", "nodes", "profiles", "program_settings",
                                         "runtime_state", "subscriptions"});
   CHECK_FALSE(tables.contains("modules"));
 }

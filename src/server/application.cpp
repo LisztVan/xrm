@@ -1243,6 +1243,18 @@ Result<Json> Application::runtime_status() const {
                   {"core_id", status.active->core_id}, {"confdir", status.active->spec.confdir.string()},
                   {"core_version", core ? core->reported_version : "unknown"},
                   {"selection", target_json(status.active->applied_selection)}};
+    if (status.active->applied_selection &&
+        status.active->applied_selection->kind == TargetKind::node) {
+      const auto& selected_id = status.active->applied_selection->id_or_tag;
+      const auto entry = std::find_if(status.active->index.nodes.begin(),
+          status.active->index.nodes.end(), [&](const NodeRuntimeEntry& node) {
+            return node.id == selected_id;
+          });
+      if (entry != status.active->index.nodes.end()) {
+        active["selection_display_name"] = entry->display_name;
+        active["selection_in_inventory"] = static_cast<bool>(store_->get_node(selected_id));
+      }
+    }
   }
   Json saved_target = nullptr;
   if (status.active) {

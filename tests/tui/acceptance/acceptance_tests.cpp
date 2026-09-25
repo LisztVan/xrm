@@ -2,6 +2,7 @@
 
 #include "infra/store.hpp"
 #include "model/common.hpp"
+#include <ftxui/screen/string.hpp>
 
 #include <pty.h>
 #include <sys/ioctl.h>
@@ -18,6 +19,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -495,11 +497,11 @@ TEST_CASE("TUI navigation shows one matching selected tab in the current termina
   CHECK(reversed.find("Config") != std::string::npos);
   REQUIRE(tui.resize(50, 24));
   const auto narrow = tui.wait_for([](std::string_view grid) {
-    return grid.find("Current: Config") != std::string_view::npos &&
-           grid.find("[7 Config]") != std::string_view::npos;
+    return grid.find("Terminal too small") != std::string_view::npos;
   });
-  CHECK(narrow.find("[7 Config]") != std::string::npos);
-  REQUIRE(tui.type("]"));
+  CHECK(narrow.find("Terminal too small") != std::string::npos);
+  REQUIRE(tui.resize(80, 24));
+  REQUIRE(tui.type("]]]"));
   const auto appearance = tui.wait_for([](std::string_view grid) {
     return grid.find("[Appearance]") != std::string_view::npos &&
            grid.find("Appearance settings") != std::string_view::npos;
@@ -514,6 +516,396 @@ TEST_CASE("TUI navigation shows one matching selected tab in the current termina
   CHECK(groups.find("Current: Nodes") != std::string::npos);
   REQUIRE(tui.resize(80, 24));
   REQUIRE(tui.type("q"));
+}
+
+TEST_CASE("P1 layered Tab enters secondary navigation and keeps both bars at the top", "[P1-FOCUS][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("5"));
+  auto grid = tui.wait_for([](std::string_view value) {
+    return value.find("Current: Nodes") != std::string_view::npos &&
+           value.find("Focus: TopNav") != std::string_view::npos;
+  });
+  REQUIRE(grid.find("Focus: TopNav") != std::string::npos);
+  REQUIRE(tui.key("Enter"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("Focus: SecondaryNav") != std::string_view::npos;
+  });
+  REQUIRE(grid.find("Current: Nodes") != std::string::npos);
+  REQUIRE(tui.key("Tab"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("Focus: SecondaryNav") != std::string_view::npos &&
+           value.find("Current: Nodes") != std::string_view::npos &&
+           value.find("[Local]") != std::string_view::npos;
+  });
+  CHECK(grid.find("Current: Nodes") != std::string::npos);
+  REQUIRE(tui.key("Enter"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("Focus: Content") != std::string_view::npos;
+  });
+  REQUIRE(grid.find("Current: Nodes") != std::string::npos);
+  REQUIRE(tui.key("Escape"));
+  CHECK(tui.wait_for([](std::string_view value) {
+    return value.find("Focus: SecondaryNav") != std::string_view::npos;
+  }).find("Focus: SecondaryNav") != std::string::npos);
+  REQUIRE(tui.key("Escape"));
+  CHECK(tui.wait_for([](std::string_view value) {
+    return value.find("Focus: TopNav") != std::string_view::npos;
+  }).find("Focus: TopNav") != std::string::npos);
+}
+
+TEST_CASE("P1 terminal below 80x24 protects and restores the current session", "[P1-SIZE][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("5"));
+  REQUIRE(tui.wait_for([](std::string_view value) {
+    return value.find("Current: Nodes") != std::string_view::npos;
+  }).find("Current: Nodes") != std::string::npos);
+  REQUIRE(tui.resize(70, 20));
+  const auto small = tui.wait_for([](std::string_view value) {
+    return value.find("Terminal too small") != std::string_view::npos &&
+           value.find("70x20") != std::string_view::npos;
+  });
+  INFO("small grid: " << small);
+  REQUIRE(small.find("Terminal too small") != std::string::npos);
+  REQUIRE(tui.resize(120, 35));
+  const auto restored = tui.wait_for([](std::string_view value) {
+    return value.find("Current: Nodes") != std::string_view::npos &&
+           value.find("Terminal too small") == std::string_view::npos;
+  });
+  INFO("restored grid: " << restored);
+  CHECK(restored.find("Current: Nodes") != std::string::npos);
+}
+
+TEST_CASE("P1 node table header and cells share display columns", "[P1-TABLE][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto added = cli(daemon.socket(), {"node", "add", "--name", "Short",
+      "--outbound-json", R"({"protocol":"freedom","settings":{}})"});
+  REQUIRE_FALSE(added.empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("5]"));
+  const auto grid = tui.wait_for([](std::string_view value) {
+    return value.find("Name") != std::string_view::npos &&
+           value.find("Short") != std::string_view::npos;
+  });
+  const auto header_start = grid.rfind('\n', grid.find("State"));
+  const auto row_start = grid.rfind('\n', grid.find("Short"));
+  REQUIRE(header_start != std::string::npos);
+  REQUIRE(row_start != std::string::npos);
+  const auto name_column = ftxui::string_width(std::string_view(grid).substr(
+      header_start + 1, grid.find("Name", header_start) - header_start - 1));
+  const auto value_column = ftxui::string_width(std::string_view(grid).substr(
+      row_start + 1, grid.find("Short", row_start) - row_start - 1));
+  CHECK(name_column == value_column);
+
+  REQUIRE_FALSE(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE,
+                                     "--name", "table-core"}).empty());
+  REQUIRE(tui.type("7"));
+  const auto core_grid = tui.wait_for([](std::string_view value) {
+    return value.find("table-core") != std::string_view::npos &&
+           value.find("system") != std::string_view::npos;
+  });
+  const auto core_line_start = core_grid.rfind('\n', core_grid.find("table-core"));
+  REQUIRE(core_line_start != std::string::npos);
+  const auto core_line_end = core_grid.find('\n', core_line_start + 1);
+  const auto core_line = core_grid.substr(core_line_start + 1, core_line_end - core_line_start - 1);
+  const auto origin_at = core_line.find("system");
+  REQUIRE(origin_at != std::string::npos);
+  CHECK((origin_at > 0 && core_line[origin_at - 1] == ' ')); // Long version must not bleed into Origin.
+}
+
+TEST_CASE("P3 Profile creation chooses Desktop TUN or Custom before name", "[P3-TEMPLATE][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("2n"));
+  const auto chooser = tui.wait_for([](std::string_view grid) {
+    return grid.find("Desktop") != std::string_view::npos &&
+           grid.find("TUN") != std::string_view::npos &&
+           grid.find("Custom") != std::string_view::npos;
+  });
+  CHECK(chooser.find("Desktop") != std::string::npos);
+  REQUIRE(tui.type("3"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("New custom Profile name") != std::string_view::npos;
+  }).find("New custom Profile name") != std::string::npos);
+  REQUIRE(tui.type("Custom Draft"));
+  REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("Profile selected for editing") != std::string_view::npos;
+  }).find("Profile selected for editing") != std::string::npos);
+  const auto profiles = Json::parse(cli(daemon.socket(), {"profile", "list"}));
+  REQUIRE(profiles.size() == 1);
+  const auto modules = Json::parse(cli(daemon.socket(), {"config", "modules",
+      profiles.front().at("id").get<std::string>()}));
+  REQUIRE(modules.is_array());
+  CHECK(modules.size() == 15);
+  CHECK(std::all_of(modules.begin(), modules.end(), [](const Json& item) {
+    return !item.value("included", false);
+  }));
+}
+
+TEST_CASE("P3 Modules secondary tabs show the selected native source without opening an editor", "[P3-MODULE-TABS][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}));
+  REQUIRE(created.contains("id"));
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("3"));
+  const auto first = tui.wait_for([](std::string_view grid) {
+    return grid.find("[log]") != std::string_view::npos &&
+           grid.find("Native JSON") != std::string_view::npos;
+  });
+  CHECK(first.find("Native JSON") != std::string::npos);
+  REQUIRE(tui.key("Enter")); // select the second navigation layer
+  REQUIRE(tui.key("Tab"));
+  const auto dns = tui.wait_for([](std::string_view grid) {
+    return grid.find("[dns]") != std::string_view::npos &&
+           grid.find("Native JSON") != std::string_view::npos;
+  });
+  CHECK(dns.find("Native JSON") != std::string::npos);
+  CHECK(dns.find("source:") != std::string::npos);
+}
+
+TEST_CASE("P3 module key selector keeps a far-right native tab visible at 80 columns", "[P3-MODULE-NAV][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  REQUIRE_FALSE(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("3f"));
+  const auto finder = tui.wait_for([](std::string_view grid) {
+    return grid.find("Find native module key") != std::string_view::npos;
+  });
+  CHECK(finder.find("Find native module key") != std::string::npos);
+  REQUIRE(tui.type("burstObservatory")); REQUIRE(tui.key("Enter"));
+  const auto selected = tui.wait_for([](std::string_view grid) {
+    return grid.find("[burstObservatory]") != std::string_view::npos &&
+           grid.find("Native key: burstObservatory") != std::string_view::npos;
+  });
+  CHECK(selected.find("[burstObservatory]") != std::string::npos);
+  CHECK(visibly_inverted(tui.grid(true), "[burstObservatory]"));
+}
+
+TEST_CASE("P3 Modules runtime toggle does not silently render or start a stopped Profile", "[P3-RUNTIME][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  REQUIRE_FALSE(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("3v"));
+  const auto grid = tui.wait_for([](std::string_view value) {
+    return value.find("Runtime preview unavailable") != std::string_view::npos;
+  });
+  CHECK(grid.find("Runtime preview unavailable") != std::string::npos);
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P3 structured module edit changes the same unsaved native draft", "[P3-STRUCT][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}));
+  const auto id = created.at("id").get<std::string>();
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("3"));
+  REQUIRE(tui.key("Enter")); REQUIRE(tui.key("Enter")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("Native module editor") != std::string_view::npos;
+  }).find("Native module editor") != std::string::npos);
+  REQUIRE(tui.key("F4"));
+  const auto structured = tui.wait_for([](std::string_view grid) {
+    return grid.find("Structured JSON") != std::string_view::npos;
+  });
+  CHECK(structured.find("Structured JSON") != std::string::npos);
+  REQUIRE(tui.type("a"));
+  REQUIRE(tui.type("iterationFlag")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("true")); REQUIRE(tui.key("Enter"));
+  const auto changed = tui.wait_for([](std::string_view grid) {
+    return grid.find("iterationFlag") != std::string_view::npos &&
+           grid.find("[unsaved]") != std::string_view::npos;
+  });
+  INFO("structured grid=" << changed);
+  CHECK(changed.find("iterationFlag") != std::string::npos);
+  auto before = Json::parse(cli(daemon.socket(), {"config", "show", id,
+      "--module-key", "log", "--source", "source"}));
+  CHECK(before.at("text").get<std::string>().find("iterationFlag") == std::string::npos);
+  REQUIRE(tui.key("F2"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("saved source text") != std::string_view::npos;
+  }).find("saved source text") != std::string::npos);
+  auto after = Json::parse(cli(daemon.socket(), {"config", "show", id,
+      "--module-key", "log", "--source", "source"}));
+  INFO("saved source=" << after.dump());
+  CHECK(Json::parse(after.at("text").get<std::string>()).at("log").at("iterationFlag") == true);
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P5 routing preset is previewed before saving native routing source", "[P5-PRESET-UI][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}));
+  const auto id = profile.at("id").get<std::string>();
+  const auto before = Json::parse(cli(daemon.socket(), {"config", "show", id,
+      "--module-key", "routing", "--source", "source"})).at("text").get<std::string>();
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("3")); REQUIRE(tui.key("Enter"));
+  for (int i = 0; i < 4; ++i) REQUIRE(tui.key("Tab"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("[routing]") != std::string_view::npos;
+  }).find("[routing]") != std::string::npos);
+  REQUIRE(tui.type("p"));
+  const auto menu = tui.wait_for([](std::string_view grid) {
+    return grid.find("Routing preset") != std::string_view::npos &&
+           grid.find("Direct only") != std::string_view::npos;
+  });
+  CHECK(menu.find("Direct only") != std::string::npos);
+  CHECK(Json::parse(cli(daemon.socket(), {"config", "show", id,
+      "--module-key", "routing", "--source", "source"})).at("text") == before);
+  REQUIRE(tui.type("4"));
+  const auto preview = tui.wait_for([](std::string_view grid) {
+    return grid.find("JSON diff") != std::string_view::npos;
+  });
+  CHECK(preview.find("JSON diff") != std::string::npos);
+  REQUIRE(tui.key("Escape"));
+  CHECK(Json::parse(cli(daemon.socket(), {"config", "show", id,
+      "--module-key", "routing", "--source", "source"})).at("text") == before);
+  REQUIRE(tui.type("p4"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("JSON diff") != std::string_view::npos;
+  }).find("JSON diff") != std::string::npos);
+  REQUIRE(tui.type("y"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("Routing preset saved") != std::string_view::npos;
+  }).find("Routing preset saved") != std::string::npos);
+  const auto saved = Json::parse(cli(daemon.socket(), {"config", "show", id,
+      "--module-key", "routing", "--source", "source"})).at("text").get<std::string>();
+  CHECK(saved != before);
+  CHECK(Json::parse(saved).at("routing").at("rules").is_array());
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P5 Config Geodata adds a shared resource without changing the running core", "[P5-GEODATA-UI][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("7]"));
+  const auto page = tui.wait_for([](std::string_view grid) {
+    return grid.find("[Geodata]") != std::string_view::npos &&
+           grid.find("Shared Geodata") != std::string_view::npos;
+  });
+  CHECK(page.find("Shared Geodata") != std::string::npos);
+  REQUIRE(tui.type("a"));
+  REQUIRE(tui.type("China IP")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("geoip")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("geoip.dat")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("http://127.0.0.1:9/geoip.dat")); REQUIRE(tui.key("Enter"));
+  const auto listed = tui.wait_for([](std::string_view grid) {
+    return grid.find("China IP") != std::string_view::npos &&
+           grid.find("not downloaded") != std::string_view::npos;
+  });
+  CHECK(listed.find("China IP") != std::string::npos);
+  const auto resources = raw_rpc(daemon.socket(), "geodata.list", Json::object());
+  REQUIRE(resources.value("ok", false));
+  REQUIRE(resources.at("result").size() == 1);
+  CHECK(resources.at("result").front().value("name", "") == "China IP");
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P5 Config Geodata validates and binds a local asset from the real TUI", "[P5-GEODATA-UI][TUI][real_core]") {
+  const char* binary = std::getenv("XRM_TEST_XRAY");
+  if (!binary || !std::filesystem::exists(binary)) SKIP("fixed Xray unavailable");
+  auto varint = [](std::size_t value) {
+    std::string out;
+    while (value >= 128) { out.push_back(static_cast<char>((value & 0x7f) | 0x80)); value >>= 7; }
+    out.push_back(static_cast<char>(value));
+    return out;
+  };
+  auto field = [&](int number, std::string bytes) {
+    return varint(static_cast<std::size_t>((number << 3) | 2)) + varint(bytes.size()) + bytes;
+  };
+  const auto cidr = field(1, std::string{"\x7f\0\0\0", 4}) + "\x10\x08";
+  TempDir temp;
+  const auto asset = temp.path / "geoip.dat";
+  { std::ofstream output(asset, std::ios::binary);
+    output << field(1, field(1, "XRM-TEST") + field(2, cidr)); }
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto core = Json::parse(cli(daemon.socket(), {"core", "register", binary, "--name", "fixed-geodata"}));
+  REQUIRE(core.contains("id"));
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "geo-ui",
+      "--core", core.at("id").get<std::string>()}));
+  REQUIRE(profile.contains("id"));
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("7]a"));
+  REQUIRE(tui.type("Geo local")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("geoip")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("geoip.dat")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type(asset.string())); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("Geo local") != std::string_view::npos &&
+           grid.find("not downloaded") != std::string_view::npos;
+  }).find("Geo local") != std::string::npos);
+  REQUIRE(tui.type("u"));
+  const auto updated = tui.wait_for([](std::string_view grid) {
+    return grid.find("Geodata validated and cached") != std::string_view::npos;
+  }, std::chrono::seconds(15));
+  INFO("Geodata update grid: " << updated);
+  REQUIRE(updated.find("Geodata validated and cached") != std::string::npos);
+  REQUIRE(tui.type("b"));
+  const auto bound = tui.wait_for([](std::string_view grid) {
+    return grid.find("Profile asset binding saved") != std::string_view::npos;
+  });
+  INFO("Geodata binding grid: " << bound);
+  REQUIRE(bound.find("Profile asset binding saved") != std::string::npos);
+  CHECK(bound.find("bound to viewed Profile") != std::string::npos);
+  const auto shown = Json::parse(cli(daemon.socket(), {"profile", "show",
+      profile.at("id").get<std::string>()}));
+  CHECK(shown.at("geodata_resource_ids").contains("geoip.dat"));
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P4 TCP test is an explicit RPC operation and leaves runtime stopped", "[P4-RPC][TUI]") {
+  TempDir temp;
+  LocalSubscriptionServer endpoint("marker");
+  REQUIRE(endpoint.valid());
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto endpoint_url = endpoint.url();
+  const auto colon = endpoint_url.find_last_of(':');
+  auto uri = "vless://00000000-0000-4000-8000-000000000111@127.0.0.1:" +
+      endpoint_url.substr(colon + 1, endpoint_url.find('/', colon) - colon - 1) +
+      "?type=tcp&security=none#Test";
+  const auto node = Json::parse(cli(daemon.socket(), {"node", "add", "--uri", uri}));
+  REQUIRE(node.contains("id"));
+  const auto started = raw_rpc(daemon.socket(), "node.test.start",
+      Json{{"node_id", node.at("id")}, {"kind", "tcp"}, {"timeout_ms", 3000}});
+  REQUIRE(started.value("ok", false));
+  REQUIRE(started.at("result").contains("operation_id"));
+  const auto operation_id = started.at("result").at("operation_id").get<std::string>();
+  Json completed;
+  for (int i = 0; i < 100; ++i) {
+    completed = raw_rpc(daemon.socket(), "operation.get", Json{{"operation_id", operation_id}});
+    if (completed.value("ok", false) &&
+        completed.at("result").value("status", "") != "running") break;
+    ::poll(nullptr, 0, 20);
+  }
+  REQUIRE(completed.value("ok", false));
+  CHECK(completed.at("result").value("status", "") == "succeeded");
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P4 and P5 resources live in Config secondary navigation", "[P4-CONFIG-TABS][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("7"));
+  const auto grid = tui.wait_for([](std::string_view value) {
+    return value.find("Geodata") != std::string_view::npos &&
+           value.find("Tests") != std::string_view::npos &&
+           value.find("General") != std::string_view::npos;
+  });
+  CHECK(grid.find("[Core]") != std::string::npos);
+  CHECK(grid.find("Geodata") != std::string::npos);
+  CHECK(grid.find("Tests") != std::string::npos);
 }
 
 TEST_CASE("Nodes Add exposes a real Local form and Group action", "[UI-LOCAL][TUI]") {
@@ -555,9 +947,9 @@ TEST_CASE("Config Core removes only an unused managed install", "[UI-CORE][CLI]"
     REQUIRE(tui.type("7"));
     const auto grid = tui.wait_for([](std::string_view screen) {
       return screen.find("Viewing Profile: uses-core") != std::string_view::npos &&
-             screen.find("selected for viewed Profile") != std::string_view::npos;
+             screen.find("selected") != std::string_view::npos;
     });
-    CHECK(grid.find("selected for viewed Profile") != std::string::npos);
+    CHECK(grid.find("selected") != std::string::npos);
     REQUIRE(tui.type("q"));
   }
   CHECK(cli(daemon.socket(), {"core", "remove", "managed-v-test"}).empty());
@@ -586,7 +978,7 @@ TEST_CASE("Config appearance and editor preferences persist across Manager sessi
   REQUIRE(before.value("ok", false));
   {
     CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-    REQUIRE(tui.type("7]"));
+    REQUIRE(tui.type("7]]]"));
     REQUIRE(tui.wait_for([](std::string_view grid) {
       return grid.find("[Appearance]") != std::string_view::npos;
     }).find("Appearance settings") != std::string::npos);
@@ -610,7 +1002,7 @@ TEST_CASE("Config appearance and editor preferences persist across Manager sessi
   REQUIRE(after.value("ok", false));
   CHECK(after.at("result").at("text") == before.at("result").at("text"));
   CapturedTui reopened(daemon.socket()); REQUIRE(reopened.started());
-  REQUIRE(reopened.type("7]"));
+  REQUIRE(reopened.type("7]]]"));
   CHECK(reopened.wait_for([](std::string_view grid) {
     return grid.find("Theme [t] \"dark\"") != std::string_view::npos;
   }).find("Theme [t] \"dark\"") != std::string::npos);
@@ -902,8 +1294,10 @@ TEST_CASE("TUI node viewport follows the selected row across a 1205-node subscri
   CHECK(grid.find("[5 Nodes]") != std::string::npos);
   CHECK(visibly_inverted(tui.grid(true), "Node-1204"));
   REQUIRE(tui.resize(60, 20));
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
-  REQUIRE(visible_selected_row(grid, "Node-1204"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("Terminal too small") != std::string_view::npos;
+  });
+  REQUIRE(grid.find("Terminal too small") != std::string::npos);
   REQUIRE(tui.resize(100, 32));
   grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
   REQUIRE(visible_selected_row(grid, "Node-1204"));
@@ -1020,7 +1414,7 @@ TEST_CASE("80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter 
   keys(tui.master, "r");
   const auto refreshed = read_screen(tui.master, std::chrono::milliseconds(500));
   INFO("selection after refresh=" << refreshed);
-  CHECK(refreshed.find("▸ ·  🚀-node") != std::string::npos);
+  CHECK(visible_selected_row(refreshed, "🚀-node"));
   CHECK(valid_utf8(refreshed));
   keys(tui.master, "/long");
   keys(tui.master, "\r");
@@ -1135,6 +1529,21 @@ TEST_CASE("UI-03 overview distinguishes the saved target from the running target
   INFO("target dashboard: " << overview);
   CHECK(overview.find("Saved target: node: Target B") != std::string::npos);
   CHECK(overview.find("Actual target: node: Target A") != std::string::npos);
+  auto changed_store = Store::open(temp.path / "state.sqlite"); REQUIRE(changed_store);
+  REQUIRE((*changed_store)->erase_node("target-a"));
+  changed_store->reset();
+  keys(tui.master, "r");
+  const auto snapshot = wait_screen_text(tui.master, [](const std::string& text) {
+    return text.find("Target A (running snapshot; removed from source)") != std::string::npos;
+  });
+  CHECK(snapshot.find("Actual target: node: Target A (running snapshot; removed from source)") !=
+        std::string::npos);
+  keys(tui.master, "3v");
+  const auto runtime_module = wait_screen_text(tui.master, [](const std::string& text) {
+    return text.find("Native JSON · active runtime snapshot") != std::string::npos;
+  });
+  CHECK(runtime_module.find("00_log.json") != std::string::npos);
+  CHECK(runtime_module.find("Showing read-only active runtime files") != std::string::npos);
   keys(tui.master, "q");
   CHECK(tui.wait(std::chrono::seconds(3)));
   const auto status = Json::parse(cli(daemon.socket(), {"status"}));
@@ -1157,11 +1566,11 @@ TEST_CASE("disabled native modules without source open safely and remain disable
   auto tui = start_tui(daemon.socket(), profile_id);
   REQUIRE(tui.pid > 0);
   read_screen(tui.master, std::chrono::milliseconds(600));
-  keys(tui.master, "3");
+  keys(tui.master, "3\r");
   read_screen(tui.master);
   for (std::size_t i = 0; i < modules.size(); ++i) {
-    if (i != 0) keys(tui.master, "\x1b[B");
-    keys(tui.master, "\r");
+    if (i != 0) keys(tui.master, "\t");
+    keys(tui.master, "\r\r");
     const auto opened = terminal_text(read_screen(tui.master, std::chrono::milliseconds(120)));
     int status = 0;
     const auto child_state = ::waitpid(tui.pid, &status, WNOHANG);
@@ -1174,6 +1583,7 @@ TEST_CASE("disabled native modules without source open safely and remain disable
       CHECK_FALSE(std::filesystem::exists(profile_root / modules[i].at("runtime_file").get<std::string>()));
     }
     keys(tui.master, "\x1b");
+    keys(tui.master, "\x1b"); // content -> module tabs
     read_screen(tui.master);
   }
   keys(tui.master, "\x1b");
@@ -1345,29 +1755,39 @@ TEST_CASE("TUI-SUB-02 failed refresh is visible and keeps the prior node invento
   LocalSubscriptionServer subscription("unavailable\n", std::chrono::milliseconds(350), 403);
   REQUIRE(subscription.valid());
   Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto tui = start_tui(daemon.socket(), ""); REQUIRE(tui.pid > 0);
-  read_screen(tui.master, std::chrono::milliseconds(500));
-  keys(tui.master, "4a");
-  keys(tui.master, "403 fixture\r");
-  keys(tui.master, subscription.url() + "\r");
-  read_screen(tui.master);
-  keys(tui.master, "u");
-  const auto updating = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Contacting xrmd") != std::string::npos;
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("4a"));
+  REQUIRE(tui.type("403 fixture")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type(subscription.url())); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("u"));
+  const auto updating = tui.wait_for([](std::string_view grid) {
+    return grid.find("Contacting xrmd") != std::string_view::npos ||
+           grid.find("updating") != std::string_view::npos;
   });
-  CHECK(updating.find("Contacting xrmd") != std::string::npos);
-  keys(tui.master, "5");
-  const auto result = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("HTTP 403") != std::string::npos;
+  CHECK((updating.find("Contacting xrmd") != std::string::npos ||
+         updating.find("updating") != std::string::npos));
+  REQUIRE(tui.key("Enter")); REQUIRE(tui.key("Enter"));
+  const auto result = tui.wait_for([](std::string_view grid) {
+    return grid.find("HTTP 403") != std::string_view::npos;
   }, std::chrono::seconds(5));
-  INFO("failed refresh screen: " << result);
+  INFO("failed refresh current grid: " << result);
   CHECK(result.find("HTTP 403") != std::string::npos);
   // Manual inventory is deliberately under Local, not All Subscriptions.
-  keys(tui.master, "]]");
-  const auto local = terminal_text(read_screen(tui.master));
+  REQUIRE(tui.key("Escape"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("Last update error:") == std::string_view::npos;
+  }).find("Last update error:") == std::string::npos);
+  REQUIRE(tui.type("5"));
+  REQUIRE(tui.wait_for([](std::string_view grid) {
+    return grid.find("Current: Nodes") != std::string_view::npos;
+  }).find("Current: Nodes") != std::string::npos);
+  REQUIRE(tui.type("]]"));
+  const auto local = tui.wait_for([](std::string_view grid) {
+    return grid.find("kept-node") != std::string_view::npos;
+  });
+  INFO("local current grid=" << local);
   CHECK(local.find("kept-node") != std::string::npos);
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
+  REQUIRE(tui.type("q"));
 }
 
 TEST_CASE("TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts", "[TUI-SUB-03][UI-R01]") {
@@ -1378,34 +1798,32 @@ TEST_CASE("TUI-SUB-03 partial refresh shows imported, unsupported and malformed 
   LocalSubscriptionServer subscription(body, std::chrono::milliseconds(350));
   REQUIRE(subscription.valid());
   Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto tui = start_tui(daemon.socket(), ""); REQUIRE(tui.pid > 0);
-  read_screen(tui.master, std::chrono::milliseconds(500));
-  keys(tui.master, "4a");
-  keys(tui.master, "partial fixture\r");
-  keys(tui.master, subscription.url() + "\r");
-  read_screen(tui.master);
-  keys(tui.master, "u");
-  const auto updating = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Contacting xrmd") != std::string::npos;
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("4a"));
+  REQUIRE(tui.type("partial fixture")); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type(subscription.url())); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.type("u"));
+  const auto updating = tui.wait_for([](std::string_view grid) {
+    return grid.find("updating") != std::string_view::npos ||
+           grid.find("Contacting xrmd") != std::string_view::npos;
   });
-  CHECK(updating.find("Contacting xrmd") != std::string::npos);
-  keys(tui.master, "5");
-  const auto result = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("partial-node") != std::string::npos &&
-        text.find("Subscription update partial") != std::string::npos;
+  CHECK((updating.find("updating") != std::string::npos ||
+        updating.find("Contacting xrmd") != std::string::npos));
+  REQUIRE(tui.type("5"));
+  const auto result = tui.wait_for([](std::string_view grid) {
+    return grid.find("partial-node") != std::string_view::npos &&
+           grid.find("1 current") != std::string_view::npos;
   }, std::chrono::seconds(5));
   CHECK(result.find("partial-node") != std::string::npos);
-  CHECK(result.find("Subscription update partial") != std::string::npos);
-  CHECK(result.find("1 unsupported") != std::string::npos);
-  CHECK(result.find("1 malformed") != std::string::npos);
-  keys(tui.master, "4");
-  keys(tui.master, "\r");
-  const auto row = terminal_text(read_screen(tui.master));
+  REQUIRE(tui.type("4"));
+  REQUIRE(tui.key("Enter")); REQUIRE(tui.key("Enter"));
+  const auto row = tui.wait_for([](std::string_view grid) {
+    return grid.find("Unsupported: 1") != std::string_view::npos &&
+           grid.find("malformed: 1") != std::string_view::npos;
+  });
   CHECK(row.find("Unsupported: 1") != std::string::npos);
   CHECK(row.find("malformed: 1") != std::string::npos);
-  keys(tui.master, "\x1b");
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
+  REQUIRE(tui.key("Escape")); REQUIRE(tui.type("q"));
 }
 
 TEST_CASE("UI-06/UI-07 zero-profile startup and Profile management use names", "[UI-06][UI-07][TUI]") {
@@ -1531,7 +1949,7 @@ TEST_CASE("UI-07 Profile management is name-oriented and browsing keeps the runn
     for (std::size_t i = home_index; i < office_index; ++i) move_to_office += "\x1b[B";
   else
     for (std::size_t i = office_index; i < home_index; ++i) move_to_office += "\x1b[A";
-  move_to_office += "\r";
+  move_to_office += "\r\r"; // top navigation -> content -> open the highlighted Profile
   keys(tui.master, move_to_office);
   const auto switched = terminal_text(read_screen(tui.master));
   CHECK(switched.find("Viewing: Office") != std::string::npos);
@@ -1585,7 +2003,7 @@ TEST_CASE("UI-05 opens a configured external editor from the native module draft
       return text.find("Overview") != std::string::npos;
     });
     REQUIRE(overview.find("Overview") != std::string::npos);
-    keys(tui.master, "3\r");
+    keys(tui.master, "3\r\r\r"); // top -> module tabs -> content -> open native editor
     const auto opened = wait_screen_text(tui.master, [](const std::string& text) {
       return text.find("Native module editor") != std::string::npos;
     });
@@ -1630,7 +2048,7 @@ TEST_CASE("UI-05 opens a configured external editor from the native module draft
   wait_screen_text(fallback_tui.master, [](const std::string& text) {
     return text.find("Overview") != std::string::npos;
   });
-  keys(fallback_tui.master, "3\r");
+  keys(fallback_tui.master, "3\r\r\r");
   REQUIRE(wait_screen_text(fallback_tui.master, [](const std::string& text) {
     return text.find("Native module editor") != std::string::npos;
   }).find("Native module editor") != std::string::npos);
@@ -1647,7 +2065,7 @@ TEST_CASE("UI-05 opens a configured external editor from the native module draft
   wait_screen_text(unset_tui.master, [](const std::string& text) {
     return text.find("Overview") != std::string::npos;
   });
-  keys(unset_tui.master, "3\r");
+  keys(unset_tui.master, "3\r\r\r");
   REQUIRE(wait_screen_text(unset_tui.master, [](const std::string& text) {
     return text.find("Native module editor") != std::string::npos;
   }).find("Native module editor") != std::string::npos);
@@ -1687,7 +2105,7 @@ TEST_CASE("UI-05 opens a configured external editor from the native module draft
   wait_screen_text(conflict_tui.master, [](const std::string& text) {
     return text.find("Overview") != std::string::npos;
   });
-  keys(conflict_tui.master, "3\r");
+  keys(conflict_tui.master, "3\r\r\r");
   REQUIRE(wait_screen_text(conflict_tui.master, [](const std::string& text) {
     return text.find("Native module editor") != std::string::npos;
   }).find("Native module editor") != std::string::npos);

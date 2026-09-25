@@ -207,3 +207,12 @@ TEST_CASE("P3 structured array actions keep route order and reject invalid draft
   REQUIRE(inbound_insert);
   CHECK(body(*inbound_insert)["inbounds"][0]["tag"] == "local");
 }
+
+TEST_CASE("P3 structured array scalar replacement keeps its position and JSON type", "[P3][FORM-01]") {
+  const auto original = doc("dns", {{"dns", {{"servers", Json::array({"one", "two", "three"})}}}});
+  const auto changed = edit_json_draft(original,
+      {JsonEditAction::array_replace, "/dns/servers", 42, {}, 1});
+  REQUIRE(changed);
+  CHECK(body(*changed)["dns"]["servers"] == Json::array({"one", 42, "three"}));
+  CHECK(body(*changed)["dns"]["servers"][1].is_number());
+}
