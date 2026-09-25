@@ -18,7 +18,7 @@
 |---|---|---|---|
 | I50 | PASS（实机环境限制已披露） | `xrm_packaging_tests [packaging]` 2 cases / 48 assertions；PKG-01 unit 静态策略、LIFE-10 验证 xrmd 退出只清理自己拥有的 Xray child、socket 关闭且无关 Xray 存活。 | 没有隔离 systemd 环境，实机启停 NOT RUN。 |
 | I51 | PASS | RC-01～RC-10、VLESS-WS-XHTTP、E2E-06 与 E2E-07 使用固定 v26.9.9，13/13 real_core PASS；E2E-06 包含两个 Manager 客户端共用一个 Server，订阅刷新 A→B 时运行 PID、confdir 和所有文件字节不变，显式选择并 connect 后才采用 B，TUI 退出不停止 core，Server 重启后持久状态一致。 | VMess/Trojan/Shadowsocks/Hysteria2 保持 traffic-unverified。 |
-| I52 | PARTIAL | UI-01～UI-09、E2E-07、PERF-01/02 自动验收覆盖完成；真实 80×24 PTY 自动化与固定 v26.9.9 loopback cold-start 流程已通过。 | 用户人工重跑完整 TUI 冷启动流程尚未发生；人工 checklist 结果留空待操作者填写。 |
+| I52 | PARTIAL | UI-01～UI-12 对应自动验收、E2E-07、PERF-01/02 已运行；80×24 PTY 与固定 v26.9.9 loopback 冷启动涵盖 A/B 来源、Home/Office、Local 节点及 Group。隔离的现有数据副本中，1 来源、103 节点（49 当前/54 历史）、1 旧 Profile、1 核心登记的 ID 均保留，15 模块可读且旧来源绑定兼容；副本已删除，生产数据未修改。 | 新的七页工作流仍待用户人工使用确认；人工 checklist 不由开发者代签。 |
 | G5 | FAIL | 用户人工操作明确发现旧库存和已有 Profile 的入口缺口；本轮定向修复不能反向抹去失败记录。 | 新入口完成开发者隔离验收后，仍须按 [tui-manual-acceptance.md](tui-manual-acceptance.md) 由用户复验。systemd 实机限制仍为 NOT RUN，且不要求宿主机操作。 |
 
 ## T01–T37 最终追踪
