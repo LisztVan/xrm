@@ -420,6 +420,36 @@ TEST_CASE("NODE-TEST typed VLESS travels through an independent test Xray withou
     CHECK(result->received_bytes == std::string("NODE-TEST-VLESS-MARKER").size());
     CHECK(target.requests == 1);
     CHECK(std::filesystem::is_empty(temp.path / "runtime" / "preview"));
+
+    request.node.id = "wrong-vless-credential";
+    std::get<xrm::StreamNode>(request.node.settings).protocol =
+        xrm::VlessSettings{"00000000-0000-4000-8000-000000000099"};
+    bool tcp_finished = false;
+    xrm::Result<xrm::NodeTestResult> tcp_result;
+    request.kind = xrm::NodeTestKind::tcp;
+    auto tcp_id = tests.start(request, [&](auto value) {
+      tcp_result = std::move(value);
+      tcp_finished = true;
+    });
+    REQUIRE(tcp_id.has_value());
+    pump(loop, [&] { return tcp_finished; });
+    REQUIRE(tcp_result.has_value());
+    CHECK(tcp_result->status == xrm::NodeTestStatus::success);
+    CHECK(target.requests == 1);
+
+    bool rejected = false;
+    xrm::Result<xrm::NodeTestResult> rejected_result;
+    request.kind = xrm::NodeTestKind::url;
+    auto rejected_id = tests.start(request, [&](auto value) {
+      rejected_result = std::move(value);
+      rejected = true;
+    });
+    REQUIRE(rejected_id.has_value());
+    pump(loop, [&] { return rejected; });
+    REQUIRE(rejected_result.has_value());
+    CHECK(rejected_result->status == xrm::NodeTestStatus::failed);
+    CHECK(target.requests == 1);
+    CHECK(std::filesystem::is_empty(temp.path / "runtime" / "preview"));
     bool drained = false;
     tests.shutdown([&] { drained = true; });
     pump(loop, [&] { return drained; });
