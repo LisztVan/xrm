@@ -155,6 +155,11 @@ Result<ReconcileResult> reconcile(const ReconcileInput& input,
           (duplicate.alias != keeper.alias || duplicate.labels != keeper.labels ||
            duplicate.enabled != keeper.enabled)) {
         retained_old.insert(index);
+        if (std::none_of(result.report.notices.begin(), result.report.notices.end(),
+                         [](const Notice& notice) { return notice.code == "duplicate_conflict"; })) {
+          result.report.notices.push_back({"duplicate_conflict",
+              "同来源存在连接等价但用户属性冲突的旧记录；未自动删除，请预览后处理"});
+        }
         continue;
       }
       result.changes.erase_ids.push_back(duplicate.id);

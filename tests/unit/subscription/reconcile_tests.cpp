@@ -466,3 +466,26 @@ TEST_CASE("P2 raw outbound display tag does not trigger a connection update") {
   CHECK(result->report.updated == 0);
   CHECK(result->changes.upserts.empty());
 }
+
+TEST_CASE("P2 equivalent historical rows with conflicting user attributes require review") {
+  xrm::Subscription source;
+  source.id = "source-A";
+  xrm::Node first;
+  first.id = "old-a";
+  first.source_id = source.id;
+  first.original_name = "A";
+  first.alias = "My A";
+  first.settings = vless("A", "same.example", "secret").settings;
+  auto second = first;
+  second.id = "old-b";
+  second.alias = "My B";
+  xrm::ParseReport parsed;
+  parsed.structurally_complete = true;
+  parsed.nodes = {vless("A", "same.example", "secret")};
+  auto result = xrm::reconcile({source, {first, second}, parsed}, [] { return "new"; });
+  REQUIRE(result);
+  CHECK(result->report.added == 0);
+  CHECK(result->changes.erase_ids.empty());
+  CHECK(std::any_of(result->report.notices.begin(), result->report.notices.end(),
+      [](const xrm::Notice& notice) { return notice.code == "duplicate_conflict"; }));
+}

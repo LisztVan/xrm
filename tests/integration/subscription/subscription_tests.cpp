@@ -610,6 +610,107 @@ TEST_CASE("P2 inventory removal does not mutate the immutable active run record"
   http.shutdown([] {});
 }
 
+TEST_CASE("P2 conservative source information rows are descriptions, not exits") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path);
+  REQUIRE(opened);
+  LocalHttpFixture fixture;
+  REQUIRE((*opened)->put_source(source("source-A", fixture.url())));
+  xrm::Node legacy;
+  legacy.id = "legacy-information-node";
+  legacy.source_id = "source-A";
+  legacy.original_name = "剩余流量: 10 GB";
+  legacy.settings = xrm::RawOutbound{xrm::Json{{"protocol", "freedom"},
+      {"settings", xrm::Json::object()}}};
+  REQUIRE((*opened)->put_node(legacy));
+  const std::string information =
+      "vless://00000000-0000-4000-8000-000000000004@127.0.0.1:443?type=tcp&security=none#"
+      "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB";
+  fixture.respond(200, std::string(node_a) + "\n" + information + "\n" +
+      "vless://00000000-0000-4000-8000-000000000003@127.0.0.1:443?type=tcp&security=none#%E5%AE%98%E7%BD%91%E9%A6%99%E6%B8%AF");
+  Loop loop;
+  xrm::HttpClient http(loop.value);
+  xrm::SubscriptionService service(**opened, http);
+  auto refreshed = refresh_sync(service, loop.value, {"source-A"});
+  REQUIRE(refreshed);
+  REQUIRE(refreshed->completed.size() == 1);
+  CHECK(refreshed->completed.front().added == 2); // A and a real node named 官网香港.
+  CHECK_FALSE((*opened)->get_node(legacy.id));
+  auto state = (*opened)->get_source_state("source-A");
+  REQUIRE(state);
+  REQUIRE(state->reported_notices.size() == 1);
+  CHECK(state->reported_notices.front() == "剩余流量: 10 GB");
+  auto current = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 10});
+  REQUIRE(current);
+  CHECK(current->total == 2);
+  service.stop_schedule();
+  http.shutdown([] {});
+}
+
+TEST_CASE("P2 source-level information rules can be disabled or configured explicitly") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path);
+  REQUIRE(opened);
+  LocalHttpFixture fixture;
+  auto disabled = source("disabled", fixture.url());
+  disabled.info_name_prefixes = std::vector<std::string>{};
+  REQUIRE((*opened)->put_source(disabled));
+  fixture.respond(200, std::string(node_a) + "\n" +
+      "vless://00000000-0000-4000-8000-000000000004@127.0.0.1:443?type=tcp&security=none#"
+      "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB");
+  Loop loop;
+  xrm::HttpClient http(loop.value);
+  xrm::SubscriptionService service(**opened, http);
+  auto kept = refresh_sync(service, loop.value, {"disabled"});
+  REQUIRE(kept);
+  REQUIRE(kept->completed.size() == 1);
+  CHECK(kept->completed.front().added == 2);
+  CHECK((*opened)->get_source_state("disabled")->reported_notices.empty());
+
+  auto explicit_rule = source("explicit", fixture.url());
+  explicit_rule.info_name_prefixes = std::vector<std::string>{"MEMBER:"};
+  REQUIRE((*opened)->put_source(explicit_rule));
+  fixture.respond(200, std::string(node_a) + "\n" +
+      "vless://00000000-0000-4000-8000-000000000004@127.0.0.1:443?type=tcp&security=none#MEMBER%3A%2010\n" +
+      "vless://00000000-0000-4000-8000-000000000005@127.0.0.1:443?type=tcp&security=none#"
+      "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB");
+  auto classified = refresh_sync(service, loop.value, {"explicit"});
+  REQUIRE(classified);
+  REQUIRE(classified->completed.size() == 1);
+  CHECK(classified->completed.front().added == 2);
+  auto state = (*opened)->get_source_state("explicit");
+  REQUIRE(state);
+  CHECK(state->reported_notices == std::vector<std::string>{"MEMBER: 10"});
+  service.stop_schedule();
+  http.shutdown([] {});
+}
+
+TEST_CASE("P2 partial parse cannot erase old information rows") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path);
+  REQUIRE(opened);
+  LocalHttpFixture fixture;
+  REQUIRE((*opened)->put_source(source("source-A", fixture.url())));
+  xrm::Node old;
+  old.id = "old-info";
+  old.source_id = "source-A";
+  old.original_name = "剩余流量: old";
+  old.settings = xrm::RawOutbound{xrm::Json{{"protocol", "freedom"},
+      {"settings", xrm::Json::object()}}};
+  REQUIRE((*opened)->put_node(old));
+  fixture.respond(200, std::string(node_a) + "\nnot-a-node");
+  Loop loop;
+  xrm::HttpClient http(loop.value);
+  xrm::SubscriptionService service(**opened, http);
+  auto partial = refresh_sync(service, loop.value, {"source-A"});
+  REQUIRE(partial);
+  REQUIRE(partial->completed.size() == 1);
+  CHECK(partial->completed.front().partial);
+  CHECK((*opened)->get_node(old.id).has_value());
+  service.stop_schedule();
+  http.shutdown([] {});
+}
+
 TEST_CASE("SUB-05 an old response cannot commit after its source changes or is deleted", "[SUB-05]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);

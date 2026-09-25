@@ -53,6 +53,26 @@ std::string header_value(const HttpResponse& response, std::string_view name) {
   return value.substr(first, last - first + 1);
 }
 
+bool source_information_name(const Subscription& source, std::string_view name) {
+  if (name.empty() || name.size() > 512) return false;
+  if (source.info_name_prefixes) {
+    return std::any_of(source.info_name_prefixes->begin(), source.info_name_prefixes->end(),
+        [&](const std::string& prefix) { return !prefix.empty() && name.starts_with(prefix); });
+  }
+  // Built-in classification is deliberately anchored and requires a label
+  // separator: a real exit named “官网香港” must remain a connectable node.
+  constexpr std::array<std::string_view, 4> prefixes{
+      "剩余流量", "套餐到期", "官网", "距离重置"};
+  for (const auto prefix : prefixes) {
+    if (!name.starts_with(prefix)) continue;
+    const auto suffix = name.substr(prefix.size());
+    if (suffix.starts_with(":") || suffix.starts_with("：") ||
+        suffix.starts_with(" ") || suffix.starts_with("=") ||
+        suffix.starts_with("|") || suffix.starts_with("｜")) return true;
+  }
+  return false;
+}
+
 Id new_node_id() {
   std::array<unsigned char, 16> bytes{};
   std::random_device random;
@@ -262,10 +282,19 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
       record_attempt_failure(source_id, parsed.error().code, parsed.error().message);
       return;
     }
+    std::vector<std::string> information;
+    std::erase_if(parsed->nodes, [&](const ParsedNode& node) {
+      if (!source_information_name(source, node.name)) return false;
+      if (information.size() < 16 &&
+          std::find(information.begin(), information.end(), node.name) == information.end())
+        information.push_back(node.name);
+      return true;
+    });
     if (parsed->nodes.empty()) {
       auto state_after = state;
       state_after.last_attempt = now_millis();
       state_after.last_result = "failed";
+      if (!information.empty()) state_after.reported_notices = std::move(information);
       RefreshReport report;
       report.source_id = source_id;
       for (const auto& issue : parsed->issues) {
@@ -306,6 +335,10 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
     report.partial = report.partial || !structurally_complete;
     SubscriptionState next_state = state;
     next_state.last_attempt = now_millis();
+    if (structurally_complete && !report.partial)
+      next_state.reported_notices = std::move(information);
+    else if (!information.empty())
+      next_state.reported_notices = std::move(information);
     // Providers commonly publish usage as response metadata rather than as
     // synthetic proxy nodes. Keep the original bounded header for display;
     // no numbers are inferred when the provider did not send it.
