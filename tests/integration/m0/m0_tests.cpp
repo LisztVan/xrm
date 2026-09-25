@@ -256,3 +256,61 @@ TEST_CASE("CLI-01 server unavailable is an error on stderr, not false success", 
   const auto error = xrm::Json::parse(result.err);
   REQUIRE(error.contains("error"));
 }
+
+TEST_CASE("LOCAL-01 CLI creates typed and imported manual nodes without exposing credentials in list", "[LOCAL-01]") {
+  TempDirectory temp;
+  REQUIRE_FALSE(temp.path().empty());
+  const auto socket = temp.path() / "server.sock";
+  const auto database = temp.path() / "server.sqlite";
+  ServerProcess server;
+  REQUIRE(server.start(socket, database));
+  REQUIRE(wait_for_socket(socket));
+
+  const std::string settings = R"({"kind":"stream","endpoint":{"address":"127.0.0.1","port":443},"protocol":{"kind":"vless","id":"11111111-1111-4111-8111-111111111111","encryption":null,"flow":null,"level":null},"transport":{"kind":"raw"},"security":{"kind":"none"},"sockopt":null,"finalmask":null,"mux":null})";
+  const auto form_added = run_manager(temp.path(), {"--socket", socket.string(), "--json",
+      "node", "add", "--name", "form node", "--settings-json", settings});
+  REQUIRE(form_added.exit_code == 0);
+  const auto form_id = json_result(form_added).at("id").get<std::string>();
+  const auto form_details = run_manager(temp.path(), {"--socket", socket.string(), "--json",
+      "node", "show", form_id});
+  REQUIRE(form_details.exit_code == 0);
+  CHECK(json_result(form_details).at("source_id").is_null());
+  CHECK(json_result(form_details).at("settings").at("kind") == "stream");
+  CHECK(json_result(form_details).at("settings").at("protocol").at("id") ==
+        "11111111-1111-4111-8111-111111111111");
+  auto revised_settings = xrm::Json::parse(settings);
+  revised_settings["endpoint"]["port"] = 8444;
+  const auto revised = run_manager(temp.path(), {"--socket", socket.string(), "--json",
+      "node", "replace", form_id, "--name", "form revised", "--settings-json", revised_settings.dump()});
+  REQUIRE(revised.exit_code == 0);
+  CHECK(json_result(revised).at("id") == form_id);
+  const auto revised_details = run_manager(temp.path(), {"--socket", socket.string(), "--json",
+      "node", "show", form_id});
+  REQUIRE(revised_details.exit_code == 0);
+  CHECK(json_result(revised_details).at("original_name") == "form revised");
+  CHECK(json_result(revised_details).at("settings").at("endpoint").at("port") == 8444);
+
+  const auto uri_added = run_manager(temp.path(), {"--socket", socket.string(), "--json",
+      "node", "add", "--uri", "vless://22222222-2222-4222-8222-222222222222@127.0.0.1:8443?type=tcp&security=none#From%20URI"});
+  REQUIRE(uri_added.exit_code == 0);
+  const auto uri_id = json_result(uri_added).at("id").get<std::string>();
+  const auto uri_details = run_manager(temp.path(), {"--socket", socket.string(), "--json",
+      "node", "show", uri_id});
+  REQUIRE(uri_details.exit_code == 0);
+  CHECK(json_result(uri_details).at("source_id").is_null());
+  CHECK(json_result(uri_details).at("settings").at("kind") == "stream");
+
+  const auto list = run_manager(temp.path(), {"--socket", socket.string(), "--json", "node", "list"});
+  REQUIRE(list.exit_code == 0);
+  CHECK(json_result(list).at("total") == 2);
+  CHECK(list.out.find("11111111-1111-4111-8111-111111111111") == std::string::npos);
+  CHECK(list.out.find("22222222-2222-4222-8222-222222222222") == std::string::npos);
+  const auto removed = run_manager(temp.path(), {"--socket", socket.string(), "--json",
+      "node", "remove", uri_id});
+  REQUIRE(removed.exit_code == 0);
+  CHECK(json_result(removed).at("removed") == true);
+  const auto after_remove = run_manager(temp.path(), {"--socket", socket.string(), "--json", "node", "list"});
+  REQUIRE(after_remove.exit_code == 0);
+  CHECK(json_result(after_remove).at("total") == 1);
+  REQUIRE(server.stop());
+}

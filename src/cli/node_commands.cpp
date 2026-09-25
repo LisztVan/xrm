@@ -5,17 +5,29 @@ namespace xrm::cli {
 
 void add_node_commands(CLI::App& app, Request& request) {
   auto* node = app.add_subcommand("node", "Manage the independent node inventory");
-  auto* add = node->add_subcommand("add", "Save a manual node from native outbound JSON");
-  add->add_option("--name", request.node_name, "Human readable node name")->required();
-  add->add_option("--outbound-json", request.node_outbound, "Native Xray outbound object")->required();
+  auto* add = node->add_subcommand("add", "Save a manual node from typed settings, a share URI or native outbound JSON");
+  add->add_option("--name", request.node_name, "Human readable node name (optional for a named URI)");
+  add->add_option("--outbound-json", request.node_outbound, "Complete native Xray outbound object");
+  add->add_option("--settings-json", request.node_settings, "Typed Node.settings stream object");
+  add->add_option("--uri", request.node_uri, "Supported protocol share URI");
   add->callback([&request] {
-    try {
-      auto outbound = Json::parse(request.node_outbound);
-      if (!outbound.is_object()) throw CLI::ValidationError("--outbound-json must be an object");
+    const int forms = !request.node_outbound.empty() + !request.node_settings.empty() + !request.node_uri.empty();
+    if (forms != 1) throw CLI::ValidationError("node add", "specify exactly one of --outbound-json, --settings-json, or --uri");
+    if (!request.node_uri.empty()) {
       request.method = "node.add";
-      request.params = Json{{"name", request.node_name}, {"outbound", std::move(outbound)}};
+      request.params = {{"uri", request.node_uri}};
+      if (!request.node_name.empty()) request.params["name"] = request.node_name;
+      return;
+    }
+    if (request.node_name.empty()) throw CLI::ValidationError("node add", "--name is required for JSON input");
+    try {
+      const bool typed = !request.node_settings.empty();
+      auto value = Json::parse(typed ? request.node_settings : request.node_outbound);
+      if (!value.is_object()) throw CLI::ValidationError("node add", "JSON input must be an object");
+      request.method = "node.add";
+      request.params = Json{{"name", request.node_name}, {typed ? "settings" : "outbound", std::move(value)}};
     } catch (const Json::exception&) {
-      throw CLI::ValidationError("--outbound-json must contain valid JSON");
+      throw CLI::ValidationError("node add", "JSON input must contain valid JSON");
     }
   });
 
@@ -45,10 +57,25 @@ void add_node_commands(CLI::App& app, Request& request) {
     request.method = "node.form_edit";
     request.params = {{"id", request.node_id}, {"field", request.module_key}, {"value", std::move(value)}};
   });
+  auto* replace = node->add_subcommand("replace", "Replace a manual node's name and typed/native settings");
+  replace->add_option("id", request.node_id)->required();
+  replace->add_option("--name", request.node_name)->required();
+  replace->add_option("--settings-json", request.node_settings, "Complete Node.settings stream/raw object")->required();
+  replace->callback([&request] {
+    Json settings;
+    try { settings = Json::parse(request.node_settings); }
+    catch (const Json::exception&) { throw CLI::ValidationError("node replace", "--settings-json must contain valid JSON"); }
+    if (!settings.is_object()) throw CLI::ValidationError("node replace", "--settings-json must be an object");
+    request.method = "node.update";
+    request.params = {{"id", request.node_id}, {"name", request.node_name}, {"settings", std::move(settings)}};
+  });
   auto* copy = node->add_subcommand("copy", "Copy a node as an independent manual node");
   copy->add_option("id", request.node_id)->required();
   copy->add_option("--name", request.node_name)->required();
   copy->callback([&request] { request.method = "node.copy"; request.params = {{"id", request.node_id}, {"name", request.node_name}}; });
+  auto* remove = node->add_subcommand("remove", "Remove an unreferenced manual node");
+  remove->add_option("id", request.node_id)->required();
+  remove->callback([&request] { request.method = "node.remove"; request.params = {{"id", request.node_id}}; });
   for (const auto& [name, enabled] : {std::pair{"enable", true}, std::pair{"disable", false}}) {
     auto* toggle = node->add_subcommand(name, enabled ? "Enable a node" : "Disable a node");
     toggle->add_option("id", request.node_id)->required();

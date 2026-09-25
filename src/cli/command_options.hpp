@@ -13,6 +13,8 @@ struct Request {
   Json params = Json::object();
   std::string node_name;
   std::string node_outbound;
+  std::string node_settings;
+  std::string node_uri;
   std::string node_search;
   std::string subscription_id;
   std::string subscription_name;

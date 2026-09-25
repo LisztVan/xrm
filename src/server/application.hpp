@@ -25,6 +25,10 @@ class Application {
 
   Json server_info() const;
   Result<NodeSummary> add_manual_node(std::string name, Json outbound);
+  Result<NodeSummary> add_manual_typed_node(std::string name, Json settings);
+  Result<NodeSummary> add_manual_share_uri(std::string uri, std::optional<std::string> name);
+  Result<NodeSummary> replace_manual_node(const Id& id, std::string name, Json settings);
+  Result<void> remove_manual_node(const Id& id);
   Result<Page<NodeSummary>> list_nodes(const NodeQuery& query, PageRequest page) const;
   Result<Node> get_node(const Id& id) const;
   Result<NodeSummary> copy_node(const Id& id, std::string new_name);

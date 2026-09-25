@@ -2,6 +2,8 @@
 
 #include "infra/files.hpp"
 #include "contract/wire.hpp"
+#include "subscription/parser.hpp"
+#include "xray/codecs/codec.hpp"
 #include "xray/process_adapter.hpp"
 #include "xray/runtime_assembler.hpp"
 
@@ -113,6 +115,120 @@ Result<NodeSummary> Application::add_manual_node(std::string name, Json outbound
             RawOutbound{std::move(outbound)}};
   if (auto stored = store_->put_node(node); !stored) return std::unexpected(stored.error());
   return summarize_node(node);
+}
+
+Result<NodeSummary> Application::add_manual_typed_node(std::string name, Json settings) {
+  if (name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
+  if (!settings.is_object() || !settings.contains("kind") || !settings["kind"].is_string() ||
+      settings["kind"] != "stream")
+    return std::unexpected(invalid("typed节点需要kind=stream的settings对象", "settings"));
+  Node candidate;
+  try {
+    candidate = Json{{"id", "validation-node"}, {"source_id", nullptr},
+        {"upstream_id", nullptr}, {"original_name", name}, {"alias", nullptr},
+        {"labels", Json::array()}, {"enabled", true}, {"source_missing", false},
+        {"settings", std::move(settings)}}.get<Node>();
+  } catch (const std::exception& exception) {
+    return std::unexpected(invalid("typed节点参数无效: " + std::string(exception.what()), "settings"));
+  }
+  if (auto outbound = write_outbound(candidate, "validation-node"); !outbound)
+    return std::unexpected(outbound.error());
+  candidate.id = new_id();
+  if (auto stored = store_->put_node(candidate); !stored) return std::unexpected(stored.error());
+  return summarize_node(candidate);
+}
+
+Result<NodeSummary> Application::add_manual_share_uri(std::string uri,
+                                                       std::optional<std::string> name) {
+  auto parsed = parse_share_uri(uri);
+  if (!parsed) return std::unexpected(parsed.error());
+  const auto display_name = name.value_or(parsed->name);
+  if (display_name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
+  Node candidate{"validation-node", std::nullopt, display_name, std::nullopt, {}, true,
+                 false, std::move(parsed->settings)};
+  if (auto outbound = write_outbound(candidate, "validation-node"); !outbound)
+    return std::unexpected(outbound.error());
+  candidate.id = new_id();
+  if (auto stored = store_->put_node(candidate); !stored) return std::unexpected(stored.error());
+  return summarize_node(candidate);
+}
+
+Result<NodeSummary> Application::replace_manual_node(const Id& id, std::string name, Json settings) {
+  auto original = store_->get_node(id);
+  if (!original) return std::unexpected(original.error());
+  if (original->source_id)
+    return std::unexpected(AppError{ErrorCode::unsupported,
+        "订阅节点须先复制为手工节点后才能编辑连接参数", id, std::nullopt});
+  if (name.empty()) return std::unexpected(invalid("节点名称不能为空", "name"));
+  if (!settings.is_object() || !settings.contains("kind") || !settings["kind"].is_string() ||
+      (settings["kind"] != "stream" && settings["kind"] != "raw"))
+    return std::unexpected(invalid("settings必须是stream或raw节点对象", "settings"));
+  Json encoded = *original;
+  encoded["original_name"] = std::move(name);
+  encoded["settings"] = std::move(settings);
+  Node candidate;
+  try { candidate = encoded.get<Node>(); }
+  catch (const std::exception& exception) {
+    return std::unexpected(invalid("节点参数无效: " + std::string(exception.what()), "settings"));
+  }
+  if (auto outbound = write_outbound(candidate, "validation-node"); !outbound)
+    return std::unexpected(outbound.error());
+  if (auto stored = store_->put_node(candidate); !stored) return std::unexpected(stored.error());
+  return summarize_node(candidate);
+}
+
+Result<void> Application::remove_manual_node(const Id& id) {
+  auto node = store_->get_node(id);
+  if (!node) return std::unexpected(node.error());
+  if (node->source_id)
+    return std::unexpected(AppError{ErrorCode::unsupported,
+        "订阅节点由来源管理；只能删除手工节点", id, std::nullopt});
+  auto profiles = profiles_->list();
+  if (!profiles) return std::unexpected(profiles.error());
+  for (const auto& summary : *profiles) {
+    auto profile = profiles_->get(summary.id);
+    if (!profile) return std::unexpected(profile.error());
+    if (profile->selected && profile->selected->kind == TargetKind::node &&
+        profile->selected->id_or_tag == id)
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "节点仍是 Profile 保存的默认出口", summary.name, std::nullopt});
+    if (std::find(profile->additional_node_ids.begin(), profile->additional_node_ids.end(), id) !=
+        profile->additional_node_ids.end())
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "节点仍在 Profile 附加节点列表中", summary.name, std::nullopt});
+    auto groups = profiles_->groups(summary.id);
+    if (!groups) return std::unexpected(groups.error());
+    for (const auto& group : *groups) {
+      if (group.selected_node_id == id)
+        return std::unexpected(AppError{ErrorCode::conflict,
+            "节点仍是手选组的保存选择", group.name, std::nullopt});
+      if (const auto* explicit_ids = std::get_if<ExplicitMembers>(&group.members);
+          explicit_ids && std::find(explicit_ids->node_ids.begin(), explicit_ids->node_ids.end(), id) !=
+              explicit_ids->node_ids.end())
+        return std::unexpected(AppError{ErrorCode::conflict,
+            "节点仍被策略组显式引用", group.name, std::nullopt});
+    }
+    auto observation = profiles_->observation(summary.id);
+    if (!observation) return std::unexpected(observation.error());
+    if (std::find(observation->additional_node_ids.begin(), observation->additional_node_ids.end(), id) !=
+        observation->additional_node_ids.end())
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "节点仍在观测附加列表中", summary.name, std::nullopt});
+    auto modules = profiles_->modules(summary.id);
+    if (!modules) return std::unexpected(modules.error());
+    for (const auto& module : *modules)
+      if (module.document && module.document->source_text.find(node_tag(id)) != std::string::npos)
+        return std::unexpected(AppError{ErrorCode::conflict,
+            "节点的管理 tag 仍出现在原生模块中", module.descriptor.key, std::nullopt});
+  }
+  auto runtime = runtime_status();
+  if (!runtime) return std::unexpected(runtime.error());
+  if (runtime->contains("actual_target") && (*runtime)["actual_target"].is_object() &&
+      (*runtime)["actual_target"].value("kind", "") == "node" &&
+      (*runtime)["actual_target"].value("id_or_tag", "") == id)
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "节点正在由核心使用，请先连接其他出口或停止核心", id, std::nullopt});
+  return store_->erase_node(id);
 }
 
 Result<Page<NodeSummary>> Application::list_nodes(const NodeQuery& query,
