@@ -1,0 +1,8 @@
+add_executable(xrm_routing_preset_tests routing_preset_tests.cpp)
+target_link_libraries(xrm_routing_preset_tests PRIVATE xrm_logic Catch2::Catch2WithMain)
+include(Catch)
+catch_discover_tests(xrm_routing_preset_tests)
+
+add_executable(xrm_geodata_real_tests geodata_real_tests.cpp)
+target_link_libraries(xrm_geodata_real_tests PRIVATE xrm_logic Catch2::Catch2WithMain)
+catch_discover_tests(xrm_geodata_real_tests PROPERTIES LABELS real_core)
