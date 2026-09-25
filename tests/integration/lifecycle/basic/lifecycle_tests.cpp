@@ -180,6 +180,126 @@ TEST_CASE("LIFE-03 a failed replacement restores the previous input once", "[LIF
   CHECK(std::count(count.begin(), count.end(), '\n') == 3);
 }
 
+TEST_CASE("P2 inventory removal retains the active confdir until a successful switch releases it") {
+  Services services;
+  Node source_node;
+  source_node.id = "inventory-A";
+  source_node.source_id = "source-A";
+  source_node.original_name = "A";
+  source_node.settings = RawOutbound{Json{{"protocol", "freedom"}, {"settings", Json::object()}}};
+  REQUIRE(services.store->put_node(source_node));
+  bool completed = false;
+  auto start_a = request(services.temp, "A", {{"XRM_FAKE_CORE_RUN_HANG", "1"}});
+  start_a.input.nodes.push_back(source_node);
+  start_a.input.settings.profile.additional_node_ids.push_back(source_node.id);
+  start_a.input.settings.profile.modules.push_back({"outbounds", "03_outbounds.json", true});
+  start_a.input.settings.modules.push_back({"outbounds", "03_outbounds.json", R"({"outbounds":[]})"});
+  start_a.input.settings.profile.modules.push_back({"log", "00_log.json", true});
+  start_a.input.settings.modules.push_back({"log", "00_log.json", R"({"log":{"loglevel":"warning"}})"});
+  REQUIRE(services.manager->activate(activation(std::move(start_a)), [&](auto started) {
+    REQUIRE(started);
+    auto running = services.manager->status();
+    REQUIRE(running.active);
+    REQUIRE(running.pid);
+    const auto old_record = *running.active;
+    REQUIRE(old_record.index.nodes.size() == 1);
+    CHECK(old_record.index.nodes.front().id == source_node.id);
+    CHECK(old_record.index.nodes.front().display_name == "A");
+    const auto old_file = old_record.spec.confdir / "00_log.json";
+    const auto bytes = read_file(old_file);
+    REQUIRE_FALSE(bytes.empty());
+    REQUIRE(services.store->erase_node(source_node.id));
+    CHECK_FALSE(services.store->get_node(source_node.id));
+    auto unchanged = services.manager->status();
+    CHECK(unchanged.pid == running.pid);
+    CHECK(unchanged.active->spec.confdir == old_record.spec.confdir);
+    CHECK(unchanged.active->index.nodes.front().display_name == "A");
+    CHECK(read_file(old_file) == bytes);
+
+    auto start_b = request(services.temp, "B", {{"XRM_FAKE_CORE_RUN_HANG", "1"}});
+    REQUIRE(services.manager->activate(activation(std::move(start_b)), [&, old_record](auto replaced) {
+      REQUIRE(replaced);
+      REQUIRE(replaced->effect == ActivationEffect::running_new);
+      CHECK(replaced->active->profile_id == "B");
+      CHECK_FALSE(std::filesystem::exists(old_record.spec.confdir));
+      const auto stored = services.store->load_runtime();
+      REQUIRE(stored);
+      CHECK_FALSE(stored->previous);
+      REQUIRE(services.manager->stop([&](auto stopped) {
+        REQUIRE(stopped);
+        completed = true;
+      }));
+    }));
+  }));
+  uv_run(&services.event_loop.loop, UV_RUN_DEFAULT);
+  CHECK(completed);
+}
+
+TEST_CASE("P2 failed replacement preserves rollback confdir and discards the failed candidate") {
+  Services services(std::chrono::milliseconds(250));
+  bool completed = false;
+  auto start_a = request(services.temp, "A", {{"XRM_FAKE_CORE_RUN_HANG", "1"}});
+  start_a.input.settings.profile.modules.push_back({"log", "00_log.json", true});
+  start_a.input.settings.modules.push_back({"log", "00_log.json", R"({"log":{"loglevel":"warning"}})"});
+  REQUIRE(services.manager->activate(activation(std::move(start_a)), [&](auto started) {
+    REQUIRE(started);
+    const auto old = services.manager->status().active;
+    REQUIRE(old);
+    const auto old_file = old->spec.confdir / "00_log.json";
+    const auto bytes = read_file(old_file);
+    auto start_b = request(services.temp, "B", {{"XRM_FAKE_CORE_RUN_EXIT", "23"}});
+    REQUIRE(services.manager->activate(activation(std::move(start_b)), [&, old, bytes, old_file](auto replaced) {
+      REQUIRE(replaced);
+      CHECK(replaced->effect == ActivationEffect::restored_old);
+      CHECK(replaced->active->spec.confdir == old->spec.confdir);
+      CHECK(read_file(old_file) == bytes);
+      std::size_t dirs = 0;
+      for (const auto& entry : std::filesystem::directory_iterator(
+               services.temp.path / "runtime" / "candidate"))
+        if (entry.is_directory()) ++dirs;
+      CHECK(dirs == 1);
+      REQUIRE(services.manager->stop([&](auto stopped) { REQUIRE(stopped); completed = true; }));
+    }));
+  }));
+  uv_run(&services.event_loop.loop, UV_RUN_DEFAULT);
+  CHECK(completed);
+}
+
+TEST_CASE("P2 failed same-directory core replay cannot discard its rollback input") {
+  Services services(std::chrono::milliseconds(250));
+  bool completed = false;
+  auto start_a = request(services.temp, "A", {{"XRM_FAKE_CORE_RUN_HANG", "1"}});
+  start_a.input.settings.profile.modules.push_back({"log", "00_log.json", true});
+  start_a.input.settings.modules.push_back({"log", "00_log.json", R"({"log":{"loglevel":"warning"}})"});
+  REQUIRE(services.manager->activate(activation(std::move(start_a)), [&](auto started) {
+    REQUIRE(started);
+    const auto active = services.manager->status().active;
+    REQUIRE(active);
+    const auto file = active->spec.confdir / "00_log.json";
+    const auto bytes = read_file(file);
+    REQUIRE_FALSE(bytes.empty());
+    auto replay_record = *active;
+    replay_record.spec.environment.erase("XRM_FAKE_CORE_RUN_HANG");
+    replay_record.spec.environment["XRM_FAKE_CORE_RUN_EXIT"] = "23";
+    const CoreInstall replay_core{"replay", "replay", XRM_TEST_FAKE_CORE, "fixture", false};
+    REQUIRE(services.manager->activate(
+        ActivationRequest{ActivationInput{ReplayRequest{replay_record, replay_core}},
+                          ActivationMode::preserve_running_state},
+        [&, active, file, bytes](auto result) {
+          REQUIRE(result);
+          CHECK(result->effect == ActivationEffect::restored_old);
+          CHECK(result->active->run_id == active->run_id);
+          CHECK(read_file(file) == bytes);
+          REQUIRE(services.manager->stop([&](auto stopped) {
+            REQUIRE(stopped);
+            completed = true;
+          }));
+        }));
+  }));
+  uv_run(&services.event_loop.loop, UV_RUN_DEFAULT);
+  CHECK(completed);
+}
+
 TEST_CASE("LIFE-06 process-only health never claims remote readiness", "[LIFE-06]") {
   Services services;
   auto build = request(services.temp, "offline", {{"XRM_FAKE_CORE_RUN_HANG", "1"}});

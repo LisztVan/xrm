@@ -326,9 +326,10 @@ struct CoreManager::Impl {
     if (!record || record->run_id.empty()) return;
     PreparedDirectory directory{record->run_id, DirectoryPurpose::candidate,
                                 record->spec.confdir, record->index};
-    const std::array<Id, 2> protected_ids{
+    const std::array<Id, 3> protected_ids{
         status.active ? status.active->run_id : Id{},
-        persistent.previous ? persistent.previous->run_id : Id{}};
+        persistent.previous ? persistent.previous->run_id : Id{},
+        previous_record ? previous_record->run_id : Id{}};
     (void)writer->discard(directory, protected_ids);
   }
 
@@ -368,8 +369,13 @@ struct CoreManager::Impl {
   void observed(ProcessId id) {
     if (id == candidate_process && phase == Phase::starting) {
       const bool was_retrying = retrying;
+      const auto retired_active = previous_record;
+      const auto retired_previous = persistent.previous;
       if (!retrying) {
-        persistent.previous = previous_record;
+        // The old input is held by previous_record until the candidate has
+        // started and its RunRecord has committed. It is not a permanent
+        // history record once that switch succeeds.
+        persistent.previous.reset();
         persistent.active = candidate_record;
         persistent.desired_running = true;
         auto saved = store->save_runtime(persistent);
@@ -395,6 +401,12 @@ struct CoreManager::Impl {
       status.last_error.reset();
       retrying = false;
       if (!was_retrying) retry_attempt = 0;
+      if (!was_retrying) {
+        previous_record.reset();
+        discard_record(retired_active);
+        if (!retired_active || !retired_previous || retired_active->run_id != retired_previous->run_id)
+          discard_record(retired_previous);
+      }
       if (completion)
         finish(ActivationResult{ActivationEffect::running_new, status.active, std::nullopt});
       else
@@ -409,6 +421,7 @@ struct CoreManager::Impl {
       status.desired_running = true;
       status.health = RuntimeHealth::process_only;
       persistent.active = status.active;
+      persistent.previous.reset();
       persistent.desired_running = true;
       auto saved = store->save_runtime(persistent);
       if (!saved) status.last_error = saved.error();
