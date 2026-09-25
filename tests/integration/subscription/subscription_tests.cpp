@@ -314,6 +314,33 @@ TEST_CASE("DB-02 source commits atomically and rejects stale settings revisions"
   CHECK(store.get_node("good"));
 }
 
+TEST_CASE("P2 removing a source erases its inventory unless explicitly detached as Local") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path);
+  REQUIRE(opened);
+  auto& store = **opened;
+  REQUIRE(store.put_source(source("remove", "http://127.0.0.1/remove")));
+  xrm::Node removed;
+  removed.id = "removed-id";
+  removed.source_id = "remove";
+  removed.original_name = "removed";
+  removed.settings = xrm::RawOutbound{xrm::Json{{"protocol", "freedom"}}};
+  REQUIRE(store.put_node(removed));
+  REQUIRE(store.remove_source("remove", false));
+  CHECK_FALSE(store.get_node(removed.id));
+
+  REQUIRE(store.put_source(source("detach", "http://127.0.0.1/detach")));
+  auto detached = removed;
+  detached.id = "detached-id";
+  detached.source_id = "detach";
+  REQUIRE(store.put_node(detached));
+  REQUIRE(store.remove_source("detach", true));
+  const auto kept = store.get_node(detached.id);
+  REQUIRE(kept);
+  CHECK_FALSE(kept->source_id);
+  CHECK_FALSE(kept->source_missing);
+}
+
 TEST_CASE("SUB-02 refresh updates inventory only and same-source requests coalesce", "[SUB-02][SUB-06]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);

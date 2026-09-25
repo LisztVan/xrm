@@ -550,14 +550,23 @@ Result<void> Store::remove_source(const Id& id, bool keep_as_manual) {
       node.source_id.reset();
       node.upstream_id.reset();
       node.source_missing = false;
-    } else {
-      // Preserve the identity and parameters so an existing Profile selection
-      // becomes an explicit missing reference instead of silently retargeting.
-      node.source_missing = true;
+      if (auto saved = upsert_node_row(impl_->db, node); !saved) {
+        sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+        return saved;
+      }
     }
-    if (auto saved = upsert_node_row(impl_->db, node); !saved) {
+  }
+  if (!keep_as_manual) {
+    Statement erase_nodes(impl_->db, "DELETE FROM nodes WHERE source_id=?1");
+    if (!erase_nodes.ready()) {
       sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
-      return saved;
+      return std::unexpected(erase_nodes.error("准备删除来源库存失败"));
+    }
+    bind_text(erase_nodes.get(), 1, id);
+    if (sqlite3_step(erase_nodes.get()) != SQLITE_DONE) {
+      auto error = erase_nodes.error("删除来源库存失败");
+      sqlite3_exec(impl_->db, "ROLLBACK", nullptr, nullptr, nullptr);
+      return std::unexpected(std::move(error));
     }
   }
   Statement remove(impl_->db, "DELETE FROM subscriptions WHERE id=?1");
