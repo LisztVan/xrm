@@ -59,7 +59,7 @@ Json refresh_result_json(const BatchRefreshResult& result) {
 Result<SubscriptionSummary> subscription_summary(Store& store, const Subscription& source) {
   auto state = store.get_source_state(source.id);
   if (!state) return std::unexpected(state.error());
-  auto nodes = store.list_nodes(NodeQuery{.source_id = source.id, .include_missing = true}, {0, 1});
+  auto nodes = store.list_nodes(NodeQuery{.source_id = source.id}, {0, 1});
   if (!nodes) return std::unexpected(nodes.error());
   return SubscriptionSummary{source.id, source.name, source.auto_refresh,
       state->last_result, state->last_attempt, state->last_success, nodes->total,

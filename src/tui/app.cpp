@@ -13,8 +13,11 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cctype>
+#include <map>
 #include <optional>
 #include <chrono>
+#include <ctime>
 #include <memory>
 #include <mutex>
 #include <cerrno>
@@ -27,6 +30,7 @@
 #include <system_error>
 #include <sys/wait.h>
 #include <thread>
+#include <tuple>
 #include <unistd.h>
 #include <utility>
 #include <vector>
@@ -39,6 +43,22 @@ using namespace ftxui;
 constexpr std::size_t kLogViewportRows = 9;
 constexpr std::size_t kTuiLogByteLimit = 256 * 1024;
 constexpr std::size_t kTuiLogEntryLimit = 512;
+struct PageNav {
+  const char* title;
+  const char* help;
+};
+// This is the visual order, numeric key order, and Tab order.
+constexpr std::array<PageNav, 9> kPages{{
+    {"Overview", "c Connect   d Stop   r Refresh   ? help"},
+    {"Nodes", "↑↓ PgUp/PgDn Home/End   / Search   f Removed   x Toggle   s Select   c Connect   ? help"},
+    {"Modules", "↑↓ Move   Enter Edit Native   e Enable/Disable   ? help"},
+    {"Logs", "↑↓ History   p Pause/Resume   r Refresh   ? help"},
+    {"Subscriptions", "↑↓ Move   Enter Details   a Add   u Update   ? help"},
+    {"Groups", "↑↓ Move   Enter Details   s Select   m Choose Member   ? help"},
+    {"Stats", "r Refresh   ? help"},
+    {"Cores", "↑↓ Move   a Register   l Releases   i Install   u Use   r Refresh   ? help"},
+    {"Profiles", "↑↓ Move   Enter Open   n New   r Rename   c Clone   d Delete   ? help"},
+}};
 
 class DraftFile {
  public:
@@ -88,6 +108,29 @@ std::string editor_command() {
   return {};
 }
 
+std::string short_utf8(std::string_view value, std::size_t max_chars) {
+  std::size_t offset = 0;
+  std::size_t chars = 0;
+  while (offset < value.size() && chars < max_chars) {
+    ++offset;
+    while (offset < value.size() && (static_cast<unsigned char>(value[offset]) & 0xc0) == 0x80) ++offset;
+    ++chars;
+  }
+  if (offset == value.size()) return std::string(value);
+  return std::string(value.substr(0, offset)) + "…";
+}
+
+std::string short_update_time(const Json& source) {
+  if (!source.contains("last_attempt") || !source["last_attempt"].is_number_integer())
+    return "never";
+  const auto seconds = static_cast<std::time_t>(source["last_attempt"].get<std::int64_t>() / 1000);
+  std::tm local{};
+  if (!localtime_r(&seconds, &local)) return "unknown";
+  char buffer[20]{};
+  if (std::strftime(buffer, sizeof(buffer), "%m-%d %H:%M", &local) == 0) return "unknown";
+  return buffer;
+}
+
 Result<Json> rpc(const std::string& socket, std::string method, Json params = Json::object()) {
   uv_loop_t loop{};
   int status = uv_loop_init(&loop);
@@ -110,6 +153,27 @@ Result<Json> rpc(const std::string& socket, std::string method, Json params = Js
   return std::move(*result);
 }
 
+Result<std::vector<Json>> fetch_all_nodes(const std::string& socket) {
+  std::vector<Json> nodes;
+  std::size_t offset = 0;
+  for (;;) {
+    auto response = rpc(socket, std::string(methods::node_list),
+                        Json{{"offset", offset}, {"limit", 500}});
+    if (!response) return std::unexpected(response.error());
+    if (!response->contains("items") || !response->at("items").is_array())
+      return std::unexpected(AppError{ErrorCode::io_error, "node.list returned no items", std::nullopt, std::nullopt});
+    auto batch = response->at("items").get<std::vector<Json>>();
+    nodes.insert(nodes.end(), std::make_move_iterator(batch.begin()),
+                 std::make_move_iterator(batch.end()));
+    if (!response->contains("next_offset") || response->at("next_offset").is_null()) break;
+    const auto next = response->at("next_offset").get<std::size_t>();
+    if (next <= offset)
+      return std::unexpected(AppError{ErrorCode::io_error, "node.list pagination did not advance", std::nullopt, std::nullopt});
+    offset = next;
+  }
+  return nodes;
+}
+
 class TuiApp final : public ComponentBase {
  public:
   enum class Prompt { none, subscription_name, subscription_url, core_path, profile_name, profile_clone_name, profile_rename_name };
@@ -118,6 +182,7 @@ class TuiApp final : public ComponentBase {
     AsyncUiState update_state = AsyncUiState::idle;
     std::size_t spinner_phase = 0;
     std::optional<std::string> operation_error;
+    std::optional<std::string> updating_source_id;
   };
   struct RuntimePageState {
     AsyncUiState operation_state = AsyncUiState::idle;
@@ -147,7 +212,6 @@ class TuiApp final : public ComponentBase {
     std::optional<std::string> error;
     std::vector<Json> subscriptions;
     std::vector<Json> nodes;
-    std::size_t node_count = 0;
     bool subscriptions_loaded = false;
     bool nodes_loaded = false;
   };
@@ -277,9 +341,7 @@ class TuiApp final : public ComponentBase {
       if (event == Event::Escape) { filtering_nodes_ = false; return true; }
       if (event == Event::Return) {
         filtering_nodes_ = false;
-        selected_ = 0;
-        state_.highlighted_node_id.reset();
-        refresh_nodes();
+        rebuild_node_view();
         return true;
       }
       if (event == Event::Backspace && !node_filter_.empty()) {
@@ -355,6 +417,10 @@ class TuiApp final : public ComponentBase {
       else if (event == Event::Character("e")) open_node_editor();
       return true;
     }
+    if (subscription_detail_) {
+      if (event == Event::Escape || event == Event::Return) subscription_detail_ = false;
+      return true;
+    }
     if (show_help_) {
       if (event == Event::Escape || event == Event::CtrlQ || event == Event::Character("?"))
         show_help_ = false;
@@ -396,23 +462,34 @@ class TuiApp final : public ComponentBase {
     if (page_ == 8 && event == Event::Character("c")) { begin_profile_prompt(true); return true; }
     if (page_ == 8 && event == Event::Character("r")) { begin_profile_prompt(false, true); return true; }
     if (page_ == 8 && event == Event::Character("d")) { remove_selected_profile(); return true; }
-    if (event == Event::Tab) { navigate_page((page_ + 1) % 9); return true; }
-    if (event == Event::TabReverse) { navigate_page((page_ + 8) % 9); return true; }
-    if (event == Event::Character("1")) change_page(0);
-    else if (event == Event::Character("2")) { change_page(1); refresh_nodes(); }
-    else if (event == Event::Character("3")) { change_page(2); refresh_modules(); }
-    else if (event == Event::Character("4")) { change_page(3); refresh_logs(); }
-    else if (event == Event::Character("5")) { change_page(4); refresh_subscriptions(); }
-    else if (event == Event::Character("6")) { change_page(5); refresh_groups(); }
-    else if (event == Event::Character("7")) { change_page(6); refresh_stats(true); }
-    else if (event == Event::Character("8")) { change_page(7); refresh_cores(); }
-    else if (event == Event::Character("9")) { change_page(8); refresh_profiles(); }
+    if (event == Event::Tab) { navigate_page((page_ + 1) % kPages.size()); return true; }
+    if (event == Event::TabReverse) { navigate_page((page_ + kPages.size() - 1) % kPages.size()); return true; }
+    if (event.is_character() && event.character().size() == 1 &&
+        event.character()[0] >= '1' && event.character()[0] <= '9') {
+      navigate_page(event.character()[0] - '1');
+      return true;
+    }
     else if (event == Event::ArrowDown && page_ == 3) {
       const auto tail = log_entries_.size() > kLogViewportRows ? log_entries_.size() - kLogViewportRows : 0;
       if (log_view_start_ < tail) ++log_view_start_;
     }
     else if (event == Event::ArrowUp && page_ == 3) {
       if (log_view_start_ > 0) --log_view_start_;
+    }
+    else if (page_ == 1 && event == Event::Character("f")) {
+      show_missing_nodes_ = !show_missing_nodes_;
+      rebuild_node_view();
+      message_ = show_missing_nodes_ ? "Showing available and source missing nodes" : "Showing current nodes only";
+    }
+    else if (page_ == 1 && (event == Event::PageUp || event == Event::PageDown ||
+                            event == Event::Home || event == Event::End)) {
+      const auto last = nodes_.empty() ? 0 : nodes_.size() - 1;
+      if (event == Event::Home) selected_ = 0;
+      else if (event == Event::End) selected_ = last;
+      else if (event == Event::PageUp) selected_ = selected_ > 10 ? selected_ - 10 : 0;
+      else selected_ = std::min(selected_ + 10, last);
+      page_selections_[1] = selected_;
+      remember_highlighted_item();
     }
     else if (event == Event::ArrowDown) {
       selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
@@ -425,6 +502,7 @@ class TuiApp final : public ComponentBase {
       remember_highlighted_item();
     }
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
+    else if (event == Event::Return && page_ == 4 && selected_ < subscriptions_.size()) subscription_detail_ = true;
     else if (event == Event::Return && page_ == 2) open_editor();
     else if (event == Event::Return && page_ == 5) open_group_editor();
     else if (event == Event::Return && page_ == 7 && selected_ < cores_.size()) {
@@ -434,6 +512,7 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Return && page_ == 8 && selected_ < profiles_.size()) select_profile_context();
     else if (event == Event::Character("e") && page_ == 2) toggle_module();
     else if (event == Event::Character("s") && page_ == 1) select_node();
+    else if (event == Event::Character("x") && page_ == 1) toggle_node_enabled();
     else if (event == Event::Character("s") && page_ == 5) select_group();
     else if (event == Event::Character("m") && page_ == 5) choose_group_member();
     else if (event == Event::Character("m") && page_ == 1) select_group_member();
@@ -471,9 +550,18 @@ class TuiApp final : public ComponentBase {
   }
 
   Element OnRender() override {
+    Elements tabs;
+    for (std::size_t i = 0; i < kPages.size(); ++i) {
+      const bool current = i == static_cast<std::size_t>(page_);
+      auto label = std::to_string(i + 1) + " " + kPages[i].title;
+      auto tab = text(current ? "[" + label + "] " : " " + label + " ") |
+          (current ? bold : nothing) | (current ? inverted : nothing);
+      if (current) tab = tab | focus;
+      tabs.push_back(std::move(tab));
+    }
     Elements header{
-      text(" XRM  ") | bold,
-      text("Overview  Subs  Nodes  Groups  Profiles  Modules  Logs  Stats  Cores") | color(Color::Cyan),
+      text(" XRM · Current: " + std::string(kPages[static_cast<std::size_t>(page_)].title)) | bold,
+      hbox(std::move(tabs)) | hscroll_indicator | xframe,
     };
     Elements body;
     if (editing_) {
@@ -503,11 +591,11 @@ class TuiApp final : public ComponentBase {
       }));
       const auto core_version = status_.contains("active") && status_["active"].is_object()
           ? status_["active"].value("core_version", "unknown") : "not running";
-      body.push_back(hbox({
-          vbox({text("CONNECTION") | bold | color(Color::Cyan),
-                text(status_.value("state", "unknown") + " · " + status_.value("health", "unknown"))}) | border | flex,
-          vbox({text("XRAY CORE") | bold | color(Color::Cyan), text(core_version)}) | border | flex,
-      }));
+      body.push_back(text("CORE  " + status_.value("state", "unknown") + " · " +
+          status_.value("health", "unknown") + " · " +
+          core_version.substr(0, core_version.find(" ("))) | bold | color(Color::Cyan));
+      body.push_back(text("LOCAL PROXY  " +
+          (proxy_entries_.empty() ? "No entry in running configuration" : proxy_entries_.front())) | bold);
       if (state_.runtime.operation_state == AsyncUiState::starting ||
           state_.runtime.operation_state == AsyncUiState::running) {
         static constexpr std::array<const char*, 4> spinner{"⠋", "⠙", "⠹", "⠸"};
@@ -526,6 +614,7 @@ class TuiApp final : public ComponentBase {
                      std::to_string(node_count_) + " nodes")}) | border | flex,
       }));
       body.push_back(text("Runtime files: " + active_confdir()) | dim);
+      body.push_back(text("Core running is separate from proxy listener readiness and remote connectivity") | dim);
       body.push_back(text("Pending changes: saved edits apply only on explicit Connect/Apply") | dim);
       body.push_back(text("c Connect   d Stop   r Refresh   q Exit (core continues)") | dim);
       if (profile_id_.empty()) {
@@ -544,10 +633,16 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("Native subobject: " + node_edit_fields_[node_field_index_] +
                             " (t changes field, e edits JSON, Ctrl-S saves)") | dim);
       } else {
-        body.push_back(text("Nodes — Enter details; / filter; s saves selection, c connects") | bold);
-        body.push_back(text("filter: " + node_filter_) | dim);
+        body.push_back(text("Nodes — " + std::to_string(node_count_) + " current, " +
+            std::to_string(node_missing_count_) + " source missing; showing " +
+            std::to_string(nodes_.size()) + (show_missing_nodes_ ? " (all)" : " (current)")) | bold);
+        body.push_back(text("Search: " + (node_filter_.empty() ? "—" : node_filter_) +
+                            "   f Show removed: " + (show_missing_nodes_ ? "on" : "off")) | dim);
+        body.push_back(text(screen_->dimx() < 95
+            ? "   Status  Name                     Protocol / Transport    Security"
+            : "   Status  Name                             Protocol / Transport    Security   Source   Latency") | bold);
         if (nodes_.empty())
-          body.push_back(text("No nodes in the shared inventory yet. Add/update a subscription or add a manual node.") | dim);
+          body.push_back(text("No nodes in this view. Update a subscription, clear search, or press f for removed nodes.") | dim);
         for (std::size_t i = 0; i < nodes_.size(); ++i) {
           const auto& node = nodes_[i];
           const auto id = node.value("id", "");
@@ -556,11 +651,32 @@ class TuiApp final : public ComponentBase {
               status_["active"].contains("selection") && status_["active"]["selection"].is_object() &&
               status_["active"]["selection"].value("kind", "") == "node" &&
               status_["active"]["selection"].value("id_or_tag", "") == id;
-          const std::string marker = actual ? "● " : saved ? "◆ " : "";
-          const auto row = marker + node.value("name", "") + "   " + node.value("protocol", "") + " [" +
-              node.value("support", "raw-only") + "]   " +
-              (node.value("source_missing", false) ? "source_missing" : "available") + "   " + node.value("id", "");
-          body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
+          const std::string marker = actual ? "●" : saved ? "◆" : node.value("source_missing", false) ? "×" :
+              node.value("enabled", true) ? "·" : "○";
+          std::string source = "Manual";
+          if (node.contains("source_id") && node["source_id"].is_string()) {
+            source = "Subscription";
+            for (const auto& item : subscriptions_)
+              if (item.value("id", "") == node["source_id"].get<std::string>()) {
+                source = item.value("name", "Subscription"); break;
+              }
+          }
+          const auto compact = screen_->dimx() < 95;
+          const auto name = short_utf8(node.value("name", ""), compact ? 24 : 32);
+          const auto row = std::string(i == selected_ ? "▸ " : "  ") + marker + "  " + name +
+              "   " + node.value("protocol", "") + "/" + node.value("transport", "—") +
+              "   " + node.value("security", "—") +
+              (compact ? "" : "   " + short_utf8(source, 18) + "   --");
+          auto element = text(row) | (i == selected_ ? inverted : nothing);
+          if (i == selected_) element = element | focus;
+          body.push_back(std::move(element));
+        }
+        if (selected_ < nodes_.size()) {
+          const auto& selected = nodes_[selected_];
+          body.push_back(text("Selected: " + selected.value("name", "") +
+              " · " + (selected.value("source_missing", false) ? "removed from source" :
+                           selected.value("enabled", true) ? "available, untested" : "disabled") +
+              " · Enter for ID and Codec support") | dim);
         }
       }
     } else if (page_ == 2) {
@@ -597,7 +713,7 @@ class TuiApp final : public ComponentBase {
       body.push_back(text("p " + std::string(logs_paused_ ? "Resume" : "Pause") +
           "   ↑/↓ history   r refresh   Server buffer remains active") | dim);
     } else if (page_ == 4) {
-      body.push_back(text("Subscriptions — a add; u update selected source; runtime is unchanged") | bold);
+      body.push_back(text("Subscriptions — inventory refresh never changes the running core") | bold);
       if (state_.subscriptions.update_state == AsyncUiState::starting ||
           state_.subscriptions.update_state == AsyncUiState::running) {
         static constexpr std::array<const char*, 4> spinner{"⠋", "⠙", "⠹", "⠸"};
@@ -607,17 +723,32 @@ class TuiApp final : public ComponentBase {
       }
       for (std::size_t i = 0; i < subscriptions_.size(); ++i) {
         const auto& source = subscriptions_[i];
-        const auto row = source.value("name", "") + " [" + source.value("last_result", "never") + "] " +
-            (source.value("enabled", false) ? "enabled" : "paused") + " nodes:" +
-            std::to_string(source.value("node_count", 0)) + " unsupported:" +
-            std::to_string(source.value("unsupported_count", 0)) + " malformed:" +
-            std::to_string(source.value("malformed_count", 0)) +
+        const auto row = short_utf8(source.value("name", ""), 26) + "  " +
+            std::to_string(source.value("node_count", 0)) + " current  " + short_update_time(source) + "  " +
+            source.value("last_result", "never") +
             ((state_.subscriptions.update_state == AsyncUiState::starting ||
-              state_.subscriptions.update_state == AsyncUiState::running) ? "  ⠋ updating" : "");
-        body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
+              state_.subscriptions.update_state == AsyncUiState::running) &&
+              state_.subscriptions.updating_source_id == source.value("id", "")
+                ? "  ⠋ updating" : "");
+        auto element = text((i == selected_ ? "▸ " : "  ") + row) | (i == selected_ ? inverted : nothing);
+        if (i == selected_) element = element | focus;
+        body.push_back(std::move(element));
       }
       if (subscriptions_.empty()) body.push_back(text("No subscriptions yet. Press a to paste a local or remote URL.") | dim);
-      body.push_back(text("u updates subscriptions; no connect, config render or core restart") | dim);
+      if (selected_ < subscriptions_.size()) {
+        const auto& source = subscriptions_[selected_];
+        body.push_back(text("Selected: " + source.value("name", "") + " · " +
+            std::to_string(source.value("node_count", 0)) + " current nodes") | dim);
+        if (subscription_detail_) {
+          body.push_back(text("Last result: " + source.value("last_result", "never")));
+          body.push_back(text("Last attempt: " + short_update_time(source)));
+          body.push_back(text("Unsupported: " + std::to_string(source.value("unsupported_count", 0)) +
+              " · malformed: " + std::to_string(source.value("malformed_count", 0))));
+          if (state_.subscriptions.operation_error)
+            body.push_back(paragraph("Last update error: " + *state_.subscriptions.operation_error) | color(Color::Red));
+          body.push_back(text("Enter or Esc closes details; URL and credentials are hidden") | dim);
+        }
+      }
     } else if (page_ == 6) {
       body.push_back(text("Stats — shared server sample; no client-side rate calculation") | bold);
       body.push_back(text("Core: " + status_.value("state", "unknown")));
@@ -741,25 +872,28 @@ class TuiApp final : public ComponentBase {
     if (connect_profile_prompt_)
       body.push_back(text("No profile selected — n Create Default Profile   o Open Profiles   Esc Cancel") | color(Color::Yellow));
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
-    for (const auto& toast : state_.toasts) {
+    Elements footer_lines;
+    if (!state_.toasts.empty() &&
+        !(runtime_error_ && state_.toasts.back().text.starts_with("Connect failed:"))) {
+      const auto& toast = state_.toasts.back();
       const auto shade = toast.level == Toast::Level::success ? Color::Green :
           toast.level == Toast::Level::warning ? Color::Yellow :
           toast.level == Toast::Level::error ? Color::Red : Color::Cyan;
-      body.push_back(paragraph(toast.text) | color(shade) | bold);
+      footer_lines.push_back(paragraph(toast.text) | color(shade) | bold);
     }
-    if (!message_.empty()) body.push_back(paragraph(message_) | color(Color::Yellow));
-    std::string help_bar = "q quit   ? help   Tab/Shift-Tab pages";
+    if (!message_.empty() && !(runtime_error_ && message_.starts_with("Connect failed:")) &&
+        (state_.toasts.empty() || state_.toasts.back().text != message_))
+      footer_lines.push_back(paragraph(message_) | color(Color::Yellow));
+    std::string help_bar = std::string(kPages[static_cast<std::size_t>(page_)].help) +
+        "   Tab/Shift-Tab Pages   q Quit";
     if (prompt_ != Prompt::none) help_bar = "Type text   Enter Continue/Save   Esc Cancel";
     else if (editing_) help_bar = "↑↓←→ Move   F2 Save   F6 Open External Editor   Esc Close";
-    else if (page_ == 1) help_bar = "↑↓ move   / search   Enter details   s save selection   c connect   ? help";
-    else if (page_ == 2) help_bar = "↑↓ move   Enter edit native   e enable/disable   ? help";
-    else if (page_ == 3) help_bar = "↑↓ history   p pause/resume follow   r refresh   ? help";
-    else if (page_ == 4) help_bar = "↑↓ select   a add   u update selected   e edit   d delete   ? help";
-    else if (page_ == 5) help_bar = "↑↓ select   Enter details   s save selection   m choose member   ? help";
-    else if (page_ == 7) help_bar = "↑↓ select   a register   l releases   i install   u use   r refresh   ? help";
-    else if (page_ == 8) help_bar = "↑↓ select   Enter open   n new   r rename   c clone   d delete   ? help";
-    auto base = vbox({hbox(std::move(header)), separator(), vbox(std::move(body)) | flex,
-                      separator(), text(help_bar) | dim}) | border | flex;
+    if (runtime_error_)
+      footer_lines.push_back(paragraph("Connection failed: " + *runtime_error_) | color(Color::Red) | bold);
+    footer_lines.push_back(paragraph(help_bar) | dim);
+    Element footer = vbox(std::move(footer_lines));
+    auto base = vbox({vbox(std::move(header)), separator(), vbox(std::move(body)) | vscroll_indicator | yframe | flex,
+                      separator(), std::move(footer)}) | border | flex;
     if (prompt_ != Prompt::none) {
       auto dialog = window(text(prompt_label_) | bold,
           vbox({text(prompt_text_ + "█") | border | size(WIDTH, LESS_THAN, 56),
@@ -1071,24 +1205,74 @@ class TuiApp final : public ComponentBase {
   }
   void refresh_status() {
     auto response = rpc(socket_, std::string(methods::runtime_status));
-    if (response) status_ = std::move(*response); else message_ = response.error().message;
+    if (response) { status_ = std::move(*response); refresh_proxy_entries(); }
+    else message_ = response.error().message;
+  }
+  void refresh_proxy_entries() {
+    proxy_entries_.clear();
+    if (!status_.contains("active") || !status_["active"].is_object()) return;
+    const auto profile = status_["active"].value("profile_id", "");
+    auto response = rpc(socket_, std::string(methods::config_files),
+        Json{{"profile_id", profile}, {"source", "runtime"}, {"module", "inbounds"}});
+    if (!response || !response->contains("files") || !(*response)["files"].is_array()) return;
+    for (const auto& file : (*response)["files"]) {
+      if (!file.contains("text") || !file["text"].is_string()) continue;
+      const auto parsed = Json::parse(file["text"].get<std::string>(), nullptr, false);
+      if (parsed.is_discarded() || !parsed.contains("inbounds") || !parsed["inbounds"].is_array()) continue;
+      for (const auto& inbound : parsed["inbounds"]) {
+        if (!inbound.is_object() || !inbound.contains("port") || !inbound["port"].is_number_integer()) continue;
+        const auto kind = inbound.value("protocol", "proxy");
+        const auto listen = inbound.value("listen", "0.0.0.0");
+        proxy_entries_.push_back(kind + " " + listen + ":" + std::to_string(inbound["port"].get<int>()));
+      }
+    }
   }
   void refresh_nodes() {
+    auto response = fetch_all_nodes(socket_);
+    if (!response) { message_ = "Cannot load nodes: " + response.error().message; return; }
+    all_nodes_ = std::move(*response);
+    rebuild_node_view();
+  }
+  void rebuild_node_view() {
     std::string selected_id = state_.highlighted_node_id.value_or(std::string{});
     if (selected_id.empty() && selected_ < nodes_.size()) selected_id = nodes_[selected_].value("id", "");
-    Json params{{"offset", 0}, {"limit", 1000}};
-    if (!node_filter_.empty()) params["text"] = node_filter_;
-    auto response = rpc(socket_, std::string(methods::node_list), std::move(params));
+    node_count_ = std::count_if(all_nodes_.begin(), all_nodes_.end(), [](const Json& node) {
+      return !node.value("source_missing", false);
+    });
+    node_missing_count_ = all_nodes_.size() - node_count_;
+    std::map<std::string, std::string> source_names;
+    for (const auto& source : subscriptions_)
+      source_names[source.value("id", "")] = source.value("name", "");
+    auto source_name = [&](const Json& node) {
+      if (!node.contains("source_id") || !node["source_id"].is_string()) return std::string("Manual");
+      const auto id = node["source_id"].get<std::string>();
+      auto found = source_names.find(id);
+      return found == source_names.end() ? std::string("Subscription") : found->second;
+    };
     nodes_.clear();
-    if (response && response->contains("items")) {
-      nodes_ = response->at("items").get<std::vector<Json>>();
-      node_count_ = response->value("total", nodes_.size());
+    auto search = node_filter_;
+    std::transform(search.begin(), search.end(), search.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    for (const auto& node : all_nodes_) {
+      if (!show_missing_nodes_ && node.value("source_missing", false)) continue;
+      auto name = node.value("name", "");
+      std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+      if (!search.empty() && name.find(search) == std::string::npos) continue;
+      nodes_.push_back(node);
     }
+    std::sort(nodes_.begin(), nodes_.end(), [&](const Json& a, const Json& b) {
+      const auto ka = std::tuple{source_name(a), a.value("name", ""), a.value("id", "")};
+      const auto kb = std::tuple{source_name(b), b.value("name", ""), b.value("id", "")};
+      return ka < kb;
+    });
     if (!selected_id.empty()) {
       auto found = std::find_if(nodes_.begin(), nodes_.end(), [&](const auto& node) { return node.value("id", "") == selected_id; });
       if (found != nodes_.end()) selected_ = static_cast<std::size_t>(found - nodes_.begin());
-      else selected_ = std::min(selected_, nodes_.empty() ? 0 : nodes_.size() - 1);
+      else {
+        selected_ = std::min(selected_, nodes_.empty() ? 0 : nodes_.size() - 1);
+        if (page_ == 1) message_ = "Previously highlighted node is no longer in this view";
+      }
     }
+    else selected_ = std::min(selected_, nodes_.empty() ? 0 : nodes_.size() - 1);
     if (selected_ < nodes_.size()) state_.highlighted_node_id = nodes_[selected_].value("id", "");
     else state_.highlighted_node_id.reset();
   }
@@ -1223,6 +1407,7 @@ class TuiApp final : public ComponentBase {
     state_.subscriptions.update_state = AsyncUiState::starting;
     state_.subscriptions.spinner_phase = 0;
     state_.subscriptions.operation_error.reset();
+    state_.subscriptions.updating_source_id.reset();
     message_ = "Subscription update started";
     Json refresh_params = Json::object();
     if (selected_ < subscriptions_.size()) {
@@ -1230,6 +1415,7 @@ class TuiApp final : public ComponentBase {
       const auto source_id = selected_source.value("id", "");
       if (!source_id.empty()) {
         refresh_params["source_ids"] = Json::array({source_id});
+        state_.subscriptions.updating_source_id = source_id;
         message_ += ": " + selected_source.value("name", "subscription");
       }
     }
@@ -1284,10 +1470,9 @@ class TuiApp final : public ComponentBase {
         event.subscriptions = source_list->get<std::vector<Json>>();
         event.subscriptions_loaded = true;
       }
-      auto node_list = rpc(socket, std::string(methods::node_list), Json{{"offset", 0}, {"limit", 1000}});
-      if (node_list && node_list->contains("items")) {
-        event.nodes = node_list->at("items").get<std::vector<Json>>();
-        event.node_count = node_list->value("total", event.nodes.size());
+      auto node_list = fetch_all_nodes(socket);
+      if (node_list) {
+        event.nodes = std::move(*node_list);
         event.nodes_loaded = true;
       }
       {
@@ -1299,17 +1484,11 @@ class TuiApp final : public ComponentBase {
   }
 
   void apply_subscription_refresh(SubscriptionRefreshEvent event) {
-    const auto selected_node_id = selected_ < nodes_.size() ? nodes_[selected_].value("id", "") : "";
+    state_.subscriptions.updating_source_id.reset();
     if (event.subscriptions_loaded) subscriptions_ = std::move(event.subscriptions);
     if (event.nodes_loaded) {
-      nodes_ = std::move(event.nodes);
-      node_count_ = event.node_count;
-      if (!selected_node_id.empty()) {
-        const auto found = std::find_if(nodes_.begin(), nodes_.end(), [&](const Json& node) {
-          return node.value("id", "") == selected_node_id;
-        });
-        if (found != nodes_.end()) selected_ = static_cast<std::size_t>(found - nodes_.begin());
-      }
+      all_nodes_ = std::move(event.nodes);
+      rebuild_node_view();
     }
     if (event.error) {
       state_.subscriptions.update_state = AsyncUiState::failed;
@@ -1375,6 +1554,7 @@ class TuiApp final : public ComponentBase {
       stop_pending_ = true;
     }
     state_.runtime.operation_state = AsyncUiState::starting;
+    runtime_error_.reset();
     state_.runtime.operation_label = label;
     state_.runtime.spinner_phase = 0;
     message_ = label + " started";
@@ -1409,9 +1589,14 @@ class TuiApp final : public ComponentBase {
             break;
           }
           if (state == "failed") {
-            event.error = current->contains("error")
-                ? current->at("error").value("message", "runtime operation failed")
-                : "runtime operation failed";
+            if (current->contains("error") && current->at("error").is_object()) {
+              const auto& failure = current->at("error");
+              event.error = failure.value("message", "runtime operation failed");
+              if (failure.contains("subject") && failure["subject"].is_string())
+                *event.error += " [" + failure["subject"].get<std::string>() + "]";
+              if (failure.contains("hint") && failure["hint"].is_string())
+                *event.error += " — " + failure["hint"].get<std::string>();
+            } else event.error = "runtime operation failed";
           }
           break;
         }
@@ -1429,14 +1614,23 @@ class TuiApp final : public ComponentBase {
   }
   void apply_runtime_operation(RuntimeOperationEvent event) {
     if (event.label == "Stop") stop_pending_ = false;
-    if (event.status) status_ = std::move(*event.status);
+    if (event.status) { status_ = std::move(*event.status); refresh_proxy_entries(); }
+    if (!event.error && event.label == "Connect" && status_.value("state", "") != "running")
+      event.error = "xrmd completed the operation but the core is " + status_.value("state", "unknown");
     if (event.error) {
       state_.runtime.operation_state = AsyncUiState::failed;
+      runtime_error_ = *event.error;
+      if (runtime_error_->find("a selected target is required") != std::string::npos)
+        *runtime_error_ += " — select a node in Nodes or a group in Groups, then Connect";
       message_ = event.label + " failed: " + *event.error;
       push_toast(Toast::Level::error, message_);
     } else {
       state_.runtime.operation_state = AsyncUiState::success;
-      message_ = event.label == "Connect" ? "connected using the saved Profile target" : "core stopped";
+      message_ = event.label == "Connect"
+          ? "Xray core running; local proxy: " +
+              (proxy_entries_.empty() ? "no inbound configured" : proxy_entries_.front()) +
+              "; remote route not yet verified"
+          : "core stopped";
       push_toast(Toast::Level::success, message_);
     }
   }
@@ -1670,8 +1864,30 @@ class TuiApp final : public ComponentBase {
   }
   void connect() {
     if (profile_id_.empty()) { connect_profile_prompt_ = true; return; }
+    Json params{{"profile_id", profile_id_}};
+    if (page_ == 1) {
+      if (selected_ >= nodes_.size()) { message_ = "Select an available node before Connect"; return; }
+      const auto& node = nodes_[selected_];
+      if (!node.value("enabled", false) || node.value("source_missing", false)) {
+        message_ = "This node is disabled or missing from its source; select an available node";
+        return;
+      }
+      params["target"] = Json{{"kind", "node"}, {"id_or_tag", node.value("id", "")}};
+    }
     start_runtime_operation(std::string(methods::connection_connect),
-        Json{{"profile_id", profile_id_}}, "Connect");
+        std::move(params), "Connect");
+  }
+  void toggle_node_enabled() {
+    if (selected_ >= nodes_.size()) { message_ = "Select a node first"; return; }
+    const auto id = nodes_[selected_].value("id", "");
+    const auto enabled = !nodes_[selected_].value("enabled", true);
+    auto result = rpc(socket_, std::string(methods::node_set_enabled),
+        Json{{"id", id}, {"enabled", enabled}});
+    if (!result) message_ = "Cannot change node: " + result.error().message;
+    else {
+      message_ = enabled ? "Node enabled; running core unchanged" : "Node disabled; running core unchanged";
+      refresh_nodes();
+    }
   }
   void disconnect() {
     start_runtime_operation(std::string(methods::connection_disconnect), Json::object(), "Stop");
@@ -1734,6 +1950,7 @@ class TuiApp final : public ComponentBase {
   bool editing_ = false;
   bool filtering_nodes_ = false;
   bool node_detail_ = false;
+  bool subscription_detail_ = false;
   bool editing_group_ = false;
   bool editing_node_ = false;
   bool editing_dirty_ = false;
@@ -1746,11 +1963,16 @@ class TuiApp final : public ComponentBase {
   std::string draft_;
   std::size_t edit_cursor_ = 0;
   std::vector<EditorSnapshot> editor_undo_;
+  std::vector<Json> all_nodes_;
   std::vector<Json> nodes_;
   std::size_t node_count_ = 0;
+  std::size_t node_missing_count_ = 0;
+  bool show_missing_nodes_ = false;
   std::vector<Json> subscriptions_;
   std::vector<Json> modules_;
   Json status_ = Json::object();
+  std::vector<std::string> proxy_entries_;
+  std::optional<std::string> runtime_error_;
   Json logs_ = Json::object();
   std::vector<Json> log_entries_;
   std::uint64_t log_cursor_ = 0;

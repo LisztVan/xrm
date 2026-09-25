@@ -50,6 +50,9 @@ struct NodeSummary {
   bool source_missing = false;
   std::string protocol;
   std::string support;
+  std::optional<Id> source_id;
+  std::string transport;
+  std::string security;
 };
 
 struct NodeFormEditDto { Id id; std::string field; Json value; };
@@ -69,7 +72,10 @@ inline void to_json(Json& json, const NodeSummary& value) {
               {"enabled", value.enabled},
               {"source_missing", value.source_missing},
               {"protocol", value.protocol},
-              {"support", value.support}};
+              {"support", value.support},
+              {"source_id", value.source_id},
+              {"transport", value.transport},
+              {"security", value.security}};
 }
 
 inline void from_json(const Json& json, NodeSummary& value) {
@@ -80,18 +86,40 @@ inline void from_json(const Json& json, NodeSummary& value) {
   value.source_missing = json.at("source_missing").get<bool>();
   value.protocol = json.at("protocol").get<std::string>();
   value.support = json.value("support", "raw-only");
+  if (json.contains("source_id") && json.at("source_id").is_string())
+    value.source_id = json.at("source_id").get<Id>();
+  else value.source_id.reset();
+  value.transport = json.value("transport", "");
+  value.security = json.value("security", "");
 }
 
 inline NodeSummary summarize_node(const Node& node) {
   const auto name = node.alias.value_or(node.original_name);
   std::string protocol = "unknown";
   std::string support = "raw-only";
+  std::string transport = "—";
+  std::string security = "—";
   if (const auto* raw = std::get_if<RawOutbound>(&node.settings)) {
     if (raw->value.is_object() && raw->value.contains("protocol") &&
         raw->value.at("protocol").is_string()) {
       protocol = raw->value.at("protocol").get<std::string>();
     }
   } else if (const auto* stream = std::get_if<StreamNode>(&node.settings)) {
+    transport = std::visit([](const auto& value) -> std::string {
+      using T = std::decay_t<decltype(value)>;
+      if constexpr (std::is_same_v<T, RawTransport>) return "RAW";
+      if constexpr (std::is_same_v<T, XHttpTransport>) return "XHTTP";
+      if constexpr (std::is_same_v<T, WebSocketTransport>) return "WS";
+      if constexpr (std::is_same_v<T, GrpcTransport>) return "gRPC";
+      if constexpr (std::is_same_v<T, HttpUpgradeTransport>) return "HTTPUpgrade";
+      return "Hysteria";
+    }, stream->transport);
+    security = std::visit([](const auto& value) -> std::string {
+      using T = std::decay_t<decltype(value)>;
+      if constexpr (std::is_same_v<T, TlsSecurity>) return "TLS";
+      if constexpr (std::is_same_v<T, RealitySecurity>) return "REALITY";
+      return "none";
+    }, stream->security);
     protocol = std::visit([](const auto& value) -> std::string {
       using T = std::decay_t<decltype(value)>;
       if constexpr (std::is_same_v<T, VlessSettings>) return "vless";
@@ -110,7 +138,8 @@ inline NodeSummary summarize_node(const Node& node) {
     }
   }
   return {node.id, name, node.labels, node.enabled, node.source_missing,
-          std::move(protocol), std::move(support)};
+          std::move(protocol), std::move(support), node.source_id,
+          std::move(transport), std::move(security)};
 }
 
 struct ProfileDto { Id id; std::string name; Id core_id; };

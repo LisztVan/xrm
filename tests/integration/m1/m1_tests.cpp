@@ -752,7 +752,7 @@ TEST_CASE("UI-01 text keys do not fire global actions and TUI exit leaves core r
   send_tui(tui.master, "s");
   send_tui(tui.master, "c");
   const auto running_screen = read_tui(tui.master, std::chrono::seconds(3));
-  CHECK(running_screen.find("connected") != std::string::npos);
+  CHECK(running_screen.find("Xray core running") != std::string::npos);
   CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
   send_tui(tui.master, "q");
   for (int attempt = 0; attempt < 100 && ::waitpid(tui.pid, &status, WNOHANG) == 0; ++attempt)

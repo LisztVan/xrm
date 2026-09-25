@@ -20,6 +20,9 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <functional>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <utility>
@@ -64,6 +67,85 @@ struct Child {
     if (pid > 0) { ::kill(pid, SIGKILL); ::waitpid(pid, nullptr, 0); }
     if (master >= 0) ::close(master);
   }
+};
+
+// tmux holds the current 80x24 terminal grid, including styling. PTY read
+// buffers below include old redraws, so they cannot prove a row is visible now.
+class CapturedTui {
+ public:
+  explicit CapturedTui(const std::filesystem::path& socket)
+      : tmux_socket_("xrm-acceptance-" + std::to_string(::getpid()) + "-" +
+                     std::to_string(sequence_.fetch_add(1))) {
+    const auto launch = "exec " + std::string(XRM_TEST_MANAGER) + " --socket " +
+                        socket.string() + " tui";
+    started_ = invoke({"new-session", "-d", "-s", "xrm", "-x", "80", "-y", "24", launch}).first == 0;
+  }
+  CapturedTui(const CapturedTui&) = delete;
+  CapturedTui& operator=(const CapturedTui&) = delete;
+  ~CapturedTui() { if (started_) (void)invoke({"kill-server"}); }
+  bool started() const { return started_; }
+  bool type(std::string_view value) const {
+    return invoke({"send-keys", "-t", "xrm", "-l", std::string(value)}).first == 0;
+  }
+  bool key(std::string_view value) const {
+    return invoke({"send-keys", "-t", "xrm", std::string(value)}).first == 0;
+  }
+  bool resize(int width, int height) const {
+    return invoke({"resize-window", "-t", "xrm", "-x", std::to_string(width),
+                   "-y", std::to_string(height)}).first == 0;
+  }
+  std::string grid(bool styled = false) const {
+    auto args = std::vector<std::string>{"capture-pane", "-p", "-t", "xrm"};
+    if (styled) args.push_back("-e");
+    return invoke(args).second;
+  }
+  std::string wait_for(const std::function<bool(std::string_view)>& expected,
+                       std::chrono::milliseconds timeout = std::chrono::seconds(8)) const {
+    const auto deadline = std::chrono::steady_clock::now() + timeout;
+    std::string current;
+    do {
+      current = grid();
+      if (expected(current)) return current;
+      ::poll(nullptr, 0, 30);
+    } while (std::chrono::steady_clock::now() < deadline);
+    return current;
+  }
+
+ private:
+  std::pair<int, std::string> invoke(const std::vector<std::string>& arguments) const {
+    int pipe_fds[2];
+    if (::pipe(pipe_fds) != 0) return {-1, {}};
+    std::vector<std::string> values{"tmux", "-L", tmux_socket_, "-f", "/dev/null"};
+    values.insert(values.end(), arguments.begin(), arguments.end());
+    std::vector<char*> argv;
+    for (auto& value : values) argv.push_back(value.data());
+    argv.push_back(nullptr);
+    posix_spawn_file_actions_t actions;
+    posix_spawn_file_actions_init(&actions);
+    posix_spawn_file_actions_adddup2(&actions, pipe_fds[1], STDOUT_FILENO);
+    posix_spawn_file_actions_adddup2(&actions, pipe_fds[1], STDERR_FILENO);
+    posix_spawn_file_actions_addclose(&actions, pipe_fds[0]);
+    posix_spawn_file_actions_addclose(&actions, pipe_fds[1]);
+    pid_t child = -1;
+    const int launched = ::posix_spawnp(&child, "tmux", &actions, nullptr, argv.data(), environ);
+    posix_spawn_file_actions_destroy(&actions);
+    ::close(pipe_fds[1]);
+    std::string output;
+    if (launched == 0) {
+      char bytes[4096];
+      ssize_t count;
+      while ((count = ::read(pipe_fds[0], bytes, sizeof(bytes))) > 0)
+        output.append(bytes, static_cast<std::size_t>(count));
+    }
+    ::close(pipe_fds[0]);
+    if (launched != 0) return {-1, std::move(output)};
+    int status = 0;
+    if (::waitpid(child, &status, 0) != child || !WIFEXITED(status)) return {-1, std::move(output)};
+    return {WEXITSTATUS(status), std::move(output)};
+  }
+  static inline std::atomic<unsigned> sequence_{0};
+  std::string tmux_socket_;
+  bool started_ = false;
 };
 
 std::string read_screen(int fd, std::chrono::milliseconds wait = std::chrono::milliseconds(180)) {
@@ -256,7 +338,12 @@ class LocalSubscriptionServer {
         const auto response = "HTTP/1.1 " + std::to_string(status_) + (status_ == 200 ? " OK\r\n" : " Forbidden\r\n") +
             "Content-Type: text/plain\r\nConnection: close\r\nContent-Length: " +
             std::to_string(body_.size()) + "\r\n\r\n" + body_;
-        (void)::send(client, response.data(), response.size(), MSG_NOSIGNAL);
+        std::size_t sent = 0;
+        while (sent < response.size()) {
+          const auto count = ::send(client, response.data() + sent, response.size() - sent, MSG_NOSIGNAL);
+          if (count <= 0) break;
+          sent += static_cast<std::size_t>(count);
+        }
         ::close(client);
       }
     });
@@ -333,7 +420,179 @@ std::optional<unsigned> log_view_top(std::string_view screen) {
   try { return static_cast<unsigned>(std::stoul(std::string(digits))); }
   catch (...) { return std::nullopt; }
 }
+
+bool visible_selected_row(std::string_view grid, std::string_view name) {
+  for (std::size_t first = 0; first < grid.size();) {
+    const auto last = grid.find('\n', first);
+    const auto line = grid.substr(first, last == std::string_view::npos ? last : last - first);
+    if (line.find("▸") != std::string_view::npos && line.find(name) != std::string_view::npos)
+      return true;
+    if (last == std::string_view::npos) break;
+    first = last + 1;
+  }
+  return false;
+}
+
+bool visibly_inverted(std::string_view styled_grid, std::string_view label) {
+  const auto at = styled_grid.find(label);
+  if (at == std::string_view::npos) return false;
+  bool inverted = false;
+  for (std::size_t position = 0; position < at;) {
+    const auto start = styled_grid.find("\x1b[", position);
+    if (start == std::string_view::npos || start >= at) break;
+    const auto end = styled_grid.find('m', start + 2);
+    if (end == std::string_view::npos || end >= at) break;
+    const auto parameters = styled_grid.substr(start + 2, end - start - 2);
+    std::size_t first = 0;
+    while (first <= parameters.size()) {
+      const auto next = parameters.find(';', first);
+      const auto part = parameters.substr(first, next == std::string_view::npos ? next : next - first);
+      if (part.empty() || part == "0" || part == "27") inverted = false;
+      if (part == "7") inverted = true;
+      if (next == std::string_view::npos) break;
+      first = next + 1;
+    }
+    position = end + 1;
+  }
+  return inverted;
+}
 } // namespace
+
+TEST_CASE("TUI navigation shows one matching selected tab in the current terminal grid", "[UI-NAV][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  const std::array<std::pair<std::string_view, std::string_view>, 9> pages{{
+      {"Overview", "XRM Dashboard"}, {"Nodes", "Nodes —"},
+      {"Modules", "Native Modules"}, {"Logs", "Logs —"},
+      {"Subscriptions", "Subscriptions —"}, {"Groups", "Groups"},
+      {"Stats", "Stats —"}, {"Cores", "Cores"}, {"Profiles", "Profiles"},
+  }};
+  for (std::size_t index = 0; index < pages.size(); ++index) {
+    REQUIRE(tui.type(std::to_string(index + 1)));
+    const auto& [title, body] = pages[index];
+    const auto label = "[" + std::to_string(index + 1) + " " + std::string(title) + "]";
+    const auto grid = tui.wait_for([&](std::string_view value) {
+      return value.find("Current: " + std::string(title)) != std::string_view::npos &&
+             value.find(label) != std::string_view::npos && value.find(body) != std::string_view::npos;
+    });
+    INFO("page=" << index + 1 << " grid=" << grid);
+    REQUIRE(grid.find("Current: " + std::string(title)) != std::string::npos);
+    REQUIRE(grid.find(label) != std::string::npos);
+    REQUIRE(grid.find(body) != std::string::npos);
+    CHECK(visibly_inverted(tui.grid(true), label));
+  }
+  REQUIRE(tui.key("Tab"));
+  const auto wrapped = tui.wait_for([](std::string_view grid) {
+    return grid.find("Current: Overview") != std::string_view::npos &&
+           grid.find("[1 Overview]") != std::string_view::npos;
+  });
+  CHECK(wrapped.find("XRM Dashboard") != std::string::npos);
+  REQUIRE(tui.key("BTab"));
+  const auto reversed = tui.wait_for([](std::string_view grid) {
+    return grid.find("Current: Profiles") != std::string_view::npos &&
+           grid.find("[9 Profiles]") != std::string_view::npos;
+  });
+  CHECK(reversed.find("Profiles") != std::string::npos);
+  REQUIRE(tui.resize(50, 24));
+  const auto narrow = tui.wait_for([](std::string_view grid) {
+    return grid.find("Current: Profiles") != std::string_view::npos &&
+           grid.find("[9 Profiles]") != std::string_view::npos;
+  });
+  CHECK(narrow.find("[9 Profiles]") != std::string::npos);
+  REQUIRE(tui.resize(80, 24));
+  REQUIRE(tui.type("q"));
+}
+
+TEST_CASE("TUI node viewport follows the selected row across a 1205-node subscription", "[UI-SCROLL][TUI]") {
+  TempDir temp;
+  std::string payload;
+  for (unsigned index = 0; index < 1205; ++index) {
+    std::ostringstream suffix;
+    suffix << std::setw(12) << std::setfill('0') << index + 1;
+    std::ostringstream name;
+    name << "Node-" << std::setw(4) << std::setfill('0') << index;
+    if (index == 5) name << "-中文";
+    if (index == 6) name << "-🚀";
+    payload += "vless://00000000-0000-4000-8000-" + suffix.str() +
+               "@127.0.0.1:" + std::to_string(20000 + index) +
+               "?type=tcp&security=none#" + name.str() + "\n";
+  }
+  LocalSubscriptionServer subscription(payload);
+  REQUIRE(subscription.valid());
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto added = Json::parse(cli(daemon.socket(), {"sub", "add", "--name", "scroll fixture",
+                                                 "--url", subscription.url()}));
+  REQUIRE(added.contains("id"));
+  const auto updated = cli(daemon.socket(), {"sub", "update", added.at("id").get<std::string>()});
+  INFO("subscription update result: " << updated);
+  REQUIRE_FALSE(updated.empty());
+  const auto inventory = Json::parse(cli(daemon.socket(), {"node", "list", "--offset", "1200", "--limit", "100"}));
+  REQUIRE(inventory.value("total", 0) == 1205);
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
+  REQUIRE(tui.type("2"));
+  auto grid = tui.wait_for([](std::string_view value) {
+    return value.find("[2 Nodes]") != std::string_view::npos &&
+           value.find("1205 current") != std::string_view::npos;
+  }, std::chrono::seconds(15));
+  REQUIRE(grid.find("1205 current") != std::string::npos);
+  REQUIRE(tui.key("End"));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
+  INFO("current terminal grid at End: " << grid);
+  REQUIRE(visible_selected_row(grid, "Node-1204"));
+  CHECK(grid.find("[2 Nodes]") != std::string::npos);
+  CHECK(visibly_inverted(tui.grid(true), "Node-1204"));
+  REQUIRE(tui.resize(60, 20));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
+  REQUIRE(visible_selected_row(grid, "Node-1204"));
+  REQUIRE(tui.resize(100, 32));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
+  REQUIRE(visible_selected_row(grid, "Node-1204"));
+  REQUIRE(tui.key("PPage"));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1194"); });
+  CHECK(visible_selected_row(grid, "Node-1194"));
+  REQUIRE(tui.key("Home"));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-0000"); });
+  CHECK(visible_selected_row(grid, "Node-0000"));
+  REQUIRE(tui.key("Up"));
+  CHECK(visible_selected_row(tui.wait_for([](std::string_view value) {
+    return visible_selected_row(value, "Node-0000");
+  }), "Node-0000"));
+  for (int count = 0; count < 20; ++count) REQUIRE(tui.key("Down"));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-0020"); });
+  CHECK(visible_selected_row(grid, "Node-0020"));
+  REQUIRE(tui.key("Home"));
+  REQUIRE(tui.key("NPage"));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-0010"); });
+  CHECK(visible_selected_row(grid, "Node-0010"));
+  REQUIRE(tui.key("End"));
+  REQUIRE(visible_selected_row(tui.wait_for([](std::string_view value) {
+    return visible_selected_row(value, "Node-1204");
+  }), "Node-1204"));
+  REQUIRE(tui.type("5"));
+  REQUIRE(tui.wait_for([](std::string_view value) { return value.find("[5 Subscriptions]") != std::string_view::npos; })
+              .find("[5 Subscriptions]") != std::string::npos);
+  REQUIRE(tui.type("u"));
+  const auto refreshed = tui.wait_for([](std::string_view value) {
+    return value.find("[5 Subscriptions]") != std::string_view::npos &&
+           value.find("success") != std::string_view::npos;
+  }, std::chrono::seconds(15));
+  CHECK(refreshed.find("success") != std::string::npos);
+  REQUIRE(tui.type("2"));
+  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
+  CHECK(visible_selected_row(grid, "Node-1204"));
+  CHECK(valid_utf8(grid));
+  REQUIRE(tui.type("/"));
+  REQUIRE(tui.type("Node-1204"));
+  REQUIRE(tui.key("Enter"));
+  grid = tui.wait_for([](std::string_view value) {
+    return value.find("showing 1") != std::string_view::npos &&
+           visible_selected_row(value, "Node-1204");
+  });
+  CHECK(grid.find("showing 1") != std::string::npos);
+  CHECK(visible_selected_row(grid, "Node-1204"));
+  REQUIRE(tui.type("q"));
+}
 
 TEST_CASE("80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter input", "[UI-01][I52]") {
   TempDir temp;
@@ -401,7 +660,7 @@ TEST_CASE("80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter 
   keys(tui.master, "r");
   const auto refreshed = read_screen(tui.master, std::chrono::milliseconds(500));
   INFO("selection after refresh=" << refreshed);
-  CHECK(refreshed.find("> 🚀-node") != std::string::npos);
+  CHECK(refreshed.find("▸ ·  🚀-node") != std::string::npos);
   CHECK(valid_utf8(refreshed));
   keys(tui.master, "/long");
   keys(tui.master, "\r");
@@ -598,10 +857,10 @@ TEST_CASE("first use from xrm tui needs no Profile ID and completes local subscr
   CHECK(updating.find("Contacting xrmd") != std::string::npos);
   auto refreshed = wait_screen_text(tui.master, [](const std::string& text) {
     return text.find("Subscription update complete") != std::string::npos &&
-        text.find("nodes:1") != std::string::npos;
+        text.find("1 current") != std::string::npos;
   }, std::chrono::seconds(5));
   CHECK(refreshed.find("Subscription update complete") != std::string::npos);
-  CHECK(refreshed.find("nodes:1") != std::string::npos);
+  CHECK(refreshed.find("1 current") != std::string::npos);
   // Completion must be delivered while this page remains open; no extra key,
   // manual refresh, reconnect, or runtime file generation is needed.
   CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
@@ -628,18 +887,49 @@ TEST_CASE("first use from xrm tui needs no Profile ID and completes local subscr
 
   keys(tui.master, "2");
   CHECK(terminal_text(read_screen(tui.master)).find("TUI-first-node") != std::string::npos);
-  keys(tui.master, "s");
   const auto profile_inventory = Json::parse(cli(daemon.socket(), {"profile", "list"}));
   REQUIRE(profile_inventory.is_array());
   REQUIRE(profile_inventory.size() == 1);
   const auto profile_id = profile_inventory.front().value("id", "");
-  const auto saved_profile = Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}));
-  INFO("saved profile selection: " << saved_profile.value("selected", Json(nullptr)).dump());
-  REQUIRE(saved_profile.value("selected", Json(nullptr)).is_object());
   const auto core_run_argv = (temp.path / "first-use-core-run.argv").string();
   const auto core_check_argv = (temp.path / "first-use-core-check.argv").string();
   set_profile_process_environment(daemon.socket(), temp.path, profile_id,
       Json{{"XRM_FAKE_CORE_RUN_ARGV", core_run_argv}, {"XRM_FAKE_CORE_CHECK_ARGV", core_check_argv}});
+
+  // Connecting the highlighted inventory row must use that row even when the
+  // Profile did not previously have a saved selection. The old TUI sent only
+  // profile_id and the assembler then failed for a missing default target.
+  CHECK(Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}))
+            .value("selected", Json(nullptr)).is_null());
+  keys(tui.master, "c");
+  Json direct_status;
+  const auto direct_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(15);
+  while (std::chrono::steady_clock::now() < direct_deadline) {
+    const auto output = cli(daemon.socket(), {"status"});
+    if (!output.empty()) direct_status = Json::parse(output);
+    if (direct_status.value("state", "") == "running" || direct_status.value("state", "") == "failed") break;
+    ::poll(nullptr, 0, 50);
+  }
+  INFO("direct node Connect status: " << direct_status.dump());
+  REQUIRE(direct_status.value("state", "") == "running");
+  REQUIRE((direct_status.contains("active") && direct_status.at("active").is_object()));
+  CHECK(direct_status.at("active").at("selection").value("kind", "") == "node");
+  CHECK(Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}))
+            .value("selected", Json(nullptr)).is_object());
+  (void)wait_screen_text(tui.master, [](const std::string& text) {
+    return text.find("Xray core running") != std::string::npos;
+  }, std::chrono::seconds(5));
+  keys(tui.master, "d");
+  const auto stopped_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+  while (std::chrono::steady_clock::now() < stopped_deadline &&
+         Json::parse(cli(daemon.socket(), {"status"})).value("state", "") != "stopped")
+    ::poll(nullptr, 0, 50);
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+
+  keys(tui.master, "s");
+  const auto saved_profile = Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}));
+  INFO("saved profile selection: " << saved_profile.value("selected", Json(nullptr)).dump());
+  REQUIRE(saved_profile.value("selected", Json(nullptr)).is_object());
   keys(tui.master, "1");
   const auto overview_before_connect = wait_screen_text(tui.master, [](const std::string& text) {
     return text.find("Overview") != std::string::npos;
@@ -742,9 +1032,11 @@ TEST_CASE("TUI-SUB-03 partial refresh shows imported, unsupported and malformed 
   CHECK(result.find("1 unsupported") != std::string::npos);
   CHECK(result.find("1 malformed") != std::string::npos);
   keys(tui.master, "5");
+  keys(tui.master, "\r");
   const auto row = terminal_text(read_screen(tui.master));
-  CHECK(row.find("unsupported:1") != std::string::npos);
-  CHECK(row.find("malformed:1") != std::string::npos);
+  CHECK(row.find("Unsupported: 1") != std::string::npos);
+  CHECK(row.find("malformed: 1") != std::string::npos);
+  keys(tui.master, "\x1b");
   keys(tui.master, "q");
   CHECK(tui.wait(std::chrono::seconds(3)));
 }

@@ -59,6 +59,23 @@ struct ProfileFixture {
 
 }  // namespace
 
+TEST_CASE("local first-use Profile provides a loopback SOCKS entrance", "[PROFILE][first-use]") {
+  ProfileFixture fixture;
+  auto inbound = fixture.service->module(fixture.profile.id, "inbounds");
+  REQUIRE(inbound);
+  REQUIRE(inbound->setting.included);
+  REQUIRE(inbound->document);
+  const auto source = xrm::Json::parse(inbound->document->source_text);
+  REQUIRE(source.contains("inbounds"));
+  REQUIRE(source.at("inbounds").is_array());
+  REQUIRE(source.at("inbounds").size() == 1);
+  const auto& entrance = source.at("inbounds").front();
+  CHECK(entrance.value("listen", "") == "127.0.0.1");
+  CHECK(entrance.value("port", 0) == 10808);
+  CHECK(entrance.value("protocol", "") == "socks");
+  CHECK(entrance.at("settings").value("auth", "") == "noauth");
+}
+
 TEST_CASE("MOD-02/03 all native modules can be independently read, edited and toggled", "[MOD-02][MOD-03]") {
   ProfileFixture fixture;
   const auto views = fixture.service->modules(fixture.profile.id);

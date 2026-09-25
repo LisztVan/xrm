@@ -1161,8 +1161,8 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   }
   INFO("running status: " << running.dump());
   REQUIRE(running.value("state", "") == "running");
-  const auto tui_connected = tui_wait_for(tui, "connected using the saved Profile target", 8s);
-  CHECK(tui_connected.find("connected using the saved Profile target") != std::string::npos);
+  const auto tui_connected = tui_wait_for(tui, "Xray core running", 8s);
+  CHECK(tui_connected.find("Xray core running") != std::string::npos);
   REQUIRE(wait_for_socks(*socks_port));
   const auto proxied = wait_for_socks_marker(*socks_port, http.port(), marker);
   INFO("loopback VLESS response: " << proxied);
