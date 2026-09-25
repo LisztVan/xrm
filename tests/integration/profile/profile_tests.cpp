@@ -12,6 +12,7 @@
 #include <iterator>
 #include <memory>
 #include <set>
+#include <stdexcept>
 #include <string>
 
 #include <sqlite3.h>
@@ -39,6 +40,13 @@ class TempRoot {
 std::string read(const std::filesystem::path& path) {
   std::ifstream input(path, std::ios::binary);
   return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+}
+
+std::optional<std::string> module_base(xrm::ProfileService& service,
+                                       const xrm::Id& id, std::string_view key) {
+  auto view = service.module(id, key);
+  if (!view) throw std::runtime_error(view.error().message);
+  return view->document ? std::optional(view->document->source_text) : std::nullopt;
 }
 
 struct ProfileFixture {
@@ -75,6 +83,56 @@ TEST_CASE("local first-use Profile provides a loopback SOCKS entrance", "[PROFIL
   CHECK(entrance.value("port", 0) == 10808);
   CHECK(entrance.value("protocol", "") == "socks");
   CHECK(entrance.at("settings").value("auth", "") == "noauth");
+}
+
+TEST_CASE("UI-11 local template can be saved before a core is registered and offers all native examples", "[PROFILE][UI-11]") {
+  TempRoot root;
+  auto opened = xrm::Store::open(root.path() / "manager.sqlite");
+  REQUIRE(opened);
+  xrm::ProfileService service(**opened, root.path() / "profiles");
+  auto created = service.create({"No core yet", "", "local", {}});
+  REQUIRE(created);
+  CHECK(created->core_id.empty());
+  REQUIRE(created->enabled_source_ids);
+  CHECK(created->enabled_source_ids->empty());
+  REQUIRE(created->modules.size() == 15);
+  const std::set<std::string> expected_enabled{"log", "dns", "inbounds", "outbounds", "routing"};
+  for (const auto& module : created->modules) {
+    INFO(module.key);
+    CHECK(module.included == expected_enabled.contains(module.key));
+    auto view = service.module(created->id, module.key);
+    REQUIRE(view);
+    REQUIRE(view->document);
+    const auto parsed = xrm::Json::parse(view->document->source_text);
+    CHECK(parsed.contains(module.key));
+    CHECK_FALSE(view->document->source_text.find("placeholder") != std::string::npos);
+  }
+}
+
+TEST_CASE("UI-11 legacy Profile without source binding remains all-sources and new binding round trips", "[PROFILE][UI-11]") {
+  ProfileFixture fixture;
+  auto file = fixture.root.path() / "profiles" / fixture.profile.id / "profile.json";
+  auto legacy = xrm::Json::parse(read(file));
+  legacy.erase("enabled_source_ids");
+  {
+    std::ofstream output(file, std::ios::binary | std::ios::trunc);
+    output << legacy.dump(2) << '\n';
+  }
+  auto loaded = fixture.service->get(fixture.profile.id);
+  REQUIRE(loaded);
+  CHECK_FALSE(loaded->enabled_source_ids);
+
+  loaded->enabled_source_ids = std::vector<xrm::Id>{"source-A", "source-B"};
+  const auto base = read(file);
+  REQUIRE(fixture.service->save(fixture.profile.id, {{base}, *loaded}));
+  auto reopened = fixture.service->get(fixture.profile.id);
+  REQUIRE(reopened);
+  REQUIRE(reopened->enabled_source_ids);
+  CHECK(*reopened->enabled_source_ids == std::vector<xrm::Id>{"source-A", "source-B"});
+  auto cloned = fixture.service->clone(fixture.profile.id, "Office");
+  REQUIRE(cloned);
+  REQUIRE(cloned->enabled_source_ids);
+  CHECK(*cloned->enabled_source_ids == *reopened->enabled_source_ids);
 }
 
 TEST_CASE("an existing empty-inbounds Profile needs an explicit source edit and include", "[PROFILE][legacy-inbound]") {
@@ -189,9 +247,10 @@ TEST_CASE("MOD-02/03 all native modules can be independently read, edited and to
   const std::string stats_text = "// keep this comment\n{\"stats\":{},\"unknown\":[1,true]}\n";
   auto before = fixture.service->module(fixture.profile.id, "stats");
   REQUIRE(before);
-  REQUIRE_FALSE(before->document);
+  REQUIRE(before->document);
+  CHECK_FALSE(before->setting.included);
 
-  xrm::ModuleEdit edit{"stats", {std::nullopt}, stats_text};
+  xrm::ModuleEdit edit{"stats", {before->document->source_text}, stats_text};
   REQUIRE(fixture.service->save_module(fixture.profile.id, edit));
   REQUIRE(fixture.service->include_module(fixture.profile.id, "stats", true));
   auto after = fixture.service->module(fixture.profile.id, "stats");
@@ -262,7 +321,7 @@ TEST_CASE("MOD-04 raw edits preserve malformed JSONC bytes", "[MOD-04]") {
   ProfileFixture fixture;
   const std::string source = "{\n  // comment with https://example.invalid/path\n  \"dns\": [],\n  \"unknown\": {\"n\": 1}\n}\n";
   REQUIRE(fixture.service->save_module(fixture.profile.id,
-      {"dns", {std::nullopt}, source}));
+      {"dns", {module_base(*fixture.service, fixture.profile.id, "dns")}, source}));
   const auto result = fixture.service->module(fixture.profile.id, "dns");
   REQUIRE(result);
   REQUIRE(result->document);
@@ -272,7 +331,7 @@ TEST_CASE("MOD-04 raw edits preserve malformed JSONC bytes", "[MOD-04]") {
 TEST_CASE("MOD-05 module conflict checks only the edited file", "[MOD-05]") {
   ProfileFixture fixture;
   REQUIRE(fixture.service->save_module(fixture.profile.id,
-      {"policy", {std::nullopt}, "{\"policy\":{\"levels\":{}}}\n"}));
+      {"policy", {module_base(*fixture.service, fixture.profile.id, "policy")}, "{\"policy\":{\"levels\":{}}}\n"}));
   auto opened = fixture.service->module(fixture.profile.id, "policy");
   REQUIRE(opened);
   REQUIRE(opened->document);
@@ -283,7 +342,7 @@ TEST_CASE("MOD-05 module conflict checks only the edited file", "[MOD-05]") {
     external << "{\"policy\":{\"system\":{\"statsOutboundUplink\":true}}}\n";
   }
   REQUIRE(fixture.service->save_module(fixture.profile.id,
-      {"dns", {std::nullopt}, "{\"dns\":[]}\n"}));
+      {"dns", {module_base(*fixture.service, fixture.profile.id, "dns")}, "{\"dns\":[]}\n"}));
   const auto conflict = fixture.service->save_module(fixture.profile.id,
       {"policy", {base}, "{\"policy\":{}}\n"});
   REQUIRE_FALSE(conflict);
@@ -296,7 +355,7 @@ TEST_CASE("MOD-08 module filenames cannot collide, escape profile or use node ta
   ProfileFixture fixture;
   const std::string dns_source = "{\"dns\":[],\"untouched\":true}\n";
   REQUIRE(fixture.service->save_module(fixture.profile.id,
-      {"dns", {std::nullopt}, dns_source}));
+      {"dns", {module_base(*fixture.service, fixture.profile.id, "dns")}, dns_source}));
   REQUIRE(fixture.service->rename_module_file(fixture.profile.id, "dns", "custom/dns-source.json"));
   const auto renamed = fixture.service->module(fixture.profile.id, "dns");
   REQUIRE(renamed);
@@ -359,9 +418,9 @@ TEST_CASE("MOD-07 Xray env and version modules remain native files and are not s
   const std::string env_text = "{\"env\":{\"XRAY_LOCATION_ASSET\":\"/custom/assets\"}}\n";
   const std::string version_text = "{\"version\":{\"min\":\"1.8.0\"}}\n";
   REQUIRE(fixture.service->save_module(fixture.profile.id,
-      {"env", {std::nullopt}, env_text}));
+      {"env", {module_base(*fixture.service, fixture.profile.id, "env")}, env_text}));
   REQUIRE(fixture.service->save_module(fixture.profile.id,
-      {"version", {std::nullopt}, version_text}));
+      {"version", {module_base(*fixture.service, fixture.profile.id, "version")}, version_text}));
   const auto env = fixture.service->module(fixture.profile.id, "env");
   const auto version = fixture.service->module(fixture.profile.id, "version");
   REQUIRE(env);
@@ -428,7 +487,7 @@ TEST_CASE("DB-05 Profile and source module text live in files, not SQLite mirror
     auto created = profiles.create({"home", "core-system", "local", {}});
     REQUIRE(created);
     id = created->id;
-    REQUIRE(profiles.save_module(id, {"fakedns", {std::nullopt}, "[ {\"ipPool\":\"198.18.0.0/15\"} ]\n"}));
+    REQUIRE(profiles.save_module(id, {"fakedns", {module_base(profiles, id, "fakedns")}, "[ {\"ipPool\":\"198.18.0.0/15\"} ]\n"}));
     REQUIRE(profiles.include_module(id, "fakedns", true));
   }
 
@@ -458,6 +517,7 @@ TEST_CASE("DB-05 Profile and source module text live in files, not SQLite mirror
   }
   sqlite3_finalize(query);
   sqlite3_close(raw_database);
-  CHECK(tables == std::set<std::string>{"cores", "nodes", "profiles", "runtime_state", "subscriptions"});
+  CHECK(tables == std::set<std::string>{"cores", "nodes", "profiles", "program_settings",
+                                        "runtime_state", "subscriptions"});
   CHECK_FALSE(tables.contains("modules"));
 }

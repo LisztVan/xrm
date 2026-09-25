@@ -75,9 +75,12 @@ bool matches(const NodeSelector& selector, const Node& node) {
                      node.id) != explicit_members->node_ids.end();
   }
   const auto& filter = std::get<NodeFilter>(selector);
-  if (!filter.sources.empty() &&
-      (!node.source_id || std::find(filter.sources.begin(), filter.sources.end(),
-                                    *node.source_id) == filter.sources.end())) return false;
+  if (std::find(filter.explicit_node_ids.begin(), filter.explicit_node_ids.end(), node.id) !=
+      filter.explicit_node_ids.end()) return true;
+  if ((!filter.sources.empty() || filter.include_local || !filter.explicit_node_ids.empty()) &&
+      (node.source_id ?
+          std::find(filter.sources.begin(), filter.sources.end(), *node.source_id) == filter.sources.end() :
+          !filter.include_local)) return false;
   if (!has_any_equal(filter.protocols, node_protocol(node))) return false;
   if (!filter.name_contains.empty()) {
     const auto name = folded(node.original_name);

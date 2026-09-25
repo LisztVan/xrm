@@ -1,4 +1,21 @@
 {
   "append_selected_default": true,
-  "included": ["log", "inbounds", "outbounds", "routing"]
+  "included": ["log", "dns", "inbounds", "outbounds", "routing"],
+  "descriptions": {
+    "log": "日志级别与输出；基础启用。",
+    "dns": "核心内部 DNS 服务器；基础启用，不修改系统 DNS。",
+    "inbounds": "127.0.0.1:10808 本地 SOCKS 入口；端口占用时需显式编辑。",
+    "outbounds": "静态 direct/block 出站；选中的节点另写 nodes_tail。",
+    "routing": "原生路由规则与 balancer；选择节点后可追加默认规则。",
+    "observatory": "后台探测；先填写受控 probe URL 与 subjectSelector 再启用。",
+    "api": "核心 API；需同时配置对应入站和路由，默认停用。",
+    "metrics": "本机 metrics 监听；确认端口与 stats/policy 后再启用。",
+    "stats": "核心流量计数开关；配合 policy 才有对应计数。",
+    "policy": "用户和出站统计等原生策略；按需开启。",
+    "fakedns": "FakeDNS 地址池；还需配置 DNS/入站等关联项。",
+    "geodata": "Geodata 资源设置；样例不引用未安装资产。",
+    "env": "Xray 原生 env 模块，不是 xrmd 进程环境。",
+    "version": "用户可设置 Xray min/max，样例不强加版本限制。",
+    "burstObservatory": "突发探测；与 observatory 二选一，先设置探测目标。"
+  }
 }

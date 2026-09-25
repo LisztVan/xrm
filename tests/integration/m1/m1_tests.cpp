@@ -187,6 +187,8 @@ TEST_CASE("historical node preview is read-only and confirmation removes only se
   const auto profile = parsed(server.cli({"profile", "create", "--name", "history profile",
                                           "--core", core.at("id").get<std::string>()}));
   REQUIRE(profile.contains("id"));
+  REQUIRE(server.cli({"profile", "sources", "set", profile.at("id").get<std::string>(),
+                      "--source", source.id}).code == 0);
   REQUIRE(server.cli({"select", "node", profile.at("id").get<std::string>(), referenced.id}).code == 0);
   auto update_store = Store::open(temp.path / "state.sqlite");
   REQUIRE(update_store);
@@ -196,6 +198,8 @@ TEST_CASE("historical node preview is read-only and confirmation removes only se
   const auto running_profile = parsed(server.cli({"profile", "create", "--name", "running profile",
                                                  "--core", core.at("id").get<std::string>()}));
   REQUIRE(running_profile.contains("id"));
+  REQUIRE(server.cli({"profile", "sources", "set", running_profile.at("id").get<std::string>(),
+                      "--source", source.id}).code == 0);
   REQUIRE(server.cli({"connect", running_profile.at("id").get<std::string>(), "--node", current.id}).code == 0);
   const auto runtime_before = parsed(server.cli({"status"}));
   REQUIRE(runtime_before.value("state", "") == "running");
@@ -352,9 +356,9 @@ TEST_CASE("runtime stats CLI and TUI report unavailable without fabricating zero
   REQUIRE(tui.pid > 0);
   REQUIRE(tui.master >= 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(300));
-  send_tui(tui.master, "7");
+  send_tui(tui.master, "1");
   const auto screen = read_tui(tui.master, std::chrono::milliseconds(300));
-  CHECK(screen.find("Stats") != std::string::npos);
+  CHECK(screen.find("Statistics") != std::string::npos);
   CHECK(screen.find("unavailable") != std::string::npos);
   send_tui(tui.master, "q");
   int status = 0;
@@ -369,7 +373,7 @@ TEST_CASE("runtime stats CLI and TUI report unavailable without fabricating zero
   REQUIRE(server.stop());
 }
 
-TEST_CASE("Stats TUI page keeps missing metrics and latency explicitly unavailable",
+TEST_CASE("Overview statistics keep missing metrics and latency explicitly unavailable",
           "[UI-03][stats-view]") {
   TempDirectory temp;
   Server server(temp);
@@ -388,13 +392,12 @@ TEST_CASE("Stats TUI page keeps missing metrics and latency explicitly unavailab
   REQUIRE(tui.pid > 0);
   REQUIRE(tui.master >= 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(300));
-  send_tui(tui.master, "7");
+  send_tui(tui.master, "1");
   const auto screen = read_tui(tui.master, std::chrono::milliseconds(300));
-  CHECK(screen.find("Core:") != std::string::npos);
-  CHECK(screen.find("Metrics:") != std::string::npos);
-  CHECK(screen.find("Cumulative traffic: unavailable") != std::string::npos);
-  CHECK(screen.find("Current rates: unavailable") != std::string::npos);
-  CHECK(screen.find("Observatory latency: unavailable") != std::string::npos);
+  CHECK(screen.find("CORE") != std::string::npos);
+  CHECK(screen.find("Statistics") != std::string::npos);
+  CHECK(screen.find("Traffic: unavailable") != std::string::npos);
+  CHECK(screen.find("latency: unmeasured") != std::string::npos);
   CHECK(screen.find("0 B/s") == std::string::npos);
   CHECK(screen.find("0 ms") == std::string::npos);
   send_tui(tui.master, "q");
@@ -809,9 +812,9 @@ TEST_CASE("UI-04 TUI module page renders all native module keys and UI-03 expose
   ::poll(nullptr, 0, 500);
   REQUIRE(::write(master, "3", 1) == 1);
   ::poll(nullptr, 0, 500);
-  REQUIRE(::write(master, "6", 1) == 1);
+  REQUIRE(::write(master, "5g", 2) == 2);
   ::poll(nullptr, 0, 500);
-  REQUIRE(::write(master, "8", 1) == 1);
+  REQUIRE(::write(master, "7", 1) == 1);
   ::poll(nullptr, 0, 500);
   REQUIRE(::write(master, "q", 1) == 1);
   std::string screen;
@@ -837,7 +840,8 @@ TEST_CASE("UI-04 TUI module page renders all native module keys and UI-03 expose
                            "burstObservatory", "geodata", "version"})
     CHECK(screen.find(key) != std::string::npos);
   CHECK(screen.find("TUI policy") != std::string::npos);
-  CHECK(screen.find("Cores") != std::string::npos);
+  CHECK(screen.find("Config") != std::string::npos);
+  CHECK(screen.find("Core") != std::string::npos);
   CHECK((screen.find("system") != std::string::npos || screen.find("managed") != std::string::npos));
   REQUIRE(server.stop());
 }
@@ -865,7 +869,7 @@ TEST_CASE("UI-01 text keys do not fire global actions and TUI exit leaves core r
   int status = 0;
   CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
   send_tui(tui.master, "\x11");
-  send_tui(tui.master, "2");
+  send_tui(tui.master, "5]");
   send_tui(tui.master, "\r");
   const auto details = read_tui(tui.master, std::chrono::milliseconds(300));
   CHECK(details.find("manual-ui") != std::string::npos);
@@ -920,7 +924,7 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   auto tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
   REQUIRE(tui.pid > 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(250));
-  send_tui(tui.master, "2");
+  send_tui(tui.master, "5]");
   (void)read_tui(tui.master, std::chrono::milliseconds(250));
   send_tui(tui.master, "\r");
   const auto details = read_tui(tui.master, std::chrono::milliseconds(250));
@@ -950,10 +954,10 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   auto core_tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
   REQUIRE(core_tui.pid > 0);
   (void)read_tui(core_tui.master, std::chrono::milliseconds(250));
-  send_tui(core_tui.master, "8");
+  send_tui(core_tui.master, "7");
   const auto core_page = read_tui(core_tui.master, std::chrono::milliseconds(250));
-  CHECK(core_page.find("Cores —") != std::string::npos);
-  CHECK(core_page.find("u use for current Profile") != std::string::npos);
+  CHECK(core_page.find("Core —") != std::string::npos);
+  CHECK(core_page.find("u use here") != std::string::npos);
   send_tui(core_tui.master, "u");
   std::string use_result;
   for (int attempt = 0; attempt < 8; ++attempt) {

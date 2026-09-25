@@ -6,11 +6,11 @@
 
 - 主机：`Linux 7.2.7+deb14-amd64 x86_64 / debian-work`；Intel Core i7-14700F；GCC 16.2.0；Debug dev 与 ASan presets。
 - 固定真实核心：`/tmp/xrm-g1-xray-v26.9.9/xray`，输出 `Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)`。固定发布二进制在仓库外准备，SHA-256 `1eb9175d0f0a8f8149c9230a7fc5ae66ce332ed20a53155ce61fe62e3f58b7df`；没有改动系统 Xray。
-- 本轮最终 dev build 成功；完整回归：**214/214 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**，包括 RC-01～RC-10、VLESS-WS-XHTTP、E2E-06 和扩展后的 E2E-07。命令为 `TMPDIR=/home/lisztzy/.cache/xrm-tmp XRM_TEST_XRAY=/tmp/xrm-g1-xray-v26.9.9/xray ctest --preset dev --output-on-failure`。
-- 最终 ASan 构建与完整回归：**214/214 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**，总耗时 416.61 秒。此前针对短命 fake-core 的观察窗、PTY 目标帧及 PROC-03 fixture 的修正没有降低行为断言；sanitizer instrumentation 下的 RSS 不作为 Debug 产品上限。
+- 本轮七页工作流整合后的 dev 构建与完整回归：**225/225 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**。使用 `cmake --preset dev -B /tmp/xrm-u-dev`、`cmake --build /tmp/xrm-u-dev -j4`，再以固定 `TMPDIR`、`XRM_TEST_XRAY` 运行 `ctest --test-dir /tmp/xrm-u-dev --output-on-failure -j4`。E2E-07 已扩展到 PTY 中添加 A/B 来源、分别绑定 Home/Office、Local VLESS 表单与 Group，均经真实 loopback 流量验证。
+- 对应 ASan 构建与完整回归：**225/225 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**；命令同上但使用 `asan` preset 与 `/tmp/xrm-u-asan`，总耗时 128.58 秒。默认 10808 端口占用 fixture 已单独串行，避免与并行真实核心用例争端口；不降低端口冲突断言。sanitizer instrumentation 下的 RSS 不作为 Debug 产品上限。
 - 固定核心命令为 `xray run -test -confdir <test-confdir>`、`xray run -confdir <test-confdir>` 以及 RC-01～RC-10/E2E-06 gate 所调用的同一 v26.9.9 binary；没有公网节点，核心行为用例均 loopback。CTest 最终 real-core label 两套构建均无 skip。
 - systemd unit 静态验证及 `xrmd` 子进程归属测试通过；此环境未确认可安全隔离的 systemd 实机测试环境，未启动/停止宿主 systemd unit，故 systemd 实机清理 **NOT RUN**。不要将 PKG-01 的静态/归属证据描述为 systemd 运行态测试。
-- release candidate 总门：**G5 FAIL，待用户复验**。此前人工操作已明确发现导航、滚动、订阅历史库存和现有 Profile 本地入口问题；这些不能由旧自动测试抵消。本轮加入只读历史预览/确认及旧 Profile 本地入口提示，隔离副本与 PTY 定向验证已覆盖，但生产数据未处理、完整人工主流程尚未由用户重新验收，因此不能声明 G5 PASS。
+- release candidate 总门：**G5 FAIL，待本轮界面定型后的用户复验**。用户已确认旧导航、滚动、订阅更新、联网和日志基本可用；本轮开发者 PTY/真实核心验证了七页导航、两方案来源范围、Local/Group 连接和设置持久化，但这不冒充用户对新工作流的人工验收。生产数据没有被清理或改写；systemd 实机隔离验证仍 NOT RUN。
 
 ## I50 / I51 / I52
 
@@ -122,4 +122,4 @@ RC-07 是逐模块合法上下文，不是 15 项全部启用的单一巨大配�
 
 本轮还修复无 source 的 disabled module 打开时 JSON null 转字符串导致 SIGABRT；现在先建立内存草稿，用户显式保存后创建 source，启用仍是单独操作。新增无需 `--profile` 的 TUI 首用流程：订阅添加/更新、节点浏览、登记已有 core、创建/选择 Profile、保存节点选择并 connect；保存不会自动连接，TUI 退出不会 stop core。外部编辑器有 F6/v 明确入口并继续只修改草稿。
 
-G5 当前为 FAIL；旧库存只在隔离副本中预览和选择性处理，用户生产库存尚未处理，已有 Profile 本地入口需用户明确确认。完整人工 TUI 复验完成前不能作最终判定。systemd 实机运行仍未执行；unit 静态审查和进程归属集成测试已完成，环境限制已披露且本轮不触碰宿主服务。Future / Not in v1：VMess/Trojan/Shadowsocks/Hysteria2 loopback traffic peer 验证；leastLoad 稳定性/真实行为验证；systemd 隔离环境实机验收；长期 RSS 斜率。没有实现 M6 或新增产品范围。
+G5 当前为 FAIL；旧库存只在隔离副本中预览和选择性处理，用户生产库存尚未处理。七页工作流、两个 Profile 的来源绑定和 Local/Group 实际连通已由开发者 PTY/固定核心验证，完整人工 TUI 复验仍须由用户执行。systemd 实机运行仍未执行；unit 静态审查和进程归属集成测试已完成，环境限制已披露且本轮不触碰宿主服务。Future / Not in v1：VMess/Trojan/Shadowsocks/Hysteria2 loopback traffic peer 验证；leastLoad 稳定性/真实行为验证；systemd 隔离环境实机验收；长期 RSS 斜率。没有实现 M6 或新增产品范围。

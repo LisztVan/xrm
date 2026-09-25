@@ -3,6 +3,7 @@
 #include "infra/files.hpp"
 #include "infra/store.hpp"
 #include "profile/profile_service.hpp"
+#include "xray/runtime_assembler.hpp"
 
 #include <chrono>
 #include <filesystem>
@@ -141,6 +142,78 @@ TEST_CASE("BIND-01 manual selection rejects non-candidates and unavailable nodes
   CHECK(selected->front().selected_node_id == "active");
 }
 
+TEST_CASE("BIND-01 dynamic source selector unions local and explicit members without copying inventory",
+          "[BIND-01][source-binding]") {
+  Fixture fixture;
+  auto from_a = node("from-a", "Subscribed A");
+  from_a.source_id = "source-a";
+  auto from_b = node("from-b", "Subscribed B");
+  from_b.source_id = "source-b";
+  auto omitted = node("omitted", "Other B");
+  omitted.source_id = "source-b";
+  auto local = node("local", "Local VLESS");
+  REQUIRE(fixture.store->put_node(from_a));
+  REQUIRE(fixture.store->put_node(from_b));
+  REQUIRE(fixture.store->put_node(omitted));
+  REQUIRE(fixture.store->put_node(local));
+
+  auto value = group("source-union");
+  value.selection_mode = xrm::SelectionMode::automatic;
+  value.balancer["strategy"] = xrm::Json{{"type", "random"}};
+  xrm::NodeFilter selector;
+  selector.sources = {"source-a"};
+  selector.include_local = true;
+  selector.explicit_node_ids = {"from-b"};
+  value.members = selector;
+  REQUIRE(fixture.profiles->save_groups(fixture.profile.id, {{std::nullopt}, {value}}));
+
+  auto persisted = fixture.profiles->groups(fixture.profile.id);
+  REQUIRE(persisted);
+  REQUIRE(persisted->size() == 1);
+  const auto* restored = std::get_if<xrm::NodeFilter>(&persisted->front().members);
+  REQUIRE(restored);
+  CHECK(restored->sources == std::vector<xrm::Id>{"source-a"});
+  CHECK(restored->include_local);
+  CHECK(restored->explicit_node_ids == std::vector<xrm::Id>{"from-b"});
+
+  auto snapshot = fixture.profiles->snapshot(fixture.profile.id);
+  auto inventory = fixture.store->all_nodes();
+  REQUIRE(snapshot);
+  REQUIRE(inventory);
+  snapshot->profile.selected = xrm::Target{xrm::TargetKind::group, value.id};
+  snapshot->bindings.groups = *persisted;
+  auto files = xrm::assemble(xrm::BuildInput{*snapshot, *inventory});
+  REQUIRE(files);
+  REQUIRE(files->index.groups.size() == 1);
+  CHECK(files->index.groups.front().candidate_ids ==
+      std::vector<xrm::Id>{"from-a", "from-b", "local"});
+  CHECK(inventory->size() == 4);
+  auto routing = std::find_if(files->files.begin(), files->files.end(), [](const auto& file) {
+    return file.relative_name == "04_routing.json";
+  });
+  REQUIRE(routing != files->files.end());
+  const auto root = xrm::Json::parse(routing->bytes).at("routing");
+  REQUIRE(root.at("balancers").is_array());
+  CHECK(root.at("balancers").back().at("selector").size() == 3);
+
+  // An explicit local-only scope must stay dynamic without expanding to all
+  // subscribed nodes. An explicit-ID-only scope must not select the rest.
+  auto local_only = selector;
+  local_only.sources.clear();
+  local_only.explicit_node_ids.clear();
+  snapshot->bindings.groups.front().members = local_only;
+  auto local_files = xrm::assemble(xrm::BuildInput{*snapshot, *inventory});
+  REQUIRE(local_files);
+  CHECK(local_files->index.groups.front().candidate_ids == std::vector<xrm::Id>{"local"});
+  auto explicit_only = selector;
+  explicit_only.sources.clear();
+  explicit_only.include_local = false;
+  snapshot->bindings.groups.front().members = explicit_only;
+  auto explicit_files = xrm::assemble(xrm::BuildInput{*snapshot, *inventory});
+  REQUIRE(explicit_files);
+  CHECK(explicit_files->index.groups.front().candidate_ids == std::vector<xrm::Id>{"from-b"});
+}
+
 TEST_CASE("observation binding persists only manager-owned supplement settings", "[BIND-01]") {
   Fixture fixture;
   const auto path = fixture.root.path / "profiles" / fixture.profile.id / "bindings" / "observation.json";
@@ -173,8 +246,16 @@ TEST_CASE("FORM-04 choosing observatory kind preserves both native source docume
   Fixture fixture;
   const std::string background = "{\"observatory\":{\"probeUrl\":\"http://127.0.0.1/p\",\"unknown\":7}}\n";
   const std::string burst = "{\"burstObservatory\":{\"pingConfig\":{\"destination\":\"127.0.0.1:80\"},\"unknown\":8}}\n";
-  REQUIRE(fixture.profiles->save_module(fixture.profile.id, {"observatory", {std::nullopt}, background}));
-  REQUIRE(fixture.profiles->save_module(fixture.profile.id, {"burstObservatory", {std::nullopt}, burst}));
+  auto background_before = fixture.profiles->module(fixture.profile.id, "observatory");
+  auto burst_before = fixture.profiles->module(fixture.profile.id, "burstObservatory");
+  REQUIRE(background_before);
+  REQUIRE(burst_before);
+  REQUIRE(background_before->document);
+  REQUIRE(burst_before->document);
+  REQUIRE(fixture.profiles->save_module(fixture.profile.id,
+      {"observatory", {background_before->document->source_text}, background}));
+  REQUIRE(fixture.profiles->save_module(fixture.profile.id,
+      {"burstObservatory", {burst_before->document->source_text}, burst}));
   REQUIRE(fixture.profiles->include_module(fixture.profile.id, "observatory", true));
   REQUIRE(fixture.profiles->include_module(fixture.profile.id, "burstObservatory", true));
 

@@ -163,6 +163,7 @@ add_executable(xrm
   src/cli/node_commands.cpp
   src/cli/subscription_commands.cpp
   src/cli/core_commands.cpp
+  src/cli/settings_commands.cpp
   src/cli/print.cpp
   src/tui/app.cpp)
 target_include_directories(xrm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")

@@ -18,6 +18,13 @@ void add_core_commands(CLI::App& app, Request& request) {
     request.params = Json::object();
   });
 
+  auto* remove = core->add_subcommand("remove", "Remove an unused managed Xray install; system binaries are never deleted");
+  remove->add_option("core_id", request.core_id)->required();
+  remove->callback([&request] {
+    request.method = "core.remove";
+    request.params = {{"core_id", request.core_id}};
+  });
+
   auto* releases = core->add_subcommand("releases", "List official Xray releases and platform assets");
   releases->add_flag("--prerelease", request.core_include_prerelease,
                      "Include prerelease versions");

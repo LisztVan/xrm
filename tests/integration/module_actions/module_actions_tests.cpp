@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iterator>
 #include <memory>
+#include <set>
 #include <uv.h>
 
 namespace {
@@ -32,6 +33,13 @@ std::string read(const std::filesystem::path& path) {
   return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
 }
 
+std::optional<std::string> module_base(ProfileService& profiles, const Id& profile_id,
+                                       std::string_view key) {
+  auto module = profiles.module(profile_id, key);
+  REQUIRE(module);
+  return module->document ? std::optional(module->document->source_text) : std::nullopt;
+}
+
 struct Fixture {
   TempRoot root;
   std::unique_ptr<Store> store;
@@ -46,10 +54,10 @@ struct Fixture {
     auto created = profiles->create({"forms", "core-system", "local", {}});
     REQUIRE(created);
     profile = *created;
-    REQUIRE(profiles->save_module(profile.id, {"policy", {std::nullopt},
+    REQUIRE(profiles->save_module(profile.id, {"policy", {module_base(*profiles, profile.id, "policy")},
       R"({"policy":{"levels":{"0":{"connIdle":60,"unknownLevel":true}},"system":{"statsOutboundUplink":false,"otherSystemField":{"keep":7}},"extraPolicyField":9}})"}));
-    REQUIRE(profiles->save_module(profile.id, {"stats", {std::nullopt}, R"({"stats":{}})"}));
-    REQUIRE(profiles->save_module(profile.id, {"metrics", {std::nullopt}, R"({"metrics":{"listen":"127.0.0.1:9555","unknown":true}})"}));
+    REQUIRE(profiles->save_module(profile.id, {"stats", {module_base(*profiles, profile.id, "stats")}, R"({"stats":{}})"}));
+    REQUIRE(profiles->save_module(profile.id, {"metrics", {module_base(*profiles, profile.id, "metrics")}, R"({"metrics":{"listen":"127.0.0.1:9555","unknown":true}})"}));
   }
 };
 
@@ -95,7 +103,72 @@ struct ApplicationFixture {
   }
 };
 
+Node source_node(Id id, Id source_id) {
+  StreamNode stream;
+  stream.endpoint = {"127.0.0.1", 443};
+  std::get<VlessSettings>(stream.protocol).id = "11111111-1111-4111-8111-111111111111";
+  return {std::move(id), std::move(source_id), "example", std::nullopt,
+          {}, true, false, std::move(stream), std::nullopt};
+}
+
+void save_sources(ApplicationFixture& fixture, const ProfileSettings& original,
+                  std::optional<std::vector<Id>> sources) {
+  auto profile = fixture.application->profiles().get(original.id);
+  REQUIRE(profile);
+  profile->enabled_source_ids = std::move(sources);
+  const auto file = fixture.root.path / "profiles" / original.id / "profile.json";
+  REQUIRE(fixture.application->profiles().save(original.id, {{read(file)}, *profile}));
+}
+
 }  // namespace
+
+TEST_CASE("Profile source binding scopes connection inputs without copying the global inventory",
+          "[PROFILE][source-binding]") {
+  ApplicationFixture fixture;
+  auto home = fixture.application->profiles().create({"Home", "", "local", {}});
+  auto office = fixture.application->profiles().create({"Office", "", "local", {}});
+  REQUIRE(home);
+  REQUIRE(office);
+  REQUIRE(fixture.store->put_node(source_node("node-a", "source-a")));
+  REQUIRE(fixture.store->put_node(source_node("node-b", "source-b")));
+  auto local = source_node("node-local", "source-a");
+  local.source_id.reset();
+  REQUIRE(fixture.store->put_node(std::move(local)));
+
+  save_sources(fixture, *home, std::vector<Id>{"source-a"});
+  save_sources(fixture, *office, std::vector<Id>{"source-b"});
+  auto home_input = fixture.application->build_input(home->id);
+  auto office_input = fixture.application->build_input(office->id);
+  REQUIRE(home_input);
+  REQUIRE(office_input);
+  auto ids = [](const BuildInput& input) {
+    std::set<Id> result;
+    for (const auto& node : input.nodes) result.insert(node.id);
+    return result;
+  };
+  CHECK(ids(*home_input) == std::set<Id>{"node-a", "node-local"});
+  CHECK(ids(*office_input) == std::set<Id>{"node-b", "node-local"});
+  CHECK_FALSE(fixture.application->select(home->id, Target{TargetKind::node, "node-b"}));
+  REQUIRE(fixture.application->select(home->id, Target{TargetKind::node, "node-a"}));
+  CHECK_FALSE(fixture.application->select(office->id, Target{TargetKind::node, "node-a"}));
+  REQUIRE(fixture.application->select(office->id, Target{TargetKind::node, "node-b"}));
+  CHECK(fixture.store->get_node("node-a"));
+  CHECK(fixture.store->get_node("node-b"));
+
+  save_sources(fixture, *home, std::vector<Id>{});
+  CHECK_FALSE(fixture.application->select(home->id, Target{TargetKind::node, "node-a"}));
+  REQUIRE(fixture.application->select(home->id, Target{TargetKind::node, "node-local"}));
+  auto office_after = fixture.application->build_input(office->id);
+  REQUIRE(office_after);
+  CHECK(ids(*office_after) == std::set<Id>{"node-b", "node-local"});
+
+  // The legacy no-binding state must retain the pre-U0 all-sources behavior.
+  save_sources(fixture, *home, std::nullopt);
+  auto legacy_input = fixture.application->build_input(home->id);
+  REQUIRE(legacy_input);
+  CHECK(ids(*legacy_input) == std::set<Id>{"node-a", "node-b", "node-local"});
+  REQUIRE(fixture.application->select(home->id, Target{TargetKind::node, "node-b"}));
+}
 
 TEST_CASE("FORM-03 traffic-statistics plan is explicit, native, and preserves policy data", "[FORM-03]") {
   Fixture fixture;
@@ -158,11 +231,11 @@ TEST_CASE("FORM-03 Application RPC enables native traffic statistics and preserv
   ApplicationFixture fixture;
   auto profile = fixture.application->profiles().create({"form-rpc", "core-system", "local", {}});
   REQUIRE(profile);
-  REQUIRE(fixture.application->profiles().save_module(profile->id, {"policy", {std::nullopt},
+  REQUIRE(fixture.application->profiles().save_module(profile->id, {"policy", {module_base(fixture.application->profiles(), profile->id, "policy")},
       R"({"policy":{"levels":{"0":{"connIdle":61,"customLevel":{"keep":"level"}}},"system":{"statsOutboundUplink":false,"otherSystemField":{"keep":7}},"extraPolicyField":9}})"}));
-  REQUIRE(fixture.application->profiles().save_module(profile->id, {"stats", {std::nullopt},
+  REQUIRE(fixture.application->profiles().save_module(profile->id, {"stats", {module_base(fixture.application->profiles(), profile->id, "stats")},
       R"({"stats":{}})"}));
-  REQUIRE(fixture.application->profiles().save_module(profile->id, {"metrics", {std::nullopt},
+  REQUIRE(fixture.application->profiles().save_module(profile->id, {"metrics", {module_base(fixture.application->profiles(), profile->id, "metrics")},
       R"({"metrics":{"listen":"127.0.0.1:9555","customMetricField":{"keep":true}}})"}));
 
   ApiRouter router(*fixture.application);

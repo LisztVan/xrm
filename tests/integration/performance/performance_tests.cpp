@@ -611,6 +611,8 @@ TEST_CASE("PERF-01 slow HTTP and core check do not block other UDS clients", "[P
   auto source = manager_call(root, daemon.socket, {"sub", "add", "--name", "PERF-01", "--url", http.url()});
   REQUIRE(source.code == 0);
   const auto source_id = xrm::Json::parse(source.out).at("id").get<std::string>();
+  REQUIRE(manager_call(root, daemon.socket, {"profile", "sources", "set", profile_id,
+                       "--source", source_id}).code == 0);
   REQUIRE(manager_call(root, daemon.socket, {"sub", "update", source_id}).code == 0);
   auto listing = manager_call(root, daemon.socket, {"node", "list"});
   REQUIRE(listing.code == 0);

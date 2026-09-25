@@ -54,8 +54,11 @@ xrm --socket "$HOME/.cache/xrm/run/xrmd.sock" server info
    xrm profile create --name home --core <core-id>
    xrm profile list
    xrm profile show <profile-id>
+   xrm profile sources set <profile-id> --source <source-id>
    xrm config modules <profile-id>
    ```
+
+   新 Profile 先不绑定全局来源；`profile sources set` 用明确的来源 ID 列表替换当前绑定，不传 `--source` 表示不使用任何订阅。旧 Profile 若没有此字段，继续沿用“使用全部来源”的兼容语义。Profile 可暂不选核心而保存，但 Connect 前必须在 Config → Core 或 CLI 中指定可用核心。标准本地样例默认启用 log、dns、inbounds、outbounds、routing，其余模块有可编辑的禁用样例。
 
 4. 按需配置原生模块。模块正文仍是 Xray 原生 JSON，未知字段通过原生编辑保留；`config show --source` 查看已保存设置，`config show --runtime` 查看当前活动运行文件：
 
@@ -107,15 +110,17 @@ xrm config export <profile-id> --source runtime --output ./exported-confdir
 
 `disconnect`/`core stop` 是显式停止。退出 TUI 不会停止核心。导出运行目录后，可在相同 Xray 二进制、工作目录、环境变量和外部资源路径条件下独立运行；导出不会打包证书/私钥等外部资源。
 
-无 Profile 的 TUI 首用：`5 Subs` → `a` 输入名称和订阅 URL → `u` 更新库存；`8 Core` → `a` 登记已有 Xray 可执行文件（也可从该页查看/安装核心）；`9 Profiles` → `n` 创建有名称的 Profile；`2 Nodes` 选择节点并按 `s` 保存；回 Overview 按 `c` 连接。订阅可先于 Profile 管理；选择与保存不自动连接。已存在唯一 Profile 时会自动进入该上下文，多 Profile 可在 `9 Profiles` 查看并切换。
+无 Profile 的 TUI 首用：`4 Subscriptions` → `a` 输入名称和订阅 URL → `u` 更新库存；`7 Config` → `Core` 中按 `a` 登记已有 Xray；`2 Profiles` → `n` 创建有名称的标准本地方案；回 `4 Subscriptions` 选中来源按 `b`，明确将该来源用于当前 Profile；`5 Nodes` 选择节点并按 `s` 保存，或按 `c` 选用并连接。订阅可先于 Profile 管理；选择与保存不自动连接。唯一 Profile 会自动进入浏览上下文；切换浏览不影响正在运行的 Profile。
 
-TUI 使用 Tab / Shift-Tab 或 `1`–`9` 切换页面，`?` 查看按键帮助，`q` 仅退出界面。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看已收到的历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
+顶层只有 `Overview / Profiles / Modules / Subscriptions / Nodes / Logs / Config` 七页。用 Tab / Shift-Tab 或 `1`–`7` 切换，`?` 查看当前页按键，`q` 仅退出界面。Nodes 用 `[`/`]` 切换“全部订阅 / 单来源 / Local / Groups”；`a` 添加手工节点、分享链接、原生 outbound 或 Group。Config 用 `[`/`]` 切换 `Core / Appearance / Editor / General`；Appearance 的预览可保存或取消，Editor 可保存直接执行的 argv 并测试临时草稿。Overview 同时显示运行状态和可用统计，不会把未观测值显示成零。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
 
-旧订阅库存整理：在 `5 Subscriptions` 选中来源后按 `h` 预览当前/历史数量与候选原因；空格只可勾选无属性冲突和已知引用的确定冗余历史记录，`c` 后还要按 `y` 才确认，Esc 取消。预览和取消不写库存；确认也不连接或重启核心。CLI 可用 `xrm node history preview SOURCE_ID`，并按预览返回的 token 执行 `xrm node history confirm SOURCE_ID --id NODE_ID --token TOKEN --yes`。名称/上游身份不同、属性冲突、已知被 Profile/组/观测/原生管理 tag 引用的记录不会自动合并；不要求历史数归零。只在自己的数据上审阅确认，不直接操作数据库。
+命令行的程序偏好独立于 Xray 原生配置：`xrm settings show` 查看，`xrm settings set theme dark` 修改外观，`xrm settings editor set '["/usr/bin/vi"]'` 设置外部编辑器。脚本需要机器可读输出时使用现有 `--json`，不会混入终端配色。核心资源仍用 `xrm core ...`，原生模块仍用 `xrm config ...`；这三类设置不会相互覆盖。
+
+旧订阅库存整理：在 `4 Subscriptions` 选中来源后按 `h` 预览当前/历史数量与候选原因；空格只可勾选无属性冲突和已知引用的确定冗余历史记录，`c` 后还要按 `y` 才确认，Esc 取消。预览和取消不写库存；确认也不连接或重启核心。CLI 可用 `xrm node history preview SOURCE_ID`，并按预览返回的 token 执行 `xrm node history confirm SOURCE_ID --id NODE_ID --token TOKEN --yes`。名称/上游身份不同、属性冲突、已知被 Profile/组/观测/原生管理 tag 引用的记录不会自动合并；不要求历史数归零。只在自己的数据上审阅确认，不直接操作数据库。
 
 已有 Profile 若没有本地代理入口，Overview 会提示当前 `inbounds` 状态。在 Overview 或 Modules 按 `i` 检查；确认对话框会明确展示即将追加的 `127.0.0.1:10808` SOCKS 入站及 `modules/02_inbounds.json` 范围。仅按 `y` 才保存源文件，不覆盖已有入站；原本禁用的 `inbounds` 仍需到 Modules 单独启用，随后明确 Connect/Apply。自定义/服务端 Profile 不会被自动改造，也不会修改系统代理、DNS 或路由。端口已被占用时应查看连接错误并在原生 inbounds 编辑器选择合适端口，不会暗中换端口。
 
-在 Native Modules 页按 Enter 打开原生文本草稿，按 `v` 可用 `$VISUAL`（优先）或 `$EDITOR` 打开外部编辑器。变量须指定 executable 和可选的简单、未加引号参数；程序直接 spawn，不经 shell。编辑器只改临时草稿，返回 TUI 后仍须按 Ctrl-S 才保存模块源文件；保存不 connect/restart。缺少两个变量会明确报错。编辑器非零退出时保留 TUI 草稿；源文件在编辑期间被别的客户端修改时，保存会报告冲突并保留草稿，不覆盖外部修改。人工验收步骤见 [tui-manual-acceptance.md](tui-manual-acceptance.md)。
+在 Modules 页按 Enter 打开原生文本草稿，按 `v` 可打开外部编辑器。顺序是 `Config → Editor` 中保存的 argv、Manager 主机的 `$VISUAL`、`$EDITOR`；程序直接 spawn，不经 shell。编辑器只改临时草稿，返回 TUI 后仍须按 Ctrl-S 才保存模块源文件；保存不 connect/restart。未配置时会提示；非零退出保留草稿；源文件冲突也保留草稿，不覆盖外部修改。人工验收步骤见 [tui-manual-acceptance.md](tui-manual-acceptance.md)。
 
 切换核心是显式动作：
 

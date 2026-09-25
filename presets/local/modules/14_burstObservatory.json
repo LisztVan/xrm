@@ -1,0 +1,13 @@
+{
+  "burstObservatory": {
+    "subjectSelector": [],
+    "pingConfig": {
+      "destination": "http://127.0.0.1/",
+      "connectivity": "http://127.0.0.1/",
+      "interval": "10s",
+      "sampling": 2,
+      "timeout": "1s",
+      "httpMethod": "GET"
+    }
+  }
+}

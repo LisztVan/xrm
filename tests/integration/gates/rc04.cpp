@@ -429,11 +429,16 @@ TEST_CASE("RC-04 fixed Xray exports real stats and MetricsClient computes rates"
   profile_settings->append_selected_default = false;
   const auto profile_path = temp.path() / "profiles" / profile->id / "profile.json";
   REQUIRE(profiles.save(profile->id, {{read_file(profile_path)}, *profile_settings}));
-  REQUIRE(profiles.save_module(profile->id, {"stats", {std::nullopt}, R"({"stats":{}})"}));
-  REQUIRE(profiles.save_module(profile->id, {"policy", {std::nullopt},
-      R"({"policy":{"levels":{"0":{"connIdle":71,"rc04Keep":"level"}},"system":{"other":"preserved"}}})"}));
-  REQUIRE(profiles.save_module(profile->id, {"metrics", {std::nullopt},
-      R"({"metrics":{"unrelatedField":"preserved"}})"}));
+  auto save_existing = [&](const std::string& key, std::string text) {
+    auto existing = profiles.module(profile->id, key);
+    if (!existing || !existing->document) return false;
+    return static_cast<bool>(profiles.save_module(profile->id,
+        {key, {existing->document->source_text}, std::move(text)}));
+  };
+  REQUIRE(save_existing("stats", R"({"stats":{}})"));
+  REQUIRE(save_existing("policy",
+      R"({"policy":{"levels":{"0":{"connIdle":71,"rc04Keep":"level"}},"system":{"other":"preserved"}}})"));
+  REQUIRE(save_existing("metrics", R"({"metrics":{"unrelatedField":"preserved"}})"));
   auto socks_port = free_port();
   auto metrics_port = free_port();
   REQUIRE(socks_port);

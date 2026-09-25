@@ -11,6 +11,7 @@
 #include <thread>
 
 namespace xrm::cli {
+void add_settings_commands(CLI::App& app, Request& request);
 namespace {
 volatile std::sig_atomic_t stop_stats_watch = 0;
 void request_stats_watch_stop(int) { stop_stats_watch = 1; }
@@ -36,6 +37,7 @@ int run_cli(int argc, char** argv) {
   add_subscription_commands(app, request);
   add_profile_commands(app, request);
   add_runtime_commands(app, request);
+  add_settings_commands(app, request);
   bool stats_watch = false;
   auto* stats = app.add_subcommand("stats", "Show server-sampled Xray traffic and observations");
   stats->add_flag("--watch", stats_watch, "Refresh the shared server sample every two seconds");
@@ -44,7 +46,7 @@ int run_cli(int argc, char** argv) {
     request.params = {{"watch", stats_watch}};
   });
   std::string tui_profile;
-  auto* tui = app.add_subcommand("tui", "Open the interactive Overview/Nodes/Native Modules/Logs interface");
+  auto* tui = app.add_subcommand("tui", "Open the seven-page interactive terminal application");
   tui->add_option("--profile", tui_profile, "Initial Profile ID");
   tui->callback([&request] { request.method = "tui"; });
 
@@ -64,7 +66,7 @@ int run_cli(int argc, char** argv) {
   }
 
   if (request.method.empty()) {
-    std::cerr << "请选择 server、core、node、profile、config、connect、status、logs 或 tui 命令\n";
+    std::cerr << "请选择 server、core、node、profile、config、settings、connect、status、logs 或 tui 命令\n";
     return 2;
   }
   if (request.method == "tui") return run_tui(request.socket, tui_profile);

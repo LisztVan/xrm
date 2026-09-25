@@ -1079,7 +1079,7 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   constexpr std::string_view uuid = "10000000-0000-4000-8000-000000000007";
   constexpr std::string_view marker = "XRM-E2E-07-TUI-COLD-START-MARKER-61f2";
   LoopbackHttp http;
-  REQUIRE(http.start(std::string(marker), 2));
+  REQUIRE(http.start(std::string(marker), 8));
 
   const auto peer_config = temp.path / "vless-peer.json";
   const Json peer{{"log", Json{{"loglevel", "warning"}}},
@@ -1118,7 +1118,7 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   CHECK(initial.find("Overview") != std::string::npos);
 
   // Global inventory is established entirely through the no-profile TUI.
-  tui_keys(tui, "5a");
+  tui_keys(tui, "4a");
   tui_keys(tui, "local VLESS fixture\r");
   tui_keys(tui, subscription.url() + "\r");
   tui_keys(tui, "u");
@@ -1127,12 +1127,53 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   INFO("TUI subscription completion: " << update_result);
   REQUIRE(update_result.find("Subscription update complete") != std::string::npos);
 
+  tui_keys(tui, "a");
+  REQUIRE(tui_wait_for(tui, "Subscription name", 5s).find("Subscription name") != std::string::npos);
+  tui_keys(tui, "backup VLESS fixture\r");
+  REQUIRE(tui_wait_for(tui, "Subscription URL", 5s).find("Subscription URL") != std::string::npos);
+  tui_keys(tui, subscription.url() + "\r");
+  const auto backup_added = tui_wait_for(tui, "Subscription saved globally", 5s);
+  INFO("Backup subscription added: " << backup_added);
+  REQUIRE(backup_added.find("Subscription saved globally") != std::string::npos);
+  const auto global_sources = server.json(server.cli({"sub", "list"}));
+  REQUIRE(global_sources.size() == 2);
+  const auto source_id = [&](std::string_view name) {
+    const auto found = std::find_if(global_sources.begin(), global_sources.end(),
+        [&](const Json& item) { return item.value("name", "") == name; });
+    return found == global_sources.end() ? std::string{} : found->value("id", "");
+  };
+  const auto source_a = source_id("local VLESS fixture");
+  const auto source_b = source_id("backup VLESS fixture");
+  REQUIRE_FALSE(source_a.empty());
+  REQUIRE_FALSE(source_b.empty());
+  REQUIRE(source_a != source_b);
+  const auto source_index = [&](std::string_view id) {
+    const auto found = std::find_if(global_sources.begin(), global_sources.end(),
+        [&](const Json& item) { return item.value("id", "") == id; });
+    return static_cast<std::size_t>(found - global_sources.begin());
+  };
+  const auto point_to_source = [&](std::string_view id) {
+    tui_keys(tui, "\x1b[A\x1b[A");  // ArrowUp saturates at the first row.
+    if (source_index(id) == 1) tui_keys(tui, "\x1b[B");
+  };
+  point_to_source(source_b);
+  tui_keys(tui, "u");
+  REQUIRE(tui_wait_for(tui, "Subscription update complete", 8s).find(
+      "Subscription update complete") != std::string::npos);
+
   // Register the fixed core and create a named Profile in the same TUI session.
-  tui_keys(tui, "8a");
+  tui_keys(tui, "7a");
   tui_keys(tui, xray.string() + "\r");
-  tui_keys(tui, "9n");
+  tui_keys(tui, "2n");
   tui_keys(tui, "Cold Start\r");
-  tui_keys(tui, "2");
+  tui_keys(tui, "4");
+  point_to_source(source_a);
+  REQUIRE(tui_wait_for(tui, "Selected: local VLESS fixture", 5s).find(
+      "Selected: local VLESS fixture") != std::string::npos);
+  tui_keys(tui, "b");  // Only source A is used by this Profile.
+  REQUIRE(tui_wait_for(tui, "Source included in viewed Profile", 5s).find(
+      "Source included in viewed Profile") != std::string::npos);
+  tui_keys(tui, "5");
   auto node_screen = tui_wait_for(tui, "Cold-start-VLESS", 5s);
   CHECK(node_screen.find("Cold-start-VLESS") != std::string::npos);
   tui_keys(tui, "s");
@@ -1143,6 +1184,7 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   INFO("saved selection after TUI node action: " << saved_profile.value("selected", Json(nullptr)).dump());
   REQUIRE(saved_profile.value("selected", Json(nullptr)).is_object());
   REQUIRE(saved_profile.at("selected").value("kind", "") == "node");
+  REQUIRE(saved_profile.at("enabled_source_ids") == Json::array({source_a}));
 
   // Configure the local client listener via Modules -> Inbounds -> external
   // editor, then explicitly save the source document.
@@ -1171,11 +1213,105 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   CHECK(proxied.find(marker) != std::string::npos);
   REQUIRE(http.served() >= 1);
 
-  // Open and save an unconfigured disabled native module without applying it.
-  const auto before_edit = running;
+  // The same cold-start TUI session can create a typed Local node and then
+  // choose it as a Group outlet. Neither client config is handwritten here.
+  tui_keys(tui, "5a1");
+  for (const auto& field : {std::string("vless"), std::string("Local VLESS"),
+                            std::string("127.0.0.1"), std::to_string(*vless_port),
+                            std::string(uuid), std::string("raw"), std::string("none")})
+    tui_keys(tui, field + "\r");
+  const auto local_screen = tui_wait_for(tui, "Manual node saved to Local", 5s);
+  INFO("Local node TUI screen: " << local_screen);
+  REQUIRE(local_screen.find("Local VLESS") != std::string::npos);
+  const auto first_run = server.json(server.cli({"status"})).at("active").value("run_id", "");
+  tui_keys(tui, "sc");
+  Json local_running;
+  const auto local_deadline = std::chrono::steady_clock::now() + 20s;
+  while (std::chrono::steady_clock::now() < local_deadline) {
+    local_running = server.json(server.cli({"status"}));
+    if (local_running.value("state", "") == "running" &&
+        local_running.at("active").value("run_id", "") != first_run) break;
+    ::poll(nullptr, 0, 40);
+  }
+  INFO("Local node connection status: " << local_running.dump());
+  REQUIRE(local_running.value("state", "") == "running");
+  REQUIRE(local_running.at("active").value("run_id", "") != first_run);
+  const auto local_response = wait_for_socks_marker(*socks_port, http.port(), marker);
+  INFO("Local typed node loopback response: " << local_response);
+  CHECK(local_response.find(marker) != std::string::npos);
+
+  tui_keys(tui, "a4");
+  for (const auto& field : {"Local group", "automatic", "random", "local"})
+    tui_keys(tui, std::string(field) + "\r");
+  const auto group_screen = tui_wait_for(tui, "Group saved as a routing balancer", 5s);
+  INFO("Group TUI screen: " << group_screen);
+  REQUIRE(group_screen.find("Local group") != std::string::npos);
+  const auto local_run_id = local_running.at("active").value("run_id", "");
+  tui_keys(tui, "sc");
+  Json group_running;
+  const auto group_deadline = std::chrono::steady_clock::now() + 20s;
+  while (std::chrono::steady_clock::now() < group_deadline) {
+    group_running = server.json(server.cli({"status"}));
+    if (group_running.value("state", "") == "running" &&
+        group_running.at("active").value("run_id", "") != local_run_id) break;
+    ::poll(nullptr, 0, 40);
+  }
+  INFO("Group connection status: " << group_running.dump());
+  REQUIRE(group_running.value("state", "") == "running");
+  REQUIRE(group_running.at("active").value("run_id", "") != local_run_id);
+  const auto group_response = wait_for_socks_marker(*socks_port, http.port(), marker);
+  INFO("Local Group loopback response: " << group_response);
+  CHECK(group_response.find(marker) != std::string::npos);
+  const auto group_confdir = std::filesystem::path(group_running.at("active").at("confdir").get<std::string>());
+  CHECK(read_file(group_confdir / "04_routing.json").find("xrm-group-") != std::string::npos);
+  const auto local_inventory = server.json(server.cli({"node", "list", "--limit", "20"}));
+  auto local_row = std::find_if(local_inventory.at("items").begin(), local_inventory.at("items").end(),
+      [](const Json& item) { return item.value("name", "") == "Local VLESS"; });
+  REQUIRE(local_row != local_inventory.at("items").end());
+  CHECK(read_file(group_confdir / "90_nodes_tail.json").find(
+      node_tag(local_row->value("id", ""))) != std::string::npos);
+
+  // Viewing another Profile and binding the second source must not switch the
+  // one running Xray process or duplicate the global node inventory.
+  const auto before_office = group_running;
+  tui_keys(tui, "2n");
+  const auto office_prompt = tui_wait_for(tui, "New Profile name", 5s);
+  INFO("Office creation prompt: " << office_prompt);
+  REQUIRE(office_prompt.find("New Profile name") != std::string::npos);
+  tui_keys(tui, "Office\r");
+  const auto office_created = tui_wait_for(tui, "Profile selected for editing", 5s);
+  INFO("Office created screen: " << office_created);
+  REQUIRE(office_created.find("Profile selected for editing") != std::string::npos);
+  tui_keys(tui, "4");
+  point_to_source(source_b);
+  REQUIRE(tui_wait_for(tui, "Selected: backup VLESS fixture", 5s).find(
+      "Selected: backup VLESS fixture") != std::string::npos);
+  tui_keys(tui, "b");
+  REQUIRE(tui_wait_for(tui, "Source included in viewed Profile", 5s).find(
+      "Source included in viewed Profile") != std::string::npos);
+  const auto profiles_after_office = server.json(server.cli({"profile", "list"}));
+  REQUIRE(profiles_after_office.size() == 2);
+  const auto office_row = std::find_if(profiles_after_office.begin(), profiles_after_office.end(),
+      [](const Json& item) { return item.value("name", "") == "Office"; });
+  REQUIRE(office_row != profiles_after_office.end());
+  const auto office_id = office_row->at("id").get<std::string>();
+  const auto office = server.json(server.cli({"profile", "show", office_id}));
+  REQUIRE(office.at("enabled_source_ids") == Json::array({source_b}));
+  tui_keys(tui, "5");
+  REQUIRE(tui_wait_for(tui, "Cold-start-VLESS", 5s).find("Cold-start-VLESS") != std::string::npos);
+  const auto while_viewing_office = server.json(server.cli({"status"}));
+  CHECK(while_viewing_office.value("pid", Json(nullptr)) == before_office.value("pid", Json(nullptr)));
+  CHECK(while_viewing_office.at("active").value("confdir", "") ==
+      before_office.at("active").value("confdir", ""));
+  CHECK(while_viewing_office.at("active").value("profile_id", "") ==
+      before_office.at("active").value("profile_id", ""));
+  tui_keys(tui, "2\x1b[A\r");  // Return to the Home viewing context.
+
+  // Open and save a disabled native example without applying it.
+  const auto before_edit = group_running;
   tui_keys(tui, "3\x1b[A\r");
   auto disabled = tui_read(tui);
-  CHECK(disabled.find("Not configured yet") != std::string::npos);
+  CHECK(disabled.find("Native module editor") != std::string::npos);
   tui_keys(tui, "\x13");
   const auto after_edit = server.json(server.cli({"status"}));
   CHECK(after_edit.value("pid", Json(nullptr)) == before_edit.value("pid", Json(nullptr)));
@@ -1213,7 +1349,8 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   const auto saved_entry = tui_wait_for(legacy_tui, "Local SOCKS 127.0.0.1:10808 saved", 5s);
   INFO("existing Profile entry saved: " << saved_entry);
   REQUIRE(saved_entry.find("Local SOCKS 127.0.0.1:10808 saved") != std::string::npos);
-  tui_keys(legacy_tui, "2s");
+  tui_keys(legacy_tui, "4b");
+  tui_keys(legacy_tui, "5s");
   tui_keys(legacy_tui, "c");
   Json legacy_running;
   const auto legacy_deadline = std::chrono::steady_clock::now() + 20s;

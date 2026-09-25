@@ -194,19 +194,67 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     succeed(application_->server_info());
     return;
   }
+  if (method == "settings.get") {
+    auto settings = application_->store().load_program_settings();
+    if (!settings) fail(settings.error()); else succeed(std::move(*settings));
+    return;
+  }
+  if (method == "settings.update") {
+    if (!params.is_object() || !params.contains("patch")) {
+      fail(bad_params("settings.update需要patch对象", "patch")); return;
+    }
+    auto settings = application_->store().update_program_settings(params.at("patch"));
+    if (!settings) fail(settings.error()); else succeed(std::move(*settings));
+    return;
+  }
   if (method == methods::node_add) {
     std::string name;
-    if (!read_string(params, "name", name)) {
-      fail(bad_params("node.add需要非空name", "name"));
-      return;
+    const bool has_uri = params.contains("uri");
+    const bool has_settings = params.contains("settings");
+    const bool has_outbound = params.contains("outbound");
+    if (static_cast<int>(has_uri) + static_cast<int>(has_settings) +
+        static_cast<int>(has_outbound) != 1) {
+      fail(bad_params("node.add需要uri、settings或outbound之一")); return;
     }
-    if (!params.contains("outbound") || !params.at("outbound").is_object()) {
-      fail(bad_params("node.add需要原生outbound对象", "outbound"));
-      return;
+    Result<NodeSummary> added;
+    if (has_uri) {
+      std::string uri;
+      if (!read_string(params, "uri", uri)) { fail(bad_params("node.add需要非空uri", "uri")); return; }
+      std::optional<std::string> override_name;
+      if (params.contains("name")) {
+        if (!read_string(params, "name", name)) { fail(bad_params("name必须是非空字符串", "name")); return; }
+        override_name = std::move(name);
+      }
+      added = application_->add_manual_share_uri(std::move(uri), std::move(override_name));
+    } else {
+      if (!read_string(params, "name", name)) { fail(bad_params("node.add需要非空name", "name")); return; }
+      if (has_settings) {
+        if (!params.at("settings").is_object()) { fail(bad_params("settings必须是对象", "settings")); return; }
+        added = application_->add_manual_typed_node(std::move(name), params.at("settings"));
+      } else {
+        if (!params.at("outbound").is_object()) { fail(bad_params("outbound必须是对象", "outbound")); return; }
+        added = application_->add_manual_node(std::move(name), params.at("outbound"));
+      }
     }
-    auto added = application_->add_manual_node(std::move(name), params.at("outbound"));
     if (!added) fail(added.error());
     else succeed(Json(*added));
+    return;
+  }
+  if (method == methods::node_update) {
+    std::string id, name;
+    if (!read_string(params, "id", id) || !read_string(params, "name", name) ||
+        !params.contains("settings") || !params.at("settings").is_object()) {
+      fail(bad_params("node.update需要id、name和settings对象")); return;
+    }
+    auto changed = application_->replace_manual_node(id, std::move(name), params.at("settings"));
+    if (!changed) fail(changed.error()); else succeed(Json(*changed));
+    return;
+  }
+  if (method == methods::node_remove) {
+    std::string id;
+    if (!read_string(params, "id", id)) { fail(bad_params("node.remove需要id")); return; }
+    auto removed = application_->remove_manual_node(id);
+    if (!removed) fail(removed.error()); else succeed(Json{{"removed", true}});
     return;
   }
   if (method == methods::node_list) {
@@ -424,6 +472,14 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     succeed(std::move(result));
     return;
   }
+  if (method == methods::core_remove) {
+    std::string core_id;
+    if (!read_string(params, "core_id", core_id)) { fail(bad_params("core.remove需要core_id")); return; }
+    auto removed = application_->remove_managed_core(core_id);
+    if (!removed) { fail(removed.error()); return; }
+    succeed(Json{{"removed", core_id}});
+    return;
+  }
   if (method == methods::core_releases) {
     const bool include_prerelease = params.value("include_prerelease", false);
     const auto operation = application_->operations().begin();
@@ -492,9 +548,11 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
   }
   if (method == methods::profile_create) {
     std::string name, core_id;
-    if (!read_string(params, "name", name) || !read_string(params, "core_id", core_id)) {
-      fail(bad_params("profile.create需要name和core_id")); return;
+    if (!read_string(params, "name", name) ||
+        (params.contains("core_id") && !params.at("core_id").is_string())) {
+      fail(bad_params("profile.create需要name，core_id可暂时为空")); return;
     }
+    core_id = params.value("core_id", "");
     RunEnvironment environment;
     if (params.contains("cwd") && params.at("cwd").is_string()) environment.cwd = params.at("cwd").get<std::string>();
     auto created = application_->profiles().create({name, core_id, params.value("preset", "local"), environment});
@@ -555,6 +613,19 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
       auto saved = application_->profiles().save(id, ProfileEdit{std::move(base), params["settings"].get<ProfileSettings>()});
       if (!saved) fail(saved.error()); else succeed(Json{{"saved", true}});
     } catch (const std::exception& error) { fail(bad_params(error.what(), "settings")); }
+    return;
+  }
+  if (method == methods::profile_sources_set) {
+    std::string id;
+    if (!read_string(params, "profile_id", id) || !params.contains("source_ids") ||
+        !params.at("source_ids").is_array()) {
+      fail(bad_params("profile.sources.set需要profile_id和source_ids数组")); return;
+    }
+    try {
+      auto changed = application_->set_profile_sources(id, params.at("source_ids").get<std::vector<Id>>());
+      if (!changed) fail(changed.error());
+      else succeed(Json{{"saved", true}, {"runtime_changed", false}});
+    } catch (const Json::exception& error) { fail(bad_params(error.what(), "source_ids")); }
     return;
   }
   if (method == methods::module_list || method == methods::module_get) {

@@ -1,0 +1,7 @@
+{
+  "observatory": {
+    "subjectSelector": [],
+    "probeUrl": "http://127.0.0.1/",
+    "probeInterval": "10s"
+  }
+}

@@ -250,7 +250,10 @@ expected fixture由接口契约与固定核心文档人工写出；不能调用�
 | **UI-03** · tui | **期望与实际状态**：选B失败恢复A；有未应用设置；缺API/metric样本 | 分别显示saved B/actual A，提示未知/待应用，不捏造状态 | 把当前高亮项当实际出口 |
 | **UI-04** · tui | **全部模块与真实编辑能力**：打开15模块，操作常用表单及高级原文；传输子编辑器 | 标原生键/位置/源运行文件；功能真实可保存；未支持表单如实标记 | DNS之外杂项占位；一个原文编辑器冒充全表单 |
 | **UI-05** · tui | **外部编辑器与终端恢复**：编辑器成功/非零/冲突/取消，随后TUI继续 | 草稿保留可修复；终端恢复；保存不自动连接 | 编辑器退出就重启；异常后终端坏掉 |
-| **UI-06** · tui | **zero-profile startup**：空 data root 启动 Server 后直接 `xrm tui`，不传 `--profile` | 成功进入；Subscriptions/Nodes/Cores/Profiles 可用；Groups/Modules 显示创建 Profile 的 empty state；不要求 UUID | 退出、崩溃或要求先用 CLI 创建 Profile |
+| **UI-06** · tui | **zero-profile startup**：空 data root 启动 Server 后直接 `xrm tui`，不传 `--profile` | 成功进入；Subscriptions/Nodes/Config → Core/Profiles 可用；Modules/Nodes → Groups 显示创建 Profile 的 empty state；不要求 UUID | 退出、崩溃或要求先用 CLI 创建 Profile |
+| **UI-10** · tui | **七页导航与二级分类**：80×24 和宽终端逐页按数字键、Tab、Shift-Tab；进入 Nodes 各来源/Local/Groups 及 Config 四页 | 唯一高亮标题和内容相符；当前分类可见；Groups/Stats/Cores 不再占顶层；原功能可达 | 只改标题数组，按键和正文错位 |
+| **UI-11** · integration | **Profile 来源与标准模板**：旧文件缺字段、新建 A/B 分别绑定来源，打开 15 模块并连接 | 旧 Profile 仍看到既有来源；A/B 不复制节点；新模板仅启用基础模块；保存绑定不改变 PID/运行文件，显式连接才生效 | 升级后旧选择失效；把来源开关当自动刷新开关 |
+| **UI-12** · tui | **统一出口与程序设置**：Local 表单建节点、Groups 出口、routing 显示对应；设置主题/editor 后重启 Manager | 业务对象只有一个写入来源；程序设置持久且不触碰 Xray 文件；当前运行不因设置变化重启 | 建第二份组/统计/核心模型；render 期间写数据库 |
 | **UI-07** · tui | **Profile management in TUI**：全程不输入 UUID，create Home、rename Router、clone Test、open/switch、delete Test | 通过 Profile 一级页面按名称/选择器完成；删除/切换不隐式 connect | UUID 成为正常操作门槛；浏览造成运行切换 |
 | **UI-08** · tui | **viewed vs running Profile**：Home 正在运行，切换 viewing 到 Office，再明确 connect Office | 浏览阶段 PID、runtime dir、Actual Target 不变；显式 connect 后运行 Profile 才切换 | 把 viewed/highlighted target 当作 running/actual |
 | **UI-09** · integration | **CLI exact Profile ref resolution**：`--profile home` 唯一名称、重名、合法 UUID | 唯一名称及 UUID 精确成功；重名 conflict/ambiguous；零匹配 not_found；不 fuzzy/不取首项 | fuzzy match 或任意选择同名 Profile |

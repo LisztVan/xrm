@@ -226,11 +226,14 @@ void from_json(const Json& json, ExplicitMembers& value) {
 }
 void to_json(Json& json, const NodeFilter& value) {
   json = Json{{"kind", "filter"}, {"sources", value.sources},
+              {"explicit_node_ids", value.explicit_node_ids}, {"include_local", value.include_local},
               {"protocols", value.protocols}, {"name_contains", value.name_contains},
               {"labels", value.labels}};
 }
 void from_json(const Json& json, NodeFilter& value) {
   value.sources = json.value("sources", std::vector<Id>{});
+  value.explicit_node_ids = json.value("explicit_node_ids", std::vector<Id>{});
+  value.include_local = json.value("include_local", false);
   value.protocols = json.value("protocols", std::vector<std::string>{});
   value.name_contains = json.value("name_contains", std::vector<std::string>{});
   value.labels = json.value("labels", std::vector<std::string>{});

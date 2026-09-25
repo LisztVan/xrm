@@ -121,8 +121,12 @@ bool has_any(const std::vector<std::string>& conditions,
 }
 
 bool matches(const NodeFilter& filter, const Node& node) {
-  if (!filter.sources.empty() &&
-      (!node.source_id || std::find(filter.sources.begin(), filter.sources.end(), *node.source_id) == filter.sources.end()))
+  if (std::find(filter.explicit_node_ids.begin(), filter.explicit_node_ids.end(), node.id) !=
+      filter.explicit_node_ids.end()) return true;
+  if ((!filter.sources.empty() || filter.include_local || !filter.explicit_node_ids.empty()) &&
+      (node.source_id ?
+          std::find(filter.sources.begin(), filter.sources.end(), *node.source_id) == filter.sources.end() :
+          !filter.include_local))
     return false;
   if (!has_any(filter.protocols, [&](const auto& item) { return item == protocol_of(node); })) return false;
   const auto name = lower(node.original_name);

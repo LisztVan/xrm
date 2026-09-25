@@ -462,6 +462,41 @@ Result<std::vector<CoreInstall>> Application::list_cores() const {
   return store_->cores();
 }
 
+Result<void> Application::remove_managed_core(const Id& core_id) {
+  auto core = store_->get_core(core_id);
+  if (!core) return std::unexpected(core.error());
+  if (!core->managed)
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "系统 Xray 只能登记和使用，不能由 XRM 删除", core_id, std::nullopt});
+  auto profiles = profiles_->list();
+  if (!profiles) return std::unexpected(profiles.error());
+  for (const auto& summary : *profiles) {
+    auto profile = profiles_->get(summary.id);
+    if (!profile) return std::unexpected(profile.error());
+    if (profile->core_id == core_id)
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "Xray 仍被 Profile 使用", summary.name, std::nullopt});
+  }
+  const auto status = core_manager_->status();
+  if (status.active && status.active->core_id == core_id)
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "Xray 当前仍在运行", core_id, std::nullopt});
+  const auto prefix = std::string("managed-");
+  if (!core_id.starts_with(prefix) || core_id.size() == prefix.size())
+    return std::unexpected(AppError{ErrorCode::invalid_argument,
+        "托管核心登记路径无效", core_id, std::nullopt});
+  const auto tag = core_id.substr(prefix.size());
+  if (tag == "." || tag == ".." || tag.find('/') != std::string::npos ||
+      tag.find('\\') != std::string::npos || core->path != data_root_ / "cores" / tag / "xray")
+    return std::unexpected(AppError{ErrorCode::invalid_argument,
+        "托管核心目录与登记不符，未删除", core->path.string(), std::nullopt});
+  std::error_code error;
+  std::filesystem::remove_all(core->path.parent_path(), error);
+  if (error) return std::unexpected(AppError{ErrorCode::io_error,
+      "删除托管核心目录失败", error.message(), std::nullopt});
+  return store_->remove_core(core_id);
+}
+
 Result<Id> Application::core_releases(bool include_prerelease,
                                       Completion<std::vector<CoreRelease>> completion) {
   return core_installer_->releases(include_prerelease, std::move(completion));
@@ -594,6 +629,13 @@ Result<BuildInput> Application::build_input(const Id& profile_id) {
   profile->bindings.observation = std::move(*observation);
   auto nodes = store_->all_nodes();
   if (!nodes) return std::unexpected(nodes.error());
+  if (profile->profile.enabled_source_ids) {
+    const auto& allowed = *profile->profile.enabled_source_ids;
+    std::erase_if(*nodes, [&](const Node& node) {
+      return node.source_id &&
+          std::find(allowed.begin(), allowed.end(), *node.source_id) == allowed.end();
+    });
+  }
   return BuildInput{std::move(*profile), std::move(*nodes)};
 }
 
@@ -606,6 +648,12 @@ Result<void> Application::select(const Id& profile_id, std::optional<Target> tar
     if (!node->enabled || node->source_missing)
       return std::unexpected(AppError{ErrorCode::not_found, "节点已停用或来源缺失",
                                       target->id_or_tag, std::nullopt});
+    if (node->source_id && profile->enabled_source_ids &&
+        std::find(profile->enabled_source_ids->begin(), profile->enabled_source_ids->end(),
+                  *node->source_id) == profile->enabled_source_ids->end())
+      return std::unexpected(AppError{ErrorCode::conflict,
+          "节点来源未用于当前 Profile；请在 Subscriptions 中启用该来源",
+          *node->source_id, std::nullopt});
   } else if (target && target->kind == TargetKind::group) {
     auto groups = profiles_->groups(profile_id);
     if (!groups) return std::unexpected(groups.error());
@@ -619,6 +667,23 @@ Result<void> Application::select(const Id& profile_id, std::optional<Target> tar
   auto current = read_text(*profile_path / "profile.json", 8 * 1024 * 1024);
   if (!current) return std::unexpected(current.error());
   profile->selected = std::move(target);
+  return profiles_->save(profile_id, ProfileEdit{{*current}, std::move(*profile)});
+}
+
+Result<void> Application::set_profile_sources(const Id& profile_id, std::vector<Id> source_ids) {
+  auto profile = profiles_->get(profile_id);
+  if (!profile) return std::unexpected(profile.error());
+  std::sort(source_ids.begin(), source_ids.end());
+  source_ids.erase(std::unique(source_ids.begin(), source_ids.end()), source_ids.end());
+  for (const auto& id : source_ids) {
+    auto source = store_->get_source(id);
+    if (!source) return std::unexpected(source.error());
+  }
+  auto path = store_->profile_path(profile_id);
+  if (!path) return std::unexpected(path.error());
+  auto current = read_text(*path / "profile.json", 8 * 1024 * 1024);
+  if (!current) return std::unexpected(current.error());
+  profile->enabled_source_ids = std::move(source_ids);
   return profiles_->save(profile_id, ProfileEdit{{*current}, std::move(*profile)});
 }
 

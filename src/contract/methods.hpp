@@ -5,12 +5,17 @@
 namespace xrm::methods {
 
 inline constexpr std::string_view server_info = "server.info";
+inline constexpr std::string_view settings_get = "settings.get";
+inline constexpr std::string_view settings_update = "settings.update";
 inline constexpr std::string_view core_register = "core.register";
 inline constexpr std::string_view core_list = "core.list";
+inline constexpr std::string_view core_remove = "core.remove";
 inline constexpr std::string_view core_releases = "core.releases";
 inline constexpr std::string_view core_install = "core.install";
 inline constexpr std::string_view core_use = "core.use";
 inline constexpr std::string_view node_add = "node.add";
+inline constexpr std::string_view node_update = "node.update";
+inline constexpr std::string_view node_remove = "node.remove";
 inline constexpr std::string_view node_list = "node.list";
 inline constexpr std::string_view node_get = "node.get";
 inline constexpr std::string_view node_copy = "node.copy";
@@ -30,6 +35,7 @@ inline constexpr std::string_view profile_create = "profile.create";
 inline constexpr std::string_view profile_list = "profile.list";
 inline constexpr std::string_view profile_get = "profile.get";
 inline constexpr std::string_view profile_save = "profile.save";
+inline constexpr std::string_view profile_sources_set = "profile.sources.set";
 inline constexpr std::string_view profile_rename = "profile.rename";
 inline constexpr std::string_view profile_clone = "profile.clone";
 inline constexpr std::string_view profile_remove = "profile.remove";

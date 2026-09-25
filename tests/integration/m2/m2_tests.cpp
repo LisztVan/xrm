@@ -367,6 +367,7 @@ TEST_CASE("G2/E2E-03 refresh changes inventory only until an explicit connect", 
   auto source = parsed(server.cli({"sub", "add", "--name", "loopback subscription", "--url", fixture.url()}));
   REQUIRE(source.contains("id"));
   const auto source_id = source.at("id").get<std::string>();
+  REQUIRE(server.cli({"profile", "sources", "set", profile_id, "--source", source_id}).code == 0);
   REQUIRE(server.cli({"sub", "update", source_id}).code == 0);
   auto nodes_a = parsed(server.cli({"node", "list"})).at("items");
   REQUIRE(nodes_a.size() == 1);

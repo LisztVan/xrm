@@ -41,6 +41,7 @@ class Application {
   Store& store();
   SubscriptionService& subscriptions();
   Result<std::vector<CoreInstall>> list_cores() const;
+  Result<void> remove_managed_core(const Id& core_id);
   Result<Id> core_releases(bool include_prerelease,
                            Completion<std::vector<CoreRelease>> completion);
   Result<Id> install_core(InstallRequest request,
@@ -56,6 +57,7 @@ class Application {
   LogBuffer& logs();
   Result<BuildInput> build_input(const Id& profile_id);
   Result<void> select(const Id& profile_id, std::optional<Target> target);
+  Result<void> set_profile_sources(const Id& profile_id, std::vector<Id> source_ids);
   void connect(const Id& profile_id, std::optional<Target> target,
                Completion<ActivationResult> completion);
   void check(const Id& profile_id, Completion<ActivationResult> completion);

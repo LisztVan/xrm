@@ -86,6 +86,8 @@ CLI 与 TUI 是独立前端。“共享业务接口”不得解释为“共享�
 
 `xrm tui` 不要求用户提供 Profile UUID。没有 Profile 时仍应能管理全局订阅、登记/安装核心并通过界面创建 Profile；单 Profile 可直接选择，多 Profile 提供可读名称的上下文管理。已列入产品范围的 disabled/空源模块必须可安全查看与编辑，打开不等于启用。
 
+当前 TUI 顶层顺序固定为 Overview、Profiles、Modules、Subscriptions、Nodes、Logs、Config。Groups 作为 Nodes 特殊出口，Stats 属于 Overview，核心与程序设置属于 Config；合并导航不合并 Server 职责。Profile 只引用全局来源/节点/核心，XRM 主题和编辑器设置不得写入 Xray 模块。旧 Profile 缺少来源绑定字段时继续兼容原先全部来源可见；新 Profile 显式选择来源。连接/应用仍为唯一发布运行配置的动作。
+
 保存只处理目标源文件。高级文本不丢未知字段；表单导致目标文件规范化时说明，不承诺不存在的注释保留能力。不为此开发自定义 CST/IDE。
 
 普通列表不包含完整凭据，编辑/导出返回用户需要的真实内容；不能把脱敏字符串当真实数据保存。

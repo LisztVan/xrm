@@ -282,11 +282,17 @@ UI 默认提供“选用并连接”，不要求用户手改 tag 或分别执行
 
 ### R15 · CLI/TUI 人体工程学
 
-TUI 主导航至少包括 Overview、Subscriptions、Nodes、Groups、Profiles、Modules、Logs、Stats、Cores。Profile 是一级可管理对象。Overview 持续显示 Viewing Profile、Running Profile、Saved Target、Actual Target、Runtime Override、Core/version/state、订阅与节点计数和 pending changes。Viewing Profile 可以不同于 Running Profile；浏览或切换 viewed Profile 不连接、不改变运行 PID/目录/目标，只有明确 Connect/Apply 才改变运行实例。当前高亮节点不得冒充 Actual Target。
+TUI 顶层导航固定为 **Overview、Profiles、Modules、Subscriptions、Nodes、Logs、Config**，顺序和数字快捷键一致。Groups 是 Nodes 的特殊出口分类，Stats 汇入 Overview，核心管理进入 Config → Core；Config 另有 Appearance、Editor、General 二级页。Profile 是一级可管理对象。Overview 持续显示 Viewing Profile、Running Profile、Saved Target、Actual Target、Runtime Override、Core/version/state、订阅与节点计数、真实统计和 pending changes。Viewing Profile 可以不同于 Running Profile；浏览或切换 viewed Profile 不连接、不改变运行 PID/目录/目标，只有明确 Connect/Apply 才改变运行实例。当前高亮节点不得冒充 Actual Target。
 
-原生模块页必须列出 R06 全部项目，显示原生键名、中文名称、included 状态、源/运行文件和表单/原生编辑支持。组页、传输页和统计页是方便操作的子视图，不创建平行配置体系。模块 Enter 对 disabled 或无源模块也可用：有源时打开其草稿；无源时打开未配置草稿但不落盘、不启用；只有明确 Save 创建源，Enable 是独立操作；included 但无源、无效草稿等状态均须明确展示。
+Profile 是一套上网方案：引用核心、原生模块、组、保存出口、运行环境和启用的共享订阅来源。来源/节点与核心仍全局共享，不复制入 Profile。来源的自动刷新开关不同于“此 Profile 使用来源”；新 Profile 明确选择来源，旧 Profile 缺失该字段时保持此前全部来源可见的行为。来源绑定只在下一次显式连接/应用时改变运行范围，失效的保存出口必须报错，不自动换节点。创建标准本地代理 Profile 时，一次性生成覆盖 15 原生模块的可编辑样例/说明，默认只启用有效基础组合，不自动接管系统网络或启用全部高级模块；没有登记核心时仍可先保存方案。
 
-直接运行 `xrm tui` 即可进入，不需要 `--profile`。Profile 数量为 0 时正常进入，Overview、Subscriptions、Nodes、Cores、Profiles 可用；Groups、Modules、Connect 显示 “No profile selected / Create a profile to use this feature” 等明确空状态。1 个 Profile 时自动作为 viewed Profile，但不自动 connect；多个 Profile 恢复最近有效的 viewed Profile 或显示 picker，不能随意取第一个。TUI 的 Profile 页面支持 list/create/open/rename/clone/delete，全程通过可读名称/选择器完成人工操作，不要求 UUID。上下文切换不连接、不自动应用。
+Nodes 二级分类为全部订阅、各来源、Local、Groups，按当前 Profile 的来源绑定筛选日常订阅视图；无 Profile 时仍可浏览共享库存。Local 可用表单创建已支持的 typed 节点，也可通过原生 outbound 高级入口添加。Group 仍用既有 GroupBinding 和 routing.balancers，不成为协议节点；Modules → routing 显示相同动态组的只读对应关系并导向同一组编辑入口。
+
+Config 只管理 XRM 设置与核心资源：Core、Appearance、Editor、General。程序设置存数据库，主题与编辑器不写 Xray 原生文件。安装核心不等于选择；为 Profile 选择核心不等于切换当前运行实例。外部编辑器由 Manager 按显式设置、VISUAL、EDITOR 的顺序选择并在 Manager 主机运行。
+
+原生模块页必须列出 R06 全部项目，显示原生键名、中文名称、included 状态、源/运行文件和表单/原生编辑支持。Nodes 的组分类、传输子视图和 Overview 的统计区域只是方便操作/查看的入口，不创建平行配置体系。模块 Enter 对 disabled 或无源模块也可用：有源时打开其草稿；无源时打开未配置草稿但不落盘、不启用；只有明确 Save 创建源，Enable 是独立操作；included 但无源、无效草稿等状态均须明确展示。
+
+直接运行 `xrm tui` 即可进入，不需要 `--profile`。Profile 数量为 0 时正常进入，Overview、Profiles、Subscriptions、Nodes、Config → Core 可用；Modules、Groups 分类和 Connect 显示 “No profile selected / Create a profile to use this feature” 等明确空状态。1 个 Profile 时自动作为 viewed Profile，但不自动 connect；多个 Profile 恢复最近有效的 viewed Profile 或显示 picker，不能随意取第一个。TUI 的 Profile 页面支持 list/create/open/rename/clone/delete，全程通过可读名称/选择器完成人工操作，不要求 UUID。上下文切换不连接、不自动应用。
 
 节点库是全局共享的；订阅和节点操作不依赖 Profile。Connect 在无 Profile 时于 TUI 内提供 Create Default Profile、Open Profiles、Cancel 选择，不要求退出后使用 CLI。复杂原生文本编辑器应显眼提供 “Edit Native” 和 “Open External Editor”；内嵌编辑提供多行、Unicode 光标、删除、撤销、清楚的保存/取消键。
 

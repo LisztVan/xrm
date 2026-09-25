@@ -410,6 +410,7 @@ TEST_CASE("E2E-06 two Manager clients complete the inventory-to-running lifecycl
   INFO("subscription add: " << source.dump());
   REQUIRE(source.contains("id"));
   const auto source_id = source.at("id").get<std::string>();
+  REQUIRE(server.cli({"profile", "sources", "set", profile_id, "--source", source_id}).code == 0);
   const auto first_update = server.cli({"sub", "update", source_id});
   INFO("subscription update A: " << first_update.out << first_update.err);
   REQUIRE(first_update.code == 0);

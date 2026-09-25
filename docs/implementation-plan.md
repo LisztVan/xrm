@@ -327,6 +327,7 @@ struct ProfileSettings {
     RunEnvironment environment;
     std::vector<ModuleSetting> modules;
     std::vector<Id> additional_node_ids;
+    std::optional<std::vector<Id>> enabled_source_ids; // null=旧Profile兼容全部来源；空=新Profile未绑定来源
 };
 struct ExplicitMembers { std::vector<Id> node_ids; };
 struct NodeFilter {
@@ -1297,6 +1298,12 @@ public:
 这一层只对真正被多个视图共用的复合等待/提示动作封装，不为每个RPC再机械透传两层。所有Server返回错误都保留code，UI不靠匹配中文文字做流程判断。
 
 ### 页面与最小交互对应
+
+当前前端定型为七个顶层页，依次为 Overview、Profiles、Modules、Subscriptions、Nodes、Logs、Config。Groups 属于 Nodes 特殊出口分类，统计属于 Overview，Core 属于 Config → Core；Config 另有 Appearance、Editor、General。顶层与二级导航均有可见焦点，标题、顺序、数字键来自一份导航定义。CLI 命令结构不因 TUI 合并而改写。
+
+Profile 的 `enabled_source_ids` 仅保存来源引用，绝不复制节点。旧文件没有此字段按全部来源兼容，新建标准本地模板设为空集合；显式禁用来源不影响其它 Profile 或当前运行文件。保存目标若超出该 Profile 的来源范围，下一次连接给出明确错误而不自动改绑。标准模板一次性复制 15 个模块的可编辑示例与说明，只有可直接启动的基础模块默认启用；未登记 core 的方案允许保存但不能连接。
+
+程序 Appearance/Editor/General 设置只在数据库中保存，编辑器 argv 在 Manager 主机运行并优先于该主机 VISUAL/EDITOR。Core 页面复用既有登记、安装和 Profile 核心选择 RPC，不创建第二个生命周期 owner。Nodes 的 Local 表单调用现有节点保存接口；Groups 分类调用现有组绑定接口，并在 Modules → routing 提供同一绑定的只读入口，不创建第二份组数据。
 
 | 页面 | 至少可做的真实动作 | 保存位置/调用 |
 |---|---|---|

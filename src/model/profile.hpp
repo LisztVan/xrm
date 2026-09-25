@@ -37,6 +37,8 @@ struct NodeFilter {
   std::vector<std::string> protocols;
   std::vector<std::string> name_contains;
   std::vector<std::string> labels;
+  std::vector<Id> explicit_node_ids;  // Union with dynamically matched sources.
+  bool include_local = false;         // Also include manual inventory when sources are specified.
 };
 using NodeSelector = std::variant<ExplicitMembers, NodeFilter>;
 enum class SelectionMode { automatic, manual };
@@ -78,6 +80,9 @@ struct ProfileSettings {
   RunEnvironment environment;
   std::vector<ModuleSetting> modules;
   std::vector<Id> additional_node_ids;
+  // Missing in older profiles: all global sources remain available.
+  // An explicit empty vector means a new profile has not bound a source yet.
+  std::optional<std::vector<Id>> enabled_source_ids;
 };
 
 struct ProfileSnapshot {

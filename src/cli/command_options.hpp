@@ -42,6 +42,7 @@ struct Request {
   bool core_allow_unverified_checksum = false;
   std::string profile_name;
   std::string profile_id;
+  std::vector<std::string> profile_source_ids;
   std::string module_key;
   std::string module_show_key;
   std::string module_text;

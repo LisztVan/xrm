@@ -90,13 +90,16 @@ data_root/
 | 内容 | 唯一编辑来源 |
 |---|---|
 | 节点与订阅请求设置 | SQLite |
-| Profile 名称、核心选择、当前默认节点/组、运行环境 | `profile.json` |
+| Profile 名称、核心选择、启用的来源、当前默认节点/组、运行环境 | `profile.json` |
+| XRM 主题、编辑器和已有程序偏好 | SQLite 程序设置；不写入 Xray 模块 |
 | 所有原生顶层块和子对象 | 各 `modules/` 源文件 |
 | 动态组定义、成员筛选、手选值及附加观测范围 | `bindings/`；仅此处保存相应管理绑定 |
 | 当前实际运行的配置 | 已成功运行的文件集合及 RunRecord，只作结果记录 |
 | 实时流量、延迟、临时 API override | 核心反馈和 Server 内存，不作为永久配置 |
 
 SQLite 的 `profiles` 表只登记 ID 与文件位置，不再复制整个 Profile 的设置 JSON。列表读取文件并可缓存；缓存不是另一个可写主数据。
+
+TUI 使用七个顶层页：Overview、Profiles、Modules、Subscriptions、Nodes、Logs、Config。Nodes 二级页包含订阅来源、Local 和 Groups；Overview 复用现有 MetricsClient 显示统计；Config 二级页为 Core、Appearance、Editor、General。页面合并不合并 Server 职责：GroupBinding 仍在 Profile 绑定文件，核心安装记录仍在数据库，Xray 原生模块仍只在 `modules/`。来源全局存储，Profile 只保存来源 ID 绑定。旧 Profile 缺失来源绑定字段视为沿用旧行为（全部来源可见），新建 Profile 使用显式空集合直到用户选择来源。
 
 模块源文件与运行文件不是需要持续同步的两份真相：前者是输入，后者是连接时的输出。运行目录不监视后反向写回用户设置。用户需要编辑运行产物时先导出副本，独立使用。
 

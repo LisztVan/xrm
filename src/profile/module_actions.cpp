@@ -108,6 +108,18 @@ SaveManyResult save_module_changes(ProfileService& profiles, const Id& profile_i
 
   for (const auto& change : plan.changes) {
     const auto& edit = change.edit;
+    auto before = profiles.get(profile_id);
+    if (!before) {
+      result.failure = before.error();
+      return result;
+    }
+    const auto* setting = find_setting(*before, edit.key);
+    if (!setting) {
+      result.failure = AppError{ErrorCode::not_found,
+          "Profile 中没有该模块设置", edit.key, std::nullopt};
+      return result;
+    }
+    const bool inclusion_changed = setting->included != change.include_after_save;
     // An empty edit with no base represents a module whose content is not being
     // created (disable on a never-configured profile). It only changes enabled.
     const bool no_source_creation = !edit.base.expected_text && edit.text.empty();
@@ -130,7 +142,9 @@ SaveManyResult save_module_changes(ProfileService& profiles, const Id& profile_i
       result.failure = std::move(failure);
       return result;
     }
-    if (no_source_creation) result.saved.push_back(edit.key + ":included");
+    if (inclusion_changed &&
+        std::find(result.saved.begin(), result.saved.end(), edit.key) == result.saved.end())
+      result.saved.push_back(edit.key);
   }
   return result;
 }

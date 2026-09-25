@@ -8,7 +8,7 @@ void add_profile_commands(CLI::App& app, Request& request) {
   auto* profile = app.add_subcommand("profile", "Manage saved Profiles");
   auto* create = profile->add_subcommand("create", "Create a local Profile from the built-in preset");
   create->add_option("--name", request.profile_name)->required();
-  create->add_option("--core", request.core_id)->required();
+  create->add_option("--core", request.core_id, "Registered core ID (may be selected later)");
   create->callback([&] {
     request.method = std::string(methods::profile_create);
     request.params = Json{{"name", request.profile_name}, {"core_id", request.core_id}, {"preset", "local"}};
@@ -18,6 +18,14 @@ void add_profile_commands(CLI::App& app, Request& request) {
   auto* show = profile->add_subcommand("show", "Show Profile settings");
   show->add_option("profile_id", request.profile_id)->required();
   show->callback([&] { request.method = std::string(methods::profile_get); request.params = {{"profile_id", request.profile_id}}; });
+  auto* sources = profile->add_subcommand("sources", "Set the subscription sources used by one Profile");
+  auto* source_set = sources->add_subcommand("set", "Replace source bindings; no --source means use none");
+  source_set->add_option("profile_id", request.profile_id)->required();
+  source_set->add_option("--source", request.profile_source_ids, "Source ID to use; repeat for multiple sources");
+  source_set->callback([&] {
+    request.method = std::string(methods::profile_sources_set);
+    request.params = {{"profile_id", request.profile_id}, {"source_ids", request.profile_source_ids}};
+  });
 
   auto* config = app.add_subcommand("config", "Inspect and edit native Xray modules");
   auto* modules = config->add_subcommand("modules", "List all native Xray modules and their source/runtime files");

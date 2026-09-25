@@ -98,8 +98,8 @@ Result<std::filesystem::path> checked_module_path(
 }
 
 Result<void> validate_settings(const ProfileSettings& settings) {
-  if (settings.id.empty() || settings.name.empty() || settings.core_id.empty()) {
-    return fail<void>(ErrorCode::invalid_argument, "Profile ID、名称与核心 ID 不能为空");
+  if (settings.id.empty() || settings.name.empty()) {
+    return fail<void>(ErrorCode::invalid_argument, "Profile ID 与名称不能为空");
   }
   std::set<std::string> keys;
   std::set<std::string> filenames;
@@ -182,7 +182,8 @@ void to_json(Json& json, const ProfileSettings& value) {
                                     {"process_environment", value.environment.process_environment},
                                     {"asset_dir", std::move(asset_dir)}}},
               {"modules", Json::array()},
-              {"additional_node_ids", value.additional_node_ids}};
+              {"additional_node_ids", value.additional_node_ids},
+              {"enabled_source_ids", value.enabled_source_ids}};
   for (const auto& module : value.modules) {
     json["modules"].push_back(Json{{"key", module.key},
                                    {"filename", module.filename.generic_string()},
@@ -216,15 +217,19 @@ void from_json(const Json& json, ProfileSettings& value) {
                              module.at("included").get<bool>()});
   }
   value.additional_node_ids = json.at("additional_node_ids").get<std::vector<Id>>();
+  value.enabled_source_ids = json.contains("enabled_source_ids") &&
+      !json.at("enabled_source_ids").is_null()
+      ? std::optional<std::vector<Id>>(json.at("enabled_source_ids").get<std::vector<Id>>())
+      : std::nullopt;
 }
 
 ProfileService::ProfileService(Store& store, std::filesystem::path profiles_root)
     : store_(store), profiles_root_(std::move(profiles_root)) {}
 
 Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
-  if (!safe_profile_name(request.name) || request.core_id.empty()) {
+  if (!safe_profile_name(request.name)) {
     return fail<ProfileSettings>(ErrorCode::invalid_argument,
-        "Profile 名称与核心 ID 不能为空");
+        "Profile 名称不能为空或包含控制字符");
   }
   if (request.preset != "local") {
     return fail<ProfileSettings>(ErrorCode::not_found, "找不到本地 Profile 预设", request.preset);
@@ -248,6 +253,7 @@ Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
   settings.id = new_id();
   settings.name = request.name;
   settings.core_id = request.core_id;
+  settings.enabled_source_ids = std::vector<Id>{};
   settings.append_selected_default = manifest.value("append_selected_default", false);
   settings.environment = request.environment;
   settings.modules = default_module_settings();
@@ -275,7 +281,6 @@ Result<ProfileSettings> ProfileService::create(const ProfileCreate& request) {
     std::filesystem::remove_all(staging_dir, ignored);
   };
   for (const auto& module : settings.modules) {
-    if (!module.included) continue;
     const auto source = preset / "modules" / module.filename;
     auto bytes = read_text(source, max_profile_file_bytes);
     if (!bytes) { cleanup(); return std::unexpected(bytes.error()); }
