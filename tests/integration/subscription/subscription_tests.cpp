@@ -568,6 +568,48 @@ TEST_CASE("P2 source usage metadata comes from HTTP response header without beco
   http.shutdown([] {});
 }
 
+TEST_CASE("P2 inventory removal does not mutate the immutable active run record") {
+  TempDatabase database;
+  auto opened = xrm::Store::open(database.path);
+  REQUIRE(opened);
+  LocalHttpFixture fixture;
+  REQUIRE((*opened)->put_source(source("source-A", fixture.url())));
+  Loop loop;
+  xrm::HttpClient http(loop.value);
+  xrm::SubscriptionService service(**opened, http);
+  REQUIRE(refresh_sync(service, loop.value, {"source-A"}));
+  auto inventory = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
+  REQUIRE(inventory);
+  REQUIRE(inventory->items.size() == 1);
+  const auto old_id = inventory->items.front().id;
+
+  xrm::RuntimePersistent persistent;
+  xrm::RunRecord active;
+  active.run_id = "run-A";
+  active.profile_id = "profile-A";
+  active.core_id = "core-A";
+  active.spec.confdir = "/tmp/immutable-example-confdir";
+  active.index.nodes.push_back({old_id, "managed-old", "A"});
+  active.applied_selection = xrm::Target{xrm::TargetKind::node, old_id};
+  persistent.desired_running = true;
+  persistent.active = active;
+  REQUIRE((*opened)->save_runtime(persistent));
+  const xrm::Json before = *(*opened)->load_runtime();
+
+  fixture.respond(200, std::string(node_b));
+  auto refreshed = refresh_sync(service, loop.value, {"source-A"});
+  REQUIRE(refreshed);
+  REQUIRE(refreshed->completed.size() == 1);
+  CHECK(refreshed->completed.front().missing == 1);
+  CHECK_FALSE((*opened)->get_node(old_id));
+  auto after = (*opened)->load_runtime();
+  REQUIRE(after);
+  CHECK(xrm::Json(*after) == before);
+  CHECK(after->active->index.nodes.front().display_name == "A");
+  service.stop_schedule();
+  http.shutdown([] {});
+}
+
 TEST_CASE("SUB-05 an old response cannot commit after its source changes or is deleted", "[SUB-05]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
