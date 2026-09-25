@@ -250,12 +250,17 @@ expected fixture由接口契约与固定核心文档人工写出；不能调用�
 | **UI-03** · tui | **期望与实际状态**：选B失败恢复A；有未应用设置；缺API/metric样本 | 分别显示saved B/actual A，提示未知/待应用，不捏造状态 | 把当前高亮项当实际出口 |
 | **UI-04** · tui | **全部模块与真实编辑能力**：打开15模块，操作常用表单及高级原文；传输子编辑器 | 标原生键/位置/源运行文件；功能真实可保存；未支持表单如实标记 | DNS之外杂项占位；一个原文编辑器冒充全表单 |
 | **UI-05** · tui | **外部编辑器与终端恢复**：编辑器成功/非零/冲突/取消，随后TUI继续 | 草稿保留可修复；终端恢复；保存不自动连接 | 编辑器退出就重启；异常后终端坏掉 |
+| **UI-06** · tui | **zero-profile startup**：空 data root 启动 Server 后直接 `xrm tui`，不传 `--profile` | 成功进入；Subscriptions/Nodes/Cores/Profiles 可用；Groups/Modules 显示创建 Profile 的 empty state；不要求 UUID | 退出、崩溃或要求先用 CLI 创建 Profile |
+| **UI-07** · tui | **Profile management in TUI**：全程不输入 UUID，create Home、rename Router、clone Test、open/switch、delete Test | 通过 Profile 一级页面按名称/选择器完成；删除/切换不隐式 connect | UUID 成为正常操作门槛；浏览造成运行切换 |
+| **UI-08** · tui | **viewed vs running Profile**：Home 正在运行，切换 viewing 到 Office，再明确 connect Office | 浏览阶段 PID、runtime dir、Actual Target 不变；显式 connect 后运行 Profile 才切换 | 把 viewed/highlighted target 当作 running/actual |
+| **UI-09** · integration | **CLI exact Profile ref resolution**：`--profile home` 唯一名称、重名、合法 UUID | 唯一名称及 UUID 精确成功；重名 conflict/ambiguous；零匹配 not_found；不 fuzzy/不取首项 | fuzzy match 或任意选择同名 Profile |
 | **E2E-01** · integration | **M0两进程闭环**：真实xrmd+xrm、临时DB、测试核心version、手工节点 | 登记/保存/列表/重启持久化均经UDS | 绕过Server直接改库取得假成功 |
 | **E2E-02** · integration | **M1模块到连接**：一个手工节点、15模块管理、select、connect、logs、stop | 保存->FileSet->core argv->状态闭环；无大JSON | 只测库/生成器不运行xrm命令 |
 | **E2E-03** · integration | **M2来源到实际选用**：本机订阅更新后查看节点，选择并连接，后续再次更新 | 更新不运行，connect才采用新库存；部分结果可解释 | 依赖机场在线才能验收 |
 | **E2E-04** · integration | **M3分组、原生规则和状态**：动态组+静态规则+观测/统计，修改选择并应用 | 仅相关文件变；用户规则保留；统计来自core；回退目标真实 | 关闭原生规则方便实现；合为一个文件 |
 | **E2E-05** · integration | **M4导出与高级模块**：原生高级模块+节点库选择，导出生成confdir | 同样核心/cwd/env下可独立运行；外部资源另说明 | 依赖Server隐含patch才能运行 |
 | **E2E-06** · integration | **多客户端与完整首版流程**：CLI与TUI同时连Server，保存、更新、连接、停止、重连 | 单写与实际状态一致；无写重放；完整工作流可重复 | 客户端另存业务模型、多个核心争抢 |
+| **E2E-07** · real_core | **cold-start human workflow**：空 data root；从 `xrm tui` 添加本机订阅、更新、创建 Profile、选择 VLESS 节点、connect、真实 loopback 流量、打开 disabled module 并保存、退出 | 不预建 Profile、不传 Profile UUID、不直接改 DB/CLI 代做前置步骤；固定真实 Xray 流量成功；退出 TUI 后 core 仍运行 | fake-core、手工预置业务状态、仅 `-test` 或 JSON 断言 |
 
 ### 真实核心
 
@@ -286,7 +291,7 @@ expected fixture由接口契约与固定核心文档人工写出；不能调用�
 
 | 需求验收 | 本文测试 | 验收时补充 |
 |---|---|---|
-| T01 | E2E-01、E2E-06、UI-01 | 含实际TUI操作 |
+| T01 | E2E-01、E2E-06、E2E-07、UI-01、UI-06 | 含实际TUI操作 |
 | T02 | SUB-02、SUB-06 | 接口行为与副作用同时检查 |
 | T03 | SUB-03、HTTP-03 | 接口行为与副作用同时检查 |
 | T04 | SUB-04、GROUP-04 | 接口行为与副作用同时检查 |
@@ -310,10 +315,10 @@ expected fixture由接口契约与固定核心文档人工写出；不能调用�
 | T22 | MET-01、MET-02、LOG-02 | 接口行为与副作用同时检查 |
 | T23 | WRITE-02、LIFE-03、LIFE-11 | 接口行为与副作用同时检查 |
 | T24 | INS-01、LIFE-08 | 接口行为与副作用同时检查 |
-| T25 | UI-01、UI-02、UI-03、UI-05 | 含实际TUI操作 |
+| T25 | UI-01、UI-02、UI-03、UI-05、UI-06、UI-07、UI-08 | 含实际TUI操作 |
 | T26 | HTTP-02、PERF-01、RPC-04 | 接口行为与副作用同时检查 |
 | T27 | RC-01、RC-08、CT-01 | 真实核心必需；核对SKIP/证据真实性，不只依赖断言 |
-| T28 | E2E-06、CLI-01 | 接口行为与副作用同时检查；核对SKIP/证据真实性，不只依赖断言 |
+| T28 | E2E-06、E2E-07、CLI-01、UI-09 | 接口行为与副作用同时检查；核对SKIP/证据真实性，不只依赖断言 |
 | T29 | MOD-01、MOD-02、MOD-03、ASM-01、UI-04 | 含实际TUI操作 |
 | T30 | MOD-07、RC-09 | 真实核心必需 |
 | T31 | MOD-06、RC-07 | 真实核心必需 |
@@ -430,6 +435,14 @@ for phase in prepare, checking, stopping_old, starting_new, restoring_old, retry
 ## TS-11　可用性与性能验收方式
 
 对TUI至少实际操作一次：80×24窗口、中文和emoji节点名、全键盘导航、编辑器退出恢复、已保存/未保存提示、更新列表不丢焦点、连接失败显示实际旧目标、退出不停止core。
+
+人工失败后的产品修复需保留可复现回归：
+
+- TUI 对全部15个模块逐项实际按 Enter；覆盖 disabled+无源、disabled+有源、enabled+有源、无效正文；确认进程存活、正文状态可见、未因打开/保存草稿自动启用或改运行文件。
+- 80×24 PTY 使用 `xrm tui` 无 `--profile`，在 UI 添加本机订阅 fixture 并更新；观察节点、通过 Profile 页创建/选择方案、选节点并 connect。不得在测试前创建 Profile 或向命令传 ID。
+- VLESS 使用固定脱敏 4 TCP/REALITY（含 `insecure=true/false`）、3 WS/TLS、1 XHTTP/TLS 形态：检查 neutral defaults、ECH 的 `+ / =` 一次解码、Node JSON roundtrip、多文件出站。完整原 URI 不可得时明确说明合成端点与凭据。
+- 固定 v26.9.9 对 RAW、WS、XHTTP 各自使用 loopback peer 和唯一 marker 做真实流量验收；不得用 `-test` 或 JSON 断言替代流量。
+- 普通 PTY terminal mode 验证 Ctrl-S/F2 保存、外部编辑器返回草稿、失败恢复与 conflict；测试 harness 不得为了单独按键而关闭终端流控。
 
 性能使用固定虚构负载：1000节点、少量Profile、单核心，记录机器/构建类型与p50/p95、峰值RSS和日志上限。优先判断是否阻塞loop、是否持续泄漏、无查看者是否仍高频轮询。不要把不同机器的绝对毫秒数当同一硬门槛；测得瓶颈后只修具体路径。不能以性能为由删错误检查或引入未需求的无锁框架。
 

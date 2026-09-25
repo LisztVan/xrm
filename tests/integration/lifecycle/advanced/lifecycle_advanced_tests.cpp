@@ -7,6 +7,7 @@
 #include <sqlite3.h>
 #include <uv.h>
 
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -14,6 +15,7 @@
 #include <memory>
 #include <signal.h>
 #include <string>
+#include <thread>
 #include <unistd.h>
 
 namespace {
@@ -56,6 +58,18 @@ struct Services {
 std::string read_file(const std::filesystem::path& path) {
   std::ifstream input(path, std::ios::binary);
   return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+}
+
+bool wait_for_file_lines(const std::filesystem::path& path, std::size_t expected,
+                         std::chrono::milliseconds timeout) {
+  const auto deadline = std::chrono::steady_clock::now() + timeout;
+  do {
+    const auto contents = read_file(path);
+    if (static_cast<std::size_t>(std::count(contents.begin(), contents.end(), '\n')) >= expected)
+      return true;
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  } while (std::chrono::steady_clock::now() < deadline);
+  return false;
 }
 
 BuildRequest request(const TempDirectory& temp, std::string profile,
@@ -271,7 +285,7 @@ TEST_CASE("LIFE-05 replay uses the previously successful runtime directory uncha
           replay_manager = std::make_unique<CoreManager>(services.event_loop.loop,
               *services.store, services.process, services.writer,
               LifecycleOptions{std::chrono::seconds(1), std::chrono::milliseconds(100),
-                               std::chrono::milliseconds(10)});
+                               std::chrono::milliseconds(250)});
           const auto replacement_binary = services.temp.path / "replacement-xray";
           std::filesystem::copy_file(XRM_TEST_FAKE_CORE, replacement_binary,
                                      std::filesystem::copy_options::overwrite_existing);
@@ -307,7 +321,12 @@ TEST_CASE("LIFE-05 replay uses the previously successful runtime directory uncha
 
 TEST_CASE("LIFE-11 failed candidate and unusable old runtime report failure without replacing old files",
           "[LIFE-11][lifecycle-advanced]") {
-  Services services;
+  // Under ASan, the instrumented fake-core process can take longer than the
+  // suite's 10 ms fast-path observation default to reach its requested exit.
+  // Keep this failure-path test's observation window long enough to observe
+  // that real exit instead of racing the timer and treating a transient spawn
+  // as a stable candidate.
+  Services services({}, std::chrono::milliseconds(250));
   const auto old_binary = services.temp.path / "old-xray";
   std::filesystem::copy_file(XRM_TEST_FAKE_CORE, old_binary,
                              std::filesystem::copy_options::overwrite_existing);
@@ -366,6 +385,7 @@ TEST_CASE("LIFE-10 server recovery replays the persisted confdir and normal stop
         REQUIRE(result);
         const auto active = services.manager->status().active;
         REQUIRE(active);
+        REQUIRE(wait_for_file_lines(run_count, 1, std::chrono::seconds(3)));
         const auto confdir = active->spec.confdir;
         const auto config = confdir / "00_log.json";
         const auto bytes = read_file(config);
@@ -377,15 +397,16 @@ TEST_CASE("LIFE-10 server recovery replays the persisted confdir and normal stop
           restart_state.desired_running = true;
           restart_state.active = saved_record;
           REQUIRE(services.store->save_runtime(restart_state));
-          restarted_manager = std::make_unique<CoreManager>(services.event_loop.loop,
-              *services.store, services.process, services.writer,
-              LifecycleOptions{std::chrono::seconds(1), std::chrono::milliseconds(100),
-                               std::chrono::milliseconds(10)});
-          REQUIRE(restarted_manager->restore_after_server_start([&, confdir, config, bytes](auto restored) {
+      restarted_manager = std::make_unique<CoreManager>(services.event_loop.loop,
+          *services.store, services.process, services.writer,
+          LifecycleOptions{std::chrono::seconds(1), std::chrono::milliseconds(100),
+                           std::chrono::milliseconds(250)});
+      REQUIRE(restarted_manager->restore_after_server_start([&, confdir, config, bytes](auto restored) {
             REQUIRE(restored);
             REQUIRE(restored->active);
             CHECK(restored->active->spec.confdir == confdir);
             CHECK(read_file(config) == bytes);
+            CHECK(wait_for_file_lines(run_count, 2, std::chrono::seconds(3)));
             const auto launches = read_file(run_count);
             CHECK(std::count(launches.begin(), launches.end(), '\n') == 2);
             REQUIRE(restarted_manager->stop([&](auto final_stop) {

@@ -43,12 +43,12 @@ struct Services {
   ProcessService process{event_loop.loop};
   RuntimeWriter writer{temp.path};
   std::unique_ptr<CoreManager> manager;
-  Services() {
+  explicit Services(Milliseconds process_observation = std::chrono::milliseconds(20)) {
     auto opened = Store::open(temp.path / "state.sqlite");
     REQUIRE(opened);
     store = std::move(*opened);
     manager = std::make_unique<CoreManager>(event_loop.loop, *store, process, writer,
-        LifecycleOptions{std::chrono::seconds(1), std::chrono::milliseconds(100), std::chrono::milliseconds(20)});
+        LifecycleOptions{std::chrono::seconds(1), std::chrono::milliseconds(100), process_observation});
   }
 };
 BuildRequest request(const TempDirectory& temp, std::string profile,
@@ -153,7 +153,9 @@ TEST_CASE("LIFE-02 a failed candidate check leaves the previous core untouched",
 }
 
 TEST_CASE("LIFE-03 a failed replacement restores the previous input once", "[LIFE-03]") {
-  Services services;
+  // The short-lived failing fixture must remain observable when sanitizer
+  // instrumentation slows process startup.
+  Services services(std::chrono::milliseconds(250));
   const auto run_count = services.temp.path / "run-count";
   auto start_a = request(services.temp, "A", {{"XRM_FAKE_CORE_RUN_HANG", "1"},
                                                {"XRM_FAKE_CORE_RUN_COUNT", run_count.string()}});

@@ -1,25 +1,25 @@
 # v1 Release Candidate 验收（G5）
 
-日期：2026-09-24。本文记录最终集成代码的实际证据；状态只使用 `PASS`、`FAIL`、`SKIP`、`NOT RUN`、`NOT IMPLEMENTED`。T 项映射依据 `docs/testing-standard.md` TS-07，不把代码存在或局部覆盖当作通过。
+日期：2026-09-25。本文记录最终集成代码的实际证据；状态只使用 `PASS`、`FAIL`、`SKIP`、`NOT RUN`、`NOT IMPLEMENTED`。T 项映射依据 `docs/testing-standard.md` TS-07，不把代码存在或局部覆盖当作通过。
 
 ## 验收环境与总结果
 
 - 主机：`Linux 7.2.7+deb14-amd64 x86_64 / debian-work`；Intel Core i7-14700F；GCC 16.2.0；Debug dev 与 ASan presets。
 - 固定真实核心：`/tmp/xrm-g1-xray-v26.9.9/xray`，输出 `Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)`。固定发布二进制在仓库外准备，SHA-256 `1eb9175d0f0a8f8149c9230a7fc5ae66ce332ed20a53155ce61fe62e3f58b7df`；没有改动系统 Xray。
-- 最后一次 dev build 成功；完整回归命令运行后总数为 **182/182 PASS，0 FAIL，0 SKIP**，其中 `real_core` **11/11 PASS**、RC-01～RC-10 与 E2E-06 均执行。命令为 `TMPDIR=/home/lisztzy/.cache/xrm-tmp XRM_TEST_XRAY=/tmp/xrm-g1-xray-v26.9.9/xray ctest --preset dev --output-on-failure`。
-- 本轮 ASan build 与最终完整回归成功：**182/182 PASS，0 FAIL，0 SKIP**，`real_core` **11/11 PASS**。ASan PERF-02 执行相同负载和产品缓冲区/功能断言；Sanitizer allocator RSS 不套用 Debug 产品 RSS 上限，原因与证据见 [acceptance-notes.md](acceptance-notes.md)。
+- 前端契约修复后 dev build 成功；最终完整回归：**197/197 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**，包括 RC-01～RC-10、VLESS-WS-XHTTP、E2E-06 和新增 E2E-07。命令为 `TMPDIR=/home/lisztzy/.cache/xrm-tmp XRM_TEST_XRAY=/tmp/xrm-g1-xray-v26.9.9/xray ctest --preset dev --output-on-failure`。
+- ASan 首轮全量运行暴露进程/PTY 观察窗口的时序问题，以及 PROC-03 fixture 逐字节生成 2.2 MB 输出超过 ASan 下 3 秒测试 deadline；没有降低行为断言。针对短命 fake-core 的测试把观察窗改为 250 ms；PTY 改为等待目标帧/最新日志游标；PROC-03 fixture 改为分块写同样字节数。之后最终完整 ASan 构建与回归 **197/197 PASS，0 FAIL，0 SKIP**，其中 `real_core` **13/13 PASS**。ASan PERF-02 1000 节点负载通过，耗时 416.01 秒；该耗时包含 sanitizer instrumentation，不将 allocator RSS 与 Debug 产品 RSS 上限比较。
 - 固定核心命令为 `xray run -test -confdir <test-confdir>`、`xray run -confdir <test-confdir>` 以及 RC-01～RC-10/E2E-06 gate 所调用的同一 v26.9.9 binary；没有公网节点，核心行为用例均 loopback。CTest 最终 real-core label 两套构建均无 skip。
 - systemd unit 静态验证及 `xrmd` 子进程归属测试通过；此环境未确认可安全隔离的 systemd 实机测试环境，未启动/停止宿主 systemd unit，故 systemd 实机清理 **NOT RUN**。不要将 PKG-01 的静态/归属证据描述为 systemd 运行态测试。
-- release candidate 总门：**READY FOR MANUAL ACCEPTANCE**。日志暂停、UI-05 外部编辑器及自动 PTY acceptance 已实现并通过；本会话没有人工操作者执行 [tui-manual-acceptance.md](tui-manual-acceptance.md)，因此不把人工 TUI acceptance 或 T25 标为 PASS。
+- release candidate 总门：**READY FOR HUMAN RE-VALIDATION**。此前人工失败暴露的问题已修复并有自动回归；本轮前端契约修正、zero-profile/Profile PTY 流程及真实核心 E2E-07 已覆盖。新的完整冷启动人工主流程尚未由用户执行，因此不能声明 G5 PASS。
 
 ## I50 / I51 / I52
 
 | Task | 状态 | 证据 | 限制 |
 |---|---|---|---|
 | I50 | PASS（实机环境限制已披露） | `xrm_packaging_tests [packaging]` 2 cases / 48 assertions；PKG-01 unit 静态策略、LIFE-10 验证 xrmd 退出只清理自己拥有的 Xray child、socket 关闭且无关 Xray 存活。 | 没有隔离 systemd 环境，实机启停 NOT RUN。 |
-| I51 | PASS | RC-01～RC-10 与 E2E-06 使用固定 v26.9.9 最终代码，11/11 PASS；E2E-06 包含两个 Manager 客户端共用一个 Server，订阅刷新 A→B 时运行 PID、confdir 和所有文件字节不变，显式选择并 connect 后才采用 B，TUI 退出不停止 core，Server 重启后持久状态一致。 | VMess/Trojan/Shadowsocks/Hysteria2 保持 traffic-unverified。 |
-| I52 | PARTIAL / READY FOR MANUAL ACCEPTANCE | 本轮 80×24 PTY acceptance 5 cases / 193 assertions PASS（UI-01、UI-02/T25、UI-03 saved/actual、UI-05、日志缓冲截断；dev 与 ASan 均重跑）；PERF-01 41 assertions；PERF-02 1000 节点实际测量，dev/ASan 均 PASS。 | 需要真实操作者执行 [tui-manual-acceptance.md](tui-manual-acceptance.md)，包括真实终端、日志滚动、编辑器冲突和退出后 core 状态确认。 |
-| G5 | READY FOR MANUAL ACCEPTANCE | 自动测试、RC-01～10、E2E-06、dev/ASan 全量回归通过；人工步骤清单已提供但尚无操作者记录。 | 不提前认定 T25 / G5 PASS。systemd 实机限制仍为 NOT RUN，已如实披露且不要求宿主机操作。 |
+| I51 | PASS | RC-01～RC-10、VLESS-WS-XHTTP 与 E2E-06 使用固定 v26.9.9 最终代码，12/12 real_core PASS；E2E-06 包含两个 Manager 客户端共用一个 Server，订阅刷新 A→B 时运行 PID、confdir 和所有文件字节不变，显式选择并 connect 后才采用 B，TUI 退出不停止 core，Server 重启后持久状态一致。 | VMess/Trojan/Shadowsocks/Hysteria2 保持 traffic-unverified。 |
+| I52 | PARTIAL | UI-01～UI-09、E2E-07、PERF-01/02 自动验收覆盖完成；真实 80×24 PTY 自动化与固定 v26.9.9 loopback cold-start 流程已通过。 | 用户人工重跑完整 TUI 冷启动流程尚未发生；人工 checklist 结果留空待操作者填写。 |
+| G5 | NOT RUN | 所有自动化与真实核心验收通过后，状态已到人工复验门；本轮没有人工执行记录。 | 按 [tui-manual-acceptance.md](tui-manual-acceptance.md) 完成并记录后才能作最终判定。systemd 实机限制仍为 NOT RUN，且不要求宿主机操作。 |
 
 ## T01–T37 最终追踪
 
@@ -49,10 +49,10 @@
 | T22 | PASS | MET-01/02、LOG-02；速率重置/未知值、共享采样、慢 UDS 日志消费者有界测试通过。 |
 | T23 | PASS | WRITE-02、LIFE-03/11；活动输入与 Profile 源分离，回退不覆盖用户源模块。 |
 | T24 | PASS | INS-01、LIFE-08、E2E-05；系统/托管 core 区分；install 不等于 use/running。 |
-| T25 | NOT RUN | UI-01、UI-02、UI-03、UI-05 自动测试通过；日志 pause/resume 与服务端截断提示通过真实 TUI PTY 测试；外部编辑器正常、非零、取消、无效 JSON、终端恢复及并发保存冲突通过 UI-05 PTY 测试。仍缺完整人工 acceptance，故 T25 暂不 PASS。 |
+| T25 | NOT RUN | UI-01～UI-09 的相关自动 PTY 测试通过，包含 log pause/resume、disabled module、无 Profile、Profiles 管理、saved/actual target 和 external editor conflict。冻结标准要求的完整人工验收尚未执行。 |
 | T26 | PASS | HTTP-02、PERF-01、RPC-04；HTTP/core-check barrier 下其他 UDS CLI status/logs 仍响应，stop 在约 106 ms 完成，写请求不会重放。 |
 | T27 | PASS | CT-01、RC-01/08；固定真实 Xray 实际运行，所有协议 fixture 脱敏，real_core 最终无 skip。 |
-| T28 | PASS | E2E-06、CLI-01；两个客户端端到端流程及状态一致性通过。 |
+| T28 | PASS | E2E-06/07、CLI-01、UI-09；两个客户端端到端流程及 Profile 名称/UUID 寻址通过。 |
 | T29 | PASS | MOD-01/02/03、ASM-01/02、UI-04、RC-07；15 项可列出、编辑、启停、预览/输出；有专用表单与 native editor 的范围如实区分，不声称 15 套完整表单。 |
 | T30 | PASS | MOD-07、RC-09；进程 environment、Xray env 和 version 配置分离；固定 core 的 version 约束与资源路径实测。 |
 | T31 | PASS | MOD-06、RC-07；stats `{}`、FakeDNS 对象/数组、大小写原生 burstObservatory 在合法配置上下文验证。 |
@@ -99,10 +99,10 @@ RC-07 是逐模块合法上下文，不是 15 项全部启用的单一巨大配�
 
 ## TUI 与性能验收
 
-- PTY 自动验收：真实 80×24 pseudo-terminal。`build/dev/tests/tui/acceptance/xrm_tui_acceptance_tests '[UI-01],[UI-02],[UI-03],[UI-05],[T25]' --reporter compact`：5 cases / 193 assertions PASS；相同筛选在 ASan 构建也通过；UI-04 对应独立 CTest 项也在全量运行中通过。覆盖中文、emoji、长名称、键盘导航、输入焦点、saved target ≠ actual target、日志 follow/pause/历史/resume、Server buffer 淘汰提示、外部编辑器和退出后核心继续运行。emoji 验证显示与 UTF-8 保持，不声称覆盖终端输入法。
+- PTY 自动验收：真实 80×24 pseudo-terminal。UI-01～UI-09 对应测试和 E2E-07 均通过：覆盖中文、emoji、长名称、键盘导航、零 Profile global pages、Profile create/rename/clone/delete、name-oriented picker、viewed ≠ running、saved target ≠ actual target、日志 follow/pause/历史/resume、Server buffer 淘汰提示、external editor 和退出后核心继续运行。新增 PTY 检查已在 dev 与 ASan 全量中通过。emoji 验证显示与 UTF-8 保持，不声称覆盖终端输入法。
 - UI-05 外部编辑器：真实 TUI PTY 与测试 fake-editor 子进程覆盖 `$VISUAL` 优先、`$EDITOR` fallback、均未设置时明确错误、正常 0、nonzero、取消、无效 JSON 草稿保留、另一 CLI 并发修改同一文件后触发 conflict；源文件未被覆盖。fake-editor 只存在于测试 support，生产代码不识别测试模式。
 - Logs Pause：真实 TUI `p` 暂停/恢复；暂停期后台日志仍到达，viewport 稳定，上下键可翻历史；Server 环形 buffer 淘汰旧日志后显示 `older logs dropped / truncated`；Resume 跟随 tail；`q` 后 CLI `status` 仍显示 core running。UI-02/T25 与 5 MB 日志淘汰 PTY 用例均 PASS。
-- 人工验收 **NOT RUN**：无人工操作者记录；[tui-manual-acceptance.md](tui-manual-acceptance.md) 提供 10–15 分钟未勾选 checklist。saved target 与 actual target 在恢复场景的人工并列观察和真实小终端交互仍待执行。
+- 人工复验 **NOT RUN**：自动化完成后，本轮尚无用户复测记录；更新后的 [tui-manual-acceptance.md](tui-manual-acceptance.md) 是待执行 checklist。saved target 与 actual target 的人工观察、真实小终端交互及对用户订阅节点的实际刷新结果仍待用户确认。
 - PERF-01：本机 HTTP barrier 与 fake-core check UDS barrier 同时阻塞；CLI UDS clients 重复 status/logs 并 stop；41 assertions PASS。实测一个最终 dev 样本：status p50/p95 5.34/5.34 ms，logs 5.19/5.19 ms，stop 106.4 ms。ASan 对应测试 PASS。
 - PERF-02：1000 个虚构节点、1 Profile、1 core；SQLite list/search、组展开/组装渲染、来源 reconcile、CLI status/logs 和 4 MiB bounded logs。dev 单机 p50/p95：node list 57.36/59.17 ms，search 56.60/58.25 ms，assembly/render 35.74/36.61 ms，reconcile 62.83/63.19 ms，log page 0.00211/0.00229 ms。测得初始/结束 RSS 5840/16184 KiB，seed 后 8 MiB log append 0.908 ms，FileSet 504143 B，日志保留上限 4194304 B。ASan 负载运行通过，但 RSS 不与 dev 比作产品内存限制。有限重复测量不证明长期无泄漏。
 
@@ -116,6 +116,8 @@ RC-07 是逐模块合法上下文，不是 15 项全部启用的单一巨大配�
 
 ## 未满足项与 v1 外事项
 
-当前唯一剩余验收缺口是人工 TUI acceptance：自动日志 pause/resume 和 UI-05 均已通过，但不能用自动化代替冻结标准要求的人工小终端体验。systemd 实机运行仍未执行；unit 静态审查和进程归属集成测试已完成，环境限制已披露且本轮不触碰宿主服务。
+本轮修复：VLESS Codec 接受 Xray v26.9.9 下已确认可中性映射的 headerType=none、quicSecurity=none、insecure=false，并将 TLS ECH 参数映射到 streamSettings；不支持 TLS insecure=true 等无法保真映射的输入仍明确拒绝。VLESS 的 RAW/TCP、WS、XHTTP 脱敏形状有 codec 测试，WS/XHTTP 另有固定核心 loopback 测试。未取得用户私有订阅的原始 URI，因此不能声称复现每条实际 URI。
 
-Future / Not in v1：VMess/Trojan/Shadowsocks/Hysteria2 loopback traffic peer 验证；leastLoad 稳定性/真实行为验证；systemd 隔离环境实机验收；长期 RSS 斜率。没有实现 M6 或新增产品范围。
+本轮还修复无 source 的 disabled module 打开时 JSON null 转字符串导致 SIGABRT；现在先建立内存草稿，用户显式保存后创建 source，启用仍是单独操作。新增无需 `--profile` 的 TUI 首用流程：订阅添加/更新、节点浏览、登记已有 core、创建/选择 Profile、保存节点选择并 connect；保存不会自动连接，TUI 退出不会 stop core。外部编辑器有 F6/v 明确入口并继续只修改草稿。
+
+G5 当前为 READY FOR HUMAN RE-VALIDATION；唯一剩余的必需证据是用户按更新后的清单真实完成人工 TUI 冷启动主流程并填写结果。systemd 实机运行仍未执行；unit 静态审查和进程归属集成测试已完成，环境限制已披露且本轮不触碰宿主服务。Future / Not in v1：VMess/Trojan/Shadowsocks/Hysteria2 loopback traffic peer 验证；leastLoad 稳定性/真实行为验证；systemd 隔离环境实机验收；长期 RSS 斜率。没有实现 M6 或新增产品范围。

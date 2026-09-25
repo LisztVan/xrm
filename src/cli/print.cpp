@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <iostream>
 #include <optional>
+#include <cctype>
 #include <thread>
 #include <unistd.h>
 #include <sys/utsname.h>
@@ -99,6 +100,53 @@ std::string display_error(const Json& error) {
   return error.at("message").get<std::string>();
 }
 
+bool is_uuid(std::string_view value) {
+  if (value.size() != 36) return false;
+  for (std::size_t i = 0; i < value.size(); ++i) {
+    if (i == 8 || i == 13 || i == 18 || i == 23) {
+      if (value[i] != '-') return false;
+    } else if (!std::isxdigit(static_cast<unsigned char>(value[i]))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+std::string lowercase(std::string_view value) {
+  std::string result(value);
+  for (auto& ch : result) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+  return result;
+}
+
+Result<Id> resolve_profile_ref(const std::string& socket, std::string_view input) {
+  auto profiles = call_rpc_once(socket, "profile.list", Json::object());
+  if (!profiles) return std::unexpected(profiles.error());
+  if (!profiles->is_array())
+    return std::unexpected(AppError{ErrorCode::protocol_error,
+        "profile.list没有返回Profile列表", std::nullopt, std::nullopt});
+
+  if (is_uuid(input)) {
+    const auto canonical = lowercase(input);
+    for (const auto& profile : *profiles) {
+      if (profile.is_object() && lowercase(profile.value("id", std::string{})) == canonical)
+        return profile.value("id", std::string{});
+    }
+  }
+
+  std::vector<std::string> matches;
+  for (const auto& profile : *profiles) {
+    if (profile.is_object() && profile.value("name", std::string{}) == input &&
+        profile.contains("id") && profile.at("id").is_string())
+      matches.push_back(profile.at("id").get<std::string>());
+  }
+  if (matches.size() == 1) return matches.front();
+  if (matches.size() > 1)
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "Profile名称不唯一；请使用UUID精确指定", std::string(input), std::nullopt});
+  return std::unexpected(AppError{ErrorCode::not_found,
+      "找不到对应Profile（请使用精确名称或UUID）", std::string(input), std::nullopt});
+}
+
 int refresh_exit_code(const Request& request, const Json& result) {
   if (request.method != "subscription.refresh" || !result.is_object()) return 0;
   if (result.contains("failed") && result["failed"].is_array() && !result["failed"].empty()) return 4;
@@ -119,10 +167,16 @@ std::string default_socket_path() {
 }
 
 int execute_request(const Request& request) {
+  Json params = request.params;
+  if (params.is_object() && params.contains("profile_id") && params.at("profile_id").is_string()) {
+    auto profile_id = resolve_profile_ref(request.socket, params.at("profile_id").get_ref<const std::string&>());
+    if (!profile_id) return print_result(request, std::unexpected(profile_id.error()));
+    params["profile_id"] = std::move(*profile_id);
+  }
   if (request.method == "module.form") {
-    auto plan = call_rpc_once(request.socket, "module.change_plan", request.params);
+    auto plan = call_rpc_once(request.socket, "module.change_plan", params);
     if (!plan) return print_result(request, std::unexpected(plan.error()));
-    const auto profile_id = request.params.value("profile_id", std::string{});
+    const auto profile_id = params.value("profile_id", std::string{});
     auto saved = call_rpc_once(request.socket, "module.save_changes",
         Json{{"profile_id", profile_id}, {"plan", *plan}});
     if (!saved) return print_result(request, std::unexpected(saved.error()));
@@ -137,9 +191,9 @@ int execute_request(const Request& request) {
     return print_result(request, *saved);
   }
   if (request.method == "module.enable_traffic_statistics") {
-    auto plan = call_rpc_once(request.socket, "module.change_plan", request.params);
+    auto plan = call_rpc_once(request.socket, "module.change_plan", params);
     if (!plan) return print_result(request, std::unexpected(plan.error()));
-    const auto profile_id = request.params.value("profile_id", std::string{});
+    const auto profile_id = params.value("profile_id", std::string{});
     auto saved = call_rpc_once(request.socket, "module.save_changes",
         Json{{"profile_id", profile_id}, {"plan", *plan}});
     if (!saved) return print_result(request, std::unexpected(saved.error()));
@@ -166,7 +220,7 @@ int execute_request(const Request& request) {
           matches.empty() ? "找不到已登记的核心版本或 ID" : "该版本对应多个已登记核心，请用 core ID 消歧",
           request.core_version, std::nullopt}));
     auto result = finish_operation(request.socket, call_rpc_once(request.socket, "core.use",
-        Json{{"profile_id", request.profile_id}, {"core_id", matches.front()}}));
+        Json{{"profile_id", params.value("profile_id", std::string{})}, {"core_id", matches.front()}}));
     return print_result(request, result);
   }
   if (request.method == "core.install.version") {
@@ -202,7 +256,7 @@ int execute_request(const Request& request) {
             {"allow_unverified_checksum", request.core_allow_unverified_checksum}}}}));
     return print_result(request, installed);
   }
-  auto result = call_rpc_once(request.socket, request.method, request.params);
+  auto result = call_rpc_once(request.socket, request.method, params);
   result = finish_operation(request.socket, std::move(result));
   return print_result(request, result);
 }

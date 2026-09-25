@@ -1,6 +1,6 @@
 # XRM 需求文档
 
-**状态：方案讨论稿，尚未实现 · 整理日期：2026-09-23 · 原生模块对接方案**  
+**状态：首版实现与验收记录见 `release-acceptance.md`；人工验收失败后的修复仍在进行 · 整理日期：2026-09-24**
 **形态：Manager（CLI/TUI）+ Server（daemon）+ 独立 Xray-core**  
 **语言：C++23 · 首发平台：Linux x86_64 / aarch64**
 
@@ -84,7 +84,9 @@ v2rayN、v2rayNG、xrat 仅用于说明“节点、设置、连接、日志/统�
 
 两个产品程序属于同一个项目和发布包。Manager 负责交互、编辑稿与展示；业务修改经过 Server。Server 不处理用户实际代理流量。
 
-CLI/TUI 共用业务接口。Server 不可达时说明连接位置和启动方法，不偷偷启动服务或提权。生产后台部署由 systemd 托管 Server，避免另一个 `xray.service` 同时管理同一实例。
+CLI 与 TUI 是两个独立交互前端。CLI 是面向 shell、SSH、Agent 和自动化的 command-oriented 前端：使用显式参数、便于脚本调用、无状态或弱状态。TUI 是长驻、GUI-like、面向人工操作的交互前端，维护自己的 UI session context；正常流程不得要求用户输入内部 UUID、RPC 参数或 CLI 前置参数。
+
+两者共享 xrmd business API、DTO、业务语义和持久化数据，但不要求共享命令结构、导航、上下文、页面流程或参数输入方式。**“CLI/TUI 共用业务接口”不得解释为“共用交互模型”。** Server 不可达时说明连接位置和启动方法，不偷偷启动服务或提权。生产后台部署由 systemd 托管 Server，避免另一个 `xray.service` 同时管理同一实例。
 
 ### R02 · 订阅管理
 
@@ -110,11 +112,15 @@ C++ 自己维护协议、传输、安全参数及分享链接解析。首个闭�
 
 常用字段强类型；复杂扩展允许原生 JSON。未知且影响连接的参数不能删掉后报告完全支持。原生高级 outbound 可保存，但管理器不得据此声称已适配所有对应分享链接与编辑表单。
 
+VLESS URI 必须按字段语义识别。`headerType=none` 与非 QUIC 传输上的 `quicSecurity=none` 是兼容性中性默认值；`insecure=false/0` 不得变成跳过证书验证；`ech` 在 TLS 上写入原生 `tlsSettings.echConfigList`，按 URI percent-decode 一次并保留 `+ / =`。TLS `insecure=true` 在目标核心不能安全表达时明确报告待修正，不生成已移除的信任绕过字段。其他未知连接参数需指出具体参数，不能把已识别的节点协议全部混报为 malformed。
+
 ### R05 · Profile 和原生模块管理
 
-Profile 支持创建、选择、复制、重命名、查看和删除。多个 Profile 共享独立节点库，不复制订阅数据。Profile 的运行目标可以是一个节点、一个组或用户明确配置的原生路由方案；手写服务端配置不必为了启动而伪造一个订阅节点。
+Profile 支持创建、选择、复制、重命名、查看和删除。内部 Profile ID 是稳定 UUID，用于持久化、RPC、引用和精确寻址；人机交互优先显示/使用 Profile 名称，TUI 使用列表/选择器，不要求用户记忆 UUID。CLI 的 Profile ref 可为 UUID 或名称：UUID 精确存在时优先；否则按名称精确匹配，唯一名称成功、无匹配为 not_found、同名多项返回 ambiguous conflict；禁止模糊匹配或自动选择第一个。多个 Profile 共享独立节点库，不复制订阅数据。Profile 的运行目标可以是一个节点、一个组或用户明确配置的原生路由方案；手写服务端配置不必为了启动而伪造一个订阅节点。
 
 每个原生模块具有统一的基本操作：**列出与状态、启用/停用、查看、编辑、保存、恢复本次未保存编辑、预览对应运行文件**。停用表示本轮不输出该模块，保留源设置；这是管理器行为，不向每个原生对象随意插入 `enabled`。
+
+Enter 打开 disabled 模块不要求其先有源文件，也不自动启用。无源模块展示未配置状态与原生编辑/创建草稿；已有 disabled 源保持可读可编辑但不参与运行。创建模块正文与启用模块是两个明确保存动作。
 
 界面中的停用准确含义是“不输出这段配置”，并不保证核心对应能力完全关闭；省略某些配置后核心仍可能采用默认行为。`outbounds` 的停用覆盖其静态与生成节点分片。若本次管理器选择明确需要一个已停用模块，提示启用或调整选择，不静默恢复该模块。
 
@@ -276,7 +282,13 @@ UI 默认提供“选用并连接”，不要求用户手改 tag 或分别执行
 
 ### R15 · CLI/TUI 人体工程学
 
-主页面：总览、节点、订阅、原生模块、策略组、核心、日志/统计。原生模块页必须列出 R06 全部项目，显示原生键名、中文名称、启用状态、源/运行文件和支持的编辑方式。组页、传输页和统计页是方便操作的子视图，不创建平行配置体系。
+TUI 主导航至少包括 Overview、Subscriptions、Nodes、Groups、Profiles、Modules、Logs、Stats、Cores。Profile 是一级可管理对象。Overview 持续显示 Viewing Profile、Running Profile、Saved Target、Actual Target、Runtime Override、Core/version/state、订阅与节点计数和 pending changes。Viewing Profile 可以不同于 Running Profile；浏览或切换 viewed Profile 不连接、不改变运行 PID/目录/目标，只有明确 Connect/Apply 才改变运行实例。当前高亮节点不得冒充 Actual Target。
+
+原生模块页必须列出 R06 全部项目，显示原生键名、中文名称、included 状态、源/运行文件和表单/原生编辑支持。组页、传输页和统计页是方便操作的子视图，不创建平行配置体系。模块 Enter 对 disabled 或无源模块也可用：有源时打开其草稿；无源时打开未配置草稿但不落盘、不启用；只有明确 Save 创建源，Enable 是独立操作；included 但无源、无效草稿等状态均须明确展示。
+
+直接运行 `xrm tui` 即可进入，不需要 `--profile`。Profile 数量为 0 时正常进入，Overview、Subscriptions、Nodes、Cores、Profiles 可用；Groups、Modules、Connect 显示 “No profile selected / Create a profile to use this feature” 等明确空状态。1 个 Profile 时自动作为 viewed Profile，但不自动 connect；多个 Profile 恢复最近有效的 viewed Profile 或显示 picker，不能随意取第一个。TUI 的 Profile 页面支持 list/create/open/rename/clone/delete，全程通过可读名称/选择器完成人工操作，不要求 UUID。上下文切换不连接、不自动应用。
+
+节点库是全局共享的；订阅和节点操作不依赖 Profile。Connect 在无 Profile 时于 TUI 内提供 Create Default Profile、Open Profiles、Cancel 选择，不要求退出后使用 CLI。复杂原生文本编辑器应显眼提供 “Edit Native” 和 “Open External Editor”；内嵌编辑提供多行、Unicode 光标、删除、撤销、清楚的保存/取消键。
 
 Enter 查看；明确的“选用并连接”才执行连接。Tab/Shift-Tab、方向键、Esc、搜索和帮助可用；输入框里的字符不触发全局命令。退出 TUI 不停止核心。
 

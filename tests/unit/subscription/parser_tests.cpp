@@ -59,6 +59,34 @@ TEST_CASE("SUB-01 separates malformed, unsupported, HTML, and deep Base64 input"
   CHECK_FALSE(double_encoded->structurally_complete);
 }
 
+TEST_CASE("subscription malformed VLESS items retain a safe field-level diagnostic") {
+  const auto report = xrm::parse_subscription(
+      "vless://00000000-0000-4000-8000-000000000001@node.example:443?security=tls&insecure=maybe");
+  REQUIRE(report.has_value());
+  REQUIRE(report->nodes.empty());
+  REQUIRE(report->issues.size() == 1);
+  CHECK(report->issues.front().kind == xrm::IssueKind::malformed);
+  CHECK(report->issues.front().message.find("insecure must be true, false, 1 or 0") != std::string::npos);
+  CHECK(report->issues.front().message.find("maybe") == std::string::npos);
+}
+
+TEST_CASE("real VLESS TCP subscription shape tolerates an inapplicable gRPC mode parameter") {
+  // The saved real subscription returns VLESS TCP/REALITY items with mode=multi.
+  // mode is defined for gRPC, so it has no TCP setting to map and must not make
+  // otherwise complete TCP nodes disappear from the inventory.
+  const auto report = xrm::parse_subscription(
+      "vless://00000000-0000-4000-8000-000000000001@node.example:443?"
+      "type=tcp&security=reality&pbk=YWJjZA&sid=01&mode=multi&flow=xtls-rprx-vision"
+      "&sni=front.example&fp=chrome#node");
+  REQUIRE(report.has_value());
+  REQUIRE(report->nodes.size() == 1);
+  CHECK(report->issues.empty());
+  CHECK(report->structurally_complete);
+  const auto& stream = std::get<xrm::StreamNode>(report->nodes.front().settings);
+  CHECK(std::holds_alternative<xrm::RawTransport>(stream.transport));
+  CHECK(std::get<xrm::VlessSettings>(stream.protocol).flow == "xtls-rprx-vision");
+}
+
 TEST_CASE("CODEC-02 subscription share URI boundary keeps IPv6 and decodes URI components once") {
   const auto parsed = xrm::parse_share_uri(
       "vless://00000000-0000-4000-8000-000000000001@[2001:db8::1]:443?"

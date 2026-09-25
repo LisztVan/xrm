@@ -1,6 +1,6 @@
 # XRM 实现方案与接口契约
 
-**状态：实施基线（用户已确认需求与架构；代码尚未实现）**  
+**状态：实现与阶段门完成情况见 `release-acceptance.md`；人工验收失败后的修复按 `product-repair-spec.md` 执行**
 **日期：2026-09-23 · C++23 · Linux 优先 · Manager/Server · Xray-only**
 
 本文将已确认的[需求](requirements.md)和[架构](architecture.md)落实为文件职责、跨模块接口、调用顺序和交付边界。与[任务 DAG](task-dag.md)、[测试标准](testing-standard.md)共同使用。原三份基线文档随包保留原文；其中“讨论稿”是原文件中的状态文字，用户后续确认已将其确定为本次实施依据。
@@ -1260,7 +1260,25 @@ UI dirty：保存成功后标记相关模块/选择/节点输入待应用；连�
 
 ## IP-12　CLI/TUI 的实现接点（IF-14）
 
-CLI11只负责参数解析、调用RpcClient、等待结果与渲染。FTXUI只保存焦点、过滤、选中ID、编辑草稿和最新Server快照。Server没有终端组件，Manager没有生产Store。
+CLI11只负责参数解析、调用RpcClient、等待结果与渲染。FTXUI 是独立的 long-running interactive frontend，通过 RpcClient 直接调用 Server API；它只保存焦点、过滤、选中ID、编辑草稿、viewed Profile 等 UI session state 和最新 Server 快照。Server没有终端组件，Manager没有生产Store。CLI command handler 不是 TUI 的业务层；TUI 不构造 CLI argv 再调用 CLI handler。两者共享 RpcClient/API/DTO/业务语义，不共享 command structure、navigation、context、page flow 或 input model。
+
+最小会话状态示意：
+
+```cpp
+struct TuiState {
+    Page page;
+    std::optional<Id> viewed_profile_id;
+    std::optional<Id> highlighted_node_id;
+    std::optional<Id> highlighted_group_id;
+    std::string node_search;
+    bool log_follow;
+    std::optional<ModuleDraft> module_draft;
+};
+```
+
+该状态不得成为第二份业务数据源：Profile/Node/Runtime 状态需要时通过 RPC 读取；`running_profile_id` 与实际目标只由 Server 状态返回。一个 Profile 可自动成为 viewed context；多个 Profile 恢复已知有效的本地 context 或显示 picker，绝不任取首项。查看/切换 viewed Profile 不触发 connect/apply。
+
+CLI Profile ref 统一通过 `resolve_profile_ref(std::string_view)` 解析：先确认合法 UUID 且记录存在；否则 Profile name exact match。唯一命中返回稳定 ID，零命中 not_found，重名 conflict/ambiguous；禁止 fuzzy matching。所有带 Profile 参数的 CLI command 共用该 resolver。内部 ID 仍用于 RPC 和存储，TUI 主交互使用可读名称/选择器。
 
 ```cpp
 struct ConnectAction { Id profile_id; std::optional<Target> target; };
@@ -1288,11 +1306,13 @@ public:
 | 入/出站子视图 | 原生列表操作、sniffing/streamSettings/mux所属对象编辑 | module.form_edit或node.replace |
 | 组 | 成员筛选、模式、手选值、选择组连接 | group.* / connection.* |
 | 总览 | 期望与实际、当前Profile、核心、待应用、连接/停止 | runtime.status / core.* |
+| Profile | 可读列表、创建、复制、重命名、删除、上下文选择 | profile.list/create/clone/rename/remove |
+| TUI session | Viewing Profile、焦点/搜索/选中ID、ModuleDraft | 仅本地交互状态；业务事实从 RPC 读取 |
 | 日志/统计 | 查看、暂停滚动、来源标签、未知/过期提示 | logs/read/events、runtime.stats |
 
 原生模块“可高级编辑”和“已有专用表单”分别标记。M1全部模块通用入口必须可用；不能用假按钮冒充M3/M4专用编辑完成。
 
-Enter查看，连接是明确动作；输入框字符不触发全局快捷键；q只退出UI；编辑返回保存/丢弃/返回；列表刷新保持ID与滚动；80×24不硬挤多栏。外部编辑器用argv启动，支持editor_argv，不使用shell命令替换。
+Enter查看，连接是明确动作；输入框字符不触发全局快捷键；q只退出UI；编辑返回保存/丢弃/返回；列表刷新保持ID与滚动；80×24不硬挤多栏。外部编辑器用argv启动，支持editor_argv，不使用shell命令替换。`xrm tui` 不要求 Profile ID；零 Profile 时可操作 Overview/Subscriptions/Nodes/Cores/Profiles，Profile 专属页面显示创建引导；一个 Profile 只自动成为 viewed context，多个 Profile 恢复有效 context 或弹出选择器。模块正文 `null` 表示源文件不存在，Manager 显示未配置草稿而不写盘或启用；disabled 不妨碍 Enter 打开。
 
 CLI错误/进度写stderr；JSON结果写stdout，不混色彩。采用退出码：0完成或按要求accepted；1失败；2参数；3Server/协议不可用；4未找到；5busy/conflict；6partial；7unknown；130中断等待。中断等待不等于取消Server已接受写操作。
 

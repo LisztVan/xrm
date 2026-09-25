@@ -16,3 +16,9 @@ foreach(case RC-01 RC-02 RC-03 RC-04 RC-05 RC-06 RC-07 RC-08 RC-09 RC-10)
     LABELS "real_core"
     SKIP_RETURN_CODE 77)
 endforeach()
+add_test(NAME VLESS-WS-XHTTP COMMAND xrm_real_core_tests "[VLESS-WS-XHTTP]")
+set_tests_properties(VLESS-WS-XHTTP PROPERTIES
+  LABELS "real_core;product_repair"
+  SKIP_RETURN_CODE 77)
+add_test(NAME E2E-07 COMMAND xrm_real_core_tests "[E2E-07]")
+set_tests_properties(E2E-07 PROPERTIES LABELS "real_core;product_repair" SKIP_RETURN_CODE 77)

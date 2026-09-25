@@ -65,7 +65,7 @@ Json settings_json(const NodeSettings& settings) {
       transport = Json{{"kind", "websocket"}, {"path", optional_string(value.path)}, {"headers", value.headers}};
     else if constexpr (std::is_same_v<T, GrpcTransport>)
       transport = Json{{"kind", "grpc"}, {"service_name", optional_string(value.service_name)},
-                       {"authority", optional_string(value.authority)}};
+                       {"authority", optional_string(value.authority)}, {"multi_mode", value.multi_mode}};
     else if constexpr (std::is_same_v<T, HttpUpgradeTransport>)
       transport = Json{{"kind", "httpupgrade"}, {"host", optional_string(value.host)},
                        {"path", optional_string(value.path)}};
@@ -131,7 +131,7 @@ NodeSettings settings_from_json(const Json& json) {
   if (tk == "raw") stream.transport = RawTransport{};
   else if (tk == "xhttp") stream.transport = XHttpTransport{read_optional_string(t, "host"), read_optional_string(t, "path"), read_optional_string(t, "mode"), t.at("extra").is_null() ? std::nullopt : std::optional<Json>(t.at("extra"))};
   else if (tk == "websocket") stream.transport = WebSocketTransport{read_optional_string(t, "path"), t.at("headers").get<std::map<std::string, std::string>>()};
-  else if (tk == "grpc") stream.transport = GrpcTransport{read_optional_string(t, "service_name"), read_optional_string(t, "authority")};
+  else if (tk == "grpc") stream.transport = GrpcTransport{read_optional_string(t, "service_name"), read_optional_string(t, "authority"), t.value("multi_mode", false)};
     else if (tk == "httpupgrade") stream.transport = HttpUpgradeTransport{read_optional_string(t, "host"), read_optional_string(t, "path")};
     else if (tk == "hysteria") stream.transport = HysteriaTransport{t.at("options")};
   else throw std::invalid_argument("unknown transport kind");

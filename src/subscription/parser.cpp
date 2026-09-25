@@ -87,9 +87,8 @@ void parse_uri_items(const std::vector<std::string_view>& items, ParseReport& re
     if (!parsed) {
       const bool unsupported = parsed.error().code == ErrorCode::unsupported;
       const auto code = unsupported ? "unsupported_uri_feature" : "invalid_uri";
-      const auto message = unsupported
-          ? parsed.error().message + (parsed.error().subject ? " (" + *parsed.error().subject + ")" : "")
-          : "subscription URI is malformed: " + lower(scheme);
+      const auto message = parsed.error().message +
+          (parsed.error().subject ? " (" + *parsed.error().subject + ")" : "");
       add_issue(report, i, unsupported ? IssueKind::unsupported : IssueKind::malformed,
                 code, message);
       malformed = malformed || !unsupported;

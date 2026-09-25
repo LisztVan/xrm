@@ -507,6 +507,15 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     if (!cloned) fail(cloned.error()); else succeed(Json(*cloned));
     return;
   }
+  if (method == methods::profile_rename) {
+    std::string id, name;
+    if (!read_string(params, "profile_id", id) || !read_string(params, "name", name)) {
+      fail(bad_params("profile.rename需要profile_id和name")); return;
+    }
+    auto renamed = application_->profiles().rename(id, std::move(name));
+    if (!renamed) fail(renamed.error()); else succeed(Json{{"renamed", true}});
+    return;
+  }
   if (method == methods::profile_remove) {
     std::string id;
     if (!read_string(params, "profile_id", id)) { fail(bad_params("profile.remove需要profile_id")); return; }

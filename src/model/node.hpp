@@ -47,6 +47,7 @@ struct WebSocketTransport {
 struct GrpcTransport {
   std::optional<std::string> service_name;
   std::optional<std::string> authority;
+  bool multi_mode = false;
 };
 struct HttpUpgradeTransport {
   std::optional<std::string> host;

@@ -15,6 +15,8 @@
 #include <atomic>
 #include <optional>
 #include <chrono>
+#include <memory>
+#include <mutex>
 #include <cerrno>
 #include <cstring>
 #include <cstdlib>
@@ -110,68 +112,240 @@ Result<Json> rpc(const std::string& socket, std::string method, Json params = Js
 
 class TuiApp final : public ComponentBase {
  public:
+  enum class Prompt { none, subscription_name, subscription_url, core_path, profile_name, profile_clone_name, profile_rename_name };
+  enum class AsyncUiState { idle, starting, running, success, partial, failed };
+  struct SubscriptionPageState {
+    AsyncUiState update_state = AsyncUiState::idle;
+    std::size_t spinner_phase = 0;
+    std::optional<std::string> operation_error;
+  };
+  struct RuntimePageState {
+    AsyncUiState operation_state = AsyncUiState::idle;
+    std::string operation_label;
+    std::size_t spinner_phase = 0;
+  };
+  struct Toast {
+    enum class Level { info, success, warning, error } level = Level::info;
+    std::string text;
+    std::chrono::steady_clock::time_point expires;
+  };
+  struct TuiState {
+    int page = 0;
+    std::string viewed_profile_id;
+    std::optional<std::string> highlighted_node_id;
+    std::optional<std::string> highlighted_group_id;
+    std::string node_search;
+    bool log_follow = true;
+    std::optional<std::string> module_draft;
+    SubscriptionPageState subscriptions;
+    RuntimePageState runtime;
+    std::vector<Toast> toasts;
+  };
+  struct EditorSnapshot { std::string text; std::size_t cursor = 0; };
+  struct SubscriptionRefreshEvent {
+    std::optional<Json> result;
+    std::optional<std::string> error;
+    std::vector<Json> subscriptions;
+    std::vector<Json> nodes;
+    std::size_t node_count = 0;
+    bool subscriptions_loaded = false;
+    bool nodes_loaded = false;
+  };
+  struct RuntimeOperationEvent {
+    std::string label;
+    std::optional<std::string> error;
+    std::optional<Json> status;
+  };
+  struct AsyncMailbox {
+    std::mutex mutex;
+    std::optional<SubscriptionRefreshEvent> subscription_refresh;
+    bool subscription_running = false;
+    std::vector<RuntimeOperationEvent> runtime_operations;
+    std::optional<Json> logs;
+  };
+  struct UiEventPoster {
+    std::mutex mutex;
+    ScreenInteractive* screen = nullptr;
+    std::atomic_bool alive{true};
+  };
+  struct LogPollState {
+    std::atomic_bool active{false};
+    std::atomic_bool stop{false};
+    std::atomic_bool animation{false};
+    std::atomic<std::uint64_t> cursor{0};
+  };
+
+  static void post_ui_event(const std::shared_ptr<UiEventPoster>& poster) {
+    if (!poster->alive.load()) return;
+    std::lock_guard lock(poster->mutex);
+    if (!poster->alive.load() || !poster->screen) return;
+    std::weak_ptr<UiEventPoster> weak = poster;
+    poster->screen->Post([weak] {
+      const auto owner = weak.lock();
+      if (!owner) return;
+      std::lock_guard event_lock(owner->mutex);
+      if (owner->screen) owner->screen->PostEvent(Event::Custom);
+    });
+  }
   TuiApp(std::string socket, std::string profile, ScreenInteractive& screen)
-      : socket_(std::move(socket)), profile_id_(std::move(profile)), screen_(&screen) {
-    if (profile_id_.empty()) {
-      auto profiles = rpc(socket_, std::string(methods::profile_list));
-      if (profiles && profiles->is_array() && !profiles->empty()) profile_id_ = profiles->front().value("id", "");
-    }
+      : socket_(std::move(socket)), state_{.viewed_profile_id = std::move(profile)}, screen_(&screen) {
+    ui_poster_->screen = &screen;
+    refresh_profiles();
+    if (profile_id_.empty() && profiles_.size() == 1) profile_id_ = profiles_.front().value("id", "");
+    else if (!profile_id_.empty()) resolve_initial_profile_ref(profile_id_);
+    if (!profile_id_.empty()) selected_core_for_profile_ = profile_core_id(profile_id_);
     refresh_all();
-    log_poller_ = std::thread([this] {
-      while (!log_poller_stop_.load()) {
-        if (log_poll_active_.load()) screen_->PostEvent(Event::Custom);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    if (profile_id_.empty() && profiles_.size() > 1) {
+      page_ = 8;
+      message_ = "Choose a Profile to view; this does not change the running instance";
+    }
+    const auto log_socket = socket_;
+    const auto log_mailbox = async_mailbox_;
+    const auto log_poster = ui_poster_;
+    const auto log_poll_state = log_poll_state_;
+    log_poller_ = std::thread([log_socket, log_mailbox, log_poster, log_poll_state] {
+      auto next_log_poll = std::chrono::steady_clock::time_point::min();
+      while (!log_poll_state->stop.load()) {
+        const bool logs_active = log_poll_state->active.load();
+        const bool animation_active = log_poll_state->animation.load();
+        const auto now = std::chrono::steady_clock::now();
+        if (logs_active && now >= next_log_poll) {
+          auto response = rpc(log_socket, std::string(methods::logs_read),
+              Json{{"cursor", log_poll_state->cursor.load()}, {"limit", 65536}});
+          next_log_poll = std::chrono::steady_clock::now() + std::chrono::milliseconds(200);
+          if (response) {
+            {
+              std::lock_guard lock(log_mailbox->mutex);
+              log_mailbox->logs = std::move(*response);
+            }
+            post_ui_event(log_poster);
+          }
+        }
+        if (animation_active) {
+          post_ui_event(log_poster);
+        }
+        const auto delay = animation_active ? std::chrono::milliseconds(120) :
+            logs_active ? std::chrono::milliseconds(200) : std::chrono::milliseconds(500);
+        std::this_thread::sleep_for(delay);
       }
     });
   }
   ~TuiApp() override {
-    log_poller_stop_.store(true);
-    if (log_poller_.joinable()) log_poller_.join();
+    ui_poster_->alive.store(false);
+    log_poll_state_->stop.store(true);
+    if (log_poller_.joinable()) log_poller_.detach();
+    {
+      std::lock_guard lock(ui_poster_->mutex);
+      ui_poster_->screen = nullptr;
+    }
     if (stats_watching_) refresh_stats(false);
   }
 
   bool OnEvent(Event event) override {
     if (event == Event::Custom) {
-      if (page_ == 3) refresh_logs();
+      if (state_.subscriptions.update_state == AsyncUiState::starting ||
+          state_.subscriptions.update_state == AsyncUiState::running)
+        ++state_.subscriptions.spinner_phase;
+      if (state_.runtime.operation_state == AsyncUiState::starting ||
+          state_.runtime.operation_state == AsyncUiState::running)
+        ++state_.runtime.spinner_phase;
+      std::optional<SubscriptionRefreshEvent> completed;
+      bool subscription_running = false;
+      std::vector<RuntimeOperationEvent> runtime_completed;
+      std::optional<Json> logs_completed;
+      {
+        std::lock_guard lock(async_mailbox_->mutex);
+        completed = std::move(async_mailbox_->subscription_refresh);
+        async_mailbox_->subscription_refresh.reset();
+        subscription_running = async_mailbox_->subscription_running;
+        async_mailbox_->subscription_running = false;
+        runtime_completed = std::move(async_mailbox_->runtime_operations);
+        async_mailbox_->runtime_operations.clear();
+        logs_completed = std::move(async_mailbox_->logs);
+        async_mailbox_->logs.reset();
+      }
+      if (subscription_running) state_.subscriptions.update_state = AsyncUiState::running;
+      if (completed) apply_subscription_refresh(std::move(*completed));
+      for (auto& result : runtime_completed) apply_runtime_operation(std::move(result));
+      if (logs_completed) apply_logs(std::move(*logs_completed));
+      const auto now = std::chrono::steady_clock::now();
+      std::erase_if(state_.toasts, [&](const Toast& toast) { return toast.expires <= now; });
+      log_poll_state_->animation.store(!state_.toasts.empty());
       return true;
     }
     if (filtering_nodes_) {
       if (event == Event::Escape) { filtering_nodes_ = false; return true; }
-      if (event == Event::Return) { filtering_nodes_ = false; selected_ = 0; refresh_nodes(); return true; }
+      if (event == Event::Return) {
+        filtering_nodes_ = false;
+        selected_ = 0;
+        state_.highlighted_node_id.reset();
+        refresh_nodes();
+        return true;
+      }
       if (event == Event::Backspace && !node_filter_.empty()) {
         auto erase_from = node_filter_.size() - 1;
         while (erase_from > 0 && (static_cast<unsigned char>(node_filter_[erase_from]) & 0xc0) == 0x80) --erase_from;
         node_filter_.erase(erase_from);
       }
       else if (event.is_character()) node_filter_ += event.character();
+      state_.node_search = node_filter_;
       return true;
     }
     if (editing_) {
       if (event == Event::Escape || event == Event::CtrlQ) {
         editing_ = false; editing_group_ = false; editing_node_ = false; return true;
       }
-      if (event == Event::CtrlS) { save_editor(); return true; }
-      if (event == Event::Character("v") && !editing_node_ && !editing_group_) {
+      if (event == Event::CtrlS || event == Event::F2) { save_editor(); return true; }
+      if ((event == Event::Character("v") || event == Event::F6) && !editing_node_ && !editing_group_) {
         open_external_editor();
         return true;
       }
-      if (event == Event::ArrowLeft && edit_cursor_ > 0) --edit_cursor_;
-      else if (event == Event::ArrowRight && edit_cursor_ < draft_.size()) ++edit_cursor_;
-      else if (event == Event::Backspace && edit_cursor_ > 0) {
-        auto erase_from = edit_cursor_ - 1;
-        while (erase_from > 0 &&
-               (static_cast<unsigned char>(draft_[erase_from]) & 0xc0) == 0x80) --erase_from;
-        draft_.erase(erase_from, edit_cursor_ - erase_from);
-        edit_cursor_ = erase_from;
-      } else if (event == Event::Return) {
-        draft_.insert(edit_cursor_++, "\n");
-      } else if (event.is_character()) {
-        const auto value = event.character();
-        draft_.insert(edit_cursor_, value);
-        edit_cursor_ += value.size();
+      if (event == Event::CtrlZ && !editor_undo_.empty()) {
+        draft_ = std::move(editor_undo_.back().text);
+        edit_cursor_ = editor_undo_.back().cursor;
+        editor_undo_.pop_back();
+      } else if (event == Event::ArrowLeft && edit_cursor_ > 0) edit_cursor_ = previous_utf8(draft_, edit_cursor_);
+      else if (event == Event::ArrowRight && edit_cursor_ < draft_.size()) edit_cursor_ = next_utf8(draft_, edit_cursor_);
+      else if (event == Event::Home) edit_cursor_ = line_start(draft_, edit_cursor_);
+      else if (event == Event::End) edit_cursor_ = line_end(draft_, edit_cursor_);
+      else if (event == Event::ArrowUp || event == Event::ArrowDown || event == Event::PageUp || event == Event::PageDown) {
+        move_vertical(event == Event::ArrowUp || event == Event::PageUp,
+                      event == Event::PageUp || event == Event::PageDown ? 8 : 1);
+      } else if ((event == Event::Backspace && edit_cursor_ > 0) ||
+                 (event == Event::Delete && edit_cursor_ < draft_.size()) ||
+                 event == Event::Return || event.is_character()) {
+        remember_editor_state();
+        if (event == Event::Backspace && edit_cursor_ > 0) {
+          const auto erase_from = previous_utf8(draft_, edit_cursor_);
+          draft_.erase(erase_from, edit_cursor_ - erase_from);
+          edit_cursor_ = erase_from;
+        } else if (event == Event::Delete && edit_cursor_ < draft_.size()) {
+          draft_.erase(edit_cursor_, next_utf8(draft_, edit_cursor_) - edit_cursor_);
+        } else if (event == Event::Return) {
+          draft_.insert(edit_cursor_++, "\n");
+        } else if (event.is_character()) {
+          const auto value = event.character();
+          draft_.insert(edit_cursor_, value);
+          edit_cursor_ += value.size();
+        }
       }
       if (!editing_node_ && !editing_group_ && editing_base_text_)
         editing_dirty_ = draft_ != *editing_base_text_;
+      if (!editing_node_ && !editing_group_) state_.module_draft = draft_;
+      return true;
+    }
+    if (prompt_ != Prompt::none) {
+      if (event == Event::Escape || event == Event::CtrlQ) { prompt_ = Prompt::none; prompt_text_.clear(); message_ = "cancelled"; return true; }
+      if (event == Event::Return) { submit_prompt(); return true; }
+      if (event == Event::Backspace) {
+        if (!prompt_text_.empty()) {
+          std::size_t start = prompt_text_.size() - 1;
+          while (start > 0 && (static_cast<unsigned char>(prompt_text_[start]) & 0xc0) == 0x80) --start;
+          prompt_text_.erase(start);
+        }
+        return true;
+      }
+      if (event.is_character()) prompt_text_ += event.character();
       return true;
     }
     if (node_detail_) {
@@ -186,14 +360,44 @@ class TuiApp final : public ComponentBase {
         show_help_ = false;
       return true;
     }
+    if (connect_profile_prompt_) {
+      if (event == Event::Escape || event == Event::CtrlQ) {
+        connect_profile_prompt_ = false;
+        message_ = "connect cancelled";
+      } else if (event == Event::Character("o")) {
+        connect_profile_prompt_ = false;
+        page_ = 8;
+        refresh_profiles();
+        message_ = "choose a Profile to view; it will not connect until you explicitly connect";
+      } else if (event == Event::Character("n")) {
+        connect_profile_prompt_ = false;
+        if (selected_core_for_profile_.empty()) {
+          page_ = 7;
+          message_ = "register or select an Xray core, then create the Profile";
+        } else {
+          page_ = 8;
+          begin_profile_prompt(false);
+        }
+      }
+      return true;
+    }
     if (event == Event::Character("q") || event == Event::Escape) {
       stop_stats_watch();
-      screen_->ExitLoopClosure()();
+      ui_poster_->alive.store(false);
+      {
+        std::lock_guard lock(ui_poster_->mutex);
+        ui_poster_->screen = nullptr;
+      }
+      screen_->Exit();
       return true;
     }
     if (event == Event::Character("?")) { show_help_ = true; return true; }
-    if (event == Event::Tab) { navigate_page((page_ + 1) % 8); return true; }
-    if (event == Event::TabReverse) { navigate_page((page_ + 7) % 8); return true; }
+    if (page_ == 8 && event == Event::Character("n")) { begin_profile_prompt(false); return true; }
+    if (page_ == 8 && event == Event::Character("c")) { begin_profile_prompt(true); return true; }
+    if (page_ == 8 && event == Event::Character("r")) { begin_profile_prompt(false, true); return true; }
+    if (page_ == 8 && event == Event::Character("d")) { remove_selected_profile(); return true; }
+    if (event == Event::Tab) { navigate_page((page_ + 1) % 9); return true; }
+    if (event == Event::TabReverse) { navigate_page((page_ + 8) % 9); return true; }
     if (event == Event::Character("1")) change_page(0);
     else if (event == Event::Character("2")) { change_page(1); refresh_nodes(); }
     else if (event == Event::Character("3")) { change_page(2); refresh_modules(); }
@@ -202,6 +406,7 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::Character("6")) { change_page(5); refresh_groups(); }
     else if (event == Event::Character("7")) { change_page(6); refresh_stats(true); }
     else if (event == Event::Character("8")) { change_page(7); refresh_cores(); }
+    else if (event == Event::Character("9")) { change_page(8); refresh_profiles(); }
     else if (event == Event::ArrowDown && page_ == 3) {
       const auto tail = log_entries_.size() > kLogViewportRows ? log_entries_.size() - kLogViewportRows : 0;
       if (log_view_start_ < tail) ++log_view_start_;
@@ -209,16 +414,30 @@ class TuiApp final : public ComponentBase {
     else if (event == Event::ArrowUp && page_ == 3) {
       if (log_view_start_ > 0) --log_view_start_;
     }
-    else if (event == Event::ArrowDown) selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
-    else if (event == Event::ArrowUp) selected_ = selected_ == 0 ? 0 : selected_ - 1;
+    else if (event == Event::ArrowDown) {
+      selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
+      page_selections_[static_cast<std::size_t>(page_)] = selected_;
+      remember_highlighted_item();
+    }
+    else if (event == Event::ArrowUp) {
+      selected_ = selected_ == 0 ? 0 : selected_ - 1;
+      page_selections_[static_cast<std::size_t>(page_)] = selected_;
+      remember_highlighted_item();
+    }
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
     else if (event == Event::Return && page_ == 2) open_editor();
     else if (event == Event::Return && page_ == 5) open_group_editor();
+    else if (event == Event::Return && page_ == 7 && selected_ < cores_.size()) {
+      selected_core_for_profile_ = cores_[selected_].value("id", "");
+      message_ = "core selected for new Profile; installation/use state is unchanged";
+    }
+    else if (event == Event::Return && page_ == 8 && selected_ < profiles_.size()) select_profile_context();
     else if (event == Event::Character("e") && page_ == 2) toggle_module();
     else if (event == Event::Character("s") && page_ == 1) select_node();
     else if (event == Event::Character("s") && page_ == 5) select_group();
     else if (event == Event::Character("m") && page_ == 5) choose_group_member();
     else if (event == Event::Character("m") && page_ == 1) select_group_member();
+    else if (event == Event::Character("c") && profile_id_.empty()) connect_profile_prompt_ = true;
     else if (event == Event::Character("c") && !profile_id_.empty()) connect();
     else if (event == Event::Character("d")) disconnect();
     else if (event == Event::Character("r")) {
@@ -242,6 +461,8 @@ class TuiApp final : public ComponentBase {
       filtering_nodes_ = true;
     }
     else if (event == Event::Character("u") && page_ == 4) refresh_subscription_inventory();
+    else if (event == Event::Character("a") && page_ == 4) begin_prompt(Prompt::subscription_name, "Subscription name");
+    else if (event == Event::Character("a") && page_ == 7) begin_prompt(Prompt::core_path, "Absolute path to an existing Xray executable");
     else if (event == Event::Character("l") && page_ == 7) fetch_core_releases(false);
     else if (event == Event::Character("p") && page_ == 7) fetch_core_releases(true);
     else if (event == Event::Character("i") && page_ == 7) install_selected_release();
@@ -252,32 +473,65 @@ class TuiApp final : public ComponentBase {
   Element OnRender() override {
     Elements header{
       text(" XRM  ") | bold,
-      text("1 Overview   2 Nodes   3 Native Modules   4 Logs   5 Subscriptions   6 Groups   7 Stats   8 Cores") | color(Color::Cyan),
-      filler(),
-      text(profile_id_.empty() ? "no Profile" : "Profile " + profile_id_) | dim,
+      text("Overview  Subs  Nodes  Groups  Profiles  Modules  Logs  Stats  Cores") | color(Color::Cyan),
     };
     Elements body;
     if (editing_) {
       body.push_back(text("Native module editor — " + editing_key_ +
           (editing_dirty_ ? " [unsaved]" : "") +
-          (editing_node_ || editing_group_ ? " (Ctrl-S Save, Esc close)" : " (Ctrl-S Save, v external editor, Esc close)")) | bold);
+          (editing_node_ || editing_group_ ? " (F2/Ctrl-S Save, Esc close)" : " (F2 Save, F6/v external editor, Esc close)")) | bold);
+      if (!editing_node_ && !editing_group_) {
+        body.push_back(text(editing_module_included_ ? "Runtime state: enabled" : "Runtime state: disabled (editing does not enable it)") | dim);
+        if (editing_module_unconfigured_)
+          body.push_back(text("Not configured yet. This is an unsaved native draft; Save creates the source file. Press e on the module list to enable it separately.") | color(Color::Yellow));
+      }
       if (draft_json_invalid_)
         body.push_back(text("Draft is not valid strict JSON; source can be saved, but form/runtime checks may reject it") | color(Color::Yellow));
       auto visible = draft_;
       visible.insert(edit_cursor_, "█");
       body.push_back(paragraph(visible) | border | flex);
     } else if (page_ == 0) {
-      body.push_back(text("Overview") | bold);
-      body.push_back(text("Runtime: " + status_.value("state", "unknown") +
-                          "    Health: " + status_.value("health", "unknown")));
-      body.push_back(text("Active Profile: " + active_profile()));
-      body.push_back(text("Runtime files: " + active_confdir()));
-      body.push_back(text("Saved target: " + expected_selection()));
-      body.push_back(text("Applied target: " + actual_selection()));
-      body.push_back(text("Runtime override: " + status_.value("override_state", "unknown") +
-          (status_.contains("runtime_override") && status_["runtime_override"].is_string()
-              ? " " + status_["runtime_override"].get<std::string>() : "")));
-      body.push_back(text("Actions: c connect saved Profile    d stop    r refresh    q exit (core continues)") | dim);
+      body.push_back(text("XRM Dashboard") | bold | color(Color::Cyan));
+      if (profile_id_.empty())
+        body.push_back(text("First use: 8 Cores register Xray → 5 Subs add/update → 2 Nodes → 9 Profiles create") | color(Color::Yellow));
+      body.push_back(text("Viewing Profile: " + (profile_id_.empty() ? "No profile selected" : profile_name(profile_id_)) +
+          "   |   Running Profile: " + active_profile()) | bold);
+      body.push_back(hbox({
+          vbox({text("VIEWING PROFILE") | bold | color(Color::Cyan),
+                text(profile_id_.empty() ? "No profile selected" : profile_name(profile_id_))}) | border | flex,
+          vbox({text("RUNNING PROFILE") | bold | color(Color::Cyan), text(active_profile())}) | border | flex,
+      }));
+      const auto core_version = status_.contains("active") && status_["active"].is_object()
+          ? status_["active"].value("core_version", "unknown") : "not running";
+      body.push_back(hbox({
+          vbox({text("CONNECTION") | bold | color(Color::Cyan),
+                text(status_.value("state", "unknown") + " · " + status_.value("health", "unknown"))}) | border | flex,
+          vbox({text("XRAY CORE") | bold | color(Color::Cyan), text(core_version)}) | border | flex,
+      }));
+      if (state_.runtime.operation_state == AsyncUiState::starting ||
+          state_.runtime.operation_state == AsyncUiState::running) {
+        static constexpr std::array<const char*, 4> spinner{"⠋", "⠙", "⠹", "⠸"};
+        body.push_back(text(std::string(spinner[state_.runtime.spinner_phase % spinner.size()]) + " " +
+            state_.runtime.operation_label + "…") | color(Color::Cyan) | bold);
+      }
+      body.push_back(text("Saved target: " + expected_selection()) | bold);
+      body.push_back(text("Actual target: " + actual_selection()) | bold);
+      body.push_back(hbox({
+          vbox({text("RUNTIME OVERRIDE") | bold | color(Color::Cyan),
+                text(status_.value("override_state", "unknown") +
+                    (status_.contains("runtime_override") && status_["runtime_override"].is_string()
+                        ? " " + status_["runtime_override"].get<std::string>() : ""))}) | border | flex,
+          vbox({text("INVENTORY") | bold | color(Color::Cyan),
+                text(std::to_string(subscriptions_.size()) + " subscriptions · " +
+                     std::to_string(node_count_) + " nodes")}) | border | flex,
+      }));
+      body.push_back(text("Runtime files: " + active_confdir()) | dim);
+      body.push_back(text("Pending changes: saved edits apply only on explicit Connect/Apply") | dim);
+      body.push_back(text("c Connect   d Stop   r Refresh   q Exit (core continues)") | dim);
+      if (profile_id_.empty()) {
+        body.push_back(text("No profile selected. Subscriptions, Nodes, Cores and Profiles are available without one.") | color(Color::Yellow));
+        body.push_back(text("Press c to Create Default Profile, Open Profiles, or Cancel.") | color(Color::Yellow));
+      }
     } else if (page_ == 1) {
       if (node_detail_ && selected_ < nodes_.size()) {
         const auto& node = nodes_[selected_];
@@ -292,16 +546,29 @@ class TuiApp final : public ComponentBase {
       } else {
         body.push_back(text("Nodes — Enter details; / filter; s saves selection, c connects") | bold);
         body.push_back(text("filter: " + node_filter_) | dim);
+        if (nodes_.empty())
+          body.push_back(text("No nodes in the shared inventory yet. Add/update a subscription or add a manual node.") | dim);
         for (std::size_t i = 0; i < nodes_.size(); ++i) {
           const auto& node = nodes_[i];
-          const auto row = node.value("name", "") + "   " + node.value("protocol", "") + " [" +
+          const auto id = node.value("id", "");
+          const auto saved = expected_selection_ == "node:" + id;
+          const auto actual = status_.contains("active") && status_["active"].is_object() &&
+              status_["active"].contains("selection") && status_["active"]["selection"].is_object() &&
+              status_["active"]["selection"].value("kind", "") == "node" &&
+              status_["active"]["selection"].value("id_or_tag", "") == id;
+          const std::string marker = actual ? "● " : saved ? "◆ " : "";
+          const auto row = marker + node.value("name", "") + "   " + node.value("protocol", "") + " [" +
               node.value("support", "raw-only") + "]   " +
               (node.value("source_missing", false) ? "source_missing" : "available") + "   " + node.value("id", "");
           body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
         }
       }
     } else if (page_ == 2) {
-      body.push_back(text("Native Modules — Enter view/edit, e enable/disable. Source text is saved separately.") | bold);
+      body.push_back(text("Native Modules — Enter Edit Native; inside choose Open External Editor (F6). e toggles inclusion. Disabled sources remain editable; empty modules create only on Save.") | bold);
+      if (profile_id_.empty()) {
+        body.push_back(text("No profile selected") | color(Color::Yellow));
+        body.push_back(text("Create a profile to use this feature") | color(Color::Yellow));
+      }
       for (std::size_t i = 0; i < modules_.size(); ++i) {
         const auto& module = modules_[i];
         const auto row = module.value("key", "") + " [" + (module.value("included", false) ? "enabled" : "disabled") +
@@ -330,16 +597,26 @@ class TuiApp final : public ComponentBase {
       body.push_back(text("p " + std::string(logs_paused_ ? "Resume" : "Pause") +
           "   ↑/↓ history   r refresh   Server buffer remains active") | dim);
     } else if (page_ == 4) {
-      body.push_back(text("Subscriptions — u refresh inventory only; runtime is unchanged") | bold);
+      body.push_back(text("Subscriptions — a add; u update selected source; runtime is unchanged") | bold);
+      if (state_.subscriptions.update_state == AsyncUiState::starting ||
+          state_.subscriptions.update_state == AsyncUiState::running) {
+        static constexpr std::array<const char*, 4> spinner{"⠋", "⠙", "⠹", "⠸"};
+        body.push_back(text(std::string(spinner[state_.subscriptions.spinner_phase % spinner.size()]) +
+            (state_.subscriptions.update_state == AsyncUiState::starting
+                ? " Contacting xrmd…" : " Updating subscription inventory…")) | color(Color::Cyan));
+      }
       for (std::size_t i = 0; i < subscriptions_.size(); ++i) {
         const auto& source = subscriptions_[i];
         const auto row = source.value("name", "") + " [" + source.value("last_result", "never") + "] " +
             (source.value("enabled", false) ? "enabled" : "paused") + " nodes:" +
             std::to_string(source.value("node_count", 0)) + " unsupported:" +
             std::to_string(source.value("unsupported_count", 0)) + " malformed:" +
-            std::to_string(source.value("malformed_count", 0));
+            std::to_string(source.value("malformed_count", 0)) +
+            ((state_.subscriptions.update_state == AsyncUiState::starting ||
+              state_.subscriptions.update_state == AsyncUiState::running) ? "  ⠋ updating" : "");
         body.push_back(text((i == selected_ ? "> " : "  ") + row) | (i == selected_ ? inverted : nothing));
       }
+      if (subscriptions_.empty()) body.push_back(text("No subscriptions yet. Press a to paste a local or remote URL.") | dim);
       body.push_back(text("u updates subscriptions; no connect, config render or core restart") | dim);
     } else if (page_ == 6) {
       body.push_back(text("Stats — shared server sample; no client-side rate calculation") | bold);
@@ -398,6 +675,10 @@ class TuiApp final : public ComponentBase {
       body.push_back(text("r refreshes the shared server sample") | dim);
     } else if (page_ == 5) {
       body.push_back(text("Groups — Enter edits native binding JSON; s saves as target; m choose member via Nodes") | bold);
+      if (profile_id_.empty()) {
+        body.push_back(text("No profile selected") | color(Color::Yellow));
+        body.push_back(text("Create a profile to use this feature") | color(Color::Yellow));
+      }
       for (std::size_t i = 0; i < groups_.size(); ++i) {
         const auto& group = groups_[i];
         const auto selected_node = group.value("selected_node_id", Json(nullptr));
@@ -408,7 +689,7 @@ class TuiApp final : public ComponentBase {
         if (i == selected_) body.push_back(text("selector: " + group.value("members", Json::object()).dump()) | dim);
       }
       body.push_back(text("Group selection is persistent; runtime override is separate") | dim);
-    } else {
+    } else if (page_ == 7) {
       body.push_back(text("Cores — system binaries are register-only; managed binaries live under XRM data") | bold);
       if (viewing_releases_) {
         body.push_back(text(std::string("Official XTLS/Xray-core releases ") +
@@ -430,11 +711,10 @@ class TuiApp final : public ComponentBase {
       } else {
         const auto running = status_.contains("active") && status_["active"].is_object()
             ? status_["active"].value("core_id", "") : "";
-        auto profiles = rpc(socket_, std::string(methods::profile_list));
         for (std::size_t i = 0; i < cores_.size(); ++i) {
           const auto& core = cores_[i];
           bool selected = false;
-          if (profiles && profiles->is_array()) for (const auto& profile : *profiles)
+          for (const auto& profile : profiles_)
             selected = selected || profile.value("core_id", "") == core.value("id", "");
           body.push_back(text((i == selected_ ? "> " : "  ") + core.value("name", "") + "  " +
               core.value("reported_version", "") + "  " +
@@ -443,31 +723,63 @@ class TuiApp final : public ComponentBase {
               (i == selected_ ? inverted : nothing));
           body.push_back(text(core.value("path", "")) | dim);
         }
-        body.push_back(text("l releases   u use selected core for current Profile") | dim);
+        body.push_back(text("a register existing xray   Enter select core for a new Profile   l releases   i install   u use for current Profile") | dim);
       }
       body.push_back(text("r refresh/poll operation; install never changes the running core") | dim);
+    } else if (page_ == 8) {
+      body.push_back(text("Profiles — Enter switch browsing context; n create; c copy; r rename; d delete") | bold);
+      for (std::size_t i = 0; i < profiles_.size(); ++i) {
+        const auto& profile = profiles_[i];
+        body.push_back(text((i == selected_ ? "> " : "  ") + profile.value("name", "") +
+            (profile.value("id", "") == profile_id_ ? "  editing" : "") +
+            (profile.value("id", "") == active_profile_id() ? "  running" : "")) |
+            (i == selected_ ? inverted : nothing));
+      }
+      if (profiles_.empty()) body.push_back(text("No Profile. Register/select an Xray core on Cores, then press n here.") | color(Color::Yellow));
+      body.push_back(text("Profile browsing does not connect, save other drafts, or change the running instance.") | dim);
     }
+    if (connect_profile_prompt_)
+      body.push_back(text("No profile selected — n Create Default Profile   o Open Profiles   Esc Cancel") | color(Color::Yellow));
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
-    if (!message_.empty()) body.push_back(text(message_) | color(Color::Yellow));
-    if (show_help_) {
-      return vbox({hbox(std::move(header)), separator(),
-          vbox({text("Help — keyboard controls") | bold,
-                text("Tab / Shift-Tab  change page"),
-                text("1–8              open a page directly"),
-                text("↑ / ↓            move through a list"),
-                text("Enter            view or open the selected item"),
-                text("/                filter Nodes; Enter applies, Esc cancels"),
-                text("c                connect the saved Profile target"),
-                text("d                stop the managed core"),
-                text("r                refresh the current page"),
-                text("Logs: p pause/resume follow; arrows browse received history"),
-                text("Module editor: v open $VISUAL / $EDITOR; Ctrl-S saves source only"),
-                text("q                quit this TUI; the core keeps running"),
-                text("Esc or ?         close help")}) | flex,
-          separator(), text("Help") | dim}) | border;
+    for (const auto& toast : state_.toasts) {
+      const auto shade = toast.level == Toast::Level::success ? Color::Green :
+          toast.level == Toast::Level::warning ? Color::Yellow :
+          toast.level == Toast::Level::error ? Color::Red : Color::Cyan;
+      body.push_back(paragraph(toast.text) | color(shade) | bold);
     }
-    return vbox({hbox(std::move(header)), separator(), vbox(std::move(body)) | flex,
-                 separator(), text("q quit   ? help   Tab/Shift-Tab pages   ↑/↓ move   c connect   d stop   r refresh   Logs: p pause/resume") | dim}) | border;
+    if (!message_.empty()) body.push_back(paragraph(message_) | color(Color::Yellow));
+    std::string help_bar = "q quit   ? help   Tab/Shift-Tab pages";
+    if (prompt_ != Prompt::none) help_bar = "Type text   Enter Continue/Save   Esc Cancel";
+    else if (editing_) help_bar = "↑↓←→ Move   F2 Save   F6 Open External Editor   Esc Close";
+    else if (page_ == 1) help_bar = "↑↓ move   / search   Enter details   s save selection   c connect   ? help";
+    else if (page_ == 2) help_bar = "↑↓ move   Enter edit native   e enable/disable   ? help";
+    else if (page_ == 3) help_bar = "↑↓ history   p pause/resume follow   r refresh   ? help";
+    else if (page_ == 4) help_bar = "↑↓ select   a add   u update selected   e edit   d delete   ? help";
+    else if (page_ == 5) help_bar = "↑↓ select   Enter details   s save selection   m choose member   ? help";
+    else if (page_ == 7) help_bar = "↑↓ select   a register   l releases   i install   u use   r refresh   ? help";
+    else if (page_ == 8) help_bar = "↑↓ select   Enter open   n new   r rename   c clone   d delete   ? help";
+    auto base = vbox({hbox(std::move(header)), separator(), vbox(std::move(body)) | flex,
+                      separator(), text(help_bar) | dim}) | border | flex;
+    if (prompt_ != Prompt::none) {
+      auto dialog = window(text(prompt_label_) | bold,
+          vbox({text(prompt_text_ + "█") | border | size(WIDTH, LESS_THAN, 56),
+                text("Enter continue/save   Esc cancel") | dim})) | center;
+      return dbox({base | dim, std::move(dialog)});
+    }
+    if (show_help_) {
+      // Keep help concise enough to fit over the current page at 80x24.
+      return dbox({base | dim,
+          window(text("Help") | bold,
+              vbox({text("Tab / Shift-Tab  change page"),
+                    text("1–9              open a page directly"),
+                    text("↑ / ↓            move through a list"),
+                    text("Enter            view or open selected item"),
+                    text("c                connect   d stop   r refresh"),
+                    text("Logs: p pause/resume; arrows browse history"),
+                    text("Module editor: F6/v external editor; F2 save"),
+                    text("q quit; core continues   Esc or ? close")})) | center});
+    }
+    return base;
   }
 
  private:
@@ -477,13 +789,245 @@ class TuiApp final : public ComponentBase {
     if (page_ == 4) return subscriptions_.size();
     if (page_ == 5) return groups_.size();
     if (page_ == 7) return viewing_releases_ ? core_releases_.size() : cores_.size();
+    if (page_ == 8) return profiles_.size();
     return 0;
   }
-  void refresh_all() { refresh_status(); refresh_expected(); refresh_nodes(); refresh_modules(); refresh_logs(); refresh_subscriptions(); refresh_groups(); refresh_cores(); }
+  static std::size_t previous_utf8(std::string_view text, std::size_t cursor) {
+    if (cursor == 0) return 0;
+    auto position = cursor - 1;
+    while (position > 0 && (static_cast<unsigned char>(text[position]) & 0xc0) == 0x80) --position;
+    return position;
+  }
+  static std::size_t next_utf8(std::string_view text, std::size_t cursor) {
+    if (cursor >= text.size()) return text.size();
+    auto position = cursor + 1;
+    while (position < text.size() && (static_cast<unsigned char>(text[position]) & 0xc0) == 0x80) ++position;
+    return position;
+  }
+  static std::size_t line_start(std::string_view text, std::size_t cursor) {
+    if (cursor > 0) {
+      const auto newline = text.rfind('\n', cursor - 1);
+      if (newline != std::string_view::npos) return newline + 1;
+    }
+    return 0;
+  }
+  static std::size_t line_end(std::string_view text, std::size_t cursor) {
+    const auto newline = text.find('\n', cursor);
+    return newline == std::string_view::npos ? text.size() : newline;
+  }
+  void remember_editor_state() {
+    editor_undo_.push_back({draft_, edit_cursor_});
+    if (editor_undo_.size() > 64) editor_undo_.erase(editor_undo_.begin());
+  }
+  void move_vertical(bool up, std::size_t lines) {
+    const auto start = line_start(draft_, edit_cursor_);
+    const auto column = edit_cursor_ - start;
+    if (up) {
+      if (start == 0) { edit_cursor_ = 0; return; }
+      const auto previous_end = start - 1;
+      const auto previous_start = line_start(draft_, previous_end);
+      edit_cursor_ = std::min(previous_start + column, previous_end);
+      for (std::size_t i = 1; i < lines && edit_cursor_ > 0; ++i) {
+        const auto current_start = line_start(draft_, edit_cursor_);
+        if (current_start == 0) { edit_cursor_ = 0; break; }
+        const auto end = current_start - 1;
+        edit_cursor_ = std::min(line_start(draft_, end) + column, end);
+      }
+    } else {
+      auto current_end = line_end(draft_, edit_cursor_);
+      edit_cursor_ = std::min(current_end + 1 + column, draft_.size());
+      for (std::size_t i = 1; i < lines && edit_cursor_ < draft_.size(); ++i) {
+        current_end = line_end(draft_, edit_cursor_);
+        if (current_end == draft_.size()) break;
+        edit_cursor_ = std::min(current_end + 1 + column, draft_.size());
+      }
+    }
+    while (edit_cursor_ > 0 && edit_cursor_ < draft_.size() &&
+           (static_cast<unsigned char>(draft_[edit_cursor_]) & 0xc0) == 0x80) --edit_cursor_;
+  }
+  void refresh_all() {
+    const auto active_selection = selected_;
+    selected_ = page_selections_[8]; refresh_profiles(); page_selections_[8] = selected_;
+    refresh_status(); refresh_expected();
+    selected_ = page_selections_[1]; refresh_nodes(); page_selections_[1] = selected_;
+    selected_ = page_selections_[2]; refresh_modules(); page_selections_[2] = selected_;
+    selected_ = page_selections_[3]; refresh_logs(); page_selections_[3] = selected_;
+    selected_ = page_selections_[4]; refresh_subscriptions(); page_selections_[4] = selected_;
+    selected_ = page_selections_[5]; refresh_groups(); page_selections_[5] = selected_;
+    selected_ = page_selections_[7]; refresh_cores(); page_selections_[7] = selected_;
+    selected_ = active_selection;
+  }
+  void refresh_profiles() {
+    auto response = rpc(socket_, std::string(methods::profile_list));
+    profiles_.clear();
+    if (response && response->is_array()) profiles_ = response->get<std::vector<Json>>();
+    if (!profile_id_.empty()) select_profile_row(profile_id_);
+    else selected_ = std::min(selected_, profiles_.empty() ? 0 : profiles_.size() - 1);
+    if (selected_core_for_profile_.empty() && cores_.size() == 1)
+      selected_core_for_profile_ = cores_.front().value("id", "");
+  }
+  std::string profile_name(std::string_view id) const {
+    const auto found = std::find_if(profiles_.begin(), profiles_.end(), [&](const Json& profile) {
+      return profile.value("id", "") == id;
+    });
+    return found == profiles_.end() ? std::string(id) : found->value("name", std::string(id));
+  }
+  void resolve_initial_profile_ref(std::string_view input) {
+    const auto by_id = std::find_if(profiles_.begin(), profiles_.end(), [&](const Json& profile) {
+      return profile.value("id", "") == input;
+    });
+    if (by_id != profiles_.end()) return;
+    const auto by_name = std::find_if(profiles_.begin(), profiles_.end(), [&](const Json& profile) {
+      return profile.value("name", "") == input;
+    });
+    if (by_name == profiles_.end()) {
+      profile_id_.clear();
+      message_ = "Profile not found; choose one from Profiles";
+      return;
+    }
+    const auto duplicate = std::find_if(std::next(by_name), profiles_.end(), [&](const Json& profile) {
+      return profile.value("name", "") == input;
+    });
+    if (duplicate != profiles_.end()) {
+      profile_id_.clear();
+      message_ = "Profile name is ambiguous; choose from Profiles";
+      return;
+    }
+    profile_id_ = by_name->value("id", "");
+  }
+  std::string profile_core_id(std::string_view id) const {
+    const auto found = std::find_if(profiles_.begin(), profiles_.end(), [&](const Json& profile) {
+      return profile.value("id", "") == id;
+    });
+    return found == profiles_.end() ? std::string{} : found->value("core_id", "");
+  }
+  std::string active_profile_id() const {
+    return status_.contains("active") && status_["active"].is_object()
+        ? status_["active"].value("profile_id", "") : "";
+  }
+  void begin_prompt(Prompt prompt, std::string label) {
+    prompt_ = prompt;
+    prompt_label_ = std::move(label);
+    prompt_text_.clear();
+  }
+  void begin_profile_prompt(bool clone, bool rename = false) {
+    if ((clone || rename) && selected_ >= profiles_.size()) { message_ = "select a Profile first"; return; }
+    if (clone) prompt_profile_id_ = profiles_[selected_].value("id", "");
+    else if (rename) prompt_profile_id_ = profiles_[selected_].value("id", "");
+    if (clone) begin_prompt(Prompt::profile_clone_name, "Copy name");
+    else if (rename) begin_prompt(Prompt::profile_rename_name, "New Profile name");
+    else begin_prompt(Prompt::profile_name, "New Profile name");
+  }
+  void submit_prompt() {
+    if (prompt_ == Prompt::subscription_name) {
+      prompt_subscription_name_ = prompt_text_;
+      if (prompt_subscription_name_.empty()) { message_ = "subscription name cannot be empty"; return; }
+      begin_prompt(Prompt::subscription_url, "Subscription URL (paste it here)");
+      return;
+    }
+    const auto value = prompt_text_;
+    const auto completed = prompt_;
+    prompt_ = Prompt::none;
+    prompt_text_.clear();
+    if (completed == Prompt::subscription_url) {
+      if (value.empty()) { message_ = "subscription URL cannot be empty"; return; }
+      auto added = rpc(socket_, std::string(methods::subscription_add),
+          Json{{"name", prompt_subscription_name_}, {"url", value}});
+      if (!added) message_ = added.error().message;
+      else { message_ = "subscription saved; press u to update node inventory (runtime unchanged)"; refresh_subscriptions(); }
+      prompt_subscription_name_.clear();
+      return;
+    }
+    if (completed == Prompt::core_path) {
+      if (value.empty()) { message_ = "Xray path cannot be empty"; return; }
+      const auto name = std::filesystem::path(value).filename().string();
+      auto added = rpc(socket_, std::string(methods::core_register), Json{{"path", value}, {"name", name}});
+      if (!added) message_ = added.error().message;
+      else {
+        selected_core_for_profile_ = added->value("id", "");
+        message_ = "existing Xray registered; it is not started until you connect";
+        refresh_cores();
+        refresh_profiles();
+      }
+      return;
+    }
+    if (completed == Prompt::profile_name || completed == Prompt::profile_clone_name) {
+      if (value.empty()) { message_ = "Profile name cannot be empty"; return; }
+      if (completed == Prompt::profile_clone_name) {
+        auto created = rpc(socket_, std::string(methods::profile_clone), Json{{"profile_id", prompt_profile_id_}, {"name", value}});
+        if (!created) { message_ = created.error().message; return; }
+        profile_id_ = created->value("id", "");
+      } else {
+        if (selected_core_for_profile_.empty()) {
+          message_ = "register/select an Xray first on page 8 Cores";
+          return;
+        }
+        auto created = rpc(socket_, std::string(methods::profile_create), Json{
+            {"name", value}, {"core_id", selected_core_for_profile_}, {"preset", "local"}});
+        if (!created) { message_ = created.error().message; return; }
+        profile_id_ = created->value("id", "");
+      }
+      refresh_profiles();
+      select_profile_row(profile_id_);
+      refresh_all();
+      page_ = 8;
+      select_profile_row(profile_id_);
+      message_ = "Profile selected for editing; it has not been connected";
+      return;
+    }
+    if (completed == Prompt::profile_rename_name) {
+      auto renamed = rpc(socket_, std::string(methods::profile_rename),
+          Json{{"profile_id", prompt_profile_id_}, {"name", value}});
+      if (!renamed) message_ = renamed.error().message;
+      else { message_ = "Profile renamed; running configuration unchanged"; refresh_profiles(); }
+    }
+  }
+  void select_profile_context() {
+    profile_id_ = profiles_[selected_].value("id", "");
+    select_profile_row(profile_id_);
+    selected_core_for_profile_ = profile_core_id(profile_id_);
+    refresh_all();
+    page_ = 8;
+    select_profile_row(profile_id_);
+    message_ = "Viewing: " + profile_name(profile_id_) + "; Running: " + active_profile() + "; runtime unchanged";
+  }
+  void remove_selected_profile() {
+    if (selected_ >= profiles_.size()) return;
+    const auto id = profiles_[selected_].value("id", "");
+    if (id == active_profile_id()) {
+      message_ = "cannot remove the running Profile";
+      return;
+    }
+    auto removed = rpc(socket_, std::string(methods::profile_remove), Json{{"profile_id", id}});
+    if (!removed) message_ = removed.error().message;
+    else {
+      const bool removed_view = id == profile_id_;
+      message_ = "Profile removed";
+      refresh_profiles();
+      if (removed_view) {
+        profile_id_.clear();
+        refresh_all();
+      }
+    }
+  }
+  void select_profile_row(std::string_view id) {
+    const auto found = std::find_if(profiles_.begin(), profiles_.end(), [&](const Json& profile) {
+      return profile.value("id", "") == id;
+    });
+    if (found != profiles_.end()) selected_ = static_cast<std::size_t>(found - profiles_.begin());
+  }
+  void remember_highlighted_item() {
+    if (page_ == 1 && selected_ < nodes_.size())
+      state_.highlighted_node_id = nodes_[selected_].value("id", "");
+    else if (page_ == 5 && selected_ < groups_.size())
+      state_.highlighted_group_id = groups_[selected_].value("id", "");
+  }
   void change_page(int page) {
     if (page_ == 6 && page != 6) stop_stats_watch();
+    page_selections_[static_cast<std::size_t>(page_)] = selected_;
     page_ = page;
-    log_poll_active_.store(page_ == 3);
+    selected_ = page_selections_[static_cast<std::size_t>(page_)];
+    log_poll_state_->active.store(page_ == 3);
   }
   void navigate_page(int page) {
     change_page(page);
@@ -494,6 +1038,7 @@ class TuiApp final : public ComponentBase {
     else if (page_ == 5) refresh_groups();
     else if (page_ == 6) refresh_stats(true);
     else if (page_ == 7) refresh_cores();
+    else if (page_ == 8) refresh_profiles();
   }
   void stop_stats_watch() {
     if (stats_watching_) refresh_stats(false);
@@ -529,18 +1074,23 @@ class TuiApp final : public ComponentBase {
     if (response) status_ = std::move(*response); else message_ = response.error().message;
   }
   void refresh_nodes() {
-    std::string selected_id;
-    if (selected_ < nodes_.size()) selected_id = nodes_[selected_].value("id", "");
-    Json params{{"offset", 0}, {"limit", 100}};
+    std::string selected_id = state_.highlighted_node_id.value_or(std::string{});
+    if (selected_id.empty() && selected_ < nodes_.size()) selected_id = nodes_[selected_].value("id", "");
+    Json params{{"offset", 0}, {"limit", 1000}};
     if (!node_filter_.empty()) params["text"] = node_filter_;
     auto response = rpc(socket_, std::string(methods::node_list), std::move(params));
     nodes_.clear();
-    if (response && response->contains("items")) nodes_ = response->at("items").get<std::vector<Json>>();
+    if (response && response->contains("items")) {
+      nodes_ = response->at("items").get<std::vector<Json>>();
+      node_count_ = response->value("total", nodes_.size());
+    }
     if (!selected_id.empty()) {
       auto found = std::find_if(nodes_.begin(), nodes_.end(), [&](const auto& node) { return node.value("id", "") == selected_id; });
       if (found != nodes_.end()) selected_ = static_cast<std::size_t>(found - nodes_.begin());
       else selected_ = std::min(selected_, nodes_.empty() ? 0 : nodes_.size() - 1);
     }
+    if (selected_ < nodes_.size()) state_.highlighted_node_id = nodes_[selected_].value("id", "");
+    else state_.highlighted_node_id.reset();
   }
   void refresh_subscriptions() {
     auto response = rpc(socket_, std::string(methods::subscription_list));
@@ -550,16 +1100,28 @@ class TuiApp final : public ComponentBase {
   }
   void refresh_groups() {
     if (profile_id_.empty()) return;
+    std::string selected_id = state_.highlighted_group_id.value_or(std::string{});
+    if (selected_id.empty() && selected_ < groups_.size()) selected_id = groups_[selected_].value("id", "");
     auto response = rpc(socket_, std::string(methods::group_list), Json{{"profile_id", profile_id_}});
     groups_.clear();
     if (response && response->is_array()) groups_ = response->get<std::vector<Json>>();
-    selected_ = std::min(selected_, groups_.empty() ? 0 : groups_.size() - 1);
+    if (!selected_id.empty()) {
+      const auto found = std::find_if(groups_.begin(), groups_.end(), [&](const Json& group) {
+        return group.value("id", "") == selected_id;
+      });
+      if (found != groups_.end()) selected_ = static_cast<std::size_t>(found - groups_.begin());
+      else selected_ = std::min(selected_, groups_.empty() ? 0 : groups_.size() - 1);
+    } else selected_ = std::min(selected_, groups_.empty() ? 0 : groups_.size() - 1);
+    if (selected_ < groups_.size()) state_.highlighted_group_id = groups_[selected_].value("id", "");
+    else state_.highlighted_group_id.reset();
   }
   void refresh_cores() {
     auto response = rpc(socket_, std::string(methods::core_list));
     cores_.clear();
     if (response && response->is_array()) cores_ = response->get<std::vector<Json>>();
     selected_ = std::min(selected_, cores_.empty() ? 0 : cores_.size() - 1);
+    if (selected_core_for_profile_.empty() && cores_.size() == 1)
+      selected_core_for_profile_ = cores_.front().value("id", "");
     viewing_releases_ = false;
   }
   void poll_core_operation() {
@@ -653,28 +1215,230 @@ class TuiApp final : public ComponentBase {
         {"profile_id", profile_id_}, {"core_id", cores_[selected_].value("id", "")}}, "use");
   }
   void refresh_subscription_inventory() {
-    auto result = rpc(socket_, std::string(methods::subscription_refresh));
-    if (!result) message_ = result.error().message;
-    else if (result->value("status", "") == "accepted" && result->contains("operation_id")) {
-      const auto operation = result->at("operation_id").get<std::string>();
-      message_ = "refresh running; runtime files are unchanged";
-      for (int attempt = 0; attempt < 100; ++attempt) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        auto state = rpc(socket_, std::string(methods::operation_get), Json{{"operation_id", operation}});
-        if (!state || state->value("status", "") == "running") continue;
-        if (state->value("status", "") == "succeeded") {
-          const auto& refresh = state->at("result");
-          std::size_t updated = 0, failed = 0;
-          if (refresh.contains("completed")) for (const auto& source : refresh["completed"])
-            updated += source.value("added", std::size_t{0}) + source.value("updated", std::size_t{0});
-          if (refresh.contains("failed")) failed = refresh["failed"].size();
-          message_ = "refresh complete: changed nodes=" + std::to_string(updated) +
-              " failed sources=" + std::to_string(failed) + "; runtime unchanged";
-        } else message_ = "refresh did not complete successfully; runtime unchanged";
-        break;
+    if (state_.subscriptions.update_state == AsyncUiState::starting ||
+        state_.subscriptions.update_state == AsyncUiState::running) {
+      message_ = "subscription update is already running";
+      return;
+    }
+    state_.subscriptions.update_state = AsyncUiState::starting;
+    state_.subscriptions.spinner_phase = 0;
+    state_.subscriptions.operation_error.reset();
+    message_ = "Subscription update started";
+    Json refresh_params = Json::object();
+    if (selected_ < subscriptions_.size()) {
+      const auto& selected_source = subscriptions_[selected_];
+      const auto source_id = selected_source.value("id", "");
+      if (!source_id.empty()) {
+        refresh_params["source_ids"] = Json::array({source_id});
+        message_ += ": " + selected_source.value("name", "subscription");
       }
-    } else message_ = "refresh accepted; running core and runtime files are not changed";
-    refresh_subscriptions();
+    }
+    message_ += "; Xray runtime will not change";
+          post_ui_event(ui_poster_);
+    const auto socket = socket_;
+    const auto mailbox = async_mailbox_;
+    const auto poster = ui_poster_;
+    std::thread([socket, mailbox, poster, refresh_params = std::move(refresh_params)] {
+      SubscriptionRefreshEvent event;
+      auto accepted = rpc(socket, std::string(methods::subscription_refresh), refresh_params);
+      if (!accepted) {
+        event.error = accepted.error().message;
+      } else if (accepted->value("status", "") != "accepted" || !accepted->contains("operation_id")) {
+        event.error = "xrmd did not return an operation id";
+      } else {
+        const auto operation = accepted->at("operation_id").get<std::string>();
+        {
+          std::lock_guard lock(mailbox->mutex);
+          mailbox->subscription_running = true;
+        }
+        post_ui_event(poster);
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::minutes(5);
+        for (;;) {
+          if (!poster->alive.load()) return;
+          std::this_thread::sleep_for(std::chrono::milliseconds(180));
+          if (!poster->alive.load()) return;
+          post_ui_event(poster);
+          auto operation_state = rpc(socket, std::string(methods::operation_get),
+                                     Json{{"operation_id", operation}});
+          if (!operation_state) { event.error = operation_state.error().message; break; }
+          const auto status = operation_state->value("status", "unknown");
+          if (status == "running") {
+            if (std::chrono::steady_clock::now() < deadline) continue;
+            event.error = "Subscription update timed out; xrmd may still be processing the operation";
+            break;
+          }
+          if (status == "failed") {
+            event.error = operation_state->contains("error")
+                ? operation_state->at("error").value("message", "subscription update failed")
+                : "subscription update failed";
+          } else if (status == "succeeded") {
+            event.result = operation_state->value("result", Json::object());
+          } else event.error = "unexpected subscription operation status: " + status;
+          break;
+        }
+      }
+      if (!poster->alive.load()) return;
+
+      auto source_list = rpc(socket, std::string(methods::subscription_list));
+      if (source_list && source_list->is_array()) {
+        event.subscriptions = source_list->get<std::vector<Json>>();
+        event.subscriptions_loaded = true;
+      }
+      auto node_list = rpc(socket, std::string(methods::node_list), Json{{"offset", 0}, {"limit", 1000}});
+      if (node_list && node_list->contains("items")) {
+        event.nodes = node_list->at("items").get<std::vector<Json>>();
+        event.node_count = node_list->value("total", event.nodes.size());
+        event.nodes_loaded = true;
+      }
+      {
+        std::lock_guard lock(mailbox->mutex);
+        mailbox->subscription_refresh = std::move(event);
+      }
+      post_ui_event(poster);
+    }).detach();
+  }
+
+  void apply_subscription_refresh(SubscriptionRefreshEvent event) {
+    const auto selected_node_id = selected_ < nodes_.size() ? nodes_[selected_].value("id", "") : "";
+    if (event.subscriptions_loaded) subscriptions_ = std::move(event.subscriptions);
+    if (event.nodes_loaded) {
+      nodes_ = std::move(event.nodes);
+      node_count_ = event.node_count;
+      if (!selected_node_id.empty()) {
+        const auto found = std::find_if(nodes_.begin(), nodes_.end(), [&](const Json& node) {
+          return node.value("id", "") == selected_node_id;
+        });
+        if (found != nodes_.end()) selected_ = static_cast<std::size_t>(found - nodes_.begin());
+      }
+    }
+    if (event.error) {
+      state_.subscriptions.update_state = AsyncUiState::failed;
+      state_.subscriptions.operation_error = event.error;
+      message_ = "Subscription update failed: " + *event.error + "; old node inventory retained where applicable";
+      push_toast(Toast::Level::error, message_);
+    } else {
+      std::size_t added = 0, updated = 0, unsupported = 0, malformed = 0;
+      if (event.result) {
+        for (const auto& source : event.result->value("completed", Json::array())) {
+          added += source.value("added", std::size_t{0});
+          updated += source.value("updated", std::size_t{0});
+          unsupported += source.value("unsupported", std::size_t{0});
+          malformed += source.value("malformed", std::size_t{0});
+        }
+        if (event.result->contains("failed") && !event.result->at("failed").empty()) {
+          state_.subscriptions.update_state = AsyncUiState::partial;
+          const auto& first_failure = event.result->at("failed").front();
+          const auto details = first_failure.value("error", Json::object());
+          message_ = "Subscription update partial: " + std::to_string(added) + " added, " +
+              std::to_string(updated) + " updated; " + std::to_string(event.result->at("failed").size()) +
+              " source(s) failed" +
+              (details.is_object() ? ": " + details.value("message", "update failed") : std::string{}) +
+              "; node inventory refreshed";
+          push_toast(Toast::Level::warning, message_);
+        } else if (unsupported || malformed) {
+          state_.subscriptions.update_state = AsyncUiState::partial;
+          message_ = "Subscription update partial: " + std::to_string(added) + " added, " +
+              std::to_string(updated) + " updated, " + std::to_string(unsupported) +
+              " unsupported, " + std::to_string(malformed) + " malformed";
+          push_toast(Toast::Level::warning, message_);
+        } else {
+          state_.subscriptions.update_state = AsyncUiState::success;
+          message_ = "Subscription update complete: " + std::to_string(added) + " added, " +
+              std::to_string(updated) + " updated; " + std::to_string(node_count_) + " nodes available";
+          push_toast(Toast::Level::success, message_);
+        }
+      } else {
+        state_.subscriptions.update_state = AsyncUiState::partial;
+        message_ = "Subscription inventory refreshed; see per-source result for details";
+        push_toast(Toast::Level::info, message_);
+      }
+    }
+  }
+  void push_toast(Toast::Level level, std::string text) {
+    state_.toasts.push_back(Toast{level, std::move(text),
+        std::chrono::steady_clock::now() + std::chrono::seconds(level == Toast::Level::error ? 8 : 4)});
+    if (state_.toasts.size() > 4) state_.toasts.erase(state_.toasts.begin());
+    log_poll_state_->animation.store(true);
+  }
+  void start_runtime_operation(std::string method, Json params, std::string label) {
+    const bool is_stop = label == "Stop";
+    if (!is_stop && (stop_pending_ || state_.runtime.operation_state == AsyncUiState::starting ||
+        state_.runtime.operation_state == AsyncUiState::running)) {
+      message_ = "Another runtime operation is already running";
+      return;
+    }
+    if (is_stop) {
+      if (stop_pending_) {
+        message_ = "Stop is already in progress";
+        return;
+      }
+      stop_pending_ = true;
+    }
+    state_.runtime.operation_state = AsyncUiState::starting;
+    state_.runtime.operation_label = label;
+    state_.runtime.spinner_phase = 0;
+    message_ = label + " started";
+    post_ui_event(ui_poster_);
+    const auto socket = socket_;
+    const auto mailbox = async_mailbox_;
+    const auto poster = ui_poster_;
+    auto worker = [socket, mailbox, poster, method = std::move(method),
+                                   params = std::move(params), label = std::move(label)]() mutable {
+      RuntimeOperationEvent event;
+      event.label = label;
+      auto accepted = rpc(socket, std::move(method), std::move(params));
+      if (!accepted) event.error = accepted.error().message;
+      else if (accepted->value("status", "") != "accepted" || !accepted->contains("operation_id"))
+        event.error = "xrmd did not return an operation id";
+      else {
+        const auto operation = accepted->at("operation_id").get<std::string>();
+        post_ui_event(poster);
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::minutes(5);
+        for (;;) {
+          if (!poster->alive.load()) return;
+          std::this_thread::sleep_for(std::chrono::milliseconds(180));
+          if (!poster->alive.load()) return;
+          post_ui_event(poster);
+          auto current = rpc(socket, std::string(methods::operation_get),
+                             Json{{"operation_id", operation}});
+          if (!current) { event.error = current.error().message; break; }
+          const auto state = current->value("status", "unknown");
+          if (state == "running") {
+            if (std::chrono::steady_clock::now() < deadline) continue;
+            event.error = "Runtime operation timed out; xrmd may still be processing it";
+            break;
+          }
+          if (state == "failed") {
+            event.error = current->contains("error")
+                ? current->at("error").value("message", "runtime operation failed")
+                : "runtime operation failed";
+          }
+          break;
+        }
+      }
+      if (!poster->alive.load()) return;
+      auto status = rpc(socket, std::string(methods::runtime_status));
+      if (status) event.status = std::move(*status);
+      {
+        std::lock_guard lock(mailbox->mutex);
+        mailbox->runtime_operations.push_back(std::move(event));
+      }
+      post_ui_event(poster);
+    };
+    std::thread(std::move(worker)).detach();
+  }
+  void apply_runtime_operation(RuntimeOperationEvent event) {
+    if (event.label == "Stop") stop_pending_ = false;
+    if (event.status) status_ = std::move(*event.status);
+    if (event.error) {
+      state_.runtime.operation_state = AsyncUiState::failed;
+      message_ = event.label + " failed: " + *event.error;
+      push_toast(Toast::Level::error, message_);
+    } else {
+      state_.runtime.operation_state = AsyncUiState::success;
+      message_ = event.label == "Connect" ? "connected using the saved Profile target" : "core stopped";
+      push_toast(Toast::Level::success, message_);
+    }
   }
   void refresh_modules() {
     if (profile_id_.empty()) return;
@@ -684,17 +1448,19 @@ class TuiApp final : public ComponentBase {
     selected_ = std::min(selected_, modules_.empty() ? 0 : modules_.size() - 1);
   }
   void refresh_logs() {
-    auto response = rpc(socket_, std::string(methods::logs_read), Json{{"cursor", log_cursor_}, {"limit", 65536}});
-    if (!response) return;
-    if (response->value("truncated", false)) log_dropped_ = true;
-    if (response->contains("entries") && response->at("entries").is_array()) {
-      for (const auto& entry : response->at("entries")) {
+    if (page_ == 3) log_poll_state_->cursor.store(log_cursor_);
+  }
+  void apply_logs(Json response) {
+    if (response.value("truncated", false)) log_dropped_ = true;
+    if (response.contains("entries") && response.at("entries").is_array()) {
+      for (const auto& entry : response.at("entries")) {
         log_bytes_ += entry.value("text", std::string{}).size();
         log_entries_.push_back(entry);
       }
     }
-    log_cursor_ = response->value("next_cursor", log_cursor_);
-    logs_ = std::move(*response);
+    log_cursor_ = response.value("next_cursor", log_cursor_);
+    log_poll_state_->cursor.store(log_cursor_);
+    logs_ = std::move(response);
     while (log_entries_.size() > kTuiLogEntryLimit || log_bytes_ > kTuiLogByteLimit) {
       if (log_entries_.empty()) break;
       log_bytes_ -= log_entries_.front().value("text", std::string{}).size();
@@ -725,12 +1491,26 @@ class TuiApp final : public ComponentBase {
     auto result = rpc(socket_, std::string(methods::module_get),
                       Json{{"profile_id", profile_id_}, {"module", editing_key_}});
     if (!result) { message_ = result.error().message; return; }
-    draft_ = result->value("text", std::string("{}\n"));
-    editing_base_text_ = result->contains("text") && result->at("text").is_string()
-        ? std::optional<std::string>(result->at("text").get<std::string>()) : std::nullopt;
+    editing_module_included_ = result->value("included", false);
+    const auto text = result->find("text");
+    editing_module_unconfigured_ = text == result->end() || text->is_null();
+    if (editing_module_unconfigured_) {
+      draft_ = Json{{editing_key_, Json::object()}}.dump(2) + "\n";
+      editing_base_text_.reset();
+      message_ = "module has no source file; draft only, not enabled";
+    } else if (text->is_string()) {
+      draft_ = text->get<std::string>();
+      editing_base_text_ = draft_;
+      message_ = editing_module_included_ ? "source loaded; Save changes only" : "source loaded; disabled module remains excluded";
+    } else {
+      message_ = "module source response has an invalid text value";
+      return;
+    }
     edit_cursor_ = draft_.size();
+    state_.module_draft = draft_;
     editing_dirty_ = false;
     draft_json_invalid_ = false;
+    editor_undo_.clear();
     editing_ = true;
   }
   void open_external_editor() {
@@ -775,7 +1555,9 @@ class TuiApp final : public ComponentBase {
     auto edited = temporary.read();
     if (!edited) { message_ = "cannot read external editor draft; current draft kept"; return; }
     if (*edited == draft_) { message_ = "external editor made no changes; draft kept"; return; }
+    remember_editor_state();
     draft_ = std::move(*edited);
+    state_.module_draft = draft_;
     edit_cursor_ = draft_.size();
     editing_dirty_ = !editing_base_text_ || draft_ != *editing_base_text_;
     try { const auto parsed = Json::parse(draft_); (void)parsed; draft_json_invalid_ = false; }
@@ -840,9 +1622,10 @@ class TuiApp final : public ComponentBase {
         {"profile_id", profile_id_}, {"module", editing_key_}, {"text", draft_},
         {"expected_text", editing_base_text_ ? Json(*editing_base_text_) : Json(nullptr)}});
     if (!result) { message_ = result.error().message + "; draft retained"; return; }
-    message_ = "saved source text; not applied to running core";
+    message_ = "saved source text; runtime inclusion is unchanged and no connect/restart was performed";
     editing_ = false;
     editing_dirty_ = false;
+    editing_module_unconfigured_ = false;
     editing_base_text_ = draft_;
     refresh_modules();
   }
@@ -886,65 +1669,85 @@ class TuiApp final : public ComponentBase {
     else { message_ = "manual group member saved; core unchanged"; selected_group_id_.clear(); refresh_groups(); }
   }
   void connect() {
-    auto result = rpc(socket_, std::string(methods::connection_connect), Json{{"profile_id", profile_id_}});
-    if (!result) { message_ = result.error().message; return; }
-    const auto operation = result->value("operation_id", "");
-    for (int attempt = 0; attempt < 100 && !operation.empty(); ++attempt) {
-      auto state = rpc(socket_, std::string(methods::operation_get), Json{{"operation_id", operation}});
-      if (!state) { message_ = state.error().message; break; }
-      if (state->value("status", "") == "succeeded") { message_ = "connected"; break; }
-      if (state->value("status", "") == "failed") { message_ = state->at("error").value("message", "connection failed"); break; }
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    refresh_status();
+    if (profile_id_.empty()) { connect_profile_prompt_ = true; return; }
+    start_runtime_operation(std::string(methods::connection_connect),
+        Json{{"profile_id", profile_id_}}, "Connect");
   }
   void disconnect() {
-    auto result = rpc(socket_, std::string(methods::connection_disconnect));
-    if (!result) { message_ = result.error().message; return; }
-    const auto operation = result->value("operation_id", "");
-    for (int attempt = 0; attempt < 100 && !operation.empty(); ++attempt) {
-      auto state = rpc(socket_, std::string(methods::operation_get), Json{{"operation_id", operation}});
-      if (state && state->value("status", "") != "running") break;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    message_ = "core stopped";
-    refresh_status();
+    start_runtime_operation(std::string(methods::connection_disconnect), Json::object(), "Stop");
   }
   std::string active_profile() const {
     return status_.contains("active") && status_["active"].is_object()
-        ? status_["active"].value("profile_id", "") : "—";
+        ? profile_name(status_["active"].value("profile_id", "")) : "—";
   }
   std::string active_confdir() const {
     return status_.contains("active") && status_["active"].is_object()
         ? status_["active"].value("confdir", "") : "—";
   }
   std::string actual_selection() const {
-    if (!status_.contains("active") || !status_["active"].is_object() ||
-        status_["active"]["selection"].is_null()) return "none";
-    return status_["active"]["selection"].value("id_or_tag", "");
+    const Json* actual = nullptr;
+    if (status_.contains("actual_target") && status_["actual_target"].is_object())
+      actual = &status_["actual_target"];
+    else if (status_.contains("active") && status_["active"].is_object() &&
+             status_["active"].contains("selection") && status_["active"]["selection"].is_object())
+      actual = &status_["active"]["selection"];
+    if (!actual) return "none";
+    const auto& target = *actual;
+    return display_target(target.value("kind", ""), target.value("id_or_tag", ""));
   }
   std::string expected_selection() const {
-    return expected_selection_.empty() ? "none" : expected_selection_;
+    if (expected_selection_.empty()) return "none";
+    const auto separator = expected_selection_.find(':');
+    if (separator == std::string::npos) return expected_selection_;
+    return display_target(std::string_view(expected_selection_).substr(0, separator),
+                          std::string_view(expected_selection_).substr(separator + 1));
+  }
+  std::string display_target(std::string_view kind, std::string_view id) const {
+    if (kind == "node") {
+      const auto found = std::find_if(nodes_.begin(), nodes_.end(), [&](const Json& node) {
+        return node.value("id", "") == id;
+      });
+      if (found != nodes_.end()) return "node: " + found->value("name", std::string(id));
+    } else if (kind == "group") {
+      const auto found = std::find_if(groups_.begin(), groups_.end(), [&](const Json& group) {
+        return group.value("id", "") == id;
+      });
+      if (found != groups_.end()) return "group: " + found->value("name", std::string(id));
+    }
+    return std::string(kind) + ": " + std::string(id);
   }
 
   std::string socket_;
-  std::string profile_id_;
+  TuiState state_;
+  std::string& profile_id_ = state_.viewed_profile_id;
+  std::vector<Json> profiles_;
+  std::string selected_core_for_profile_;
+  std::string prompt_profile_id_;
+  std::string prompt_subscription_name_;
+  std::string prompt_label_;
+  std::string prompt_text_;
+  Prompt prompt_ = Prompt::none;
   ScreenInteractive* screen_;
-  int page_ = 0;
+  int& page_ = state_.page;
   std::size_t selected_ = 0;
+  std::array<std::size_t, 9> page_selections_{};
   bool editing_ = false;
   bool filtering_nodes_ = false;
   bool node_detail_ = false;
   bool editing_group_ = false;
   bool editing_node_ = false;
   bool editing_dirty_ = false;
+  bool editing_module_included_ = false;
+  bool editing_module_unconfigured_ = false;
   bool draft_json_invalid_ = false;
   std::optional<std::string> editing_base_text_;
   std::string editing_key_;
   std::string node_filter_;
   std::string draft_;
   std::size_t edit_cursor_ = 0;
+  std::vector<EditorSnapshot> editor_undo_;
   std::vector<Json> nodes_;
+  std::size_t node_count_ = 0;
   std::vector<Json> subscriptions_;
   std::vector<Json> modules_;
   Json status_ = Json::object();
@@ -955,9 +1758,11 @@ class TuiApp final : public ComponentBase {
   std::size_t log_view_start_ = 0;
   bool logs_paused_ = false;
   bool log_dropped_ = false;
-  std::atomic_bool log_poll_active_{false};
-  std::atomic_bool log_poller_stop_{false};
+  std::shared_ptr<LogPollState> log_poll_state_ = std::make_shared<LogPollState>();
   std::thread log_poller_;
+  std::shared_ptr<AsyncMailbox> async_mailbox_ = std::make_shared<AsyncMailbox>();
+  std::shared_ptr<UiEventPoster> ui_poster_ = std::make_shared<UiEventPoster>();
+  bool stop_pending_ = false;
   Json stats_ = Json::object();
   std::unique_ptr<RpcSession> stats_rpc_;
   bool stats_watching_ = false;
@@ -976,6 +1781,7 @@ class TuiApp final : public ComponentBase {
   bool viewing_releases_ = false;
   bool include_prerelease_ = false;
   bool show_help_ = false;
+  bool connect_profile_prompt_ = false;
 };
 
 }  // namespace

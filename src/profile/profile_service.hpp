@@ -27,6 +27,7 @@ class ProfileService {
   Result<std::vector<ProfileSummary>> list() const;
   Result<ProfileSettings> get(const Id&) const;
   Result<void> save(const Id&, const ProfileEdit&);
+  Result<void> rename(const Id&, std::string new_name);
   Result<ProfileSettings> clone(const Id&, std::string new_name);
   Result<void> remove(const Id&);
   Result<std::vector<ModuleView>> modules(const Id&) const;

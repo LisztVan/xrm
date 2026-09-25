@@ -21,8 +21,14 @@ void write_from_environment(const char* key, std::ostream& output) {
 
 void write_repeated_from_environment(const char* key, std::ostream& output) {
   if (const char* value = std::getenv(key)) {
-    const auto count = std::strtoull(value, nullptr, 10);
-    for (std::uint64_t index = 0; index < count; ++index) output.put('x');
+    auto count = std::strtoull(value, nullptr, 10);
+    const std::string chunk(64 * 1024, 'x');
+    while (count > 0) {
+      const auto bytes = static_cast<std::streamsize>(
+          std::min<std::uint64_t>(count, chunk.size()));
+      output.write(chunk.data(), bytes);
+      count -= static_cast<std::uint64_t>(bytes);
+    }
   }
 }
 

@@ -415,6 +415,24 @@ std::string socks_http_request(std::uint16_t proxy_port, std::uint16_t destinati
   return response;
 }
 
+Json wait_for_observatory_tag(std::uint16_t port, const std::string& tag,
+                              std::chrono::seconds timeout = 20s) {
+  const auto deadline = std::chrono::steady_clock::now() + timeout;
+  Json latest = Json::object();
+  do {
+    try {
+      const auto response = get_debug_vars(port);
+      if (!response.empty()) latest = Json::parse(response);
+    } catch (const Json::exception&) {
+    }
+    if (latest.contains("observatory") && latest.at("observatory").is_object() &&
+        latest.at("observatory").contains(tag))
+      return latest;
+    std::this_thread::sleep_for(50ms);
+  } while (std::chrono::steady_clock::now() < deadline);
+  return latest;
+}
+
 class XrayProcess {
  public:
   bool start(const std::filesystem::path& xray, const std::filesystem::path& confdir,
@@ -583,7 +601,7 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
   XrayProcess core;
   REQUIRE(core.start(xray, confdir, temp.path));
   REQUIRE(wait_for_port(*metrics_port));
-  const auto real_vars = Json::parse(get_debug_vars(*metrics_port));
+  const auto real_vars = wait_for_observatory_tag(*metrics_port, node_tag(managed_id));
   REQUIRE(real_vars.contains("observatory"));
   REQUIRE(real_vars.at("observatory").contains(node_tag(managed_id)));
   INFO("real Xray observatory expvar: " << real_vars.at("observatory").at(node_tag(managed_id)).dump());

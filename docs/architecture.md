@@ -1,6 +1,6 @@
 # XRM 架构文档
 
-**状态：方案讨论稿，尚未实现 · 整理日期：2026-09-23 · 原生模块对接方案**  
+**状态：当前首版实现与人工验收状态见 `release-acceptance.md`；产品修复批次进行中 · 整理日期：2026-09-24**
 **需求：[requirements.md](requirements.md) · 执行约束：[AGENTS.md](../AGENTS.md)**
 
 > 本方案采用：**独立节点库 + Xray 原生模块文件 + 少量独立管理绑定 + 按原生边界输出多文件 + 独立核心进程**。Manager/Server 不变。不是只为 DNS 做特例，不以自定义模块模型替代 Xray 配置，也不退回只有文件树和启动按钮的工具。
@@ -529,11 +529,21 @@ AF_UNIX stream + UTF-8 JSON Lines。一个请求带版本、ID、method 和 para
 
 ### 10.3 TUI 页面与源文件联动
 
-总览同时显示 Profile、核心、期望目标、实际目标和待应用内容。节点页提供搜索、详情、编辑、复制和“选用并连接”。组页可真正修改成员与模式，不只是读取核心 tag 列表。
+CLI 和 TUI 是两个兄弟前端，直接通过 RpcClient 消费同一 Server API/DTO；共享业务接口不意味着共享交互模型。CLI 保持显式 command/argument 流程，TUI 保持长驻页面和本地会话上下文。TUI 不得构造 CLI argv 或调用 CLI command handler 实现业务；可复用 DTO、小型纯 formatter、selector/validation helper。
+
+TUI 本地只维护会话状态，例如页面、`viewed_profile_id`、高亮对象 ID、搜索词、日志 follow 状态与当前 ModuleDraft。它不持有权威 NodeStore、ProfileSettings 副本、RuntimeStatus 或 running_profile_id；运行状态始终来自 xrmd。`viewed_profile_id` 属于 TUI session，`running_profile_id`/实际目标由 Server 提供。查看/切换 Profile 只改变 UI 上下文，不连接或变更运行实例。
+
+总览持续显示 Viewing Profile、Running Profile、Saved Target、Actual Target、Runtime Override、Core/version/state、订阅/节点数量和 pending changes。节点页提供搜索、详情、编辑、复制和“选用并连接”。组页可真正修改成员与模式，不只是读取核心 tag 列表。
 
 原生模块页使用完整清单，不只有DNS/路由几个入口；每行显示中文名称、精确原生键、启用状态、源文件、运行文件、表单/原生编辑支持。高级编辑针对所属ModuleDocument，不存在另一套TUI保存库。
 
+`module.get` 的文档正文可以为空（JSON `null`），这是合法的“无源文件”状态，不得在 Manager 中假定为 string。Enter 对此状态展示未配置并提供未保存原生 wrapper 草稿；保存只创建源文件，不改变 included。disabled 但有源的模块仍可查看/编辑，禁止为打开编辑器而自动启用。
+
 导航可将15项视觉分为“基础/运行约束（env、version、log、api）”“连接/选路（inbounds、outbounds、routing、policy）”“解析/资源（dns、fakedns、geodata）”“观测/统计（observatory、burstObservatory、stats、metrics）”，但分区不变成新的运行根对象。
+
+`xrm tui` 的 Profile ID 参数是可选定位捷径而非启动依赖，普通启动为 `xrm tui`。无 Profile 状态保留 Overview、Subscriptions、Nodes、Cores、Profiles；Groups、Modules、Connect 显示明确 empty state。一个 Profile 时仅自动设为 viewed context，不自动连接；多个时恢复最近有效上下文或显示 picker，不能默认取第一项。Profiles 页面通过列表/选择器完成创建、打开、重命名、克隆、删除，按名称交互且不要求 UUID。节点/订阅是全局数据，可在无 Profile 时管理；无 Profile Connect 时由 UI 提供 Create Default Profile / Open Profiles / Cancel。
+
+`Profile.id` 稳定 UUID 是内部持久化、RPC、引用和精确寻址身份。CLI 的统一 resolver 先尝试合法且存在的 UUID，再做 Profile 名称 exact match；唯一返回 ID，零结果 not_found，重复名称 conflict/ambiguous，禁止 fuzzy match 和自动取首项。所有 CLI `--profile`/Profile ref 均使用同一 resolver；TUI 正常交互使用名称与选择器。VLESS URI 的兼容字段在现有 Codec 中归一化为 Node/原生子对象，不新增第二套参数存储。
 
 节点页的传输/安全/Mux编辑保存Node；入站页的同名子编辑器保存对应inbound；组页编辑bindings，原生固定组在routing中编辑。相同的子对象表单可以复用代码，不共享或覆盖不同对象的数据。
 

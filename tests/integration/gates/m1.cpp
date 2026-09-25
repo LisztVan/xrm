@@ -10,8 +10,11 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include <pty.h>
 #include <signal.h>
 #include <spawn.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -399,6 +402,7 @@ class XrmServer {
     return run_command(XRM_TEST_MANAGER, arguments, root_);
   }
   std::filesystem::path database() const { return db_; }
+  const std::filesystem::path& socket_path() const { return socket_; }
   Json json(const Captured& result) const {
     if (result.code != 0 || result.timed_out) return {};
     try { return Json::parse(result.out); } catch (...) { return {}; }
@@ -424,6 +428,153 @@ class XrmServer {
   std::filesystem::path db_;
   pid_t pid_ = -1;
 };
+
+class LoopbackSubscription {
+ public:
+  explicit LoopbackSubscription(std::string body) : body_(std::move(body)) {
+    fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
+    if (fd_ < 0) return;
+    int reuse = 1;
+    ::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    address.sin_port = 0;
+    if (::bind(fd_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0 || ::listen(fd_, 8) != 0) {
+      ::close(fd_); fd_ = -1; return;
+    }
+    socklen_t size = sizeof(address);
+    if (::getsockname(fd_, reinterpret_cast<sockaddr*>(&address), &size) != 0) {
+      ::close(fd_); fd_ = -1; return;
+    }
+    url_ = "http://127.0.0.1:" + std::to_string(ntohs(address.sin_port)) + "/nodes";
+    worker_ = std::thread([this] { serve(); });
+  }
+  ~LoopbackSubscription() {
+    stopping_ = true;
+    if (fd_ >= 0) { ::shutdown(fd_, SHUT_RDWR); ::close(fd_); fd_ = -1; }
+    if (worker_.joinable()) worker_.join();
+  }
+  bool valid() const { return fd_ >= 0; }
+  const std::string& url() const { return url_; }
+  int requests() const { return requests_.load(); }
+ private:
+  void serve() {
+    while (!stopping_.load()) {
+      pollfd ready{fd_, POLLIN, 0};
+      if (::poll(&ready, 1, 100) <= 0) continue;
+      const int peer = ::accept(fd_, nullptr, nullptr);
+      if (peer < 0) continue;
+      ++requests_;
+      std::array<char, 2048> request{};
+      (void)::recv(peer, request.data(), request.size(), 0);
+      const auto response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\nContent-Length: " +
+          std::to_string(body_.size()) + "\r\n\r\n" + body_;
+      (void)::send(peer, response.data(), response.size(), MSG_NOSIGNAL);
+      ::close(peer);
+    }
+  }
+  int fd_ = -1;
+  std::string url_;
+  std::string body_;
+  std::atomic_bool stopping_{false};
+  std::atomic_int requests_{0};
+  std::thread worker_;
+};
+
+struct TuiProcess {
+  pid_t pid = -1;
+  int master = -1;
+  int exit_status = -1;
+};
+
+TuiProcess start_tui_without_profile(const std::filesystem::path& socket,
+                                     const std::filesystem::path& visual) {
+  int master = -1, slave = -1;
+  if (::openpty(&master, &slave, nullptr, nullptr, nullptr) != 0) return {};
+  winsize size{24, 80, 0, 0};
+  (void)::ioctl(slave, TIOCSWINSZ, &size);
+  std::vector<std::string> args{XRM_TEST_MANAGER, "--socket", socket.string(), "tui"};
+  std::vector<char*> argv;
+  for (auto& arg : args) argv.push_back(arg.data());
+  argv.push_back(nullptr);
+  std::vector<std::string> environment;
+  for (char** item = environ; item && *item; ++item) {
+    const std::string value(*item);
+    if (value.starts_with("VISUAL=")) continue;
+    environment.push_back(value);
+  }
+  environment.push_back("VISUAL=" + visual.string());
+  std::vector<char*> envp;
+  for (auto& value : environment) envp.push_back(value.data());
+  envp.push_back(nullptr);
+  posix_spawn_file_actions_t actions;
+  posix_spawn_file_actions_init(&actions);
+  posix_spawn_file_actions_adddup2(&actions, slave, STDIN_FILENO);
+  posix_spawn_file_actions_adddup2(&actions, slave, STDOUT_FILENO);
+  posix_spawn_file_actions_adddup2(&actions, slave, STDERR_FILENO);
+  pid_t pid = -1;
+  const int result = ::posix_spawn(&pid, XRM_TEST_MANAGER, &actions, nullptr, argv.data(), envp.data());
+  posix_spawn_file_actions_destroy(&actions);
+  ::close(slave);
+  if (result != 0) { ::close(master); return {}; }
+  return {pid, master};
+}
+
+bool stop_tui(TuiProcess& tui) {
+  if (tui.pid < 0) return true;
+  (void)::write(tui.master, "q", 1);
+  const auto deadline = std::chrono::steady_clock::now() + 3s;
+  int status = 0;
+  while (std::chrono::steady_clock::now() < deadline) {
+    if (::waitpid(tui.pid, &status, WNOHANG) == tui.pid) {
+      tui.pid = -1;
+      tui.exit_status = status;
+      ::close(tui.master); tui.master = -1;
+      return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+    }
+    ::poll(nullptr, 0, 10);
+  }
+  ::kill(tui.pid, SIGKILL);
+  ::waitpid(tui.pid, &status, 0);
+  tui.pid = -1;
+  ::close(tui.master); tui.master = -1;
+  return false;
+}
+
+struct TuiProcessGuard {
+  TuiProcess& tui;
+  ~TuiProcessGuard() { if (tui.pid >= 0) (void)stop_tui(tui); }
+};
+
+void tui_keys(TuiProcess& tui, std::string_view keys) {
+  (void)::write(tui.master, keys.data(), keys.size());
+  ::poll(nullptr, 0, 300);
+}
+
+std::string tui_read(TuiProcess& tui, std::chrono::milliseconds duration = 300ms) {
+  std::string result;
+  const auto deadline = std::chrono::steady_clock::now() + duration;
+  while (std::chrono::steady_clock::now() < deadline) {
+    pollfd ready{tui.master, POLLIN, 0};
+    if (::poll(&ready, 1, 10) <= 0) continue;
+    std::array<char, 8192> bytes{};
+    const auto count = ::read(tui.master, bytes.data(), bytes.size());
+    if (count > 0) result.append(bytes.data(), static_cast<std::size_t>(count));
+  }
+  return result;
+}
+
+std::string tui_wait_for(TuiProcess& tui, std::string_view needle,
+                        std::chrono::milliseconds timeout = 5s) {
+  std::string output;
+  const auto deadline = std::chrono::steady_clock::now() + timeout;
+  while (std::chrono::steady_clock::now() < deadline) {
+    output += tui_read(tui, 100ms);
+    if (output.find(needle) != std::string::npos) break;
+  }
+  return output;
+}
 
 Json inbound_config(std::uint16_t port) {
   return Json{{"inbounds", Json::array({Json{
@@ -465,7 +616,7 @@ bool assert_xray_check(const std::filesystem::path& xray, const std::filesystem:
   return !checked.timed_out && checked.code == 0;
 }
 
-bool run_vless_flow(bool also_export) {
+bool run_vless_flow(bool also_export, std::string transport = "tcp") {
   const auto xray = real_xray();
   TempDirectory temp;
   const auto socks_port = free_loopback_port();
@@ -480,12 +631,17 @@ bool run_vless_flow(bool also_export) {
   REQUIRE(http.start(http_marker, also_export ? 2 : 1));
 
   const auto vless_config = temp.path / "vless-server.json";
-  const Json server_config{
+  Json inbound{{"listen", "127.0.0.1"}, {"port", *vless_port},
+      {"protocol", "vless"}, {"tag", "g1-vless-server"},
+      {"settings", Json{{"clients", Json::array({Json{{"id", uuid}, {"email", "g1-local"}}})},
+                         {"decryption", "none"}}}};
+  if (transport == "ws")
+    inbound["streamSettings"] = Json{{"network", "ws"}, {"wsSettings", Json{{"path", "/repair-ws"}}}};
+  else if (transport == "xhttp")
+    inbound["streamSettings"] = Json{{"network", "xhttp"}, {"xhttpSettings", Json{{"path", "/repair-xhttp"}}}};
+  Json server_config{
       {"log", Json{{"loglevel", "warning"}}},
-      {"inbounds", Json::array({Json{{"listen", "127.0.0.1"}, {"port", *vless_port},
-          {"protocol", "vless"}, {"tag", "g1-vless-server"},
-          {"settings", Json{{"clients", Json::array({Json{{"id", uuid}, {"email", "g1-local"}}})},
-                             {"decryption", "none"}}}}})},
+      {"inbounds", Json::array({std::move(inbound)})},
       {"outbounds", Json::array({Json{{"protocol", "freedom"}, {"tag", "direct"},
           {"settings", Json{{"finalRules", Json::array({Json{{"action", "allow"}, {"network", "tcp"},
               {"port", std::to_string(http.port())}, {"ip", Json::array({"127.0.0.0/8"})}}})}}}}})}};
@@ -501,8 +657,11 @@ bool run_vless_flow(bool also_export) {
   REQUIRE(profile.has_value());
   REQUIRE(edit_module(server, *profile, "inbounds", inbound_config(*socks_port)));
 
-  const auto uri = "vless://" + uuid + "@127.0.0.1:" + std::to_string(*vless_port) +
-                   "?encryption=none&type=tcp#G1-local-vless";
+  auto uri = "vless://" + uuid + "@127.0.0.1:" + std::to_string(*vless_port) +
+      "?encryption=none&type=" + transport;
+  if (transport == "ws") uri += "&path=%2Frepair-ws";
+  if (transport == "xhttp") uri += "&path=%2Frepair-xhttp";
+  uri += "#G1-local-vless-" + transport;
   auto decoded = parse_vless_uri(uri);
   REQUIRE(decoded.has_value());
   decoded->node.id = "g1-vless-node";
@@ -885,6 +1044,11 @@ TEST_CASE("RC-02 VLESS Codec node traverses XRM and carries loopback traffic", "
   run_vless_flow(false);
 }
 
+TEST_CASE("VLESS WS and XHTTP transports carry loopback traffic through XRM", "[real_core][product-repair][VLESS-WS-XHTTP]") {
+  REQUIRE(run_vless_flow(false, "ws"));
+  REQUIRE(run_vless_flow(false, "xhttp"));
+}
+
 TEST_CASE("RC-10 exported runtime files run independently without xrmd", "[real_core][RC-10]") {
   run_vless_flow(true);
 }
@@ -895,4 +1059,137 @@ TEST_CASE("RC-06 runtime API override changes only current Xray group selection"
 
 TEST_CASE("RC-03 native routing and manual groups send real loopback traffic", "[real_core][RC-03]") {
   REQUIRE(run_runtime_override_flow(real_xray(), false));
+}
+
+TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS traffic", "[real_core][E2E-07]") {
+  const auto xray = real_xray();
+  if (xray.empty() || !xray.is_absolute() || !std::filesystem::is_regular_file(xray) ||
+      ::access(xray.c_str(), X_OK) != 0) {
+    SKIP("E2E-07 requires XRM_TEST_XRAY fixed v26.9.9");
+  }
+
+  TempDirectory temp;
+  const auto vless_port = free_loopback_port();
+  const auto socks_port = free_loopback_port();
+  REQUIRE(vless_port.has_value());
+  REQUIRE(socks_port.has_value());
+  REQUIRE(*vless_port != *socks_port);
+  constexpr std::string_view uuid = "10000000-0000-4000-8000-000000000007";
+  constexpr std::string_view marker = "XRM-E2E-07-TUI-COLD-START-MARKER-61f2";
+  LoopbackHttp http;
+  REQUIRE(http.start(std::string(marker), 1));
+
+  const auto peer_config = temp.path / "vless-peer.json";
+  const Json peer{{"log", Json{{"loglevel", "warning"}}},
+      {"inbounds", Json::array({Json{{"listen", "127.0.0.1"}, {"port", *vless_port},
+          {"protocol", "vless"}, {"tag", "e2e07-vless-peer"},
+          {"settings", Json{{"clients", Json::array({Json{{"id", uuid}}})}, {"decryption", "none"}}}}})},
+      {"outbounds", Json::array({Json{{"protocol", "freedom"}, {"tag", "direct"},
+          {"settings", Json{{"finalRules", Json::array({Json{{"action", "allow"}, {"network", "tcp"},
+              {"port", std::to_string(http.port())}, {"ip", Json::array({"127.0.0.0/8"})}}})}}}}})}};
+  { std::ofstream output(peer_config); REQUIRE(output.good()); output << peer.dump(2) << '\n'; }
+  OwnedProcess peer_process;
+  REQUIRE(peer_process.start(xray, {"run", "-c", peer_config.string()}, temp.path));
+  REQUIRE(wait_for_port(*vless_port));
+
+  const auto uri = "vless://" + std::string(uuid) + "@127.0.0.1:" +
+      std::to_string(*vless_port) + "?encryption=none&type=tcp#Cold-start-VLESS";
+  LoopbackSubscription subscription(uri + "\n");
+  REQUIRE(subscription.valid());
+  XrmServer server(temp);
+  REQUIRE(server.start());
+
+  const auto editor = temp.path / "test-editor";
+  {
+    std::ofstream output(editor);
+    REQUIRE(output.good());
+    output << "#!/bin/sh\nprintf '%s' '{\"inbounds\":[{\"listen\":\"127.0.0.1\",\"port\":"
+           << *socks_port << ",\"protocol\":\"socks\",\"tag\":\"e2e07-socks\","
+              "\"settings\":{\"auth\":\"noauth\",\"udp\":false}}]}' > \"$1\"\n";
+  }
+  REQUIRE(::chmod(editor.c_str(), 0700) == 0);
+
+  auto tui = start_tui_without_profile(server.socket_path(), editor);
+  TuiProcessGuard tui_guard{tui};
+  REQUIRE(tui.pid > 0);
+  const auto initial = tui_wait_for(tui, "Overview", 5s);
+  CHECK(initial.find("Overview") != std::string::npos);
+
+  // Global inventory is established entirely through the no-profile TUI.
+  tui_keys(tui, "5a");
+  tui_keys(tui, "local VLESS fixture\r");
+  tui_keys(tui, subscription.url() + "\r");
+  tui_keys(tui, "u");
+  CHECK(subscription.requests() >= 1);
+  const auto update_result = tui_wait_for(tui, "Subscription update complete", 8s);
+  INFO("TUI subscription completion: " << update_result);
+  REQUIRE(update_result.find("Subscription update complete") != std::string::npos);
+
+  // Register the fixed core and create a named Profile in the same TUI session.
+  tui_keys(tui, "8a");
+  tui_keys(tui, xray.string() + "\r");
+  tui_keys(tui, "9n");
+  tui_keys(tui, "Cold Start\r");
+  tui_keys(tui, "2");
+  auto node_screen = tui_wait_for(tui, "Cold-start-VLESS", 5s);
+  CHECK(node_screen.find("Cold-start-VLESS") != std::string::npos);
+  tui_keys(tui, "s");
+  const auto profile_rows = server.json(server.cli({"profile", "list"}));
+  REQUIRE(profile_rows.is_array());
+  REQUIRE(profile_rows.size() == 1);
+  const auto saved_profile = server.json(server.cli({"profile", "show", profile_rows.front().value("id", "")}));
+  INFO("saved selection after TUI node action: " << saved_profile.value("selected", Json(nullptr)).dump());
+  REQUIRE(saved_profile.value("selected", Json(nullptr)).is_object());
+  REQUIRE(saved_profile.at("selected").value("kind", "") == "node");
+
+  // Configure the local client listener via Modules -> Inbounds -> external
+  // editor, then explicitly save the source document.
+  tui_keys(tui, "3\x1b[B\x1b[B\r");
+  tui_keys(tui, "v");
+  tui_keys(tui, "\x13");
+  const auto after_module_save = tui_read(tui);
+  INFO("after module save: " << after_module_save);
+  tui_keys(tui, "c");
+
+  Json running;
+  const auto running_deadline = std::chrono::steady_clock::now() + 20s;
+  while (std::chrono::steady_clock::now() < running_deadline) {
+    const auto result = server.cli({"status"});
+    running = server.json(result);
+    if (running.value("state", "") == "running" || running.value("state", "") == "failed") break;
+    ::poll(nullptr, 0, 40);
+  }
+  INFO("running status: " << running.dump());
+  REQUIRE(running.value("state", "") == "running");
+  const auto tui_connected = tui_wait_for(tui, "connected using the saved Profile target", 8s);
+  CHECK(tui_connected.find("connected using the saved Profile target") != std::string::npos);
+  REQUIRE(wait_for_socks(*socks_port));
+  const auto proxied = wait_for_socks_marker(*socks_port, http.port(), marker);
+  INFO("loopback VLESS response: " << proxied);
+  CHECK(proxied.find(marker) != std::string::npos);
+  REQUIRE(http.served() >= 1);
+
+  // Open and save an unconfigured disabled native module without applying it.
+  const auto before_edit = running;
+  tui_keys(tui, "3\x1b[A\r");
+  auto disabled = tui_read(tui);
+  CHECK(disabled.find("Not configured yet") != std::string::npos);
+  tui_keys(tui, "\x13");
+  const auto after_edit = server.json(server.cli({"status"}));
+  CHECK(after_edit.value("pid", Json(nullptr)) == before_edit.value("pid", Json(nullptr)));
+  CHECK(after_edit.at("active").value("run_id", "") == before_edit.at("active").value("run_id", ""));
+  CHECK(after_edit.at("active").value("confdir", "") == before_edit.at("active").value("confdir", ""));
+  CHECK(after_edit.value("state", "") == "running");
+  const auto save_feedback = tui_read(tui);
+  INFO("disabled module save feedback: " << save_feedback);
+  CHECK(save_feedback.find("saved source text") != std::string::npos);
+
+  const auto tui_stopped = stop_tui(tui);
+  INFO("TUI stopped=" << tui_stopped << " exit_status=" << tui.exit_status << " pid=" << tui.pid);
+  REQUIRE(tui_stopped);
+  const auto after_exit = server.json(server.cli({"status"}));
+  CHECK(after_exit.value("state", "") == "running");
+  CHECK(after_exit.at("active").value("profile_id", "") == before_edit.at("active").value("profile_id", ""));
+  CHECK(server.cli({"disconnect"}).code == 0);
+  CHECK(server.stop());
 }

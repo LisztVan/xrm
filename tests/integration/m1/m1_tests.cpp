@@ -450,6 +450,46 @@ TEST_CASE("E2E-02 manual node through Profile, modules, connect, logs, and stop"
   REQUIRE(server.stop());
 }
 
+TEST_CASE("UI-09 CLI Profile references resolve exact names and UUIDs without guessing",
+          "[UI-09][CLI-Profile-resolver]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  auto core = server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "resolver fixture"});
+  REQUIRE(core.code == 0);
+  const auto core_id = parsed(core).at("id").get<std::string>();
+
+  auto home = server.cli({"profile", "create", "--name", "home", "--core", core_id});
+  REQUIRE(home.code == 0);
+  const auto home_id = parsed(home).at("id").get<std::string>();
+
+  // A unique exact human name and the stable UUID must address the same Profile.
+  auto by_name = server.cli({"profile", "show", "home"});
+  REQUIRE(by_name.code == 0);
+  CHECK(parsed(by_name).at("id") == home_id);
+  auto by_uuid = server.cli({"profile", "show", home_id});
+  REQUIRE(by_uuid.code == 0);
+  CHECK(parsed(by_uuid).at("id") == home_id);
+  CHECK(server.cli({"profile", "show", "hom"}).code != 0);
+
+  // Duplicate names are legal data, so the CLI must reject ambiguity instead of
+  // choosing whichever row profile.list happened to return first.
+  auto duplicate = server.cli({"profile", "create", "--name", "home", "--core", core_id});
+  REQUIRE(duplicate.code == 0);
+  auto ambiguous = server.cli({"profile", "show", "home"});
+  CHECK(ambiguous.code != 0);
+  CHECK((ambiguous.err.find("ambiguous") != std::string::npos ||
+        ambiguous.err.find("歧义") != std::string::npos ||
+        ambiguous.err.find("重名") != std::string::npos ||
+        ambiguous.err.find("不唯一") != std::string::npos));
+
+  auto missing = server.cli({"profile", "show", "does-not-exist"});
+  CHECK(missing.code != 0);
+  CHECK((missing.err.find("not_found") != std::string::npos ||
+         missing.err.find("找不到") != std::string::npos));
+  REQUIRE(server.stop());
+}
+
 TEST_CASE("E2E-05 installing/using a registered core stays separate from applying module edits",
           "[E2E-05][CLI-03]") {
   TempDirectory temp;
@@ -792,7 +832,7 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   send_tui(core_tui.master, "8");
   const auto core_page = read_tui(core_tui.master, std::chrono::milliseconds(250));
   CHECK(core_page.find("Cores —") != std::string::npos);
-  CHECK(core_page.find("use selected core for current Profile") != std::string::npos);
+  CHECK(core_page.find("u use for current Profile") != std::string::npos);
   send_tui(core_tui.master, "u");
   std::string use_result;
   for (int attempt = 0; attempt < 8; ++attempt) {

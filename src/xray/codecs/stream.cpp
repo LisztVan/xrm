@@ -27,6 +27,7 @@ Json transport_settings(const Transport& transport) {
       Json result = Json::object();
       if (value.service_name) result["serviceName"] = *value.service_name;
       if (value.authority) result["authority"] = *value.authority;
+      if (value.multi_mode) result["multiMode"] = true;
       return result;
     }
     if constexpr (std::is_same_v<T, HttpUpgradeTransport>) {

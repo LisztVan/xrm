@@ -278,8 +278,16 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
       SourceCommit commit{source.settings_revision, {}, state_after, report};
       auto saved = store->commit_source(source_id, commit);
       if (!saved) complete_source(source_id, std::unexpected(saved.error()));
-      else complete_source(source_id, std::unexpected(service_error(
-          ErrorCode::invalid_argument, "订阅没有可用节点，旧库存已保留", source_id)));
+      else {
+        std::string message = "订阅没有可用节点（malformed=" + std::to_string(report.malformed) +
+            ", unsupported=" + std::to_string(report.unsupported) + "），旧库存已保留";
+        if (!parsed->issues.empty()) {
+          const auto& issue = parsed->issues.front();
+          message += "；首个问题：第" + std::to_string(issue.item_index + 1) + "项 " + issue.code + "：" + issue.message;
+        }
+        complete_source(source_id, std::unexpected(service_error(
+            ErrorCode::invalid_argument, std::move(message), source_id)));
+      }
       return;
     }
 

@@ -154,7 +154,8 @@ Result<Parameters> collect_parameters(const UriParts& uri) {
 Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
   static const std::set<std::string, std::less<>> supported{
       "encryption", "flow", "type", "security", "sni", "fp", "alpn", "pbk", "sid", "spx",
-      "host", "path", "mode", "extra", "serviceName", "authority", "allowInsecure"};
+      "host", "path", "mode", "extra", "serviceName", "authority", "allowInsecure",
+      "insecure", "headerType", "quicSecurity", "ech", "servername"};
   for (const auto& [key, _] : params.values) {
     if (!supported.contains(key))
       return std::unexpected(error(ErrorCode::unsupported, "unsupported VLESS URI parameter", key));
@@ -163,6 +164,10 @@ Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
     const auto it = params.values.find(key);
     return it == params.values.end() ? std::nullopt : std::optional<std::string>(it->second);
   };
+
+  if (const auto sni = get("sni"), alias = get("servername"); sni && alias && *sni != *alias)
+    return std::unexpected(error(ErrorCode::invalid_argument,
+                                 "sni and servername contain conflicting values", "servername"));
 
   StreamNode stream;
   stream.endpoint = Endpoint{uri.address, uri.port};
@@ -190,7 +195,11 @@ Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
     if (const auto host = get("host")) transport.headers.emplace("Host", *host);
     stream.transport = std::move(transport);
   } else if (type == "grpc") {
-    stream.transport = GrpcTransport{get("serviceName"), get("authority")};
+    const auto mode = get("mode");
+    if (mode && *mode != "gun" && *mode != "multi")
+      return std::unexpected(error(ErrorCode::unsupported,
+                                   "unsupported VLESS gRPC mode", "mode"));
+    stream.transport = GrpcTransport{get("serviceName"), get("authority"), mode == "multi"};
   } else if (type == "httpupgrade") {
     stream.transport = HttpUpgradeTransport{get("host"), get("path")};
   } else {
@@ -202,11 +211,23 @@ Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
       : std::holds_alternative<GrpcTransport>(stream.transport) ? std::string_view("grpc")
       : std::holds_alternative<HttpUpgradeTransport>(stream.transport) ? std::string_view("httpupgrade")
       : std::string_view("raw");
+  // Some subscription generators emit the gRPC-only mode field on TCP/RAW
+  // links as well. It has no Xray TCP representation or effect there; accept
+  // only the standardized gRPC values and keep the actual transport selected
+  // by `type=tcp`. For actual gRPC links it is preserved in GrpcTransport.
+  if (network == "raw") {
+    if (const auto mode = get("mode"); mode && *mode != "gun" && *mode != "multi")
+      return std::unexpected(error(ErrorCode::unsupported,
+                                   "VLESS mode value is not supported for TCP/RAW", "mode"));
+  }
   for (const auto& [key, _] : params.values) {
     const bool belongs =
         ((key == "host" || key == "path") &&
          (network == "xhttp" || network == "ws" || network == "httpupgrade")) ||
         ((key == "mode" || key == "extra") && network == "xhttp") ||
+        (key == "mode" && network == "grpc") ||
+        (key == "mode" && network == "raw" &&
+         (params.values.at("mode") == "gun" || params.values.at("mode") == "multi")) ||
         ((key == "serviceName" || key == "authority") && network == "grpc");
     if ((key == "host" || key == "path" || key == "mode" || key == "extra" ||
          key == "serviceName" || key == "authority") && !belongs)
@@ -214,6 +235,20 @@ Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
                                    "transport parameter does not match selected transport", key));
   }
   const auto security = get("security").value_or("none");
+  const auto insecure = get("insecure") ? get("insecure") : get("allowInsecure");
+  const auto parse_bool = [](std::string_view value) -> std::optional<bool> {
+    if (value == "1" || value == "true") return true;
+    if (value == "0" || value == "false") return false;
+    return std::nullopt;
+  };
+  if (insecure && !parse_bool(*insecure))
+    return std::unexpected(error(ErrorCode::invalid_argument, "insecure must be true, false, 1 or 0", "insecure"));
+  if (const auto header = get("headerType"); header && *header != "none")
+    return std::unexpected(error(ErrorCode::unsupported,
+                                 "VLESS headerType has connection semantics not supported by this transport", "headerType"));
+  if (const auto quic = get("quicSecurity"); quic && *quic != "none")
+    return std::unexpected(error(ErrorCode::unsupported,
+                                 "VLESS quicSecurity is only accepted as the neutral none default", "quicSecurity"));
   auto alpn = get("alpn");
   std::vector<std::string> alpns;
   if (alpn) {
@@ -228,7 +263,7 @@ Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
     }
   }
   if (security == "none") {
-    for (const auto key : {"sni", "fp", "alpn", "pbk", "sid", "spx", "allowInsecure"}) {
+    for (const auto key : {"sni", "servername", "fp", "alpn", "pbk", "sid", "spx", "ech"}) {
       if (get(key)) return std::unexpected(error(ErrorCode::invalid_argument,
                                                  "security parameter requires TLS or REALITY", key));
     }
@@ -237,20 +272,19 @@ Result<StreamNode> make_stream(const UriParts& uri, const Parameters& params) {
     if (get("pbk") || get("sid") || get("spx"))
       return std::unexpected(error(ErrorCode::invalid_argument, "REALITY parameter cannot be used with TLS", "security"));
     TlsSecurity tls;
-    tls.server_name = get("sni");
+    tls.server_name = get("sni") ? get("sni") : get("servername");
     tls.fingerprint = get("fp");
     tls.alpn = std::move(alpns);
-    if (const auto insecure = get("allowInsecure")) {
-      if (*insecure == "1" || *insecure == "true") tls.options["allowInsecure"] = true;
-      else if (*insecure == "0" || *insecure == "false") tls.options["allowInsecure"] = false;
-      else return std::unexpected(error(ErrorCode::invalid_argument, "allowInsecure must be boolean", "allowInsecure"));
-    }
+    if (insecure && *parse_bool(*insecure))
+      return std::unexpected(error(ErrorCode::unsupported,
+          "TLS insecure=true cannot be represented safely by the selected Xray version; configure a trusted CA or explicit certificate pin",
+          "insecure"));
+    if (const auto ech = get("ech")) tls.options["echConfigList"] = *ech;
     stream.security = std::move(tls);
   } else if (security == "reality") {
-    if (get("allowInsecure"))
-      return std::unexpected(error(ErrorCode::invalid_argument, "allowInsecure is not a REALITY setting", "allowInsecure"));
     RealitySecurity reality;
-    reality.server_name = get("sni");
+    if (get("ech")) return std::unexpected(error(ErrorCode::invalid_argument, "ech requires TLS security", "ech"));
+    reality.server_name = get("sni") ? get("sni") : get("servername");
     reality.fingerprint = get("fp");
     reality.password = get("pbk").value_or("");
     reality.short_id = get("sid");

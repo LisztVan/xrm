@@ -28,6 +28,7 @@ inline constexpr std::string_view profile_create = "profile.create";
 inline constexpr std::string_view profile_list = "profile.list";
 inline constexpr std::string_view profile_get = "profile.get";
 inline constexpr std::string_view profile_save = "profile.save";
+inline constexpr std::string_view profile_rename = "profile.rename";
 inline constexpr std::string_view profile_clone = "profile.clone";
 inline constexpr std::string_view profile_remove = "profile.remove";
 inline constexpr std::string_view module_list = "module.list";

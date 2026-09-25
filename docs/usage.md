@@ -10,7 +10,7 @@ XRM 由 `xrm` Manager、`xrmd` Server 和独立的 Xray-core 组成。Manager �
 xrmd --foreground
 ```
 
-在另一个终端运行 `xrm`。默认数据库位于 `$XDG_STATE_HOME/xrm/server.sqlite`（未设置时为 `~/.local/state/xrm/server.sqlite`），默认 socket 位于 `$XDG_RUNTIME_DIR/xrm/xrmd.sock`；没有 `XDG_RUNTIME_DIR` 时，socket 回退为 `/tmp/xrmd-<uid>.sock`。数据库所在目录同时作为 Profile、运行文件、托管核心和资源的 data root。也可以显式传入 `--database` 与 `--socket`，便于隔离实例：
+在另一个终端可直接运行 `xrm tui`，无需预先创建 Profile 或提供 UUID；也可运行 `xrm` 使用 CLI。默认数据库位于 `$XDG_STATE_HOME/xrm/server.sqlite`（未设置时为 `~/.local/state/xrm/server.sqlite`），默认 socket 位于 `$XDG_RUNTIME_DIR/xrm/xrmd.sock`；没有 `XDG_RUNTIME_DIR` 时，socket 回退为 `/tmp/xrmd-<uid>.sock`。数据库所在目录同时作为 Profile、运行文件、托管核心和资源的 data root。也可以显式传入 `--database` 与 `--socket`，便于隔离实例：
 
 ```sh
 mkdir -p "$HOME/.local/state/xrm" "$HOME/.cache/xrm/run"
@@ -107,7 +107,9 @@ xrm config export <profile-id> --source runtime --output ./exported-confdir
 
 `disconnect`/`core stop` 是显式停止。退出 TUI 不会停止核心。导出运行目录后，可在相同 Xray 二进制、工作目录、环境变量和外部资源路径条件下独立运行；导出不会打包证书/私钥等外部资源。
 
-TUI 使用 Tab / Shift-Tab 或 `1`–`8` 切换页面，`?` 查看按键帮助，`q` 仅退出界面。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看已收到的历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
+无 Profile 的 TUI 首用：`5 Subs` → `a` 输入名称和订阅 URL → `u` 更新库存；`8 Core` → `a` 登记已有 Xray 可执行文件（也可从该页查看/安装核心）；`9 Profiles` → `n` 创建有名称的 Profile；`2 Nodes` 选择节点并按 `s` 保存；回 Overview 按 `c` 连接。订阅可先于 Profile 管理；选择与保存不自动连接。已存在唯一 Profile 时会自动进入该上下文，多 Profile 可在 `9 Profiles` 查看并切换。
+
+TUI 使用 Tab / Shift-Tab 或 `1`–`9` 切换页面，`?` 查看按键帮助，`q` 仅退出界面。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看已收到的历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
 
 在 Native Modules 页按 Enter 打开原生文本草稿，按 `v` 可用 `$VISUAL`（优先）或 `$EDITOR` 打开外部编辑器。变量须指定 executable 和可选的简单、未加引号参数；程序直接 spawn，不经 shell。编辑器只改临时草稿，返回 TUI 后仍须按 Ctrl-S 才保存模块源文件；保存不 connect/restart。缺少两个变量会明确报错。编辑器非零退出时保留 TUI 草稿；源文件在编辑期间被别的客户端修改时，保存会报告冲突并保留草稿，不覆盖外部修改。人工验收步骤见 [tui-manual-acceptance.md](tui-manual-acceptance.md)。
 

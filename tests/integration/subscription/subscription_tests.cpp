@@ -390,6 +390,21 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
     CHECK(std::any_of(retained->items.begin(), retained->items.end(),
                       [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
   }
+  fixture.respond(200,
+      "vless://00000000-0000-4000-8000-000000000009@node.example:443?security=tls&insecure=maybe");
+  auto malformed_vless = refresh_sync(service, loop.value, {"source-A"});
+  REQUIRE(malformed_vless);
+  REQUIRE(malformed_vless->failed.size() == 1);
+  CHECK(malformed_vless->failed.front().second.message.find("insecure must be true, false, 1 or 0") !=
+        std::string::npos);
+  CHECK(malformed_vless->failed.front().second.message.find("node.example") == std::string::npos);
+  CHECK(malformed_vless->failed.front().second.message.find("maybe") == std::string::npos);
+  const auto retained_after_malformed = (*opened)->list_nodes(
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+  REQUIRE(retained_after_malformed);
+  CHECK(std::any_of(retained_after_malformed->items.begin(), retained_after_malformed->items.end(),
+                    [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
+
   fixture.respond(503, "upstream unavailable");
   auto unavailable = refresh_sync(service, loop.value, {"source-A"});
   REQUIRE(unavailable);

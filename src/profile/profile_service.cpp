@@ -333,6 +333,19 @@ Result<void> ProfileService::save(const Id& id, const ProfileEdit& edit) {
   return write_if_unchanged(*directory / "profile.json", edit.base, profile_json(edit.value));
 }
 
+Result<void> ProfileService::rename(const Id& id, std::string new_name) {
+  if (!safe_profile_name(new_name))
+    return fail<void>(ErrorCode::invalid_argument, "Profile 名称不能为空或包含控制字符");
+  auto directory = profile_directory(store_, id);
+  if (!directory) return std::unexpected(directory.error());
+  auto current_text = read_text(*directory / "profile.json", max_profile_file_bytes);
+  if (!current_text) return std::unexpected(current_text.error());
+  auto settings = get(id);
+  if (!settings) return std::unexpected(settings.error());
+  settings->name = std::move(new_name);
+  return write_if_unchanged(*directory / "profile.json", EditBase{*current_text}, profile_json(*settings));
+}
+
 Result<ProfileSettings> ProfileService::clone(const Id& id, std::string new_name) {
   if (!safe_profile_name(new_name)) return fail<ProfileSettings>(ErrorCode::invalid_argument,
       "Profile 名称不能为空或包含控制字符");
