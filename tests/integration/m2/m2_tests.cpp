@@ -319,14 +319,27 @@ TEST_CASE("TUI exposes separate Subscriptions and Nodes views with missing sourc
   posix_spawn_file_actions_destroy(&actions);
   ::close(slave);
   REQUIRE(spawned == 0);
-  ::poll(nullptr, 0, 250);
-  (void)::write(master, "5", 1);
   std::string screen;
-  const auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds(600);
-  while (std::chrono::steady_clock::now() < until) {
-    pollfd fd{master, POLLIN, 0};
-    if (::poll(&fd, 1, 20) > 0) { char bytes[2048]; const auto n = ::read(master, bytes, sizeof(bytes)); if (n > 0) screen.append(bytes, static_cast<std::size_t>(n)); }
+  const auto capture = [&](std::chrono::milliseconds duration) {
+    const auto until = std::chrono::steady_clock::now() + duration;
+    while (std::chrono::steady_clock::now() < until) {
+      pollfd fd{master, POLLIN, 0};
+      if (::poll(&fd, 1, 20) > 0) {
+        char bytes[2048];
+        const auto n = ::read(master, bytes, sizeof(bytes));
+        if (n > 0) screen.append(bytes, static_cast<std::size_t>(n));
+      }
+    }
+  };
+  capture(std::chrono::milliseconds(250));
+  for (int i = 0; i < 3; ++i) { // Overview -> Subscriptions via TopNav Tab.
+    REQUIRE(::write(master, "\t", 1) == 1);
+    capture(std::chrono::milliseconds(120));
   }
+  REQUIRE(::write(master, "\r", 1) == 1); // Enter Content; row is visible.
+  capture(std::chrono::milliseconds(250));
+  REQUIRE(::write(master, "\x1b", 1) == 1); // Return to TopNav before q.
+  capture(std::chrono::milliseconds(120));
   (void)::write(master, "q", 1);
   int status = 0;
   for (int i = 0; i < 100 && ::waitpid(tui, &status, WNOHANG) == 0; ++i) ::poll(nullptr, 0, 10);

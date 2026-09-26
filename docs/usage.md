@@ -110,11 +110,11 @@ xrm config export <profile-id> --source runtime --output ./exported-confdir
 
 `disconnect`/`core stop` 是显式停止。退出 TUI 不会停止核心。导出运行目录后，可在相同 Xray 二进制、工作目录、环境变量和外部资源路径条件下独立运行；导出不会打包证书/私钥等外部资源。
 
-无 Profile 的 TUI 首用：`4 Subscriptions` → `a` 输入名称和订阅 URL → `u` 更新库存；`7 Config` → Core 中按 `a` 登记已有 Xray；`2 Profiles` → `n` 选 Desktop 模板并填写名称；回 Subscriptions 选中来源按 `b`，明确将该来源用于当前 Profile；`5 Nodes` 选择节点并按 `s` 保存，或按 `c` 选用并连接。订阅可先于 Profile 管理；选择与保存不自动连接。唯一 Profile 会自动进入浏览上下文；切换浏览不影响正在运行的 Profile。
+无 Profile 的 TUI 首用：从 `xrm tui` 启动，在顶层用 Tab 选 Subscriptions、Enter 进入内容，按 `a` 输入名称和订阅 URL、`u` 更新库存；回顶层选 Config、Enter 进入二级导航，在 Core 按 Enter 进入内容，再按 `a` 登记已有 Xray；回顶层选 Profiles、Enter 进入内容，按 `n` 选 Desktop 模板并填写名称；回 Subscriptions 选中来源按 `b`，明确将该来源用于当前 Profile；进入 Nodes 的二级分类和内容，选择节点并按 `s` 保存，或按 `c` 选用并连接。订阅可先于 Profile 管理；选择与保存不自动连接。唯一 Profile 会自动进入浏览上下文；切换浏览不影响正在运行的 Profile。
 
-顶层固定 `Overview / Profiles / Modules / Subscriptions / Nodes / Logs / Config` 七页。两级 Tab 都在顶端；`Tab` / `Shift-Tab` 只移动**当前焦点层**，`Enter` 从顶层进入二级导航、再进入内容，`Esc` 退一层。顶层可用 `1`–`7` 直达页面，`?` 或 F1 看帮助；文本输入和弹窗不会把这些字符当页面快捷键。`q` 退出 TUI，不停止核心。Nodes 的二级分类包括全部订阅、各来源、Local、Groups；内容区上下键、PageUp/PageDown、Home/End 浏览。Config 二级页为 Core、Geodata、Tests、Appearance、Editor、General。80×24 是正常布局下限，缩得更小时显示保护提示，放大后恢复草稿与选择。
+顶层固定 `Overview / Profiles / Modules / Subscriptions / Nodes / Logs / Config` 七页。两级 Tab 都在顶端；`Tab` / `Shift-Tab` 只移动**当前焦点层**，`Enter` 从顶层进入二级导航、再进入内容，`Esc` 退一层。顶层没有数字直达或方向键切页；`?` 或 F1 看当前焦点帮助。文本输入和弹窗只接收自己的按键。只有焦点在顶层时 `q` 退出 TUI，且不停止核心。Profiles 内容区 `Enter` 查看、`u` 使用、`e` 进入编辑上下文；三者都不自动连接。Nodes 的二级分类包括全部订阅、各来源、Local、Groups；内容区上下键、PageUp/PageDown、Home/End 浏览。Config 二级页为 Core、Geodata、Tests、Appearance、Editor、General。80×24 是正常布局下限，缩得更小时显示保护提示，放大后恢复草稿与选择。
 
-Modules 顶部第二行是 15 个原生模块 key：在二级导航按 Tab 切模块，Enter 进入当前内容；原文编辑支持 F2 保存、F6 调外部编辑器。结构化 JSON 草稿用 `a/e/d/r/c` 添加、改标量、删除、重命名、复制数组项，`[`/`]` 调整数组顺序，F4 在结构视图与原文间切换。结构与原文操作的是**同一份未保存草稿**；无效原文会保留供修正，不能可靠地覆盖结构视图。保存只写当前模块源文件，不自动 Connect/Apply。未知字段仍可在原文中查看编辑；禁用或尚无 source 的模块也能打开。
+Modules 顶部第二行是 15 个原生模块 key：在二级导航按 Tab 切模块，Enter 进入当前内容。内容区 F2 在单一全宽 Visual/格式化 JSON 预览间切换，`v` 独立切换 Source/Runtime；Source 的 Enter 打开同一份草稿（默认 Visual），F2 切到可编辑 JSON，F6 调外部编辑器，Ctrl-S 保存。结构化草稿用 `a/e/d/r/c` 添加、改标量、删除、重命名、复制数组项，`[`/`]` 在 Visual 内容中调整数组顺序；不再使用 F4。无效 JSON 原文会保留供修正，不能覆盖结构视图。保存只写当前模块源文件，不自动 Connect/Apply。未知字段仍可在原文中查看编辑；禁用或尚无 source 的模块也能打开。
 
 Overview 使用真实 Server 采样显示速率与有界短时图；没有采样或重启后的间隔不画成零流量。Logs 页按 `p` 暂停/恢复自动跟随；暂停只影响本地视口，Server 仍继续接收有界日志，可用上下键查看历史。若缓冲淘汰了旧日志，页面会提示 `older logs dropped / truncated`。
 
@@ -155,7 +155,7 @@ xrm geodata bind home My-GeoIP
 xrm geodata remove My-GeoIP  # 仅限未被 Profile 引用的资源
 ```
 
-在当前 Profile 的 Profiles 页面，或 Modules → `routing` 中按 `p`，选择“绕过大陆 / 黑名单代理 / Global / 全直连 / 自定义原生”。先看弹窗中的依赖、**当前原生 routing JSON 与拟保存 JSON 的差异**；`y` 才保存到该 Profile 的 routing 源模块，Esc 取消。前几种预设需要相应已验证的 GeoIP/GeoSite 标签及可用的出口；缺资源时应先回 Geodata 处理。重复选择相同未改动预设不会叠加规则。保存只改变源文件，必须再明确 Connect/Apply 才改变当前 Xray；已有手写未知字段与静态 balancer 不应被预设覆盖。Global 的名称也不表示毫无例外：其局域网和 UDP/443 等行为以预览中的原生规则为准。
+在当前 Profile 的 Modules 顶层按 Enter 进入二级导航，用 Tab 选 `routing`，再按 Enter 进入 Source 内容，按 `p` 选择“绕过大陆 / 黑名单代理 / Global / 全直连 / 自定义原生”。先看弹窗中的依赖、**当前原生 routing JSON 与拟保存 JSON 的差异**；`y` 才保存到该 Profile 的 routing 源模块，Esc 取消。TopNav、SecondaryNav、其他模块和 Runtime 预览都不会触发该操作。前几种预设需要相应已验证的 GeoIP/GeoSite 标签及可用的出口；缺资源时应先回 Geodata 处理。重复选择相同未改动预设不会叠加规则。保存只改变源文件，必须再明确 Connect/Apply 才改变当前 Xray；已有手写未知字段与静态 balancer 不应被预设覆盖。Global 的名称也不表示毫无例外：其局域网和 UDP/443 等行为以预览中的原生规则为准。
 
 CLI 的对应操作是先预览，再明确保存。`plan` 返回 `before`、`after`、依赖和精确原文基线 `expected_text`；审阅结果后把基线存入文件，`save --expected-file` 会在源文件已变化时拒绝，不会静默重做一份新计划：
 

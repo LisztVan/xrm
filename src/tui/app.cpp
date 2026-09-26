@@ -58,15 +58,15 @@ struct PageNav {
   const char* help;
   int page;
 };
-// This is the visual order, numeric key order, and Tab order.
+// This is the sole top-level navigation order.
 constexpr std::array<PageNav, 7> kPages{{
     {"Overview", "c Connect   i Local entry   d Stop   r Refresh   ? Help", 0},
-    {"Profiles", "↑↓ Move   Enter Open   n New   r Rename   c Clone   d Delete   ? Help", 8},
-    {"Modules", "Tab Module   f Find key   Enter Edit Native   e Enable/Disable   p Routing preset   ? Help", 2},
-    {"Subscriptions", "↑↓ Move   Enter Details   a Add   b Use in Profile   u Update   h History   ? Help", 4},
-    {"Nodes", "↑↓ Move   [ ] Category   / Search   s Select   c Connect   t Test   ? Help", 1},
-    {"Logs", "↑↓ History   p Pause/Resume   r Refresh   ? Help", 3},
-    {"Config", "[ ] Section   Enter Content   Core / Geodata / Tests / Appearance / Editor / General   ? Help", 7},
+    {"Profiles", "↑↓ Move   Enter View   u Use   e Edit   n New   r Rename   c Clone   d Delete", 8},
+    {"Modules", "↑↓ Visual   Enter Edit   F2 Visual/JSON   e Enable/Disable   v Source/Runtime", 2},
+    {"Subscriptions", "↑↓ Move   Enter Details   a Add   u Update   b Profile use   h History", 4},
+    {"Nodes", "↑↓ Move   / Search   s Select   c Connect   t Test", 1},
+    {"Logs", "↑↓ History   p Pause/Resume   r Refresh", 3},
+    {"Config", "↑↓ Move   Enter Open   a Add   u Use   r Refresh", 7},
 }};
 constexpr std::array<const char*, 6> kConfigSections{
     "Core", "Geodata", "Tests", "Appearance", "Editor", "General"};
@@ -121,6 +121,25 @@ std::string editor_command() {
   if (const char* visual = std::getenv("VISUAL"); visual && *visual) return visual;
   if (const char* editor = std::getenv("EDITOR"); editor && *editor) return editor;
   return {};
+}
+
+std::string json_draft_error(std::string_view source) {
+  try {
+    const auto parsed = Json::parse(source);
+    (void)parsed;
+    return "JSON root does not contain the selected native module";
+  } catch (const Json::parse_error& error) {
+    const auto offset = error.byte == 0 ? source.size() :
+        std::min(source.size(), static_cast<std::size_t>(error.byte - 1));
+    std::size_t line = 1;
+    std::size_t column = 1;
+    for (std::size_t i = 0; i < offset; ++i) {
+      if (source[i] == '\n') { ++line; column = 1; }
+      else ++column;
+    }
+    return "Invalid JSON at " + std::to_string(line) + ":" + std::to_string(column) +
+        "; text draft retained: " + error.what();
+  }
 }
 
 std::string short_utf8(std::string_view value, std::size_t max_chars) {
@@ -268,6 +287,9 @@ class TuiApp final : public ComponentBase {
   struct TuiState {
     int page = 0;
     std::string viewed_profile_id;
+    std::string used_profile_id;
+    std::string inspected_profile_id;
+    std::string editing_profile_id;
     std::optional<std::string> highlighted_node_id;
     std::optional<std::string> highlighted_group_id;
     std::string node_search;
@@ -348,6 +370,8 @@ class TuiApp final : public ComponentBase {
     refresh_profiles();
     if (profile_id_.empty() && profiles_.size() == 1) profile_id_ = profiles_.front().value("id", "");
     else if (!profile_id_.empty()) resolve_initial_profile_ref(profile_id_);
+    state_.used_profile_id = profile_id_;
+    state_.inspected_profile_id = profile_id_;
     if (!profile_id_.empty()) selected_core_for_profile_ = profile_core_id(profile_id_);
     refresh_program_settings();
     refresh_all();
@@ -487,6 +511,24 @@ class TuiApp final : public ComponentBase {
       state_.node_search = node_filter_;
       return true;
     }
+    if (editor_exit_confirm_) {
+      if (event == Event::Character("s")) {
+        editor_exit_confirm_ = false;
+        save_editor();
+      } else if (event == Event::Character("d")) {
+        editor_exit_confirm_ = false;
+        editing_ = false;
+        editing_dirty_ = false;
+        draft_json_invalid_ = false;
+        state_.module_draft.reset();
+        editing_clean_text_.reset();
+        message_ = "module draft discarded; saved source and running core unchanged";
+      } else if (event == Event::Character("c") || event == Event::Escape) {
+        editor_exit_confirm_ = false;
+        message_ = "continuing the unsaved module draft";
+      }
+      return true;
+    }
     if (editing_) {
       if (prompt_ != Prompt::none) {
         if (event == Event::Escape || event == Event::CtrlQ) {
@@ -498,25 +540,35 @@ class TuiApp final : public ComponentBase {
         return true;
       }
       if (event == Event::Escape || event == Event::CtrlQ) {
-        editing_ = false; editing_group_ = false; editing_node_ = false; return true;
+        if (!editing_group_ && !editing_node_ && editing_dirty_) {
+          editor_exit_confirm_ = true;
+          return true;
+        }
+        editing_ = false; editing_group_ = false; editing_node_ = false;
+        editing_dirty_ = false;
+        state_.module_draft.reset();
+        editing_clean_text_.reset();
+        return true;
       }
-      if (event == Event::CtrlS || event == Event::F2) { save_editor(); return true; }
-      if (event == Event::F4 && !editing_node_ && !editing_group_) {
+      if (event == Event::CtrlS) { save_editor(); return true; }
+      if (event == Event::F2 && !editing_node_ && !editing_group_) {
         if (!editing_structured_) {
           refresh_structure_rows();
           if (structure_rows_.empty()) {
-            message_ = "Structured view needs valid strict native JSON; text draft retained";
+            draft_json_invalid_ = true;
+            message_ = json_draft_error(draft_);
             return true;
           }
           editing_structured_ = true;
         } else editing_structured_ = false;
         return true;
       }
-      if (editing_structured_) return handle_structure_event(event);
-      if ((event == Event::Character("v") || event == Event::F6) && !editing_node_ && !editing_group_) {
+      if (event == Event::F2 && (editing_node_ || editing_group_)) return true;
+      if (event == Event::F6 && !editing_node_ && !editing_group_) {
         open_external_editor();
         return true;
       }
+      if (editing_structured_) return handle_structure_event(event);
       if (event == Event::CtrlZ && !editor_undo_.empty()) {
         draft_ = std::move(editor_undo_.back().text);
         edit_cursor_ = editor_undo_.back().cursor;
@@ -546,8 +598,11 @@ class TuiApp final : public ComponentBase {
           edit_cursor_ += value.size();
         }
       }
-      if (!editing_node_ && !editing_group_ && editing_base_text_)
-        editing_dirty_ = draft_ != *editing_base_text_;
+      if (!editing_node_ && !editing_group_) {
+        editing_dirty_ = !editing_clean_text_ || draft_ != *editing_clean_text_;
+        draft_json_invalid_ = Json::parse(draft_, nullptr, false).is_discarded();
+        if (draft_json_invalid_) message_ = json_draft_error(draft_);
+      }
       if (!editing_node_ && !editing_group_) state_.module_draft = draft_;
       return true;
     }
@@ -568,6 +623,11 @@ class TuiApp final : public ComponentBase {
     if (preset_plan_) {
       if (event == Event::Escape || event == Event::Character("n")) {
         preset_plan_.reset(); message_ = "Routing preset preview cancelled; source unchanged";
+      } else if (event == Event::ArrowDown || event == Event::PageDown) {
+        preset_diff_scroll_ += event == Event::PageDown ? 8 : 1;
+      } else if (event == Event::ArrowUp || event == Event::PageUp) {
+        const auto step = event == Event::PageUp ? 8u : 1u;
+        preset_diff_scroll_ = preset_diff_scroll_ > step ? preset_diff_scroll_ - step : 0;
       } else if (event == Event::Character("y")) {
         auto saved = rpc(socket_, std::string(methods::routing_preset_save),
             Json{{"profile_id", profile_id_}, {"preset", preset_name_},
@@ -592,7 +652,7 @@ class TuiApp final : public ComponentBase {
         auto plan = rpc(socket_, std::string(methods::routing_preset_plan),
             Json{{"profile_id", profile_id_}, {"preset", preset_name_}});
         if (!plan) message_ = "Routing preset preview failed: " + plan.error().message;
-        else preset_plan_ = std::move(*plan);
+        else { preset_plan_ = std::move(*plan); preset_diff_scroll_ = 0; }
       }
       return true;
     }
@@ -731,7 +791,8 @@ class TuiApp final : public ComponentBase {
       }
       return true;
     }
-    if (page_ == 7 && config_section_ == kAppearanceSection && event == Event::Escape && appearance_dirty_) {
+    if (page_ == 7 && config_section_ == kAppearanceSection &&
+        focus_layer_ == FocusLayer::content && event == Event::Escape && appearance_dirty_) {
       appearance_draft_ = program_settings_.value("appearance", Json::object());
       appearance_dirty_ = false;
       message_ = "Appearance preview cancelled; saved settings unchanged";
@@ -743,7 +804,30 @@ class TuiApp final : public ComponentBase {
       else if (focus_layer_ == FocusLayer::secondary) focus_layer_ = FocusLayer::top;
       return true;
     }
-    if (event == Event::Character("q")) {
+    if (event == Event::Tab || event == Event::TabReverse) {
+      const auto step = event == Event::Tab ? 1 : -1;
+      if (focus_layer_ == FocusLayer::top)
+        navigate_top_page((top_page_index() + kPages.size() + step) % kPages.size());
+      else if (focus_layer_ == FocusLayer::secondary) {
+        if (page_ == 1 || page_ == 5) move_node_category(step);
+        else if (page_ == 7) {
+          config_section_ = (config_section_ + kConfigSections.size() + step) % kConfigSections.size();
+          if (config_section_ == kGeodataSection) refresh_geodata();
+        } else if (page_ == 2 && !modules_.empty()) {
+          selected_ = (selected_ + modules_.size() + step) % modules_.size();
+          page_selections_[2] = selected_;
+          module_preview_runtime_ = false;
+        }
+      }
+      // Content has no peer focusable widgets on this page. Never navigate a hidden layer.
+      return true;
+    }
+    if (event == Event::Return && focus_layer_ != FocusLayer::content) {
+      focus_layer_ = focus_layer_ == FocusLayer::top && has_secondary_nav()
+          ? FocusLayer::secondary : FocusLayer::content;
+      return true;
+    }
+    if (event == Event::Character("q") && focus_layer_ == FocusLayer::top) {
       stop_stats_watch();
       ui_poster_->alive.store(false);
       {
@@ -754,11 +838,9 @@ class TuiApp final : public ComponentBase {
       return true;
     }
     if (event == Event::Character("?") || event == Event::F1) { show_help_ = true; return true; }
-    if (event == Event::Return && focus_layer_ != FocusLayer::content) {
-      focus_layer_ = focus_layer_ == FocusLayer::top && has_secondary_nav()
-          ? FocusLayer::secondary : FocusLayer::content;
-      return true;
-    }
+    // The current focus layer owns the event. Unhandled navigation keys must not
+    // fall through to a hidden page, including FTXUI component defaults.
+    if (focus_layer_ != FocusLayer::content) return true;
     if (page_ == 7 && config_section_ == kAppearanceSection && event == Event::Character("s")) {
       save_appearance(); return true;
     }
@@ -803,49 +885,18 @@ class TuiApp final : public ComponentBase {
       }
     }
     if (page_ == 8 && event == Event::Character("n")) { begin_profile_prompt(false); return true; }
+    if (page_ == 8 && event == Event::Character("u") && selected_ < profiles_.size()) {
+      use_selected_profile(); return true;
+    }
+    if (page_ == 8 && event == Event::Character("e") && selected_ < profiles_.size()) {
+      edit_selected_profile(); return true;
+    }
     if (page_ == 8 && event == Event::Character("c")) { begin_profile_prompt(true); return true; }
     if (page_ == 8 && event == Event::Character("r")) { begin_profile_prompt(false, true); return true; }
     if (page_ == 8 && event == Event::Character("d")) { remove_selected_profile(); return true; }
-    if (event == Event::Tab || event == Event::TabReverse) {
-      const auto step = event == Event::Tab ? 1 : -1;
-      if (focus_layer_ == FocusLayer::top)
-        navigate_top_page((top_page_index() + kPages.size() + step) % kPages.size());
-      else if (focus_layer_ == FocusLayer::secondary) {
-        if (page_ == 1 || page_ == 5) move_node_category(step);
-        else if (page_ == 7) {
-          config_section_ = (config_section_ + kConfigSections.size() + step) % kConfigSections.size();
-          if (config_section_ == kGeodataSection) refresh_geodata();
-        }
-        else if (page_ == 2 && !modules_.empty()) {
-          selected_ = (selected_ + modules_.size() + step) % modules_.size();
-          page_selections_[2] = selected_;
-          module_preview_runtime_ = false;
-        }
-      }
-      return true;
-    }
-    if (event.is_character() && event.character().size() == 1 &&
-        event.character()[0] >= '1' && event.character()[0] <= '7') {
-      navigate_top_page(event.character()[0] - '1');
-      return true;
-    }
     if (page_ == 1 && event == Event::Character("g")) { navigate_page(5); return true; }
     if (page_ == 5 && event == Event::Character("n")) { node_category_ = "all"; navigate_page(1); return true; }
-    if ((page_ == 1 || page_ == 5) && event == Event::Character("[")) {
-      move_node_category(-1); return true;
-    }
-    if ((page_ == 1 || page_ == 5) && event == Event::Character("]")) {
-      move_node_category(1); return true;
-    }
-    if (page_ == 7 && event == Event::Character("[")) {
-      config_section_ = (config_section_ + kConfigSections.size() - 1) % kConfigSections.size();
-      if (config_section_ == kGeodataSection) refresh_geodata(); return true;
-    }
-    if (page_ == 7 && event == Event::Character("]")) {
-      config_section_ = (config_section_ + 1) % kConfigSections.size();
-      if (config_section_ == kGeodataSection) refresh_geodata(); return true;
-    }
-    else if (event == Event::ArrowDown && page_ == 3) {
+    if (event == Event::ArrowDown && page_ == 3) {
       const auto tail = log_entries_.size() > kLogViewportRows ? log_entries_.size() - kLogViewportRows : 0;
       if (log_view_start_ < tail) ++log_view_start_;
     }
@@ -867,6 +918,10 @@ class TuiApp final : public ComponentBase {
       page_selections_[1] = selected_;
       remember_highlighted_item();
     }
+    else if (page_ == 2 && (event == Event::ArrowDown || event == Event::ArrowUp ||
+                            event == Event::ArrowLeft || event == Event::ArrowRight)) {
+      // Module selection belongs to SecondaryNav, never to Content arrows.
+    }
     else if (event == Event::ArrowDown) {
       selected_ = std::min(selected_ + 1, page_size() ? page_size() - 1 : 0);
       page_selections_[static_cast<std::size_t>(page_)] = selected_;
@@ -879,22 +934,23 @@ class TuiApp final : public ComponentBase {
     }
     else if (event == Event::Return && page_ == 1) node_detail_ = true;
     else if (event == Event::Return && page_ == 4 && selected_ < subscriptions_.size()) subscription_detail_ = true;
-    else if (event == Event::Return && page_ == 2) open_editor();
+    else if (event == Event::Return && page_ == 2 && !module_preview_runtime_) open_editor();
+    else if (event == Event::Return && page_ == 2 && module_preview_runtime_)
+      message_ = "Runtime is read-only; press v to view Source before editing";
     else if (event == Event::Return && page_ == 5) open_group_editor();
     else if (event == Event::Return && page_ == 7 && config_section_ == 0 && selected_ < cores_.size()) {
       selected_core_for_profile_ = cores_[selected_].value("id", "");
       message_ = "core selected for new Profile; installation/use state is unchanged";
     }
-    else if (event == Event::Return && page_ == 8 && selected_ < profiles_.size()) select_profile_context();
+    else if (event == Event::Return && page_ == 8 && selected_ < profiles_.size()) view_selected_profile();
+    else if (event == Event::F2 && page_ == 2) module_preview_visual_ = !module_preview_visual_;
     else if (event == Event::Character("e") && page_ == 2) toggle_module();
     else if (event == Event::Character("v") && page_ == 2) toggle_module_preview();
     else if (event == Event::Character("f") && page_ == 2)
       begin_prompt(Prompt::module_find, "Find native module key (exact key or unique substring)");
     else if (event == Event::Character("p") && page_ == 2 &&
              selected_ < modules_.size() && modules_[selected_].value("key", "") == "routing" &&
-             !profile_id_.empty()) preset_menu_ = true;
-    else if (event == Event::Character("p") && page_ == 8 && !profile_id_.empty())
-      preset_menu_ = true;
+             !module_preview_runtime_ && !profile_id_.empty()) preset_menu_ = true;
     else if (event == Event::Character("g") && page_ == 2 && selected_ < modules_.size() &&
              modules_[selected_].value("key", "") == "routing") {
       node_category_ = "groups";
@@ -972,18 +1028,14 @@ class TuiApp final : public ComponentBase {
     Elements tabs;
     for (std::size_t i = 0; i < kPages.size(); ++i) {
       const bool current = i == top_page_index();
-      auto label = std::to_string(i + 1) + " " + kPages[i].title;
+      auto label = std::string(kPages[i].title);
       auto tab = text(current ? "[" + label + "] " : " " + label + " ") |
           (current ? bold : nothing) | (current ? inverted : nothing);
       if (current && use_colors) tab = tab | color(accent);
       if (current) tab = tab | focus;
       tabs.push_back(std::move(tab));
     }
-    Elements header{
-      text(" XRM · Current: " + std::string(kPages[top_page_index()].title)) | bold |
-          (use_colors ? color(accent) : nothing),
-      hbox(std::move(tabs)) | hscroll_indicator | xframe,
-    };
+    Elements header{hbox(std::move(tabs)) | xframe};
     if (page_ == 1 || page_ == 5) header.push_back(node_category_tabs());
     else if (page_ == 7) {
       Elements section_tabs;
@@ -1004,34 +1056,19 @@ class TuiApp final : public ComponentBase {
     }
     Elements body;
     if (editing_) {
-      body.push_back(text("Native module editor — " + editing_key_ +
-          (editing_dirty_ ? " [unsaved]" : "") +
-          (editing_node_ || editing_group_ ? " (F2/Ctrl-S Save, Esc close)" : " (F2 Save, F6/v external editor, Esc close)")) | bold);
-      if (!editing_node_ && !editing_group_) {
-        body.push_back(text(editing_module_included_ ? "Runtime state: enabled" : "Runtime state: disabled (editing does not enable it)") | dim);
-        if (editing_module_unconfigured_)
-          body.push_back(text("Not configured yet. This is an unsaved native draft; Save creates the source file. Press e on the module list to enable it separately.") | color(Color::Yellow));
-      }
-      if (draft_json_invalid_)
-        body.push_back(text("Draft is not valid strict JSON; source can be saved, but form/runtime checks may reject it") | color(Color::Yellow));
       if (editing_structured_ && !editing_node_ && !editing_group_) {
-        body.push_back(text("Structured JSON · a Add  e Edit scalar  d Delete  r Rename  c Copy array item  [ ] Reorder  F4 Native text") | bold);
-        const auto terminal_rows = std::max(5, terminal.dimy - 13);
+        const auto terminal_rows = std::max(5, terminal.dimy - 8);
         const auto start = structure_selected_ >= static_cast<std::size_t>(terminal_rows)
             ? structure_selected_ - static_cast<std::size_t>(terminal_rows) + 1 : 0;
         Elements rows;
         for (std::size_t i = start;
              i < structure_rows_.size() && i < start + static_cast<std::size_t>(terminal_rows); ++i) {
           auto row = text((i == structure_selected_ ? "▸ " : "  ") +
-              short_utf8(structure_rows_[i].label, terminal.dimx >= 125 ? 52 :
-                  static_cast<std::size_t>(terminal.dimx - 12)));
+              short_utf8(structure_rows_[i].label, static_cast<std::size_t>(terminal.dimx - 10)));
           if (i == structure_selected_) row = row | inverted | focus;
           rows.push_back(std::move(row));
         }
-        auto structure = vbox(std::move(rows)) | border | flex;
-        if (terminal.dimx >= 125)
-          body.push_back(hbox({std::move(structure), paragraph(draft_) | border | flex}));
-        else body.push_back(std::move(structure));
+        body.push_back(vbox(std::move(rows)) | border | flex);
       } else {
         auto visible = draft_;
         visible.insert(edit_cursor_, "█");
@@ -1040,8 +1077,9 @@ class TuiApp final : public ComponentBase {
     } else if (page_ == 0) {
       body.push_back(text("XRM Dashboard") | bold | color(Color::Cyan));
       if (profile_id_.empty())
-        body.push_back(text("First use: 7 Config/Core register Xray → 2 Profiles create → 4 Subs add/update → 5 Nodes") | color(Color::Yellow));
+        body.push_back(text("First use: Config/Core register Xray → Profiles create → Subs add/update → Nodes") | color(Color::Yellow));
       body.push_back(text("Viewing Profile: " + (profile_id_.empty() ? "No profile selected" : profile_name(profile_id_)) +
+          "   |   Using Profile: " + (state_.used_profile_id.empty() ? "None" : profile_name(state_.used_profile_id)) +
           "   |   Running Profile: " + active_profile()) | bold);
       const auto core_version = status_.contains("active") && status_["active"].is_object()
           ? status_["active"].value("core_version", "unknown") : "not running";
@@ -1142,7 +1180,6 @@ class TuiApp final : public ComponentBase {
         body.push_back(text("Core running is separate from proxy listener readiness and remote connectivity") | dim);
         body.push_back(text("Pending changes: saved edits apply only on explicit Connect/Apply") | dim);
       }
-      body.push_back(text("c Connect   d Stop   r Refresh   q Exit (core continues)") | dim);
       if (profile_id_.empty()) {
         body.push_back(text("No profile selected. Subscriptions, Nodes, Cores and Profiles are available without one.") | color(Color::Yellow));
         body.push_back(text("Press c to Create Default Profile, Open Profiles, or Cancel.") | color(Color::Yellow));
@@ -1229,7 +1266,6 @@ class TuiApp final : public ComponentBase {
         }
       }
     } else if (page_ == 2) {
-      body.push_back(text("Native Modules · 15 Xray root keys · Tab changes module · Enter edits draft · routing: p Presets") | bold);
       if (profile_id_.empty()) {
         body.push_back(text("No profile selected") | color(Color::Yellow));
         body.push_back(text("Create a profile to use this feature") | color(Color::Yellow));
@@ -1237,69 +1273,34 @@ class TuiApp final : public ComponentBase {
         const auto& module = modules_[selected_];
         const auto key = module.value("key", "");
         const bool has_source = module.contains("text") && module["text"].is_string();
-        body.push_back(text("Native key: " + key + " · " +
-            (module.value("included", false) ? "included" : "disabled") +
-            (has_source ? " · source exists" : " · no source (draft only until Save)")) |
-            (module.value("included", false) ? color(Color::Green) : color(Color::Yellow)));
-        body.push_back(text("source: " + module.value("source_file", "") +
-            " · runtime: " + module.value("runtime_file", "") +
-            " · v Switch source/runtime preview") | dim);
-        if (key == "routing" || key == "geodata") {
-          const auto bound = profile_settings_.value("geodata_resource_ids", Json::object());
-          std::string names;
-          if (bound.is_object()) for (auto it = bound.begin(); it != bound.end(); ++it) {
-            if (!names.empty()) names += ", ";
-            names += it.key();
-          }
-          body.push_back(text("Profile Geodata assets: " +
-              (names.empty() ? "none · Config → Geodata to validate/bind required .dat labels" : names)) | dim);
-        }
-        body.push_back(text("e Enable/Disable  Enter Edit Native  F6 in editor opens external editor  i Inspect local entry") | dim);
         const auto source = module_preview_runtime_ ? module_runtime_text_ :
             has_source ? module["text"].get<std::string>() :
             Json{{key, Json::object()}}.dump(2) + "\n";
         const auto parsed = Json::parse(source, nullptr, false);
         if (parsed.is_discarded()) {
-          body.push_back(text("Source has comments or invalid strict JSON; use native editor, structured view is unavailable") |
-              color(Color::Yellow));
-          body.push_back(text(module_preview_runtime_ ? "Native JSON · active runtime snapshot" :
-              "Native JSON (source text, unmodified)") | bold);
           body.push_back(paragraph(source) | border | flex);
-        } else {
+        } else if (module_preview_visual_) {
           Elements structure;
-          structure.push_back(text("Structure · native JSON types") | bold);
           std::function<void(const Json&, std::string, int)> visit = [&](const Json& value,
               std::string label, int depth) {
-            if (structure.size() >= 18) return;
+            if (structure.size() >= static_cast<std::size_t>(std::max(5, terminal.dimy - 8))) return;
             const auto kind = value.is_object() ? "object" : value.is_array() ? "array" :
                 value.is_string() ? "string" : value.is_boolean() ? "bool" :
                 value.is_null() ? "null" : "number";
             structure.push_back(text(std::string(static_cast<std::size_t>(depth) * 2, ' ') +
-                short_utf8(label, 26) + " : " + kind +
+                short_utf8(label, static_cast<std::size_t>(terminal.dimx - 38)) + " : " + kind +
                 (value.is_structured() ? " (" + std::to_string(value.size()) + ")" :
-                    " = " + short_utf8(value.dump(), 22))));
-            if (depth >= 3) return;
+                    " = " + short_utf8(value.dump(), static_cast<std::size_t>(terminal.dimx - 50)))));
+            if (depth >= 8) return;
             if (value.is_object()) for (auto it = value.begin(); it != value.end(); ++it)
               visit(it.value(), it.key(), depth + 1);
             else if (value.is_array()) for (std::size_t i = 0; i < value.size(); ++i)
               visit(value[i], "[" + std::to_string(i) + "]", depth + 1);
           };
-          visit(parsed, key, 0);
-          Elements native_lines{text(module_preview_runtime_ ?
-              "Native JSON · active runtime snapshot (read-only)" :
-              "Native JSON · source preview (not runtime)") | bold};
-          std::istringstream stream(source);
-          std::string line;
-          std::size_t count = 0;
-          while (count < 17 && std::getline(stream, line)) {
-            native_lines.push_back(text(short_utf8(line, terminal.dimx >= 125 ? 52 : 70)));
-            ++count;
-          }
-          if (stream.good()) native_lines.push_back(text("… open native editor for full text") | dim);
-          if (terminal.dimx >= 125) body.push_back(hbox({vbox(std::move(structure)) | flex,
-              separator(), vbox(std::move(native_lines)) | flex}));
-          else body.push_back(vbox(std::move(native_lines)));
-        }
+          visit(parsed.contains(key) ? parsed.at(key) : parsed, key, 0);
+          body.push_back(vbox(std::move(structure)) | border | flex);
+        } else body.push_back(paragraph(parsed.dump(2, ' ', false,
+            Json::error_handler_t::replace)) | border | flex);
       }
     } else if (page_ == 3) {
       const auto mode = logs_paused_ ? "PAUSED" : "FOLLOW";
@@ -1376,8 +1377,6 @@ class TuiApp final : public ComponentBase {
           body.push_back(text("Enter or Esc closes details; URL and credentials are hidden") | dim);
         }
       }
-      body.push_back(text("b Toggle use for viewed Profile; auto-refresh is a separate source setting") | dim);
-      body.push_back(text("h Preview historical/duplicate nodes for the selected source (no changes)") | dim);
     } else if (page_ == 6) {
       body.push_back(text("Stats — shared server sample; no client-side rate calculation") | bold);
       body.push_back(text("Core: " + status_.value("state", "unknown")));
@@ -1522,7 +1521,6 @@ class TuiApp final : public ComponentBase {
           body.push_back(text("Server: " + status_.value("state", "unknown")));
           body.push_back(text("Only existing adjustable XRM preferences are shown; Xray modules remain under Modules") | dim);
         }
-        body.push_back(text("[ / ] Change Config section") | dim);
       } else {
       body.push_back(text("Core — system binaries are register-only; managed binaries live under XRM data") | bold);
       body.push_back(text("Viewing Profile: " +
@@ -1577,11 +1575,11 @@ class TuiApp final : public ComponentBase {
       body.push_back(text("r refresh/poll operation; install never changes the running core") | dim);
       }
     } else if (page_ == 8) {
-      body.push_back(text("Profiles — Enter switch browsing context; n create; c copy; r rename; d delete") | bold);
       for (std::size_t i = 0; i < profiles_.size(); ++i) {
         const auto& profile = profiles_[i];
         body.push_back(text((i == selected_ ? "> " : "  ") + profile.value("name", "") +
-            (profile.value("id", "") == profile_id_ ? "  editing" : "") +
+            (profile.value("id", "") == state_.used_profile_id ? "  using" : "") +
+            (profile.value("id", "") == state_.editing_profile_id ? "  edit context" : "") +
             (profile.value("id", "") == active_profile_id() ? "  running" : "")) |
             (i == selected_ ? inverted : nothing));
       }
@@ -1597,72 +1595,102 @@ class TuiApp final : public ComponentBase {
           body.push_back(text("Sources used here: " + std::to_string(bound.size()) +
               " · Native modules: " + std::to_string(modules_.size()) +
               " · one Server / one production Xray process"));
-        } else body.push_back(text("Enter to open this Profile and inspect its sources/modules") | dim);
+        }
       }
-      if (profiles_.empty()) body.push_back(text("No Profile. Press n for a local template; choose a core in Config → Core before Connect.") | color(Color::Yellow));
-      body.push_back(text("Profile browsing does not connect, save other drafts, or change the running instance.") | dim);
+      if (profiles_.empty()) body.push_back(text("No Profile yet") | color(Color::Yellow));
     }
-    if (connect_profile_prompt_)
-      body.push_back(text("No profile selected — n Create Default Profile   o Open Profiles   Esc Cancel") | color(Color::Yellow));
     if (filtering_nodes_) body.push_back(text("Filter nodes: " + node_filter_ + "  Enter apply / Esc cancel") | color(Color::Yellow));
     Elements footer_lines;
-    std::string help_bar = std::string(kPages[top_page_index()].help) +
-        "   Tab/Shift-Tab Pages   q Quit";
-    if (page_ == 5) help_bar = "Nodes/Groups: ↑↓ Move   Enter Edit   s Select   m Choose Member   n Nodes   ? Help";
-    if (prompt_ != Prompt::none) help_bar = "Type text   Enter Continue/Save   Esc Cancel";
-    else if (editing_) help_bar = "↑↓←→ Move   F2 Save   F6 Open External Editor   Esc Close";
+    std::string help_bar = focus_layer_ == FocusLayer::top
+        ? "Tab/Shift-Tab Page   Enter In   ? Help   q Quit"
+        : focus_layer_ == FocusLayer::secondary
+          ? "Tab/Shift-Tab Section   Enter Content   Esc Top   ? Help"
+          : std::string(kPages[top_page_index()].help) + "   Esc Back   ? Help";
+    if (focus_layer_ == FocusLayer::content && page_ == 2 && selected_ < modules_.size() &&
+        modules_[selected_].value("key", "") == "routing" && !module_preview_runtime_)
+      help_bar += "   p Routing presets";
+    if (focus_layer_ == FocusLayer::content && page_ == 2 && selected_ < modules_.size())
+      help_bar = std::string(module_preview_runtime_ ? "Runtime read-only  " : "Enter Edit  ") +
+          "F2 Visual/JSON  v Source/Runtime  e Include  " +
+          std::string(modules_[selected_].value("key", "") == "routing" && !module_preview_runtime_
+              ? "p Preset  " : "") + "Esc Back";
+    if (focus_layer_ == FocusLayer::content && page_ == 7) {
+      if (config_section_ == 0) help_bar = "↑↓ Core  a Register  l Releases  u Use in Profile  r Refresh  Esc Back";
+      else if (config_section_ == kGeodataSection)
+        help_bar = "↑↓ Resource  a Add  u Update  b Bind  d Remove  r Refresh  Esc Back";
+      else if (config_section_ == kTestsSection) help_bar = "u URL  o Timeout  c Concurrency  b Max bytes  Esc Back";
+      else if (config_section_ == kAppearanceSection) help_bar = "t Theme  c Color  d Density  i Icons  m Motion  s Save  Esc Back";
+      else if (config_section_ == kEditorSection) help_bar = "e Set editor argv  t Test draft  Esc Back";
+      else help_bar = "Esc Back  ? Help";
+    }
+    if (editor_exit_confirm_) help_bar = "s Save Source   d Discard draft   c Continue editing   Esc Continue";
+    else if (prompt_ != Prompt::none) help_bar = "Type text   Enter Continue/Save   Esc Cancel";
+    else if (editing_) help_bar = editing_structured_ && !editing_node_ && !editing_group_
+        ? "Visual: ↑↓ Move  e Value  a Add  Space Toggle  F2 JSON  F6 Editor  Ctrl-S Save  Esc"
+        : "JSON: arrows Move  type Edit  F2 Visual  F6 Editor  Ctrl-S Save  Esc";
     if (runtime_error_)
       footer_lines.push_back(paragraph("Connection failed: " + *runtime_error_) | color(Color::Red) | bold);
     else if (!message_.empty() && (state_.toasts.empty() ||
                  state_.toasts.back().text != message_))
       footer_lines.push_back(text(short_utf8(message_, static_cast<std::size_t>(terminal.dimx - 8))) |
           color(Color::Yellow));
-    footer_lines.push_back(text(std::string("Focus: ") +
-        (focus_layer_ == FocusLayer::top ? "TopNav" :
-         focus_layer_ == FocusLayer::secondary ? "SecondaryNav" : "Content") +
-        " · " + (focus_layer_ == FocusLayer::top ? "Tab page  Enter in" :
-                focus_layer_ == FocusLayer::secondary ? "Tab section  Enter content  Esc back" :
-                "Esc back")) | dim);
+    if (!state_.toasts.empty()) {
+      const auto& notice = state_.toasts.back();
+      footer_lines.push_back(text(short_utf8(notice.text, static_cast<std::size_t>(terminal.dimx - 8))) |
+          (notice.level == Toast::Level::error ? color(Color::Red) : color(Color::Green)));
+    }
+    std::string context = std::string("Focus: ") +
+        (editor_exit_confirm_ ? "Dialog" : prompt_ != Prompt::none ? "TextInput" :
+         focus_layer_ == FocusLayer::top ? "TopNav" :
+         focus_layer_ == FocusLayer::secondary ? "SecondaryNav" : "Content");
+    if (page_ == 2 && selected_ < modules_.size()) {
+      const auto& module = modules_[selected_];
+      context += " · " + module.value("key", "") +
+          (module.value("included", false) ? " included" : " disabled") +
+          (module_preview_runtime_ ? " Runtime" : " Source") +
+          (editing_ && editing_structured_ || !editing_ && module_preview_visual_ ? " Visual" : " JSON") +
+          (editing_dirty_ ? " [unsaved]" : "") +
+          " · " + module.value(module_preview_runtime_ ? "runtime_file" : "source_file", "");
+    } else context += " · View: " + (profile_id_.empty() ? "none" : profile_name(profile_id_)) +
+        " · Use: " + (state_.used_profile_id.empty() ? "none" : profile_name(state_.used_profile_id)) +
+        " · Run: " + active_profile();
+    footer_lines.push_back(text(short_utf8(context, static_cast<std::size_t>(terminal.dimx - 8))) | dim);
     footer_lines.push_back(text(short_utf8(help_bar, static_cast<std::size_t>(terminal.dimx - 8))) | dim);
     Element footer = vbox(std::move(footer_lines));
     auto base = vbox({vbox(std::move(header)), separator(), vbox(std::move(body)) | vscroll_indicator | yframe | flex,
                       separator(), std::move(footer)}) | border | flex;
-    if (!state_.toasts.empty()) {
-      Elements notices;
-      const auto first = state_.toasts.size() > 3 ? state_.toasts.size() - 3 : 0;
-      for (std::size_t i = first; i < state_.toasts.size(); ++i) {
-        const auto& toast = state_.toasts[i];
-        const auto shade = toast.level == Toast::Level::success ? Color::Green :
-            toast.level == Toast::Level::warning ? Color::Yellow :
-            toast.level == Toast::Level::error ? Color::Red : Color::Cyan;
-        const auto symbol = toast.level == Toast::Level::success ? "✓" :
-            toast.level == Toast::Level::warning ? "!" :
-            toast.level == Toast::Level::error ? "✗" : "·";
-        notices.push_back(text(std::string(symbol) + " " +
-            short_utf8(toast.text, terminal.dimx < 100 ? 32 : 45)) |
-            color(shade) | bold | border);
-      }
-      base = dbox({base, vbox({text("") | size(HEIGHT, EQUAL, 5),
-          hbox({filler(), vbox(std::move(notices))}), filler()})});
-    }
     if (prompt_ != Prompt::none) {
       auto dialog = window(text(prompt_label_) | bold,
           vbox({text(prompt_text_ + "█") | border | size(WIDTH, LESS_THAN, 56),
                 text("Enter continue/save   Esc cancel") | dim})) | center;
       return dbox({base | dim, std::move(dialog)});
     }
+    if (editor_exit_confirm_) return dbox({base | dim,
+        window(text("Unsaved module draft") | bold,
+            vbox({text("Save / Discard / Continue"),
+                  text("s Save Source   d Discard   c or Esc Continue"),
+                  text("Running configuration is unchanged") | dim})) | center});
+    if (connect_profile_prompt_) return dbox({base | dim,
+        window(text("No Profile selected") | bold,
+            vbox({text("n Create Default Profile"),
+                  text("o Open Profiles"),
+                  text("Esc Cancel")})) | center});
     if (show_help_) {
-      // Keep help concise enough to fit over the current page at 80x24.
+      Elements actions{
+          text("Tab / Shift-Tab  move in the current focus layer"),
+          text("Enter  enter this layer's content; Esc  go back one layer"),
+          text("Current focus: " + std::string(focus_layer_ == FocusLayer::top ? "TopNav" :
+              focus_layer_ == FocusLayer::secondary ? "SecondaryNav" : "Content")),
+          text(help_bar),
+      };
+      if (focus_layer_ == FocusLayer::content && page_ == 3)
+        actions.push_back(text("Logs: p pause/resume; ↑↓ browse history"));
+      if (focus_layer_ == FocusLayer::content && page_ == 2 && selected_ < modules_.size() &&
+          modules_[selected_].value("key", "") == "routing" && !module_preview_runtime_)
+        actions.push_back(text("Routing Source: p Presets"));
+      actions.push_back(text("Esc or ? close help"));
       return dbox({base | dim,
-          window(text("Help") | bold,
-              vbox({text("Tab / Shift-Tab  change page"),
-                    text("1–7              open a page directly"),
-                    text("↑ / ↓            move through a list"),
-                    text("Enter            view or open selected item"),
-                    text("c                connect   d stop   r refresh"),
-                    text("Logs: p pause/resume; arrows browse history"),
-                    text("Module editor: F6/v external editor; F2 save"),
-                    text("q quit; core continues   Esc or ? close")})) | center});
+          window(text("Help") | bold, vbox(std::move(actions))) | center});
     }
     if (history_open_) {
       Elements rows{text("History preview · " + history_preview_.value("source_name", "") +
@@ -1736,9 +1764,23 @@ class TuiApp final : public ComponentBase {
           text("JSON diff · modules/routing source → proposed native JSON") | bold};
       const auto before = preset_plan_->value("before", Json::object());
       const auto after = preset_plan_->value("after", Json::object());
-      rows.push_back(text("Before: " + short_utf8(before.dump(), 68)) | dim);
-      rows.push_back(text("After:  " + short_utf8(after.dump(), 68)));
-      rows.push_back(text("y Confirm Save source only · n/Esc Cancel · no runtime Apply") | dim);
+      std::vector<std::string> diff_lines;
+      auto append_document = [&](std::string_view title, const Json& document) {
+        diff_lines.emplace_back(title);
+        std::istringstream stream(document.dump(2, ' ', false, Json::error_handler_t::replace));
+        for (std::string line; std::getline(stream, line); ) diff_lines.push_back(std::move(line));
+      };
+      append_document("Before:", before);
+      append_document("After:", after);
+      const auto visible = static_cast<std::size_t>(std::max(6, std::min(10, terminal.dimy - 14)));
+      const auto start = std::min(preset_diff_scroll_,
+          diff_lines.size() > visible ? diff_lines.size() - visible : 0);
+      const auto end = std::min(diff_lines.size(), start + visible);
+      rows.push_back(text("Lines " + std::to_string(start + 1) + "–" + std::to_string(end) +
+          "/" + std::to_string(diff_lines.size()) + " · ↑↓ scroll") | dim);
+      for (auto i = start; i < end; ++i)
+        rows.push_back(text(diff_lines[i]) | (diff_lines[i] == "After:" ? bold : nothing));
+      rows.push_back(text("y Save routing Source · n/Esc Cancel · no runtime Apply") | dim);
       return dbox({base | dim, window(text("Routing preset plan"), vbox(std::move(rows)) |
           size(WIDTH, LESS_THAN, std::max(54, terminal.dimx - 4))) | center});
     }
@@ -2491,7 +2533,10 @@ class TuiApp final : public ComponentBase {
       refresh_all();
       page_ = 8;
       select_profile_row(profile_id_);
-      message_ = "Profile selected for editing; it has not been connected";
+      state_.used_profile_id = profile_id_;
+      state_.inspected_profile_id = profile_id_;
+      state_.editing_profile_id.clear();
+      message_ = "Profile created and selected for use; Connect is explicit";
       return;
     }
     if (completed == Prompt::profile_rename_name) {
@@ -2501,14 +2546,30 @@ class TuiApp final : public ComponentBase {
       else { message_ = "Profile renamed; running configuration unchanged"; refresh_profiles(); }
     }
   }
-  void select_profile_context() {
+  void view_selected_profile() {
     profile_id_ = profiles_[selected_].value("id", "");
+    state_.inspected_profile_id = profile_id_;
+    state_.editing_profile_id.clear();
     select_profile_row(profile_id_);
     selected_core_for_profile_ = profile_core_id(profile_id_);
     refresh_all();
     page_ = 8;
     select_profile_row(profile_id_);
-    message_ = "Viewing: " + profile_name(profile_id_) + "; Running: " + active_profile() + "; runtime unchanged";
+    message_ = "Viewing: " + profile_name(profile_id_) + "; Using: " +
+        (state_.used_profile_id.empty() ? "none" : profile_name(state_.used_profile_id)) +
+        "; Running: " + active_profile() + "; runtime unchanged";
+  }
+  void use_selected_profile() {
+    view_selected_profile();
+    state_.used_profile_id = profile_id_;
+    message_ = "Using saved Profile " + profile_name(profile_id_) +
+        "; not editing or connecting; Running: " + active_profile();
+  }
+  void edit_selected_profile() {
+    view_selected_profile();
+    state_.editing_profile_id = profile_id_;
+    message_ = "Editing Profile " + profile_name(profile_id_) +
+        "; rename/core/module changes save independently; used and running Profiles unchanged";
   }
   void remove_selected_profile() {
     if (selected_ >= profiles_.size()) return;
@@ -2527,6 +2588,9 @@ class TuiApp final : public ComponentBase {
         profile_id_.clear();
         refresh_all();
       }
+      if (state_.used_profile_id == id) state_.used_profile_id.clear();
+      if (state_.inspected_profile_id == id) state_.inspected_profile_id.clear();
+      if (state_.editing_profile_id == id) state_.editing_profile_id.clear();
     }
   }
   void select_profile_row(std::string_view id) {
@@ -3446,14 +3510,19 @@ class TuiApp final : public ComponentBase {
       message_ = "module source response has an invalid text value";
       return;
     }
+    const auto parsed = Json::parse(draft_, nullptr, false);
+    if (!parsed.is_discarded()) draft_ = parsed.dump(2, ' ', false, Json::error_handler_t::replace) + "\n";
+    editing_clean_text_ = draft_;
     edit_cursor_ = draft_.size();
     state_.module_draft = draft_;
     editing_dirty_ = false;
     draft_json_invalid_ = false;
     editor_undo_.clear();
-    editing_structured_ = false;
+    editing_structured_ = !parsed.is_discarded();
     structure_rows_.clear();
     structure_selected_ = 0;
+    structure_collapsed_.clear();
+    if (editing_structured_) refresh_structure_rows();
     editing_ = true;
   }
   static std::string pointer_token(std::string_view key) {
@@ -3481,6 +3550,7 @@ class TuiApp final : public ComponentBase {
               " = " + short_utf8(value.dump(), 42));
       structure_rows_.push_back(StructureRow{pointer, label, value.is_object(),
           value.is_array(), array_element, array_index});
+      if (structure_collapsed_.contains(pointer)) return;
       if (value.is_object()) for (auto it = value.begin(); it != value.end(); ++it)
         visit(it.value(), pointer + "/" + pointer_token(it.key()), it.key(), depth + 1,
               false, 0);
@@ -3500,17 +3570,12 @@ class TuiApp final : public ComponentBase {
     draft_ = std::move(result->text);
     state_.module_draft = draft_;
     edit_cursor_ = draft_.size();
-    editing_dirty_ = !editing_base_text_ || draft_ != *editing_base_text_;
+    editing_dirty_ = !editing_clean_text_ || draft_ != *editing_clean_text_;
     draft_json_invalid_ = false;
     refresh_structure_rows();
-    message_ = "Structured JSON draft changed; F2 Save is explicit; runtime unchanged";
+    message_ = "Visual draft changed; Ctrl-S saves Source; runtime unchanged";
   }
   bool handle_structure_event(const Event& event) {
-    if (event == Event::F4) {
-      editing_structured_ = false;
-      message_ = "Native text view; both views edit the same draft";
-      return true;
-    }
     if (structure_rows_.empty()) return true;
     if (event == Event::ArrowDown || event == Event::PageDown)
       structure_selected_ = std::min(structure_selected_ + (event == Event::PageDown ? 8u : 1u),
@@ -3520,6 +3585,31 @@ class TuiApp final : public ComponentBase {
           ? structure_selected_ - (event == Event::PageUp ? 8u : 1u) : 0;
     else if (event == Event::Home) structure_selected_ = 0;
     else if (event == Event::End) structure_selected_ = structure_rows_.size() - 1;
+    else if (event == Event::ArrowLeft || event == Event::ArrowRight) {
+      const auto& row = structure_rows_[structure_selected_];
+      if (row.object || row.array) {
+        if (event == Event::ArrowLeft) structure_collapsed_.insert(row.pointer);
+        else structure_collapsed_.erase(row.pointer);
+        refresh_structure_rows();
+      }
+    }
+    else if (event == Event::Character(" ")) {
+      const auto& row = structure_rows_[structure_selected_];
+      const auto parsed = Json::parse(draft_, nullptr, false);
+      if (!parsed.is_discarded() && parsed.at(Json::json_pointer(row.pointer)).is_boolean()) {
+        JsonDraftEdit edit{JsonEditAction::set, row.pointer};
+        edit.value = !parsed.at(Json::json_pointer(row.pointer)).get<bool>();
+        apply_structure_edit(std::move(edit));
+      } else if (editing_key_ == "log" && row.pointer == "/log/loglevel") {
+        static constexpr std::array<std::string_view, 5> levels{"warning", "info", "debug", "error", "none"};
+        const auto current = parsed.at(Json::json_pointer(row.pointer)).get<std::string>();
+        const auto found = std::find(levels.begin(), levels.end(), current);
+        JsonDraftEdit edit{JsonEditAction::set, row.pointer};
+        edit.value = std::string(levels[found == levels.end() || found + 1 == levels.end() ? 0 :
+            static_cast<std::size_t>(found + 1 - levels.begin())]);
+        apply_structure_edit(std::move(edit));
+      }
+    }
     else if (event == Event::Character("a")) {
       const auto& row = structure_rows_[structure_selected_];
       if (row.object) {
@@ -3633,7 +3723,7 @@ class TuiApp final : public ComponentBase {
     draft_ = std::move(*edited);
     state_.module_draft = draft_;
     edit_cursor_ = draft_.size();
-    editing_dirty_ = !editing_base_text_ || draft_ != *editing_base_text_;
+    editing_dirty_ = !editing_clean_text_ || draft_ != *editing_clean_text_;
     try { const auto parsed = Json::parse(draft_); (void)parsed; draft_json_invalid_ = false; }
     catch (const Json::exception&) { draft_json_invalid_ = true; }
     message_ = draft_json_invalid_
@@ -3712,6 +3802,10 @@ class TuiApp final : public ComponentBase {
       refresh_groups();
       return;
     }
+    if (!editing_dirty_ && !editing_module_unconfigured_) {
+      message_ = "No Source changes to save";
+      return;
+    }
     auto result = rpc(socket_, std::string(methods::module_save), Json{
         {"profile_id", profile_id_}, {"module", editing_key_}, {"text", draft_},
         {"expected_text", editing_base_text_ ? Json(*editing_base_text_) : Json(nullptr)}});
@@ -3719,8 +3813,10 @@ class TuiApp final : public ComponentBase {
     message_ = "saved source text; runtime inclusion is unchanged and no connect/restart was performed";
     editing_ = false;
     editing_dirty_ = false;
+    state_.module_draft.reset();
     editing_module_unconfigured_ = false;
     editing_base_text_ = draft_;
+    editing_clean_text_ = draft_;
     refresh_modules();
   }
   void select_node() {
@@ -3763,8 +3859,12 @@ class TuiApp final : public ComponentBase {
     else { message_ = "manual group member saved; core unchanged"; selected_group_id_.clear(); refresh_groups(); }
   }
   void connect() {
-    if (profile_id_.empty()) { connect_profile_prompt_ = true; return; }
-    Json params{{"profile_id", profile_id_}};
+    if (state_.used_profile_id.empty()) { connect_profile_prompt_ = true; return; }
+    if ((page_ == 1 || page_ == 5) && profile_id_ != state_.used_profile_id) {
+      message_ = "Viewing and using different Profiles; Use the viewed Profile on Profiles first";
+      return;
+    }
+    Json params{{"profile_id", state_.used_profile_id}};
     if (page_ == 1) {
       if (selected_ >= nodes_.size()) { message_ = "Select an available node before Connect"; return; }
       const auto& node = nodes_[selected_];
@@ -3896,15 +3996,19 @@ class TuiApp final : public ComponentBase {
   bool preset_menu_ = false;
   std::optional<Json> preset_plan_;
   std::string preset_name_;
+  std::size_t preset_diff_scroll_ = 0;
   bool editing_structured_ = false;
   std::vector<StructureRow> structure_rows_;
+  std::set<std::string> structure_collapsed_;
   std::size_t structure_selected_ = 0;
   JsonDraftEdit pending_json_edit_;
   bool editing_dirty_ = false;
+  bool editor_exit_confirm_ = false;
   bool editing_module_included_ = false;
   bool editing_module_unconfigured_ = false;
   bool draft_json_invalid_ = false;
   std::optional<std::string> editing_base_text_;
+  std::optional<std::string> editing_clean_text_;
   std::string editing_key_;
   std::string node_filter_;
   std::string node_filter_before_edit_;
@@ -3928,6 +4032,7 @@ class TuiApp final : public ComponentBase {
   std::string geodata_draft_file_;
   std::vector<Json> modules_;
   bool module_preview_runtime_ = false;
+  bool module_preview_visual_ = false;
   std::string module_runtime_text_;
   std::string local_entry_status_ = "not inspected";
   Json status_ = Json::object();

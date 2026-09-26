@@ -365,7 +365,9 @@ TEST_CASE("runtime stats CLI and TUI report unavailable without fabricating zero
   REQUIRE(tui.pid > 0);
   REQUIRE(tui.master >= 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(300));
-  send_tui(tui.master, "1");
+  send_tui(tui.master, "\t"); // Exercise TopNav rather than removed numeric direct navigation.
+  (void)read_tui(tui.master, std::chrono::milliseconds(120));
+  send_tui(tui.master, "\x1b[Z"); // Return to Overview.
   const auto screen = read_tui(tui.master, std::chrono::milliseconds(300));
   CHECK(screen.find("Statistics") != std::string::npos);
   CHECK(screen.find("unavailable") != std::string::npos);
@@ -401,7 +403,9 @@ TEST_CASE("Overview statistics keep missing metrics and latency explicitly unava
   REQUIRE(tui.pid > 0);
   REQUIRE(tui.master >= 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(300));
-  send_tui(tui.master, "1");
+  send_tui(tui.master, "\t");
+  (void)read_tui(tui.master, std::chrono::milliseconds(120));
+  send_tui(tui.master, "\x1b[Z");
   const auto screen = read_tui(tui.master, std::chrono::milliseconds(300));
   CHECK(screen.find("CORE") != std::string::npos);
   CHECK(screen.find("Statistics") != std::string::npos);
@@ -818,15 +822,24 @@ TEST_CASE("UI-04 TUI module page renders all native module keys and UI-03 expose
   posix_spawn_file_actions_destroy(&actions);
   ::close(slave);
   REQUIRE(spawned == 0);
-  ::poll(nullptr, 0, 500);
-  REQUIRE(::write(master, "3", 1) == 1);
-  ::poll(nullptr, 0, 500);
-  REQUIRE(::write(master, "5g", 2) == 2);
-  ::poll(nullptr, 0, 500);
-  REQUIRE(::write(master, "7", 1) == 1);
-  ::poll(nullptr, 0, 500);
-  REQUIRE(::write(master, "q", 1) == 1);
-  std::string screen;
+  std::string screen = read_tui(master, std::chrono::milliseconds(500));
+  const auto press = [&](std::string_view key) {
+    REQUIRE(::write(master, key.data(), key.size()) == static_cast<ssize_t>(key.size()));
+    screen += read_tui(master, std::chrono::milliseconds(120));
+  };
+  press("\t"); press("\t");             // Overview -> Modules TopNav.
+  press("\r");                           // SecondaryNav, no editor yet.
+  for (int i = 0; i < 15; ++i) press("\t"); // Visit every native module tab.
+  press("\x1b");                         // Modules -> TopNav.
+  press("\t"); press("\t");             // Nodes.
+  press("\r");                           // Node categories.
+  press("\t"); press("\t");             // Groups category.
+  press("\r");                           // Group list Content.
+  press("\x1b"); press("\x1b");         // Back to TopNav.
+  press("\t"); press("\t");             // Config.
+  press("\r"); press("\r");             // Core Content.
+  press("\x1b"); press("\x1b");         // TopNav before q.
+  press("q");
   int child_status = 0;
   const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
   while (std::chrono::steady_clock::now() < deadline) {
@@ -872,24 +885,31 @@ TEST_CASE("UI-01 text keys do not fire global actions and TUI exit leaves core r
   REQUIRE(tui.pid > 0);
   REQUIRE(tui.master >= 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(300));
-  send_tui(tui.master, "3");
-  // TopNav -> Modules secondary keys -> content -> native editor.
-  send_tui(tui.master, "\r\r\r");
+  const auto tap = [&](std::string_view key) {
+    send_tui(tui.master, key);
+    return read_tui(tui.master, std::chrono::milliseconds(120));
+  };
+  (void)tap("\t"); (void)tap("\t"); // Modules TopNav.
+  (void)tap("\r"); (void)tap("\r"); (void)tap("\r"); // Secondary, Content, editor.
   send_tui(tui.master, "qe ");
+  (void)read_tui(tui.master, std::chrono::milliseconds(120));
   int status = 0;
   CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
-  send_tui(tui.master, "\x11");
-  send_tui(tui.master, "5]");
-  send_tui(tui.master, "\r");
-  const auto details = read_tui(tui.master, std::chrono::milliseconds(300));
+  (void)tap("\x11"); // Leave a dirty module draft only through confirmation.
+  (void)tap("d");
+  (void)tap("\x1b"); (void)tap("\x1b"); // Modules -> TopNav.
+  (void)tap("\t"); (void)tap("\t"); // Nodes TopNav.
+  (void)tap("\r"); (void)tap("\t"); (void)tap("\r"); // Local category Content.
+  const auto details = tap("\r"); // Open highlighted Local node.
   CHECK(details.find("manual-ui") != std::string::npos);
-  send_tui(tui.master, "\x11");
-  send_tui(tui.master, "s");
-  send_tui(tui.master, "c");
+  (void)tap("\x11");
+  (void)tap("s");
+  (void)tap("c");
   const auto running_screen = read_tui(tui.master, std::chrono::seconds(3));
   CHECK(running_screen.find("Xray core running") != std::string::npos);
   CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
-  send_tui(tui.master, "q");
+  (void)tap("\x1b"); (void)tap("\x1b"); // q belongs only to TopNav.
+  (void)tap("q");
   for (int attempt = 0; attempt < 100 && ::waitpid(tui.pid, &status, WNOHANG) == 0; ++attempt)
     ::poll(nullptr, 0, 20);
   if (::waitpid(tui.pid, &status, WNOHANG) == 0) {
@@ -934,21 +954,24 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   auto tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
   REQUIRE(tui.pid > 0);
   (void)read_tui(tui.master, std::chrono::milliseconds(250));
-  send_tui(tui.master, "5\r\t\r"); // Nodes → Local category → list content.
-  (void)read_tui(tui.master, std::chrono::milliseconds(250));
-  send_tui(tui.master, "\r"); // Open the highlighted Local node.
-  const auto details = read_tui(tui.master, std::chrono::milliseconds(250));
+  const auto tap = [&](std::string_view key) {
+    send_tui(tui.master, key);
+    return read_tui(tui.master, std::chrono::milliseconds(120));
+  };
+  for (int i = 0; i < 4; ++i) (void)tap("\t"); // Nodes TopNav.
+  (void)tap("\r"); (void)tap("\t"); (void)tap("\r"); // Local Content.
+  const auto details = tap("\r"); // Open highlighted Local node.
   CHECK(details.find("Native subobject: transport") != std::string::npos);
-  send_tui(tui.master, "e");
-  const auto editor = read_tui(tui.master, std::chrono::milliseconds(250));
+  const auto editor = tap("e");
   INFO("typed node editor screen: " << editor);
-  CHECK(editor.find("Node native editor") != std::string::npos);
-  send_tui(tui.master, "\x13");
-  const auto saved = read_tui(tui.master, std::chrono::milliseconds(300));
+  CHECK(editor.find("\"kind\": \"raw\"") != std::string::npos);
+  CHECK(editor.find("JSON: arrows Move") != std::string::npos);
+  const auto saved = tap("\x13");
   INFO("typed node save screen: " << saved);
   CHECK(saved.find("saved node transport") != std::string::npos);
-  send_tui(tui.master, "\x1b");
-  send_tui(tui.master, "q");
+  (void)tap("\x1b"); // Detail -> Content.
+  (void)tap("\x1b"); (void)tap("\x1b"); // SecondaryNav -> TopNav.
+  (void)tap("q");
   int status = 0;
   for (int attempt = 0; attempt < 100 && ::waitpid(tui.pid, &status, WNOHANG) == 0; ++attempt)
     ::poll(nullptr, 0, 20);
@@ -964,10 +987,15 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   auto core_tui = start_tui(temp.path, temp.path / "xrmd.sock", parsed(profile).at("id").get<std::string>());
   REQUIRE(core_tui.pid > 0);
   (void)read_tui(core_tui.master, std::chrono::milliseconds(250));
-  send_tui(core_tui.master, "7");
-  const auto core_page = read_tui(core_tui.master, std::chrono::milliseconds(250));
+  const auto core_tap = [&](std::string_view key) {
+    send_tui(core_tui.master, key);
+    return read_tui(core_tui.master, std::chrono::milliseconds(120));
+  };
+  for (int i = 0; i < 6; ++i) (void)core_tap("\t"); // Config.
+  (void)core_tap("\r");
+  const auto core_page = core_tap("\r"); // Core Content.
   CHECK(core_page.find("Core —") != std::string::npos);
-  CHECK(core_page.find("u use here") != std::string::npos);
+  CHECK(core_page.find("u Use in Profile") != std::string::npos);
   send_tui(core_tui.master, "u");
   std::string use_result;
   for (int attempt = 0; attempt < 8; ++attempt) {
@@ -977,7 +1005,8 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   }
   INFO("TUI core use result: " << use_result);
   CHECK(use_result.find("selected core for Profile") != std::string::npos);
-  send_tui(core_tui.master, "q");
+  (void)core_tap("\x1b"); (void)core_tap("\x1b");
+  (void)core_tap("q");
   status = 0;
   for (int attempt = 0; attempt < 100 && ::waitpid(core_tui.pid, &status, WNOHANG) == 0; ++attempt)
     ::poll(nullptr, 0, 20);
