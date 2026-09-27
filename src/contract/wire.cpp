@@ -1,4 +1,5 @@
-// XRM: Encodes and decodes framed RPC messages.
+/// @file
+/// @brief Encodes and decodes framed RPC messages.
 
 #include "contract/wire.hpp"
 

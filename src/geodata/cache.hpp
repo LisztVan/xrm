@@ -1,4 +1,5 @@
-// XRM: Declares geodata cache operations.
+/// @file
+/// @brief Declares geodata cache operations.
 
 #pragma once
 

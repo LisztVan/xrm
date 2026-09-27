@@ -1,4 +1,5 @@
-// XRM: Declares the SQLite-backed XRM store and transaction operations.
+/// @file
+/// @brief Declares the SQLite-backed XRM store and transaction operations.
 
 #pragma once
 
@@ -13,6 +14,10 @@
 
 namespace xrm {
 
+/// @brief Owns the SQLite inventory and Manager state database.
+///
+/// Native module text lives in Profile files. The Store owns nodes, sources,
+/// Profile path indexes, core registrations, and runtime recovery metadata.
 class Store {
 public:
   static Result<std::unique_ptr<Store>> open(std::filesystem::path database);
@@ -35,6 +40,8 @@ public:
   Result<SubscriptionState> get_source_state(const Id &) const;
   Result<void> put_source(const Subscription &);
   Result<void> remove_source(const Id &, bool keep_as_manual);
+  /// Atomically commits one refresh's node changes and source result after
+  /// checking the expected source-settings revision.
   Result<void> commit_source(const Id &, const SourceCommit &);
 
   Result<void> register_profile(const Id &, const std::filesystem::path &);
@@ -42,6 +49,7 @@ public:
   Result<std::vector<Id>> profile_ids() const;
   Result<void> unregister_profile(const Id &);
 
+  /// Recovery record and desired-running intent; not a live process probe.
   Result<RuntimePersistent> load_runtime() const;
   Result<void> save_runtime(const RuntimePersistent &);
 

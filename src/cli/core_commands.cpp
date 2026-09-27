@@ -1,4 +1,5 @@
-// XRM: Registers core installation and inspection commands.
+/// @file
+/// @brief Registers core installation and inspection commands.
 
 #include "cli/command_options.hpp"
 

@@ -1,4 +1,5 @@
-// XRM: Registers geodata management commands.
+/// @file
+/// @brief Registers geodata management commands.
 
 #include "cli/command_options.hpp"
 #include "cli/presentation.hpp"

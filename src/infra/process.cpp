@@ -1,6 +1,9 @@
-// XRM: Starts owned child processes from argv/cwd/env and drains their handles.
-// Long-running cores use spawn(); bounded one-shot checks use execute().
-// Termination targets only handles created by this ProcessService instance.
+/// @file
+/// @brief Starts owned child processes from argv/cwd/env and drains their
+/// handles.
+///
+/// Long-running cores use spawn(); bounded one-shot checks use execute().
+/// Termination targets only handles created by this ProcessService instance.
 
 #include "infra/process.hpp"
 

@@ -1,6 +1,8 @@
-// XRM: Builds the executable action list shared by contextual Help and keys.
-// Add actions here with their availability reason; page renderers must not
-// maintain a second action definition or a permanent shortcut footer.
+/// @file
+/// @brief Builds the executable action list shared by contextual Help and keys.
+///
+/// Add actions here with their availability reason; page renderers must not
+/// maintain a second action definition or a permanent shortcut footer.
 
 #include "tui/shell/workspace.hpp"
 namespace xrm::tui {

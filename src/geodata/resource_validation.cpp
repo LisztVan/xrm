@@ -1,4 +1,5 @@
-// XRM: Validates geodata resource files before use.
+/// @file
+/// @brief Validates geodata resource files before use.
 
 #include "geodata/resource_validation.hpp"
 

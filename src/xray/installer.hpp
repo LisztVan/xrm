@@ -1,4 +1,5 @@
-// XRM: Declares Xray core installation and registration.
+/// @file
+/// @brief Declares managed Xray release download and installation.
 
 #pragma once
 
@@ -41,6 +42,10 @@ void from_json(const Json &, CoreRelease &);
 void to_json(Json &, const InstallRequest &);
 void from_json(const Json &, InstallRequest &);
 
+/// @brief Downloads and verifies a release into the managed core directory.
+///
+/// Installation produces a CoreInstall candidate; Application registers it
+/// in Store separately. Neither action starts or switches the active core.
 class CoreInstaller {
 public:
   CoreInstaller(HttpClient &, ProcessService &,

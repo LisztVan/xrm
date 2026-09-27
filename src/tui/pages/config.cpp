@@ -1,6 +1,8 @@
-// XRM: Provides core registration, geodata, tests, and XRM settings forms.
-// Appearance/editor settings belong to XRM; they must not be serialized into
-// native Xray modules. Registering a core does not make it run.
+/// @file
+/// @brief Provides core registration, geodata, tests, and XRM settings forms.
+///
+/// Appearance/editor settings belong to XRM; they must not be serialized into
+/// native Xray modules. Registering a core does not make it run.
 
 #include "client/human_message.hpp"
 #include "tui/components/style.hpp"

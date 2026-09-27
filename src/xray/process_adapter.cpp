@@ -1,4 +1,5 @@
-// XRM: Adapts process primitives to Xray core management.
+/// @file
+/// @brief Adapts process primitives to Xray core management.
 
 #include "xray/process_adapter.hpp"
 

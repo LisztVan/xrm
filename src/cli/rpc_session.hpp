@@ -1,4 +1,5 @@
-// XRM: Shares a scoped daemon RPC connection among CLI command handlers.
+/// @file
+/// @brief Shares a scoped daemon RPC connection among CLI command handlers.
 
 #pragma once
 

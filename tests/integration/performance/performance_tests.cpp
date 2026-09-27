@@ -1,5 +1,6 @@
-// XRM: Tests performance in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks bounded large-inventory work and Server responsiveness during
+/// slow tasks.
 
 #include <catch2/catch_test_macros.hpp>
 

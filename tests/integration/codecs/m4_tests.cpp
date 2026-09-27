@@ -1,4 +1,6 @@
-// XRM: Verifies protocol codecs through client, daemon, and runtime assembly.
+/// @file
+/// @brief Exercises supported URI codecs through subscription import and native
+/// runtime assembly.
 
 #include <catch2/catch_test_macros.hpp>
 

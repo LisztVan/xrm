@@ -1,4 +1,5 @@
-// XRM: Declares Xray control operations.
+/// @file
+/// @brief Declares Xray control operations.
 
 #pragma once
 
@@ -12,9 +13,14 @@ struct ControlTarget {
   Milliseconds timeout{3000};
 };
 struct OverrideResult {
+  // Only a read-back observation can confirm the requested override.
   bool confirmed = false;
   std::optional<std::string> actual_outbound;
 };
+/// @brief Uses bounded Xray API helper commands against an active endpoint.
+///
+/// It does not own the active core process. Writes read back the balancer
+/// state so a timeout or ambiguous reply is not reported as confirmed.
 class XrayControl {
 public:
   explicit XrayControl(ProcessService &);

@@ -1,4 +1,6 @@
-// XRM: Tests metrics in the domain and editor behavior suite.
+/// @file
+/// @brief Checks optional metrics counters and rate handling across reset/run
+/// changes.
 
 #include "xray/metrics.hpp"
 

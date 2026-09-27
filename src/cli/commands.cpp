@@ -1,4 +1,5 @@
-// XRM: Builds the CLI command tree and dispatches top-level requests.
+/// @file
+/// @brief Builds the CLI command tree and dispatches top-level requests.
 
 #include "cli/commands.hpp"
 #include "cli/command_options.hpp"

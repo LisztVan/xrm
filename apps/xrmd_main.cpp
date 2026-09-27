@@ -1,5 +1,6 @@
-// XRM: Starts the daemon with its storage, transport, and core-process
-// adapters.
+/// @file
+/// @brief Starts the daemon with its storage, transport, and core-process
+/// adapters.
 
 #include "infra/http.hpp"
 #include "infra/process.hpp"

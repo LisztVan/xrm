@@ -1,6 +1,8 @@
-// XRM: Owns saved Profile metadata and native module Source files.
-// Profile metadata, module text, and module include flags have separate write
-// paths. None of them publish runtime files; Application builds those later.
+/// @file
+/// @brief Owns saved Profile metadata and native module Source files.
+///
+/// Profile metadata, module text, and module include flags have separate write
+/// paths. None of them publish runtime files; Application builds those later.
 
 #include "profile/profile_service.hpp"
 

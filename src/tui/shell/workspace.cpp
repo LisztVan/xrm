@@ -1,6 +1,8 @@
-// XRM: Coordinates TUI navigation, cached page data, drafts, and overlays.
-// View/Use/Edit and the Modules draft live only in this session. Server RPCs
-// own saved state; runtime.status reports actual running state separately.
+/// @file
+/// @brief Coordinates TUI navigation, cached page data, drafts, and overlays.
+///
+/// View/Use/Edit and the Modules draft live only in this session. Server RPCs
+/// own saved state; runtime.status reports actual running state separately.
 
 #include "tui/shell/workspace.hpp"
 #include "client/human_message.hpp"

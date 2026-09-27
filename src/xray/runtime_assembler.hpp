@@ -1,4 +1,5 @@
-// XRM: Declares pure runtime FileSet assembly.
+/// @file
+/// @brief Declares pure runtime FileSet assembly.
 
 #pragma once
 
@@ -6,8 +7,10 @@
 
 namespace xrm {
 
-// Pure transformation from saved input to native confdir files; no I/O or core
-// process action occurs here. Each enabled native module retains one owner.
+/// @brief Transforms saved input into native confdir files and a runtime index.
+///
+/// Pure transformation: no disk, network, database, or process action occurs
+/// here. Each enabled native root retains one output owner.
 Result<PreparedFiles> assemble(const BuildInput &input);
 Result<OutputFile> emit_native_module(const ModuleDocument &document);
 Result<RuntimeIndex> resolve_scope(const BuildInput &input);

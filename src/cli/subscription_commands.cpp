@@ -1,4 +1,5 @@
-// XRM: Registers subscription source and refresh commands.
+/// @file
+/// @brief Registers subscription source and refresh commands.
 
 #include "cli/command_options.hpp"
 

@@ -1,4 +1,6 @@
-// XRM: Tests human message in the CLI human output and command behavior suite.
+/// @file
+/// @brief Checks human error titles, diagnostics, and recovery text without
+/// changing machine errors.
 
 #include "client/human_message.hpp"
 #include <catch2/catch_test_macros.hpp>

@@ -1,6 +1,8 @@
-// XRM: Runs requested node tests using bounded, separate test resources.
-// A test may prepare a temporary core/proxy, but does not mutate the active
-// runtime, saved target, or source node document.
+/// @file
+/// @brief Runs requested node tests using bounded, separate test resources.
+///
+/// A test may prepare a temporary core/proxy, but does not mutate the active
+/// runtime, saved target, or source node document.
 
 #include "server/node_test_service.hpp"
 

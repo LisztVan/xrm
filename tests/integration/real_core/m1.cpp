@@ -1,5 +1,6 @@
-// XRM: Verifies native confdir behavior and live traffic against the pinned
-// Xray core.
+/// @file
+/// @brief Checks native multi-file configuration and live traffic against fixed
+/// Xray.
 
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>

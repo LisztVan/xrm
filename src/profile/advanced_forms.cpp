@@ -1,4 +1,5 @@
-// XRM: Maps advanced Profile form edits into native module values.
+/// @file
+/// @brief Maps advanced Profile form edits into native module values.
 
 #include "profile/forms.hpp"
 

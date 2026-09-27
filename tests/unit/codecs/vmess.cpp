@@ -1,4 +1,5 @@
-// XRM: Tests vmess in the domain and editor behavior suite.
+/// @file
+/// @brief Checks VMess share payload variants and native outbound mapping.
 
 #include "xray/codecs/codec.hpp"
 

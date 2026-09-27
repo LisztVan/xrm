@@ -19,3 +19,8 @@ core process; `xrm` provides the CLI and TUI. See [requirements](docs/requiremen
 | `.deps/`, `out/` | Ignored dependency cache and generated build outputs |
 
 Build commands and the target compilation graph are in [docs/build.md](docs/build.md).
+
+## License
+
+XRM is licensed under the [MIT License](LICENSE). Bundled third-party skills
+retain their own copyright notices and license files.

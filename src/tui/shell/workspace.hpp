@@ -1,4 +1,5 @@
-// XRM: Declares persistent workspace state for the TUI session.
+/// @file
+/// @brief Declares session-only TUI navigation, caches, and editing state.
 
 #pragma once
 #include "client/rpc_session.hpp"

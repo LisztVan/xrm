@@ -1,4 +1,5 @@
-// XRM: Declares shared CLI command options and registration helpers.
+/// @file
+/// @brief Declares shared CLI command options and registration helpers.
 
 #pragma once
 

@@ -1,4 +1,5 @@
-// XRM: Defines shared identifiers, errors, and JSON model helpers.
+/// @file
+/// @brief Defines shared identifiers, errors, and JSON model helpers.
 
 #pragma once
 

@@ -1,4 +1,5 @@
-// XRM: Declares filesystem helpers for atomic and bounded file access.
+/// @file
+/// @brief Declares filesystem helpers for atomic and bounded file access.
 
 #pragma once
 

@@ -1,4 +1,6 @@
-// XRM: Tests geodata cache in the domain and editor behavior suite.
+/// @file
+/// @brief Checks last-good geodata cache retention and failed/cancelled
+/// updates.
 
 #include "geodata/cache.hpp"
 #include "infra/http.hpp"

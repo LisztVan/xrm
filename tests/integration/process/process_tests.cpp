@@ -1,5 +1,6 @@
-// XRM: Tests process in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks child argv/cwd/env, output ordering, timeout, and process
+/// ownership.
 
 #include <catch2/catch_test_macros.hpp>
 #include <csignal>

@@ -1,6 +1,8 @@
-// XRM: Materializes a complete native Xray confdir from a FileSet.
-// The writer owns paths/permissions/copying; it never parses native semantics
-// or writes generated runtime content back into a Profile's Source files.
+/// @file
+/// @brief Materializes a complete native Xray confdir from a FileSet.
+///
+/// The writer owns paths/permissions/copying; it never parses native semantics
+/// or writes generated runtime content back into a Profile's Source files.
 
 #include "xray/runtime_writer.hpp"
 

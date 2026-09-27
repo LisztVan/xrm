@@ -1,5 +1,6 @@
-// XRM: Tests group bindings in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks persisted group definitions, manual selection, and node
+/// eligibility.
 
 #include <catch2/catch_test_macros.hpp>
 

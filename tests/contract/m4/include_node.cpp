@@ -1,4 +1,5 @@
-// XRM: Checks that the named public header compiles independently.
+/// @file
+/// @brief Checks that model/node.hpp can be included independently.
 
 #include "model/node.hpp"
 static_assert(std::variant_size_v<xrm::ProtocolSettings> == 5);

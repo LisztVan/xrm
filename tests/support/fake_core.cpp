@@ -1,4 +1,5 @@
-// XRM: Provides a controllable fake core for process and failure tests.
+/// @file
+/// @brief Provides a controllable fake core for process and failure tests.
 
 #include <algorithm>
 #include <charconv>

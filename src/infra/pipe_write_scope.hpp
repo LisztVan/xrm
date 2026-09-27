@@ -1,4 +1,5 @@
-// XRM: Handles broken stdout pipes without hiding unrelated write errors.
+/// @file
+/// @brief Handles broken stdout pipes without hiding unrelated write errors.
 
 #pragma once
 

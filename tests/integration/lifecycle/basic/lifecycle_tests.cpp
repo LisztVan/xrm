@@ -1,5 +1,6 @@
-// XRM: Tests lifecycle in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks candidate configuration validation, process replacement, and
+/// output draining.
 
 #include <catch2/catch_test_macros.hpp>
 

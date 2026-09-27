@@ -1,4 +1,5 @@
-// XRM: Declares native-module form descriptors and draft binding.
+/// @file
+/// @brief Declares native-module form descriptors and draft binding.
 
 #pragma once
 
@@ -10,8 +11,10 @@
 #include <vector>
 
 namespace xrm::tui::forms {
-// One caller-owned native wrapper draft. The host owns Profile identity, edit
-// permission, the overlay stack, source persistence and runtime publication.
+/// @brief Binds Visual forms to one caller-owned native wrapper draft.
+///
+/// The host owns Profile identity, Edit permission, overlay lifetime, Source
+/// persistence, and Runtime publication. These forms change only *draft.
 struct NativeFormOptions {
   std::string module;
   std::string *draft = nullptr;

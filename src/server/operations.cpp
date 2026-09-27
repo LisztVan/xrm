@@ -1,4 +1,5 @@
-// XRM: Tracks asynchronous daemon operations and their results.
+/// @file
+/// @brief Tracks asynchronous daemon operations and their results.
 
 #include "server/operations.hpp"
 

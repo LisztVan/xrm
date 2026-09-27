@@ -1,5 +1,6 @@
-// XRM: Tests store in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks SQLite inventory persistence, lookup errors, and bounded
+/// filters.
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,4 +1,5 @@
-// XRM: Declares the node test service.
+/// @file
+/// @brief Declares the node test service.
 
 #pragma once
 
@@ -39,9 +40,10 @@ struct NodeTestResult {
   std::string message;
 };
 
-// Owns only temporary test processes and sockets. It never reads or changes the
-// production CoreManager, selection, RunRecord, Store, or runtime directory.
-// Callbacks are delivered on the supplied uv loop.
+/// @brief Runs isolated node checks with temporary processes and sockets.
+///
+/// It never reads or changes the production CoreManager, selection, RunRecord,
+/// Store, or runtime directory. Callbacks return on the supplied libuv loop.
 class NodeTestService {
 public:
   NodeTestService(uv_loop_t &, ProcessService &, HttpClient &,

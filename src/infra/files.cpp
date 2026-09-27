@@ -1,4 +1,5 @@
-// XRM: Implements filesystem operations used by storage and runtime output.
+/// @file
+/// @brief Implements filesystem operations used by storage and runtime output.
 
 #include "infra/files.hpp"
 

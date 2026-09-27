@@ -1,6 +1,8 @@
-// XRM: Validates wire parameters and dispatches RPC methods to daemon APIs.
-// Keep business decisions in Application/ProfileService; this file converts
-// method-specific request and response shapes without a second state model.
+/// @file
+/// @brief Validates wire parameters and dispatches RPC methods to daemon APIs.
+///
+/// Keep business decisions in Application/ProfileService; this file converts
+/// method-specific request and response shapes without a second state model.
 
 #include "server/api_router.hpp"
 

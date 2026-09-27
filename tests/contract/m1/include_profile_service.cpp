@@ -1,3 +1,5 @@
-// XRM: Checks that the named public header compiles independently.
+/// @file
+/// @brief Checks that profile/profile_service.hpp can be included
+/// independently.
 
 #include "profile/profile_service.hpp"

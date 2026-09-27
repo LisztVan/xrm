@@ -1,6 +1,8 @@
-// XRM: Stages and validates geodata assets before publishing cache versions.
-// Download, staging work, and Xray -test each have distinct completion paths;
-// a failed attempt must leave the previously usable asset version intact.
+/// @file
+/// @brief Stages and validates geodata assets before publishing cache versions.
+///
+/// Download, staging work, and Xray -test each have distinct completion paths;
+/// a failed attempt must leave the previously usable asset version intact.
 
 #include "geodata/cache.hpp"
 

@@ -1,4 +1,5 @@
-// XRM: Registers Profile management commands.
+/// @file
+/// @brief Registers Profile management commands.
 
 #include "cli/command_options.hpp"
 

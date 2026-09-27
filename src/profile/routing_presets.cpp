@@ -1,4 +1,5 @@
-// XRM: Builds native routing values from saved routing presets.
+/// @file
+/// @brief Plans native routing edits from a requested preset and Source draft.
 
 #include "profile/routing_presets.hpp"
 

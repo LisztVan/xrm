@@ -1,4 +1,5 @@
-// XRM: Tests shadowsocks in the domain and editor behavior suite.
+/// @file
+/// @brief Checks supported Shadowsocks URI credential and encoding forms.
 
 #include "xray/codecs/codec.hpp"
 

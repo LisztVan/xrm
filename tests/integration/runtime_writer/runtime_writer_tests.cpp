@@ -1,5 +1,6 @@
-// XRM: Tests runtime writer in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks fresh FileSet materialization, export, and active-directory
+/// isolation.
 
 #include <catch2/catch_test_macros.hpp>
 

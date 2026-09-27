@@ -1,6 +1,8 @@
-// XRM: Applies bounded edits to native module JSON in memory.
-// Helpers return ModuleEdit with the original Source baseline; the caller
-// chooses when to save it. Unknown native fields outside edited paths survive.
+/// @file
+/// @brief Applies bounded edits to native module JSON in memory.
+///
+/// Helpers return ModuleEdit with the original Source baseline; the caller
+/// chooses when to save it. Unknown native fields outside edited paths survive.
 
 #include "profile/forms.hpp"
 

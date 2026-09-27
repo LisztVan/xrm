@@ -1,5 +1,5 @@
-// XRM: Tests e2e06 in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks the inventory-to-running workflow with two Manager clients.
 
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>

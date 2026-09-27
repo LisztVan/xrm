@@ -1,4 +1,5 @@
-// XRM: Encodes transport and security settings for Xray outbounds.
+/// @file
+/// @brief Encodes transport and security settings for Xray outbounds.
 
 #include "model/node.hpp"
 

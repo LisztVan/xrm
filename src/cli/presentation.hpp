@@ -1,4 +1,5 @@
-// XRM: Defines human-readable CLI formatting helpers.
+/// @file
+/// @brief Defines human-readable CLI formatting helpers.
 
 #pragma once
 

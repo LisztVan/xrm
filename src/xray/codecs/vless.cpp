@@ -1,6 +1,8 @@
-// XRM: Decodes supported VLESS URI parameters into typed node settings.
-// Keep transport/security parameter interpretation explicit; unknown link
-// parameters must not silently acquire a different connection meaning.
+/// @file
+/// @brief Decodes supported VLESS URI parameters into typed node settings.
+///
+/// Keep transport/security parameter interpretation explicit; unknown link
+/// parameters must not silently acquire a different connection meaning.
 
 #include "xray/codecs/codec.hpp"
 

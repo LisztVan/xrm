@@ -1,4 +1,6 @@
-// XRM: Tests reconcile in the domain and editor behavior suite.
+/// @file
+/// @brief Checks stable per-source node reconciliation and missing-node
+/// handling.
 
 #include "subscription/parser.hpp"
 #include "subscription/reconcile.hpp"

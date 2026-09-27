@@ -1,6 +1,8 @@
-// XRM: Parses supported subscription documents and share links into nodes.
-// Parsing reports malformed/unsupported entries separately; it does not
-// update inventory or decide whether old source nodes should be removed.
+/// @file
+/// @brief Parses supported subscription documents and share links into nodes.
+///
+/// Parsing reports malformed/unsupported entries separately; it does not update
+/// inventory or decide whether old source nodes should be removed.
 
 #include "subscription/parser.hpp"
 

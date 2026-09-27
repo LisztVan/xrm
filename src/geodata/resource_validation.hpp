@@ -1,4 +1,5 @@
-// XRM: Declares geodata validation results and entry points.
+/// @file
+/// @brief Declares geodata validation results and entry points.
 
 #pragma once
 

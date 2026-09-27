@@ -1,5 +1,6 @@
-// XRM: Tests lifecycle advanced in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks failed persistence, stop intent, and candidate recovery in the
+/// core lifecycle.
 
 #include <catch2/catch_test_macros.hpp>
 

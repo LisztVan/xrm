@@ -1,4 +1,5 @@
-// XRM: Declares bounded log buffering and cursor reads.
+/// @file
+/// @brief Declares bounded log buffering and cursor reads.
 
 #pragma once
 
@@ -22,13 +23,19 @@ struct LogPage {
   bool truncated = false;
 };
 
+/// @brief Keeps a bounded byte stream for daemon and core output.
+///
+/// Entries are transport chunks, not parsed log records. A reader resumes
+/// with the opaque cursor returned by read_after().
 class LogBuffer {
 public:
   explicit LogBuffer(std::size_t byte_limit = 4 * 1024 * 1024);
-  // Append may split or merge visible lines; readers must treat cursors as
-  // opaque resume points rather than line or message sequence numbers.
+  /// Appends bytes; chunk boundaries need not match visible log lines.
   void append(LogStream stream, std::string_view bytes);
+  /// Flushes an incomplete UTF-8 suffix when one output stream closes.
   void finish(LogStream stream);
+  /// Returns subsequent chunks within a byte budget; truncated also signals
+  /// that an older cursor has fallen out of the ring.
   LogPage read_after(std::uint64_t cursor, std::size_t byte_limit) const;
   std::uint64_t cursor() const;
   std::size_t bytes_retained() const;

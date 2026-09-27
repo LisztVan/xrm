@@ -1,4 +1,5 @@
-// XRM: Defines persisted geodata resource metadata.
+/// @file
+/// @brief Defines persisted geodata resource metadata.
 
 #pragma once
 

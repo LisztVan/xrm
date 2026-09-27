@@ -1,6 +1,8 @@
-// XRM: Provides Profile view, session Edit, and saved metadata forms.
-// A table cursor, viewed Profile, Use target, Edit permission, and actual run
-// are distinct. Profile CRUD does not require module Edit.
+/// @file
+/// @brief Provides Profile view, session Edit, and saved metadata forms.
+///
+/// A table cursor, viewed Profile, Use target, Edit permission, and actual run
+/// are distinct. Profile CRUD does not require module Edit.
 
 #include "tui/components/style.hpp"
 #include "tui/shell/workspace.hpp"

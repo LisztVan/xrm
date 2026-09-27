@@ -1,6 +1,9 @@
-// XRM: Owns the Modules page's single Source draft and its Visual/JSON views.
-// Both editors point at draft_.text. Explicit Save actions write Source;
-// Runtime stays read-only; publishing Source requires later Connect/Apply.
+/// @file
+/// @brief Owns the Modules page's single Source draft and its Visual/JSON
+/// views.
+///
+/// Both editors point at draft_.text. Explicit Save actions write Source;
+/// Runtime stays read-only; publishing Source requires later Connect/Apply.
 
 #include "model/module_catalog.hpp"
 #include "tui/components/style.hpp"

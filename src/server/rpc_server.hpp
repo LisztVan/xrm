@@ -1,4 +1,5 @@
-// XRM: Declares the local daemon RPC server.
+/// @file
+/// @brief Declares the local daemon RPC server.
 
 #pragma once
 

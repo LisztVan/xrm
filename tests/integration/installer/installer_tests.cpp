@@ -1,5 +1,6 @@
-// XRM: Tests installer in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks release selection, verification, and managed core
+/// installation.
 
 #include <catch2/catch_test_macros.hpp>
 

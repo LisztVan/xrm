@@ -1,4 +1,5 @@
-// XRM: Defines independent node inventory and protocol data.
+/// @file
+/// @brief Defines independent node inventory and protocol data.
 
 #pragma once
 

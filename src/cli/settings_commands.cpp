@@ -1,4 +1,5 @@
-// XRM: Registers Manager appearance and editor settings commands.
+/// @file
+/// @brief Registers Manager appearance and editor settings commands.
 
 #include "cli/command_options.hpp"
 

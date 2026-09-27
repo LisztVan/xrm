@@ -1,4 +1,6 @@
-// XRM: Tests routing preset in the domain and editor behavior suite.
+/// @file
+/// @brief Checks preset planning preserves native routing fields and rejects
+/// missing inputs.
 
 #include "geodata/resource_validation.hpp"
 #include "profile/routing_presets.hpp"

@@ -1,4 +1,5 @@
-// XRM: Starts the XRM client and dispatches its CLI or TUI mode.
+/// @file
+/// @brief Starts the XRM client and dispatches its CLI or TUI mode.
 
 #include "cli/commands.hpp"
 

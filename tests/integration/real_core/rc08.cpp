@@ -1,5 +1,6 @@
-// XRM: Tests rc08 in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks typed protocol URI nodes through Store and real Xray
+/// outbounds.
 
 #include <catch2/catch_test_macros.hpp>
 

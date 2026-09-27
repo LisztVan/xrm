@@ -1,4 +1,5 @@
-// XRM: Tests components in the terminal components and user interactions suite.
+/// @file
+/// @brief Checks shared input, focus, selection, form, and dialog behavior.
 
 #include "tui/components/style.hpp"
 #include "tui/components/widgets.hpp"

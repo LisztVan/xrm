@@ -1,3 +1,4 @@
-// XRM: Checks that the named public header compiles independently.
+/// @file
+/// @brief Checks that xray/runtime_assembler.hpp can be included independently.
 
 #include "xray/runtime_assembler.hpp"

@@ -1,4 +1,5 @@
-// XRM: Applies single-module Source edits and enabled-state changes.
+/// @file
+/// @brief Applies single-module Source edits and enabled-state changes.
 
 #include "profile/forms.hpp"
 

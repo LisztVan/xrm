@@ -1,5 +1,5 @@
-// XRM: Tests routing preset real in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Exercises native routing presets against the fixed Xray executable.
 
 #include "infra/files.hpp"
 #include "infra/store.hpp"

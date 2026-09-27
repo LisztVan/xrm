@@ -1,5 +1,5 @@
-// XRM: Tests rc09 in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks native env, launch environment, and core-version boundaries.
 
 #include <catch2/catch_test_macros.hpp>
 

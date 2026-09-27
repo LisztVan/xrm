@@ -1,4 +1,5 @@
-// XRM: Declares node-to-Xray outbound codec operations.
+/// @file
+/// @brief Declares node-to-Xray outbound codec operations.
 
 #pragma once
 

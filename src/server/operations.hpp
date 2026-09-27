@@ -1,4 +1,5 @@
-// XRM: Declares asynchronous operation records and lookup.
+/// @file
+/// @brief Declares asynchronous operation records and lookup.
 
 #pragma once
 
@@ -9,6 +10,10 @@
 
 namespace xrm {
 
+/// @brief Tracks accepted asynchronous RPC work within one daemon boot.
+///
+/// IDs include the boot ID. Completed records are bounded; an unknown or
+/// expired ID returns not_found rather than an invented operation result.
 class Operations {
 public:
   explicit Operations(Id boot_id);

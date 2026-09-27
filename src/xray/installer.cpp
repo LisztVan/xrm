@@ -1,6 +1,8 @@
-// XRM: Resolves release assets and installs managed Xray core executables.
-// Metadata/download verification precedes publication to the managed core
-// directory; registration into Store is performed by Application afterward.
+/// @file
+/// @brief Resolves release assets and installs managed Xray core executables.
+///
+/// Metadata/download verification precedes publication to the managed core
+/// directory; registration into Store is performed by Application afterward.
 
 #include "xray/installer.hpp"
 

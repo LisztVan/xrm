@@ -1,4 +1,6 @@
-// XRM: Verifies independent node inventory and subscription source boundaries.
+/// @file
+/// @brief Exercises subscription/node ownership and accepted refresh operations
+/// over CLI/RPC.
 
 #include <catch2/catch_test_macros.hpp>
 

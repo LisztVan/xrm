@@ -1,5 +1,6 @@
-// XRM: Tests module actions in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks rejected core switches, stale Stop confirmations, and module
+/// action boundaries.
 
 #include <catch2/catch_test_macros.hpp>
 

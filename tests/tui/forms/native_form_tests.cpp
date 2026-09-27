@@ -1,5 +1,6 @@
-// XRM: Tests native form in the terminal components and user interactions
-// suite.
+/// @file
+/// @brief Checks native Visual forms preserve unknown fields and
+/// omitted/default values.
 
 #include "tui/forms/native_form.hpp"
 #include <catch2/catch_test_macros.hpp>

@@ -1,4 +1,5 @@
-// XRM: Defines Profiles, module sources, and saved selection state.
+/// @file
+/// @brief Defines Profiles, module sources, and saved selection state.
 
 #pragma once
 
@@ -21,6 +22,7 @@ struct ModuleDescriptor {
   bool dedicated_form_available = false;
 };
 
+/// Native top-level wrapper read from one Profile Source file.
 struct ModuleDocument {
   std::string key;
   std::filesystem::path filename;
@@ -28,6 +30,7 @@ struct ModuleDocument {
   std::string source_text;
 };
 
+/// Manager-side file mapping and inclusion flag, outside native JSON.
 struct ModuleSetting {
   std::string key;
   std::filesystem::path filename;
@@ -49,6 +52,7 @@ struct NodeFilter {
 };
 using NodeSelector = std::variant<ExplicitMembers, NodeFilter>;
 enum class SelectionMode { automatic, manual };
+/// Saved dynamic group definition used when routing is assembled.
 struct GroupBinding {
   Id id;
   std::string name;
@@ -78,6 +82,7 @@ struct RunEnvironment {
   std::optional<std::filesystem::path> asset_dir;
 };
 
+/// Saved Profile choices and file references; not a snapshot of the core.
 struct ProfileSettings {
   Id id;
   std::string name;
@@ -103,6 +108,7 @@ struct ProfileSnapshot {
 };
 using ModuleSnapshot = ProfileSnapshot;
 
+/// Optimistic write baseline for one Source file; null expects no file.
 struct EditBase {
   // Compare against the current source before a write; null means no source.
   std::optional<std::string> expected_text;

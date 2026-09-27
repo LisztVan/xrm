@@ -1,4 +1,5 @@
-// XRM: Registers connection, status, log, and runtime commands.
+/// @file
+/// @brief Registers connection, status, log, and runtime commands.
 
 #include "cli/command_options.hpp"
 

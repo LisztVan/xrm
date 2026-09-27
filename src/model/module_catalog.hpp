@@ -1,4 +1,5 @@
-// XRM: Declares native Xray module names and catalog lookup.
+/// @file
+/// @brief Declares native Xray module names and catalog lookup.
 
 #pragma once
 

@@ -1,4 +1,6 @@
-// XRM: Tests hysteria in the domain and editor behavior suite.
+/// @file
+/// @brief Checks accepted Hysteria2 URI fields and explicit rejection of
+/// unsupported options.
 
 #include "xray/codecs/codec.hpp"
 

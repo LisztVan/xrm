@@ -1,4 +1,5 @@
-// XRM: Declares the Xray process adapter.
+/// @file
+/// @brief Declares the Xray process adapter.
 
 #pragma once
 

@@ -1,6 +1,8 @@
-// XRM: Defines client/server RPC transfer types and error/result envelopes.
-// These types describe the wire contract; a TUI session's View/Use/Edit and
-// other local interaction state must not be added to persistent RPC models.
+/// @file
+/// @brief Defines client/server RPC transfer types and error/result envelopes.
+///
+/// These types describe the wire contract; a TUI session's View/Use/Edit and
+/// other local interaction state must not be added to persistent RPC models.
 
 #pragma once
 

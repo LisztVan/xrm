@@ -1,5 +1,5 @@
-// XRM: Tests http in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks HTTP routing, headers, limits, cancellation, and shutdown.
 
 #include <catch2/catch_test_macros.hpp>
 

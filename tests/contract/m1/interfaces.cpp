@@ -1,4 +1,5 @@
-// XRM: Checks public interfaces at compile time.
+/// @file
+/// @brief Locks Profile, module assembly, codec, and core lifecycle signatures.
 
 #include "model/module_catalog.hpp"
 #include "profile/profile_service.hpp"

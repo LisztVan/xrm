@@ -1,4 +1,6 @@
-// XRM: Exercises first-run daemon, CLI, and node-inventory workflows.
+/// @file
+/// @brief Exercises daemon startup, first node persistence, and
+/// unavailable-server CLI errors.
 
 #include <catch2/catch_test_macros.hpp>
 

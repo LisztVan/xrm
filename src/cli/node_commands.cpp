@@ -1,4 +1,5 @@
-// XRM: Registers node inventory and selection commands.
+/// @file
+/// @brief Registers node inventory, import, edit, and test commands.
 
 #include "cli/command_options.hpp"
 #include "contract/methods.hpp"

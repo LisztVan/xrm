@@ -1,5 +1,6 @@
-// XRM: Tests log in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks bounded log chunks, old cursors, stream endings, and
+/// truncation signals.
 
 #include "contract/wire.hpp"
 #include "server/log_buffer.hpp"

@@ -1,4 +1,5 @@
-// XRM: Declares the log viewer model and rendering helpers.
+/// @file
+/// @brief Declares text escaping used when rendering untrusted log records.
 
 #pragma once
 

@@ -1,5 +1,5 @@
-// XRM: Tests rc05 in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks both native observatories against the fixed Xray executable.
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,6 +1,9 @@
-// XRM: Persists inventory, source state, Profile indexes, and Manager settings.
-// Native module Source lives in Profile files, not in a writable SQLite copy.
-// Multi-row source refreshes are committed transactionally in commit_source().
+/// @file
+/// @brief Persists inventory, source state, Profile indexes, and Manager
+/// settings.
+///
+/// Native module Source lives in Profile files, not in a writable SQLite copy.
+/// Multi-row source refreshes are committed transactionally in commit_source().
 
 #include "infra/store.hpp"
 

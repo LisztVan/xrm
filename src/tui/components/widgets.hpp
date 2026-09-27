@@ -1,4 +1,5 @@
-// XRM: Declares shared TUI controls and their focus and value states.
+/// @file
+/// @brief Declares shared TUI controls and their focus and value states.
 
 #pragma once
 
@@ -43,6 +44,7 @@ enum class FieldKind {
   StringList,
   OptionalCheckbox
 };
+/// One form draft field with independent native presence and value.
 struct Field {
   // optional/present model native omission separately from an empty, false,
   // or zero value. Controls edit value/present; Form submits their snapshot.
@@ -80,6 +82,10 @@ Element Navigation(const std::vector<std::string> &labels, int selected,
 Validator Integer(std::optional<long long> min = {},
                   std::optional<long long> max = {}, bool optional = true);
 
+/// @brief Validates caller-supplied fields and invokes one submit callback.
+///
+/// Controls mutate only this form's draft. On validation failure, the form
+/// keeps values and focus so the user can repair the relevant field.
 class Form final : public ftxui::ComponentBase,
                    public std::enable_shared_from_this<Form> {
 public:
@@ -137,6 +143,7 @@ struct Column {
   std::string label;
   int width = 20;
 };
+/// @brief Displays rows while keeping the selected object ID across refresh.
 class Table final : public ftxui::ComponentBase {
 public:
   explicit Table(std::vector<Column> columns = {},
@@ -194,6 +201,7 @@ struct CollectionActions {
   std::function<void(const std::string &)> view, edit, copy, remove;
   std::function<void(const std::string &, int)> move;
 };
+/// @brief Applies collection actions to the stable selected row identity.
 class CollectionEditor final : public ftxui::ComponentBase {
 public:
   // Action callbacks receive stable row IDs. Tab onto the button row keeps

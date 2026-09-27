@@ -1,5 +1,6 @@
-// XRM: Tests rpc transport in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks correlated replies, wire versions, and structured RPC
+/// transport errors.
 
 #include <catch2/catch_test_macros.hpp>
 

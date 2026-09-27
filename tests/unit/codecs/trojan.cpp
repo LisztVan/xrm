@@ -1,4 +1,6 @@
-// XRM: Tests trojan in the domain and editor behavior suite.
+/// @file
+/// @brief Checks Trojan URI credentials, transport, security, and invalid
+/// options.
 
 #include "xray/codecs/codec.hpp"
 

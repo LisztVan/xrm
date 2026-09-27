@@ -1,6 +1,8 @@
-// XRM: Builds an in-memory FileSet from saved native modules and bindings.
-// No I/O or process control occurs here. One module owns each native root key;
-// outbounds may add a separate generated node tail under the same key.
+/// @file
+/// @brief Builds an in-memory FileSet from saved native modules and bindings.
+///
+/// No I/O or process control occurs here. One module owns each native root key;
+/// outbounds may add a separate generated node tail under the same key.
 
 #include "xray/runtime_assembler.hpp"
 

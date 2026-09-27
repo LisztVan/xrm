@@ -1,5 +1,6 @@
-// XRM: Tests packaging in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks systemd packaging paths and shutdown ownership of the Xray
+/// child.
 
 #include <catch2/catch_test_macros.hpp>
 

@@ -1,6 +1,8 @@
-// XRM: Saves Manager group and observation bindings beside each Profile.
-// These files choose nodes and generated balancer inputs; they are not native
-// routing module Source and are never read directly by Xray.
+/// @file
+/// @brief Saves Manager group and observation bindings beside each Profile.
+///
+/// These files choose nodes and generated balancer inputs; they are not native
+/// routing module Source and are never read directly by Xray.
 
 #include "profile/profile_service.hpp"
 

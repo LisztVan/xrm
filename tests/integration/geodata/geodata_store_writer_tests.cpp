@@ -1,5 +1,6 @@
-// XRM: Tests geodata store writer in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks geodata metadata persistence and immutable runtime asset
+/// snapshots.
 
 #include "contract/methods.hpp"
 #include "infra/files.hpp"

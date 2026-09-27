@@ -1,4 +1,5 @@
-// XRM: Tests group assembly in the domain and editor behavior suite.
+/// @file
+/// @brief Checks selector matching and dynamic group expansion into routing.
 
 #include "model/module_catalog.hpp"
 #include "xray/codecs/codec.hpp"

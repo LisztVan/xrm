@@ -1,4 +1,5 @@
-// XRM: Provides a controllable external editor for integration tests.
+/// @file
+/// @brief Provides a controllable external editor for integration tests.
 
 #include <fstream>
 #include <iostream>

@@ -1,4 +1,5 @@
-// XRM: Tests assembler in the domain and editor behavior suite.
+/// @file
+/// @brief Checks native wrapper output, reachability, and per-module assembly.
 
 #include "model/module_catalog.hpp"
 #include "xray/codecs/codec.hpp"

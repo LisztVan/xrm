@@ -1,4 +1,5 @@
-// XRM: Dispatches node protocols to native Xray outbound encoders.
+/// @file
+/// @brief Dispatches node protocols to native Xray outbound encoders.
 
 #include "xray/codecs/codec.hpp"
 

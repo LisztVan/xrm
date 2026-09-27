@@ -1,5 +1,6 @@
-// XRM: Tests rc10 m4 in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks advanced native modules and exported confdir input with real
+/// Xray.
 
 #include <catch2/catch_test_macros.hpp>
 

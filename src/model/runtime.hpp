@@ -1,4 +1,5 @@
-// XRM: Defines runtime file sets, core status, and metrics data.
+/// @file
+/// @brief Defines runtime file sets, core status, and metrics data.
 
 #pragma once
 
@@ -59,6 +60,7 @@ struct RuntimeIndex {
   std::vector<std::string> static_outbound_tags;
   std::vector<std::string> static_balancer_tags;
 };
+/// Complete saved snapshot passed to pure runtime assembly.
 struct BuildInput {
   // A snapshot of saved settings plus inventory, never a live UI draft.
   ProfileSnapshot settings;
@@ -69,6 +71,7 @@ struct OutputFile {
   std::string bytes;
 };
 using FileSet = std::vector<OutputFile>;
+/// Native files and resolved identities before filesystem materialization.
 struct PreparedFiles {
   FileSet files;
   RuntimeIndex index;
@@ -94,6 +97,8 @@ enum class LogStream { server, core_stdout, core_stderr };
 enum class CoreState { stopped, starting, running, stopping, failed };
 enum class RuntimeHealth { process_only, control_ready, control_unavailable };
 enum class OverrideState { none, confirmed, unknown };
+/// Prepared run inputs and identity; CoreManager marks them active only after
+/// observing the started process.
 struct RunRecord {
   Id run_id;
   Id profile_id;
@@ -105,12 +110,14 @@ struct RunRecord {
   std::optional<std::string> api_endpoint;
   std::optional<std::string> metrics_endpoint;
 };
+/// Persisted recovery intent; it cannot by itself prove a live process.
 struct RuntimePersistent {
   bool desired_running = false;
   // Persisted run identity is distinct from the live process status.
   std::optional<RunRecord> active;
   std::optional<RunRecord> previous;
 };
+/// Current owned-process observation returned to clients.
 struct RuntimeStatus {
   CoreState state = CoreState::stopped;
   bool desired_running = false;

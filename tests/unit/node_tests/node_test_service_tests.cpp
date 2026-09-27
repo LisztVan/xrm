@@ -1,4 +1,5 @@
-// XRM: Tests node service in the domain and editor behavior suite.
+/// @file
+/// @brief Checks isolated node tests and transport-specific availability.
 
 #include "server/node_test_service.hpp"
 

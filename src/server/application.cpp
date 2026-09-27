@@ -1,6 +1,8 @@
-// XRM: Coordinates daemon operations across Store, ProfileService, and core.
-// This layer collects saved inputs for explicit runtime actions; editing a
-// node, source, or module alone must not publish a new confdir or start Xray.
+/// @file
+/// @brief Coordinates daemon operations across Store, ProfileService, and core.
+///
+/// This layer collects saved inputs for explicit runtime actions; editing a
+/// node, source, or module alone must not publish a new confdir or start Xray.
 
 #include "server/application.hpp"
 

@@ -1,4 +1,6 @@
-// XRM: Exercises seven-page TUI navigation, forms, drafts, and focus in a PTY.
+/// @file
+/// @brief Exercises seven-page TUI navigation, forms, drafts, and focus in a
+/// PTY.
 
 #include <catch2/catch_test_macros.hpp>
 

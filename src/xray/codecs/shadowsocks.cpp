@@ -1,6 +1,8 @@
-// XRM: Decodes supported Shadowsocks share URIs into typed node settings.
-// URI support is deliberately narrower than native Xray JSON; outbound
-// generation for stored typed nodes is maintained in codec.cpp.
+/// @file
+/// @brief Decodes supported Shadowsocks share URIs into typed node settings.
+///
+/// URI support is deliberately narrower than native Xray JSON; outbound
+/// generation for stored typed nodes is maintained in codec.cpp.
 
 #include "xray/codecs/codec.hpp"
 

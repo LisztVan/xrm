@@ -1,4 +1,6 @@
-// XRM: Tests contract in the compile-time and wire contracts suite.
+/// @file
+/// @brief Checks independently includable headers and stable wire DTO/error
+/// JSON.
 
 #include <catch2/catch_test_macros.hpp>
 

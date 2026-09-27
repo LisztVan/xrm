@@ -1,4 +1,5 @@
-// XRM: Names the versioned RPC methods exposed by the daemon.
+/// @file
+/// @brief Names the versioned RPC methods exposed by the daemon.
 
 #pragma once
 

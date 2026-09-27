@@ -1,4 +1,5 @@
-// XRM: Declares the client command-line entry point.
+/// @file
+/// @brief Declares the client command-line entry point.
 
 #pragma once
 

@@ -1,4 +1,5 @@
-// XRM: Stores the bounded in-memory daemon and core log stream.
+/// @file
+/// @brief Stores the bounded in-memory daemon and core log stream.
 
 #include "server/log_buffer.hpp"
 

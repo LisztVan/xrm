@@ -1,4 +1,6 @@
-// XRM: Checks public interfaces at compile time.
+/// @file
+/// @brief Locks subscription parsing, reconciliation, HTTP, and Store
+/// signatures.
 
 #include "contract/dtos.hpp"
 #include "contract/methods.hpp"

@@ -1,4 +1,5 @@
-// XRM: Checks that the named public header compiles independently.
+/// @file
+/// @brief Checks that xray/installer.hpp can be included independently.
 
 #include "xray/installer.hpp"
 static_assert(sizeof(xrm::CoreRelease) > 0);

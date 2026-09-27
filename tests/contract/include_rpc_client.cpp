@@ -1,3 +1,4 @@
-// XRM: Checks that the named public header compiles independently.
+/// @file
+/// @brief Checks that client/rpc_client.hpp can be included independently.
 
 #include "client/rpc_client.hpp"

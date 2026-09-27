@@ -1,6 +1,8 @@
-// XRM: Decodes supported VMess share payloads into typed node settings.
-// This parser's link format is distinct from arbitrary native outbound JSON,
-// which has its own storage and assembly path.
+/// @file
+/// @brief Decodes supported VMess share payloads into typed node settings.
+///
+/// This parser's link format is distinct from arbitrary native outbound JSON,
+/// which has its own storage and assembly path.
 
 #include "xray/codecs/codec.hpp"
 

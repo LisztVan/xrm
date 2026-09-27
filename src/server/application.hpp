@@ -1,6 +1,8 @@
-// XRM: Declares the daemon's business coordinator and owned services.
-// Follow a request from ApiRouter here, then into Store/ProfileService for
-// saved data or CoreManager for an explicit running-state change.
+/// @file
+/// @brief Declares the daemon's business coordinator and owned services.
+///
+/// Follow a request from ApiRouter here, then into Store/ProfileService for
+/// saved data or CoreManager for an explicit running-state change.
 
 #pragma once
 
@@ -24,6 +26,10 @@
 
 namespace xrm {
 
+/// @brief Coordinates saved domain operations and explicit runtime actions.
+///
+/// ApiRouter validates wire shapes before calling here. This class collects
+/// saved data for CoreManager; it never uses a client-side TUI draft.
 class Application {
 public:
   Application(Store &store, ProcessService &processes, HttpClient &http,
@@ -99,10 +105,14 @@ public:
   Result<Json> save_routing_preset(const Id &profile_id,
                                    std::string_view preset,
                                    std::string_view expected_text);
+  /// Builds from saved state and starts/replaces the owned core. A supplied
+  /// target is saved first; an omitted target uses the Profile's saved choice.
   void connect(const Id &profile_id, std::optional<Target> target,
                Completion<ActivationResult> completion);
+  /// Validates the candidate without changing the active process.
   void check(const Id &profile_id, Completion<ActivationResult> completion);
   void dump(const Id &profile_id, Completion<Json> completion);
+  /// Materializes a preview confdir from saved state without activation.
   Result<PreparedDirectory> render(const Id &profile_id);
   Result<void> export_config(const Id &profile_id, std::string_view source,
                              const std::filesystem::path &destination);

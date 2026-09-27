@@ -1,5 +1,6 @@
-// XRM: Tests control in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks owned Xray API control requests, timeout, and override result
+/// boundaries.
 
 #include "xray/control.hpp"
 

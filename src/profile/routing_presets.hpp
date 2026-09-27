@@ -1,4 +1,5 @@
-// XRM: Declares routing preset operations.
+/// @file
+/// @brief Declares routing preset operations.
 
 #pragma once
 

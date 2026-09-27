@@ -1,4 +1,6 @@
-// XRM: Tests log polish in the terminal components and user interactions suite.
+/// @file
+/// @brief Checks log parsing, stream boundaries, wrapped records, and viewer
+/// chrome.
 
 #include "tui/components/log_viewer.hpp"
 #include "tui/components/widgets.hpp"

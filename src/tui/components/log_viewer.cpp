@@ -1,4 +1,5 @@
-// XRM: Renders log records separately from viewer state and controls.
+/// @file
+/// @brief Renders log records separately from viewer state and controls.
 
 #include "tui/components/log_viewer.hpp"
 #include "tui/components/style.hpp"

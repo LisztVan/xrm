@@ -1,5 +1,6 @@
-// XRM: Exercises CLI-to-daemon workflows, including saved Source and runtime
-// boundaries.
+/// @file
+/// @brief Checks saved Source, inventory history, metrics, and runtime workflow
+/// boundaries.
 
 #include <catch2/catch_test_macros.hpp>
 

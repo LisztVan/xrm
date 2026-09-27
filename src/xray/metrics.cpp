@@ -1,6 +1,8 @@
-// XRM: Samples Xray traffic and observation data for the active run.
-// Missing endpoint/sample means unavailable or unknown, never fabricated zero
-// counters. Viewer demand controls polling; samples are tied to a run ID.
+/// @file
+/// @brief Samples Xray traffic and observation data for the active run.
+///
+/// Missing endpoint/sample means unavailable or unknown, never fabricated zero
+/// counters. Viewer demand controls polling; samples are tied to a run ID.
 
 #include "xray/metrics.hpp"
 

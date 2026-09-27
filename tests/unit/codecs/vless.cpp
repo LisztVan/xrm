@@ -1,4 +1,5 @@
-// XRM: Tests vless in the domain and editor behavior suite.
+/// @file
+/// @brief Checks VLESS URI decoding and native stream/security field mapping.
 
 #include "xray/codecs/codec.hpp"
 

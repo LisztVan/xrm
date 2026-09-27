@@ -1,4 +1,6 @@
-// XRM: Tests parser in the domain and editor behavior suite.
+/// @file
+/// @brief Checks supported subscription formats and separates
+/// malformed/unsupported data.
 
 #include "subscription/parser.hpp"
 

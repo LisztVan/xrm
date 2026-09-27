@@ -1,3 +1,4 @@
-// XRM: Checks that the named public header compiles independently.
+/// @file
+/// @brief Checks that model/runtime.hpp can be included independently.
 
 #include "model/runtime.hpp"

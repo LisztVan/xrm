@@ -1,4 +1,5 @@
-// XRM: Defines the supported native Xray module catalog.
+/// @file
+/// @brief Defines the supported native Xray module catalog.
 
 #include "model/module_catalog.hpp"
 

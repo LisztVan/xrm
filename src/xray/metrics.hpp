@@ -1,4 +1,5 @@
-// XRM: Declares Xray metrics collection.
+/// @file
+/// @brief Declares Xray metrics collection.
 
 #pragma once
 
@@ -38,6 +39,10 @@ Result<MetricsSample> parse_metrics(const Json &, const Id &run_id, UnixMillis);
 std::vector<TrafficRate> compute_rates(const MetricsSample &,
                                        const MetricsSample &,
                                        std::chrono::duration<double> elapsed);
+/// @brief Samples counters and observations for one attached runtime.
+///
+/// Viewer demand controls polling. Optional counters and missing endpoints
+/// remain unavailable/unknown instead of becoming synthetic zero samples.
 class MetricsClient {
 public:
   MetricsClient(uv_loop_t &, HttpClient &);

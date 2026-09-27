@@ -1,4 +1,6 @@
-// XRM: Tests geodata real in the domain and editor behavior suite.
+/// @file
+/// @brief Checks geodata kind and label validation with the fixed Xray
+/// executable.
 
 #include "geodata/resource_validation.hpp"
 

@@ -1,4 +1,5 @@
-// XRM: Adapts daemon RPC responses for the TUI workspace.
+/// @file
+/// @brief Adapts daemon RPC responses for the TUI workspace.
 
 #include "tui/adapters/rpc.hpp"
 #include "client/rpc_client.hpp"

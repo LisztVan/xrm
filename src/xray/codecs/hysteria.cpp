@@ -1,4 +1,5 @@
-// XRM: Encodes Hysteria node settings as native Xray outbounds.
+/// @file
+/// @brief Encodes Hysteria node settings as native Xray outbounds.
 
 #include "xray/codecs/codec.hpp"
 

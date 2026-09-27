@@ -1,4 +1,5 @@
-// XRM: Defines shared TUI color, emphasis, and layout tokens.
+/// @file
+/// @brief Defines shared TUI color, emphasis, and layout tokens.
 
 #pragma once
 

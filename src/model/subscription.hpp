@@ -1,4 +1,5 @@
-// XRM: Defines subscription sources and refresh results.
+/// @file
+/// @brief Defines subscription sources and refresh results.
 
 #pragma once
 

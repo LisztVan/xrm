@@ -1,6 +1,8 @@
-// XRM: Implements bounded HTTP downloads through libcurl worker jobs.
-// The event loop owns request admission/completion; blocking transfer work
-// runs off-loop and honors cancellation, body limits, and transport errors.
+/// @file
+/// @brief Implements bounded HTTP downloads through libcurl worker jobs.
+///
+/// The event loop owns request admission/completion; blocking transfer work
+/// runs off-loop and honors cancellation, body limits, and transport errors.
 
 #include "infra/http.hpp"
 

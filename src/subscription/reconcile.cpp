@@ -1,4 +1,5 @@
-// XRM: Reconciles refreshed subscription nodes with saved inventory.
+/// @file
+/// @brief Reconciles refreshed subscription nodes with saved inventory.
 
 #include "subscription/reconcile.hpp"
 

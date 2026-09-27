@@ -1,4 +1,5 @@
-// XRM: Registers routing preset commands.
+/// @file
+/// @brief Registers routing preset commands.
 
 #include "cli/command_options.hpp"
 #include "cli/rpc_session.hpp"

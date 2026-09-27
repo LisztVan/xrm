@@ -1,4 +1,5 @@
-// XRM: Runs a standalone component showcase for terminal inspection.
+/// @file
+/// @brief Runs a standalone component showcase for terminal inspection.
 
 #include "tui/components/widgets.hpp"
 

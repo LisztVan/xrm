@@ -1,5 +1,6 @@
-// XRM: Tests geodata application real in the client, daemon, persistence, and
-// Xray integration suite.
+/// @file
+/// @brief Checks geodata validation with real Xray before a cache version is
+/// published.
 
 #include "contract/methods.hpp"
 #include "server/api_router.hpp"

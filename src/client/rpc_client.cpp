@@ -1,4 +1,5 @@
-// XRM: Implements the client side of the daemon RPC transport.
+/// @file
+/// @brief Implements the client side of the daemon RPC transport.
 
 #include "client/rpc_client.hpp"
 

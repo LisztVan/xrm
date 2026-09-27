@@ -1,4 +1,5 @@
-// XRM: Maps daemon errors to human-readable client messages.
+/// @file
+/// @brief Maps daemon errors to human-readable client messages.
 
 #pragma once
 

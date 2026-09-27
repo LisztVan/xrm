@@ -1,6 +1,8 @@
-// XRM: Fetches sources and commits reconciled node inventory asynchronously.
-// Refresh affects inventory/status only. A failed or unusable response must
-// keep the previous usable nodes, and never publishes a runtime confdir.
+/// @file
+/// @brief Fetches sources and commits reconciled node inventory asynchronously.
+///
+/// Refresh affects inventory/status only. A failed or unusable response must
+/// keep the previous usable nodes, and never publishes a runtime confdir.
 
 #include "subscription/subscription_service.hpp"
 

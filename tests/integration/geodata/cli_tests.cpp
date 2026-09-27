@@ -1,5 +1,6 @@
-// XRM: Tests cli in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks geodata and routing-preset CLI references, output, and
+/// source-only saves.
 
 #include "model/common.hpp"
 

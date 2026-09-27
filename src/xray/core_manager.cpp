@@ -1,6 +1,9 @@
-// XRM: Owns Xray process handles and the explicit start/stop/recovery machine.
-// Candidate configuration is checked before stopping an active run. The new
-// process is observed before acceptance; failure may restore old input once.
+/// @file
+/// @brief Owns Xray process handles and the explicit start/stop/recovery
+/// machine.
+///
+/// Candidate configuration is checked before stopping an active run. The new
+/// process is observed before acceptance; failure may restore old input once.
 
 #include "xray/core_manager.hpp"
 

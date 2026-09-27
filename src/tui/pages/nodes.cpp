@@ -1,6 +1,8 @@
-// XRM: Provides node inventory and group forms within the Nodes workspace.
-// Inventory edits save nodes/bindings; they do not select a runtime target or
-// connect Xray unless the user chooses the explicit Save & Connect action.
+/// @file
+/// @brief Provides node inventory and group forms within the Nodes workspace.
+///
+/// Inventory edits save nodes/bindings; they do not select a runtime target or
+/// connect Xray unless the user chooses the explicit Save & Connect action.
 
 #include "tui/components/style.hpp"
 #include "tui/shell/workspace.hpp"

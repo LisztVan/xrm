@@ -1,4 +1,5 @@
-// XRM: Checks public interfaces at compile time.
+/// @file
+/// @brief Locks typed protocol, form, and installer interfaces.
 
 #include "contract/dtos.hpp"
 #include "contract/methods.hpp"

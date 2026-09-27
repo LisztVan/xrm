@@ -1,4 +1,5 @@
-// XRM: Manages a reusable RPC session and its connection lifetime.
+/// @file
+/// @brief Manages a reusable RPC session and its connection lifetime.
 
 #pragma once
 

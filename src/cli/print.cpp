@@ -1,6 +1,8 @@
-// XRM: Executes CLI RPC requests and formats their human/machine results.
-// The JSON branch keeps the wire result/error shape; presentation changes
-// belong in the human branch and must preserve stderr and exit-code behavior.
+/// @file
+/// @brief Executes CLI RPC requests and formats their human/machine results.
+///
+/// The JSON branch keeps the wire result/error shape; presentation changes
+/// belong in the human branch and must preserve stderr and exit-code behavior.
 
 #include "cli/command_options.hpp"
 #include "cli/presentation.hpp"

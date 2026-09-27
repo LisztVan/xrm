@@ -1,4 +1,6 @@
-// XRM: Tests forms in the domain and editor behavior suite.
+/// @file
+/// @brief Checks structured edits touch only owned native fields and preserve
+/// rule matches.
 
 #include <catch2/catch_test_macros.hpp>
 

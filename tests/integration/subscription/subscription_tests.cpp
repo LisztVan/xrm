@@ -1,5 +1,6 @@
-// XRM: Tests subscription in the client, daemon, persistence, and Xray
-// integration suite.
+/// @file
+/// @brief Checks atomic source commits, revision conflicts, and non-destructive
+/// refresh.
 
 #include <catch2/catch_test_macros.hpp>
 

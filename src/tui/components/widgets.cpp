@@ -1,6 +1,8 @@
-// XRM: Implements shared TUI controls, forms, tables, dialogs, and toasts.
-// Controls own focus/rendering, but edit caller-owned values; page code owns
-// business state and persistence. Keep key handling consistent across pages.
+/// @file
+/// @brief Implements shared TUI controls, forms, tables, dialogs, and toasts.
+///
+/// Controls own focus/rendering, but edit caller-owned values; page code owns
+/// business state and persistence. Keep key handling consistent across pages.
 
 #include "tui/components/widgets.hpp"
 #include "tui/components/style.hpp"

@@ -1,4 +1,5 @@
-// XRM: Tests native in the domain and editor behavior suite.
+/// @file
+/// @brief Checks native outbound import preserves unknown nested fields.
 
 #include "xray/codecs/codec.hpp"
 

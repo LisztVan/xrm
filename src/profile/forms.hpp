@@ -1,4 +1,5 @@
-// XRM: Declares structured Profile and module form operations.
+/// @file
+/// @brief Declares structured Profile and module form operations.
 
 #pragma once
 

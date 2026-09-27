@@ -1,5 +1,5 @@
-// XRM: Tests rc04 in the client, daemon, persistence, and Xray integration
-// suite.
+/// @file
+/// @brief Checks real Xray stats and MetricsClient traffic-rate calculation.
 
 #include <catch2/catch_test_macros.hpp>
 

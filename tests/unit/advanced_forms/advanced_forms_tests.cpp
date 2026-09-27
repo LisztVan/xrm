@@ -1,4 +1,5 @@
-// XRM: Tests advanced forms in the domain and editor behavior suite.
+/// @file
+/// @brief Checks advanced native edits keep ownership and untouched fields.
 
 #include <catch2/catch_test_macros.hpp>
 

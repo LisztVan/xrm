@@ -1,4 +1,5 @@
-// XRM: Declares subscription and node-link parsing.
+/// @file
+/// @brief Declares subscription and node-link parsing.
 
 #pragma once
 

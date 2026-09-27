@@ -1,4 +1,5 @@
-// XRM: Declares the daemon RPC method router.
+/// @file
+/// @brief Declares the daemon RPC method router.
 
 #pragma once
 
@@ -7,6 +8,10 @@
 
 namespace xrm {
 
+/// @brief Translates a validated RPC envelope into a domain call.
+///
+/// Method-specific parameter checks and reply shapes belong here; saved
+/// state and runtime effects belong to Application and its services.
 class ApiRouter {
 public:
   explicit ApiRouter(Application &application);

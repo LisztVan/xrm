@@ -1,6 +1,8 @@
-// XRM: Maps supported native Xray object fields to structured Visual forms.
-// fields_for() describes only fields owned by Visual; update_object() edits
-// those paths in a copy of the original JSON so unknown fields survive.
+/// @file
+/// @brief Maps supported native Xray object fields to structured Visual forms.
+///
+/// fields_for() describes only fields owned by Visual; update_object() edits
+/// those paths in a copy of the original JSON so unknown fields survive.
 
 #include "tui/forms/native_form.hpp"
 #include "tui/components/style.hpp"

@@ -1,4 +1,5 @@
-// XRM: Declares non-destructive subscription node reconciliation.
+/// @file
+/// @brief Declares non-destructive subscription node reconciliation.
 
 #pragma once
 

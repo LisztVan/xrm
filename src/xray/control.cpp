@@ -1,4 +1,5 @@
-// XRM: Issues explicit control requests to the owned Xray process.
+/// @file
+/// @brief Issues Xray API control requests through bounded helper commands.
 
 #include "xray/control.hpp"
 
