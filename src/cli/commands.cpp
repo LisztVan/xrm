@@ -1,6 +1,7 @@
 #include "cli/command_options.hpp"
 #include "cli/commands.hpp"
 #include "cli/rpc_session.hpp"
+#include "cli/help.hpp"
 
 #include "contract/methods.hpp"
 #include "contract/wire.hpp"
@@ -20,10 +21,14 @@ void request_stats_watch_stop(int) { stop_stats_watch = 1; }
 int run_cli(int argc, char** argv) {
   Request request;
   request.socket = default_socket_path();
-  CLI::App app{"xrm: Xray node inventory and core registration"};
+  CLI::App app{"Manage Xray nodes, native configurations and the independent core", "xrm"};
   app.set_help_flag("-h,--help", "Show this help message");
+#ifdef XRM_VERSION
+  app.set_version_flag("--version", std::string("xrm ") + XRM_VERSION);
+#endif
   app.add_option("--socket", request.socket, "xrmd Unix domain socket");
   app.add_flag("--json", request.json, "Write machine readable output");
+  app.add_flag("--verbose", request.verbose, "Include original diagnostics in human errors");
   app.fallthrough();
 
   auto* server = app.add_subcommand("server", "Server operations");
@@ -52,9 +57,13 @@ int run_cli(int argc, char** argv) {
   tui->add_option("--profile", tui_profile, "Initial Profile ID");
   tui->callback([&request] { request.method = "tui"; });
 
+  configure_help(app);
+
   try {
     app.parse(argc, argv);
   } catch (const CLI::CallForHelp& error) {
+    return app.exit(error);
+  } catch (const CLI::CallForVersion& error) {
     return app.exit(error);
   } catch (const CLI::ParseError& error) {
     if (request.json) {
@@ -62,15 +71,25 @@ int run_cli(int argc, char** argv) {
                                       std::nullopt, std::nullopt};
       std::cerr << Json{{"error", error_to_json(app_error)}}.dump() << '\n';
     } else {
-      std::cerr << error.what() << '\n';
+      const auto& context = parsed_context(app);
+      std::string reason = error.what();
+      if (reason.find("--header格式必须为KEY=VALUE") != std::string::npos)
+        reason = "--header must use KEY=VALUE format";
+      else if (reason.find("sub edit至少需要一个变更选项") != std::string::npos)
+        reason = "sub edit requires at least one change option";
+      else if (reason.find("--node与--group不能同时指定") != std::string::npos)
+        reason = "--node and --group cannot be used together";
+      std::cerr << command_path(context) << ": " << reason << "\n\n"
+                << app.help();
     }
     return error.get_exit_code();
   }
 
   if (request.method.empty()) {
-    std::cerr << "请选择 server、core、node、profile、config、settings、connect、status、logs 或 tui 命令\n";
-    return 2;
+    std::cout << app.help();
+    return 0;
   }
+  request.command = command_path(parsed_context(app));
   if (request.method == "tui") return run_tui(request.socket, tui_profile);
   if (auto handled = execute_geodata_cli(request)) return *handled;
   if (auto handled = execute_routing_preset_cli(request)) return *handled;
@@ -83,11 +102,12 @@ int run_cli(int argc, char** argv) {
       const auto old_term = std::signal(SIGTERM, request_stats_watch_stop);
       while (!stop_stats_watch) {
         auto sample = session.call(request.method, Json{{"watch", true}});
-        result = print_result(request, sample);
+        result = print_watch_result(request, sample);
+        if (result == watch_consumer_closed) { result = 0; break; }
         if (result != 0) break;
         std::this_thread::sleep_for(std::chrono::seconds(2));
       }
-      (void)session.call(request.method, Json{{"watch", false}});
+      if (std::cout) (void)session.call(request.method, Json{{"watch", false}});
       std::signal(SIGINT, old_int);
       std::signal(SIGTERM, old_term);
     } else {

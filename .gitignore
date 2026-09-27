@@ -1,3 +1,11 @@
 /build/
+/build-*/
+/out/
+/.deps/
+/.codex/
+/.agents/bin/
+/.agents/skills/tui-design/
 /cmake-build-*/
 compile_commands.json
+__pycache__/
+*.pyc

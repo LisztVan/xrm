@@ -67,6 +67,31 @@ ActivationRequest activation(BuildRequest build) {
 }
 }  // namespace
 
+TEST_CASE("core output EOF finishes incomplete log tails after check and run", "[LIFE][log-eof]") {
+  Services services;
+  LogBuffer logs;
+  services.manager->on_output([&](LogStream stream, std::string bytes) {
+    logs.append(stream, bytes);
+  });
+  services.manager->on_output_closed([&](LogStream stream) { logs.finish(stream); });
+  auto build = request(services.temp, "log-eof", {{"XRM_FAKE_CORE_RUN_HANG", "1"},
+      {"XRM_FAKE_CORE_STDOUT_HEX", "7461696c3ae4b8"}});
+  bool stopped = false;
+  REQUIRE(services.manager->activate(activation(std::move(build)), [&](auto result) {
+    REQUIRE(result);
+    REQUIRE(services.manager->stop([&](auto stop_result) {
+      REQUIRE(stop_result);
+      stopped = true;
+    }));
+  }));
+  uv_run(&services.event_loop.loop, UV_RUN_DEFAULT);
+  REQUIRE(stopped);
+  std::string output;
+  for (const auto &entry : logs.read_after(0, 65536).entries)
+    if (entry.stream == LogStream::core_stdout) output += entry.text;
+  CHECK(output == "tail:\\xE4\\xB8tail:\\xE4\\xB8");
+}
+
 TEST_CASE("LIFE-01 checks and starts the same candidate and persists active RunRecord", "[LIFE-01]") {
   Services services;
   const auto check_argv = services.temp.path / "check.argv";

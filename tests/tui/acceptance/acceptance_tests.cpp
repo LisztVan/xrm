@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -79,13 +80,25 @@ struct Child {
 
 // tmux holds the current 80x24 terminal grid, including styling. PTY read
 // buffers below include old redraws, so they cannot prove a row is visible now.
+bool visibly_emphasized(std::string_view styled_grid, std::string_view token);
+
 class CapturedTui {
  public:
-  explicit CapturedTui(const std::filesystem::path& socket)
+  explicit CapturedTui(const std::filesystem::path& socket,
+                       const std::vector<std::string>& environment = {})
       : tmux_socket_("xrm-acceptance-" + std::to_string(::getpid()) + "-" +
                      std::to_string(sequence_.fetch_add(1))) {
-    const auto launch = "exec " + std::string(XRM_TEST_MANAGER) + " --socket " +
-                        socket.string() + " tui";
+    const auto quote = [](const std::string& value) {
+      std::string result = "'";
+      for (char c : value) { if (c == '\'') result += "'\\''"; else result += c; }
+      return result + "'";
+    };
+    const auto root = socket.parent_path();
+    std::string launch = "exec env";
+    for (const auto& name : {"HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_RUNTIME_DIR"})
+      launch += " " + quote(std::string(name) + "=" + (root / name).string());
+    for (const auto& value : environment) launch += " " + quote(value);
+    launch += " " + quote(XRM_TEST_MANAGER) + " --socket " + quote(socket.string()) + " tui";
     started_ = invoke({"new-session", "-d", "-s", "xrm", "-x", "80", "-y", "24", launch}).first == 0;
   }
   CapturedTui(const CapturedTui&) = delete;
@@ -93,10 +106,16 @@ class CapturedTui {
   ~CapturedTui() { if (started_) (void)invoke({"kill-server"}); }
   bool started() const { return started_; }
   bool type(std::string_view value) const {
-    return invoke({"send-keys", "-t", "xrm", "-l", std::string(value)}).first == 0;
+    const bool sent = invoke({"send-keys", "-t", "xrm", "-l", "--", std::string(value)}).first == 0;
+    ::poll(nullptr, 0, 60); return sent;
   }
   bool key(std::string_view value) const {
-    return invoke({"send-keys", "-t", "xrm", std::string(value)}).first == 0;
+    const bool sent = invoke({"send-keys", "-t", "xrm", std::string(value)}).first == 0;
+    ::poll(nullptr, 0, value == "Escape" ? 130 : 45); return sent;
+  }
+  bool repeat_key(std::string_view value, int count) const {
+    const bool sent = invoke({"send-keys", "-t", "xrm", "-N", std::to_string(count), std::string(value)}).first == 0;
+    ::poll(nullptr, 0, 60); return sent;
   }
   bool resize(int width, int height) const {
     return invoke({"resize-window", "-t", "xrm", "-x", std::to_string(width),
@@ -110,9 +129,9 @@ class CapturedTui {
         return screen.find("[" + std::string(name) + "]") != std::string_view::npos;
       });
     });
-    for (int i = 0; i < 3 && grid().find("Focus: TopNav") == std::string::npos; ++i) {
+    for (int i = 0; i < 3 && grid().find("TopNav") == std::string::npos; ++i) {
       if (!key("Escape")) return false;
-      (void)wait_for([](std::string_view screen) { return screen.find("Focus: TopNav") != std::string_view::npos; });
+      (void)wait_for([](std::string_view screen) { return screen.find("TopNav") != std::string_view::npos; });
     }
     const auto current = grid();
     auto from = names.size(), to = names.size();
@@ -128,12 +147,12 @@ class CapturedTui {
     }).find("[" + std::string(title) + "]") != std::string::npos;
   }
   bool secondary_section(std::string_view name) const {
-    if (grid().find("Focus: TopNav") != std::string::npos && !key("Enter")) return false;
-    (void)wait_for([](std::string_view screen) { return screen.find("Focus: SecondaryNav") != std::string_view::npos; });
-    if (grid().find("Focus: SecondaryNav") == std::string::npos) return false;
+    if (grid().find("TopNav") != std::string::npos && !key("Enter")) return false;
+    (void)wait_for([](std::string_view screen) { return screen.find("SecondaryNav") != std::string_view::npos; });
+    if (grid().find("SecondaryNav") == std::string::npos) return false;
     for (int i = 0; i < 32; ++i) {
       const auto before = grid();
-      if (before.find("[" + std::string(name) + "]") != std::string::npos) return true;
+      if (visibly_emphasized(grid(true), " " + std::string(name))) return true;
       if (!key("Tab")) return false;
       (void)wait_for([&](std::string_view current) { return current != before; },
                      std::chrono::seconds(1));
@@ -141,16 +160,17 @@ class CapturedTui {
     return false;
   }
   bool content() const {
-    if (grid().find("Focus: TopNav") != std::string::npos && !key("Enter")) return false;
+    (void)wait_for([](std::string_view screen) { return screen.find("TopNav") != std::string_view::npos || screen.find("SecondaryNav") != std::string_view::npos || screen.find("Content") != std::string_view::npos; });
+    if (grid().find("TopNav") != std::string::npos && !key("Enter")) return false;
     auto current = wait_for([](std::string_view screen) {
-      return screen.find("Focus: SecondaryNav") != std::string_view::npos ||
-             screen.find("Focus: Content") != std::string_view::npos;
+      return screen.find("SecondaryNav") != std::string_view::npos ||
+             screen.find("Content") != std::string_view::npos;
     });
-    if (current.find("Focus: SecondaryNav") != std::string::npos) {
+    if (current.find("SecondaryNav") != std::string::npos) {
       if (!key("Enter")) return false;
-      current = wait_for([](std::string_view screen) { return screen.find("Focus: Content") != std::string_view::npos; });
+      current = wait_for([](std::string_view screen) { return screen.find("Content") != std::string_view::npos; });
     }
-    return current.find("Focus: Content") != std::string::npos;
+    return current.find("Content") != std::string::npos;
   }
   std::string grid(bool styled = false) const {
     auto args = std::vector<std::string>{"capture-pane", "-p", "-t", "xrm"};
@@ -268,7 +288,13 @@ class Daemon {
     return false;
   }
   const std::filesystem::path& socket() const { return socket_; }
-  ~Daemon() { if (pid_ > 0) { ::kill(pid_, SIGTERM); ::waitpid(pid_, nullptr, 0); } }
+  void stop() {
+    if (pid_ <= 0) return;
+    ::kill(pid_, SIGTERM);
+    ::waitpid(pid_, nullptr, 0);
+    pid_ = -1;
+  }
+  ~Daemon() { stop(); }
  private:
   std::vector<char*> child_environment(const std::vector<std::string>& additions) {
     std::vector<std::string> values;
@@ -506,7 +532,7 @@ bool visible_selected_row(std::string_view grid, std::string_view name) {
   for (std::size_t first = 0; first < grid.size();) {
     const auto last = grid.find('\n', first);
     const auto line = grid.substr(first, last == std::string_view::npos ? last : last - first);
-    if (line.find("▸") != std::string_view::npos && line.find(name) != std::string_view::npos)
+    if ((line.find("> ") != std::string_view::npos || line.find("▸") != std::string_view::npos) && line.find(name) != std::string_view::npos)
       return true;
     if (last == std::string_view::npos) break;
     first = last + 1;
@@ -514,10 +540,11 @@ bool visible_selected_row(std::string_view grid, std::string_view name) {
   return false;
 }
 
-bool visibly_inverted(std::string_view styled_grid, std::string_view label) {
+bool visibly_emphasized(std::string_view styled_grid, std::string_view label) {
   const auto at = styled_grid.find(label);
   if (at == std::string_view::npos) return false;
   bool inverted = false;
+  bool bold = false;
   for (std::size_t position = 0; position < at;) {
     const auto start = styled_grid.find("\x1b[", position);
     if (start == std::string_view::npos || start >= at) break;
@@ -530,12 +557,41 @@ bool visibly_inverted(std::string_view styled_grid, std::string_view label) {
       const auto part = parameters.substr(first, next == std::string_view::npos ? next : next - first);
       if (part.empty() || part == "0" || part == "27") inverted = false;
       if (part == "7") inverted = true;
+      if (part.empty() || part == "0" || part == "22") bold = false;
+      if (part == "1") bold = true;
       if (next == std::string_view::npos) break;
       first = next + 1;
     }
     position = end + 1;
   }
-  return inverted;
+  return inverted || bold;
+}
+void expect_text(const CapturedTui& tui, std::string_view text) {
+  const auto grid = tui.wait_for([&](std::string_view current) { return current.find(text) != std::string_view::npos; });
+  INFO("expected=" << text << "\n" << grid); REQUIRE(grid.find(text) != std::string::npos);
+}
+// Receipts are transient overlays. Verify their durable history through the
+// public Help action instead of depending on a toast surviving PTY polling.
+void expect_notification(const CapturedTui& tui, std::string_view message) {
+  REQUIRE(tui.key("F1")); expect_text(tui, "Help & actions");
+  REQUIRE(tui.key("Home"));
+  bool selected = false;
+  for (int i = 0; i < 40; ++i) {
+    if (visible_selected_row(tui.grid(), "Notification history")) { selected = true; break; }
+    REQUIRE(tui.key("Down"));
+  }
+  REQUIRE(selected); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.key("End")); // The newest receipt can be below the dialog viewport.
+  expect_text(tui, message); REQUIRE(tui.key("Escape"));
+}
+void replace_input(const CapturedTui& tui, std::string_view value, int max_chars = 512) {
+  REQUIRE(tui.key("Home")); REQUIRE(tui.repeat_key("Delete", max_chars)); REQUIRE(tui.type(value));
+}
+void edit_module(const CapturedTui& tui, std::string_view module) {
+  REQUIRE(tui.top_page("Profiles")); REQUIRE(tui.content()); REQUIRE(tui.type("e"));
+  expect_text(tui, "Module Edit enabled");
+  REQUIRE(tui.top_page("Modules")); REQUIRE(tui.secondary_section(module)); REQUIRE(tui.content());
+  expect_text(tui, "Source editable");
 }
 } // namespace
 
@@ -544,9 +600,9 @@ TEST_CASE("TUI navigation shows one matching selected tab in the current termina
   Daemon daemon(temp.path); REQUIRE(daemon.start());
   CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
   const std::array<std::pair<std::string_view, std::string_view>, 7> pages{{
-      {"Overview", "XRM Dashboard"}, {"Profiles", "Profiles"},
-      {"Modules", "No profile selected"}, {"Subscriptions", "Subscriptions —"},
-      {"Nodes", "Nodes —"}, {"Logs", "Logs —"}, {"Config", "Config"},
+      {"Overview", "Runtime"}, {"Profiles", "Profiles"},
+      {"Modules", "View a Profile"}, {"Subscriptions", "No subscriptions"},
+      {"Nodes", "No nodes"}, {"Logs", "Following"}, {"Config", "Config"},
   }};
   for (std::size_t index = 0; index < pages.size(); ++index) {
     const auto& [title, body] = pages[index];
@@ -558,13 +614,13 @@ TEST_CASE("TUI navigation shows one matching selected tab in the current termina
     INFO("page=" << index + 1 << " grid=" << grid);
     REQUIRE(grid.find(label) != std::string::npos);
     REQUIRE(grid.find(body) != std::string::npos);
-    CHECK(visibly_inverted(tui.grid(true), label));
+    CHECK(visibly_emphasized(tui.grid(true), label));
   }
   REQUIRE(tui.key("Tab"));
   const auto wrapped = tui.wait_for([](std::string_view grid) {
     return grid.find("[Overview]") != std::string_view::npos;
   });
-  CHECK(wrapped.find("XRM Dashboard") != std::string::npos);
+  CHECK(wrapped.find("Runtime") != std::string::npos);
   REQUIRE(tui.key("BTab"));
   const auto reversed = tui.wait_for([](std::string_view grid) {
     return grid.find("[Config]") != std::string_view::npos;
@@ -581,8 +637,8 @@ TEST_CASE("TUI navigation shows one matching selected tab in the current termina
   }).find("[Config]") != std::string::npos);
   REQUIRE(tui.secondary_section("Appearance"));
   const auto appearance = tui.wait_for([](std::string_view grid) {
-    return grid.find("[Appearance]") != std::string_view::npos &&
-           grid.find("Appearance settings") != std::string_view::npos;
+    return grid.find("Appearance") != std::string_view::npos &&
+           grid.find("theme") != std::string_view::npos;
   });
   CHECK(appearance.find("[Config]") != std::string::npos);
   REQUIRE(tui.top_page("Nodes"));
@@ -603,34 +659,34 @@ TEST_CASE("P1 layered Tab enters secondary navigation and keeps both bars at the
   REQUIRE(tui.top_page("Nodes"));
   auto grid = tui.wait_for([](std::string_view value) {
     return value.find("[Nodes]") != std::string_view::npos &&
-           value.find("Focus: TopNav") != std::string_view::npos;
+           value.find("TopNav") != std::string_view::npos;
   });
-  REQUIRE(grid.find("Focus: TopNav") != std::string::npos);
+  REQUIRE(grid.find("TopNav") != std::string::npos);
   REQUIRE(tui.key("Enter"));
   grid = tui.wait_for([](std::string_view value) {
-    return value.find("Focus: SecondaryNav") != std::string_view::npos;
+    return value.find("SecondaryNav") != std::string_view::npos;
   });
   REQUIRE(grid.find("[Nodes]") != std::string::npos);
   REQUIRE(tui.key("Tab"));
   grid = tui.wait_for([](std::string_view value) {
-    return value.find("Focus: SecondaryNav") != std::string_view::npos &&
+    return value.find("SecondaryNav") != std::string_view::npos &&
            value.find("[Nodes]") != std::string_view::npos &&
-           value.find("[Local]") != std::string_view::npos;
+           value.find("Local") != std::string_view::npos;
   });
   CHECK(grid.find("[Nodes]") != std::string::npos);
   REQUIRE(tui.key("Enter"));
   grid = tui.wait_for([](std::string_view value) {
-    return value.find("Focus: Content") != std::string_view::npos;
+    return value.find("Content") != std::string_view::npos;
   });
   REQUIRE(grid.find("[Nodes]") != std::string::npos);
   REQUIRE(tui.key("Escape"));
   CHECK(tui.wait_for([](std::string_view value) {
-    return value.find("Focus: SecondaryNav") != std::string_view::npos;
-  }).find("Focus: SecondaryNav") != std::string::npos);
+    return value.find("SecondaryNav") != std::string_view::npos;
+  }).find("SecondaryNav") != std::string::npos);
   REQUIRE(tui.key("Escape"));
   CHECK(tui.wait_for([](std::string_view value) {
-    return value.find("Focus: TopNav") != std::string_view::npos;
-  }).find("Focus: TopNav") != std::string::npos);
+    return value.find("TopNav") != std::string_view::npos;
+  }).find("TopNav") != std::string::npos);
 }
 
 TEST_CASE("P1 terminal below 80x24 protects and restores the current session", "[P1-SIZE][TUI]") {
@@ -667,242 +723,126 @@ TEST_CASE("P1 node table header and cells share display columns", "[P1-TABLE][TU
   REQUIRE(tui.top_page("Nodes"));
   REQUIRE(tui.secondary_section("Local"));
   const auto grid = tui.wait_for([](std::string_view value) {
-    return value.find("Name") != std::string_view::npos &&
+    return value.find("Node") != std::string_view::npos &&
            value.find("Short") != std::string_view::npos;
   });
-  const auto header_start = grid.rfind('\n', grid.find("State"));
+  const auto header_start = grid.rfind('\n', grid.find("Protocol"));
   const auto row_start = grid.rfind('\n', grid.find("Short"));
   REQUIRE(header_start != std::string::npos);
   REQUIRE(row_start != std::string::npos);
   const auto name_column = ftxui::string_width(std::string_view(grid).substr(
-      header_start + 1, grid.find("Name", header_start) - header_start - 1));
+      header_start + 1, grid.find("Node", header_start) - header_start - 1));
   const auto value_column = ftxui::string_width(std::string_view(grid).substr(
       row_start + 1, grid.find("Short", row_start) - row_start - 1));
   CHECK(name_column == value_column);
 
   REQUIRE_FALSE(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE,
                                      "--name", "table-core"}).empty());
-  REQUIRE(tui.top_page("Config"));
+  REQUIRE(tui.top_page("Config")); REQUIRE(tui.content()); REQUIRE(tui.type("r"));
   const auto core_grid = tui.wait_for([](std::string_view value) {
     return value.find("table-core") != std::string_view::npos &&
-           value.find("system") != std::string_view::npos;
+           value.find("registered") != std::string_view::npos &&
+           value.find("history in Help") == std::string_view::npos;
   });
+  INFO(core_grid);
   const auto core_line_start = core_grid.rfind('\n', core_grid.find("table-core"));
   REQUIRE(core_line_start != std::string::npos);
   const auto core_line_end = core_grid.find('\n', core_line_start + 1);
   const auto core_line = core_grid.substr(core_line_start + 1, core_line_end - core_line_start - 1);
-  const auto origin_at = core_line.find("system");
+  const auto origin_at = core_line.find("registered");
   REQUIRE(origin_at != std::string::npos);
-  CHECK((origin_at > 0 && core_line[origin_at - 1] == ' ')); // Long version must not bleed into Origin.
+  CHECK((origin_at > 0 && core_line[origin_at - 1] == ' ')); // Long version must not bleed into State.
 }
 
-TEST_CASE("P3 Profile creation chooses Desktop TUN or Custom before name", "[P3-TEMPLATE][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
+TEST_CASE("P3 Profile creation edits name core and preset in one form", "[P3-TEMPLATE][TUI]") {
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
   CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Profiles"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("n"));
-  const auto chooser = tui.wait_for([](std::string_view grid) {
-    return grid.find("Desktop") != std::string_view::npos &&
-           grid.find("TUN") != std::string_view::npos &&
-           grid.find("Custom") != std::string_view::npos;
-  });
-  CHECK(chooser.find("Desktop") != std::string::npos);
-  REQUIRE(tui.type("3"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("New custom Profile name") != std::string_view::npos;
-  }).find("New custom Profile name") != std::string::npos);
-  REQUIRE(tui.type("Custom Draft"));
-  REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("Profile created and selected for use") != std::string_view::npos;
-  }).find("Profile created and selected for use") != std::string::npos);
-  const auto profiles = Json::parse(cli(daemon.socket(), {"profile", "list"}));
-  REQUIRE(profiles.size() == 1);
-  const auto modules = Json::parse(cli(daemon.socket(), {"config", "modules",
-      profiles.front().at("id").get<std::string>()}));
-  REQUIRE(modules.is_array());
-  CHECK(modules.size() == 15);
-  CHECK(std::all_of(modules.begin(), modules.end(), [](const Json& item) {
-    return !item.value("included", false);
-  }));
-}
-
-TEST_CASE("P3 Modules secondary tabs show the selected native source without opening an editor", "[P3-MODULE-TABS][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  const auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}));
-  REQUIRE(created.contains("id"));
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  const auto first = tui.wait_for([](std::string_view grid) {
-    return grid.find("[log]") != std::string_view::npos &&
-           grid.find("\"loglevel\"") != std::string_view::npos;
-  });
-  CHECK(first.find("\"loglevel\"") != std::string::npos);
-  REQUIRE(tui.key("Enter")); // select the second navigation layer
-  REQUIRE(tui.key("Tab"));
-  const auto dns = tui.wait_for([](std::string_view grid) {
-    return grid.find("[dns]") != std::string_view::npos &&
-           grid.find("\"dns\"") != std::string_view::npos;
-  });
-  CHECK(dns.find("\"dns\"") != std::string::npos);
-  CHECK(dns.find("Source") != std::string::npos);
-}
-
-TEST_CASE("P3 module key selector keeps a far-right native tab visible at 80 columns", "[P3-MODULE-NAV][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  REQUIRE_FALSE(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}).empty());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("f"));
-  const auto finder = tui.wait_for([](std::string_view grid) {
-    return grid.find("Find native module key") != std::string_view::npos;
-  });
-  CHECK(finder.find("Find native module key") != std::string::npos);
-  REQUIRE(tui.type("burstObservatory")); REQUIRE(tui.key("Enter"));
-  const auto selected = tui.wait_for([](std::string_view grid) {
-    return grid.find("[burstObservatory]") != std::string_view::npos &&
-           grid.find("burstObservatory") != std::string_view::npos;
-  });
-  CHECK(selected.find("[burstObservatory]") != std::string::npos);
-  CHECK(visibly_inverted(tui.grid(true), "[burstObservatory]"));
-}
-
-TEST_CASE("P3 Modules runtime toggle does not silently render or start a stopped Profile", "[P3-RUNTIME][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  REQUIRE_FALSE(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}).empty());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("v"));
-  const auto grid = tui.wait_for([](std::string_view value) {
-    return value.find("Runtime preview unavailable") != std::string_view::npos;
-  });
-  CHECK(grid.find("Runtime preview unavailable") != std::string::npos);
+  REQUIRE(tui.top_page("Profiles")); REQUIRE(tui.content()); REQUIRE(tui.type("n"));
+  expect_text(tui, "new Profile");
+  REQUIRE(tui.type("Custom Draft")); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Tab"));
+  REQUIRE(tui.key("Home")); REQUIRE(tui.key("Down")); REQUIRE(tui.key("Enter"));
+  expect_text(tui, "Custom (all modules disabled)"); REQUIRE(tui.key("C-s"));
+  expect_text(tui, "Custom Draft saved");
+  const auto profiles = Json::parse(cli(daemon.socket(), {"profile", "list"})); REQUIRE(profiles.size() == 1);
+  const auto modules = Json::parse(cli(daemon.socket(), {"config", "modules", profiles.front().at("id").get<std::string>()}));
+  REQUIRE(modules.size() == 15);
+  CHECK(std::all_of(modules.begin(), modules.end(), [](const Json& item) { return !item.value("included", false); }));
   CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
 }
 
-TEST_CASE("P3 structured module edit changes the same unsaved native draft", "[P3-STRUCT][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
+TEST_CASE("P3 Modules secondary tabs show the selected native source without opening an editor", "[P3-MODULE-TABS][TUI]") {
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Desk"})); REQUIRE(created.contains("id"));
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Modules"));
+  expect_text(tui, "Xray logging"); REQUIRE(tui.secondary_section("dns"));
+  expect_text(tui, "DNS servers"); expect_text(tui, "Source read-only");
+  CHECK(visibly_emphasized(tui.grid(true), " dns "));
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P3 module key selector keeps a far-right native tab visible at 80 columns", "[P3-MODULE-NAV][TUI]") {
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  REQUIRE_FALSE(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Modules"));
+  REQUIRE(tui.secondary_section("burstObservatory"));
+  expect_text(tui, "Burst observatory");
+  CHECK(visibly_emphasized(tui.grid(true), " burstObservatory"));
+  REQUIRE(tui.resize(120, 40)); CHECK(visibly_emphasized(tui.grid(true), " burstObservatory"));
+}
+
+TEST_CASE("P3 Modules runtime toggle does not silently render or start a stopped Profile", "[P3-RUNTIME][TUI]") {
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  REQUIRE_FALSE(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Modules")); REQUIRE(tui.content());
+  REQUIRE(tui.type("v")); expect_text(tui, "Runtime belongs to none");
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+}
+
+TEST_CASE("P3 semantic module form changes the same unsaved native draft", "[P3-STRUCT][TUI]") {
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
   const auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}));
   const auto id = created.at("id").get<std::string>();
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("loglevel") != std::string_view::npos &&
-           grid.find("Visual") != std::string_view::npos;
-  }).find("loglevel") != std::string::npos);
-  const auto structured = tui.wait_for([](std::string_view grid) {
-    return grid.find("Visual") != std::string_view::npos;
-  });
-  CHECK(structured.find("Visual") != std::string::npos);
-  REQUIRE(tui.type("a"));
-  REQUIRE(tui.type("iterationFlag")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("true")); REQUIRE(tui.key("Enter"));
-  const auto changed = tui.wait_for([](std::string_view grid) {
-    return grid.find("iterationFlag") != std::string_view::npos &&
-           grid.find("[unsaved]") != std::string_view::npos;
-  });
-  INFO("structured grid=" << changed);
-  CHECK(changed.find("iterationFlag") != std::string::npos);
-  auto before = Json::parse(cli(daemon.socket(), {"config", "show", id,
-      "--module-key", "log", "--source", "source"}));
-  CHECK(before.at("text").get<std::string>().find("iterationFlag") == std::string::npos);
-  REQUIRE(tui.key("C-s"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("saved source text") != std::string_view::npos;
-  }).find("saved source text") != std::string::npos);
-  auto after = Json::parse(cli(daemon.socket(), {"config", "show", id,
-      "--module-key", "log", "--source", "source"}));
-  INFO("saved source=" << after.dump());
-  CHECK(Json::parse(after.at("text").get<std::string>()).at("log").at("iterationFlag") == true);
+  const std::string original = R"({"log":{"loglevel":"warning","iterationFlag":true}})";
+  REQUIRE_FALSE(cli(daemon.socket(), {"config", "edit", id, "log", "--text", original}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); edit_module(tui, "log");
+  REQUIRE(tui.key("Enter")); expect_text(tui, "loglevel");
+  REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Home")); REQUIRE(tui.repeat_key("Down", 2)); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.key("C-s")); expect_text(tui, "Unsaved *");
+  CHECK(Json::parse(cli(daemon.socket(), {"config", "show", id, "--module-key", "log", "--source", "source"})).at("text") == original);
+  REQUIRE(tui.key("F2")); expect_text(tui, "iterationFlag");
+  REQUIRE(tui.key("C-s")); expect_notification(tui, "Saved Desk / log");
+  const auto saved = Json::parse(cli(daemon.socket(), {"config", "show", id, "--module-key", "log", "--source", "source"}));
+  const auto body = Json::parse(saved.at("text").get<std::string>());
+  CHECK(body.at("log").at("iterationFlag") == true); CHECK(body.at("log").at("loglevel") == "info");
   CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
 }
 
 TEST_CASE("P5 routing preset is previewed before saving native routing source", "[P5-PRESET-UI][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
   const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Desk"}));
   const auto id = profile.at("id").get<std::string>();
-  const auto before = Json::parse(cli(daemon.socket(), {"config", "show", id,
-      "--module-key", "routing", "--source", "source"})).at("text").get<std::string>();
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  REQUIRE(tui.secondary_section("routing"));
-  REQUIRE(tui.content());
-  const auto routing_grid = tui.wait_for([](std::string_view grid) {
-    return grid.find("[routing]") != std::string_view::npos;
-  });
-  INFO("routing grid=" << routing_grid);
-  REQUIRE(routing_grid.find("[routing]") != std::string::npos);
-  REQUIRE(tui.type("p"));
-  const auto menu = tui.wait_for([](std::string_view grid) {
-    return grid.find("Routing preset") != std::string_view::npos &&
-           grid.find("Direct only") != std::string_view::npos;
-  });
-  CHECK(menu.find("Direct only") != std::string::npos);
-  CHECK(Json::parse(cli(daemon.socket(), {"config", "show", id,
-      "--module-key", "routing", "--source", "source"})).at("text") == before);
-  REQUIRE(tui.type("4"));
-  const auto preview = tui.wait_for([](std::string_view grid) {
-    return grid.find("JSON diff") != std::string_view::npos;
-  });
-  CHECK(preview.find("JSON diff") != std::string::npos);
-  for (int i = 0; i < 8; ++i) REQUIRE(tui.key("Down"));
-  CHECK(tui.wait_for([](std::string_view grid) {
-    return grid.find("outboundTag") != std::string_view::npos;
-  }).find("outboundTag") != std::string::npos);
-  REQUIRE(tui.key("Escape"));
-  CHECK(Json::parse(cli(daemon.socket(), {"config", "show", id,
-      "--module-key", "routing", "--source", "source"})).at("text") == before);
-  REQUIRE(tui.type("p4"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("JSON diff") != std::string_view::npos;
-  }).find("JSON diff") != std::string::npos);
-  REQUIRE(tui.type("y"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("Routing preset saved") != std::string_view::npos;
-  }).find("Routing preset saved") != std::string::npos);
-  const auto saved = Json::parse(cli(daemon.socket(), {"config", "show", id,
-      "--module-key", "routing", "--source", "source"})).at("text").get<std::string>();
-  CHECK(saved != before);
-  CHECK(Json::parse(saved).at("routing").at("rules").is_array());
+  auto source = [&] { return Json::parse(cli(daemon.socket(), {"config", "show", id, "--module-key", "routing", "--source", "source"})).at("text").get<std::string>(); };
+  const auto before = source();
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); edit_module(tui, "routing");
+  auto preview = [&] {
+    REQUIRE(tui.type("p")); expect_text(tui, "Routing preset");
+    REQUIRE(tui.key("Home")); REQUIRE(tui.repeat_key("Down", 3)); REQUIRE(tui.key("Enter")); REQUIRE(tui.key("C-s"));
+    expect_text(tui, "Review routing changes");
+  };
+  preview(); CHECK(source() == before); REQUIRE(tui.key("Escape")); CHECK(source() == before);
+  preview(); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Enter")); expect_text(tui, "Routing preset saved");
+  const auto saved = source(); CHECK(saved != before); CHECK(Json::parse(saved).at("routing").at("rules").is_array());
   CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
 }
 
 TEST_CASE("P5 Config Geodata adds a shared resource without changing the running core", "[P5-GEODATA-UI][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Config"));
-  REQUIRE(tui.secondary_section("Geodata"));
-  REQUIRE(tui.content());
-  const auto page = tui.wait_for([](std::string_view grid) {
-    return grid.find("[Geodata]") != std::string_view::npos &&
-           grid.find("Shared Geodata") != std::string_view::npos;
-  });
-  CHECK(page.find("Shared Geodata") != std::string::npos);
-  REQUIRE(tui.type("a"));
-  REQUIRE(tui.type("China IP")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("geoip")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("geoip.dat")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("http://127.0.0.1:9/geoip.dat")); REQUIRE(tui.key("Enter"));
-  const auto listed = tui.wait_for([](std::string_view grid) {
-    return grid.find("China IP") != std::string_view::npos &&
-           grid.find("not downloaded") != std::string_view::npos;
-  });
-  CHECK(listed.find("China IP") != std::string::npos);
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Config")); REQUIRE(tui.secondary_section("Geodata")); REQUIRE(tui.content());
+  REQUIRE(tui.type("a")); expect_text(tui, "Add Geodata resource");
+  REQUIRE(tui.type("China IP")); REQUIRE(tui.repeat_key("Tab", 4)); REQUIRE(tui.type("http://127.0.0.1:9/geoip.dat"));
+  REQUIRE(tui.key("C-s")); expect_text(tui, "China IP saved");
   const auto resources = raw_rpc(daemon.socket(), "geodata.list", Json::object());
-  REQUIRE(resources.value("ok", false));
-  REQUIRE(resources.at("result").size() == 1);
+  REQUIRE(resources.value("ok", false)); REQUIRE(resources.at("result").size() == 1);
   CHECK(resources.at("result").front().value("name", "") == "China IP");
   CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
 }
@@ -930,36 +870,15 @@ TEST_CASE("P5 Config Geodata validates and binds a local asset from the real TUI
   const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "geo-ui",
       "--core", core.at("id").get<std::string>()}));
   REQUIRE(profile.contains("id"));
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Config"));
-  REQUIRE(tui.secondary_section("Geodata"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("a"));
-  REQUIRE(tui.type("Geo local")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("geoip")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("geoip.dat")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type(asset.string())); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("Geo local") != std::string_view::npos &&
-           grid.find("not downloaded") != std::string_view::npos;
-  }).find("Geo local") != std::string::npos);
-  REQUIRE(tui.type("u"));
-  const auto updated = tui.wait_for([](std::string_view grid) {
-    return grid.find("Geodata validated and cached") != std::string_view::npos;
-  }, std::chrono::seconds(15));
-  INFO("Geodata update grid: " << updated);
-  REQUIRE(updated.find("Geodata validated and cached") != std::string::npos);
-  REQUIRE(tui.type("b"));
-  const auto bound = tui.wait_for([](std::string_view grid) {
-    return grid.find("Profile asset binding saved") != std::string_view::npos;
-  });
-  INFO("Geodata binding grid: " << bound);
-  REQUIRE(bound.find("Profile asset binding saved") != std::string::npos);
-  CHECK(bound.find("bound to viewed Profile") != std::string::npos);
-  const auto shown = Json::parse(cli(daemon.socket(), {"profile", "show",
-      profile.at("id").get<std::string>()}));
+CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Config")); REQUIRE(tui.secondary_section("Geodata")); REQUIRE(tui.content());
+  REQUIRE(tui.type("a")); expect_text(tui, "Add Geodata resource"); REQUIRE(tui.type("Geo local")); REQUIRE(tui.repeat_key("Tab", 3));
+  REQUIRE(tui.key("Down")); REQUIRE(tui.key("Enter")); REQUIRE(tui.key("Tab")); REQUIRE(tui.type(asset.string())); REQUIRE(tui.key("C-s")); expect_text(tui, "Geo local saved");
+  REQUIRE(tui.type("u")); expect_text(tui, "Update resource: completed"); REQUIRE(tui.type("b")); expect_text(tui, "Geodata for geo-ui");
+  REQUIRE(tui.key("Space")); REQUIRE(tui.key("C-s")); expect_text(tui, "bindings saved");
+  const auto shown = Json::parse(cli(daemon.socket(), {"profile", "show", profile.at("id").get<std::string>()}));
   CHECK(shown.at("geodata_resource_ids").contains("geoip.dat"));
   CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+
 }
 
 TEST_CASE("P4 TCP test is an explicit RPC operation and leaves runtime stopped", "[P4-RPC][TUI]") {
@@ -1001,32 +920,19 @@ TEST_CASE("P4 and P5 resources live in Config secondary navigation", "[P4-CONFIG
            value.find("Tests") != std::string_view::npos &&
            value.find("General") != std::string_view::npos;
   });
-  CHECK(grid.find("[Core]") != std::string::npos);
+  CHECK(grid.find("Core") != std::string::npos);
   CHECK(grid.find("Geodata") != std::string::npos);
   CHECK(grid.find("Tests") != std::string::npos);
 }
 
 TEST_CASE("Nodes Add exposes a real Local form and Group action", "[UI-LOCAL][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("a"));
-  const auto add = tui.wait_for([](std::string_view grid) {
-    return grid.find("Add outlet") != std::string_view::npos &&
-           grid.find("Manual node") != std::string_view::npos &&
-           grid.find("Group") != std::string_view::npos;
-  });
-  REQUIRE(add.find("Add outlet") != std::string::npos);
-  REQUIRE(tui.type("1"));
-  const auto protocol = tui.wait_for([](std::string_view grid) {
-    return grid.find("Protocol") != std::string_view::npos &&
-           grid.find("vless") != std::string_view::npos;
-  });
-  CHECK(protocol.find("vless") != std::string::npos);
-  REQUIRE(tui.key("Escape"));
-  REQUIRE(tui.type("q"));
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  REQUIRE_FALSE(cli(daemon.socket(), {"profile", "create", "--name", "Objects"}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.content());
+  REQUIRE(tui.type("a")); expect_text(tui, "Add node"); expect_text(tui, "Name"); expect_text(tui, "Protocol");
+  REQUIRE(tui.key("Escape")); REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.secondary_section("Groups")); REQUIRE(tui.content());
+  REQUIRE(tui.type("a")); expect_text(tui, "Add Group"); expect_text(tui, "Selection mode");
+  CHECK(Json::parse(cli(daemon.socket(), {"node", "list"})).value("total", 0) == 0);
 }
 
 TEST_CASE("Config Core removes only an unused managed install", "[UI-CORE][CLI]") {
@@ -1046,10 +952,10 @@ TEST_CASE("Config Core removes only an unused managed install", "[UI-CORE][CLI]"
     CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
     REQUIRE(tui.top_page("Config"));
     const auto grid = tui.wait_for([](std::string_view screen) {
-      return screen.find("Viewing Profile: uses-core") != std::string_view::npos &&
-             screen.find("selected") != std::string_view::npos;
+      return screen.find("View uses-core") != std::string_view::npos &&
+             screen.find("managed") != std::string_view::npos;
     });
-    CHECK(grid.find("selected") != std::string::npos);
+    CHECK(grid.find("managed") != std::string::npos);
     REQUIRE(tui.type("q"));
   }
   CHECK(cli(daemon.socket(), {"core", "remove", "managed-v-test"}).empty());
@@ -1068,143 +974,48 @@ TEST_CASE("Config Core removes only an unused managed install", "[UI-CORE][CLI]"
 
 TEST_CASE("Config appearance and editor preferences persist across Manager sessions without Xray edits",
           "[UI-CONFIG][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
   const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Home"}));
-  const auto profile_id = profile.value("id", "");
-  REQUIRE_FALSE(profile_id.empty());
-  const auto before = raw_rpc(daemon.socket(), "module.get",
-      Json{{"profile_id", profile_id}, {"module", "routing"}});
-  REQUIRE(before.value("ok", false));
+  const auto id = profile.at("id").get<std::string>();
+  const auto before = raw_rpc(daemon.socket(), "module.get", {{"profile_id", id}, {"module", "routing"}});
   {
-    CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-    REQUIRE(tui.top_page("Config"));
-    REQUIRE(tui.secondary_section("Appearance"));
-    REQUIRE(tui.content());
-    REQUIRE(tui.wait_for([](std::string_view grid) {
-      return grid.find("[Appearance]") != std::string_view::npos;
-    }).find("Appearance settings") != std::string::npos);
-    REQUIRE(tui.type("ts"));
-    REQUIRE(tui.wait_for([](std::string_view grid) {
-      return grid.find("Appearance saved") != std::string_view::npos;
-    }).find("Appearance saved") != std::string::npos);
-    REQUIRE(tui.top_page("Config"));
-    REQUIRE(tui.secondary_section("Editor"));
-    REQUIRE(tui.content());
-    REQUIRE(tui.type("e"));
-    REQUIRE(tui.type("[\"/bin/true\"]")); REQUIRE(tui.key("Enter"));
-    REQUIRE(tui.wait_for([](std::string_view grid) {
-      return grid.find("Editor argv saved") != std::string_view::npos;
-    }).find("Editor argv saved") != std::string::npos);
-    REQUIRE(tui.type("q"));
+    CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Config"));
+    REQUIRE(tui.secondary_section("Appearance")); REQUIRE(tui.content()); REQUIRE(tui.type("e")); expect_text(tui, "XRM appearance");
+    REQUIRE(tui.key("Home")); REQUIRE(tui.key("Down")); REQUIRE(tui.key("Enter")); REQUIRE(tui.key("C-s")); expect_text(tui, "appearance saved");
+    REQUIRE(tui.top_page("Config")); REQUIRE(tui.secondary_section("Editor")); REQUIRE(tui.content()); REQUIRE(tui.type("e"));
+    expect_text(tui, "External editor"); REQUIRE(tui.type("/bin/true")); REQUIRE(tui.key("C-s")); expect_text(tui, "External editor saved");
   }
-  const auto saved = raw_rpc(daemon.socket(), "settings.get", Json::object());
-  REQUIRE(saved.value("ok", false));
-  CHECK(saved.at("result").at("appearance").at("theme") == "dark");
-  CHECK(saved.at("result").at("editor").at("argv") == Json::array({"/bin/true"}));
-  const auto after = raw_rpc(daemon.socket(), "module.get",
-      Json{{"profile_id", profile_id}, {"module", "routing"}});
-  REQUIRE(after.value("ok", false));
-  CHECK(after.at("result").at("text") == before.at("result").at("text"));
-  CapturedTui reopened(daemon.socket()); REQUIRE(reopened.started());
-  REQUIRE(reopened.top_page("Config"));
-  REQUIRE(reopened.secondary_section("Appearance"));
-  REQUIRE(reopened.content());
-  CHECK(reopened.wait_for([](std::string_view grid) {
-    return grid.find("Theme [t] \"dark\"") != std::string_view::npos;
-  }).find("Theme [t] \"dark\"") != std::string::npos);
-  REQUIRE(reopened.type("t"));
-  REQUIRE(reopened.wait_for([](std::string_view grid) {
-    return grid.find("Previewing unsaved appearance") != std::string_view::npos;
-  }).find("Previewing unsaved appearance") != std::string::npos);
-  REQUIRE(reopened.key("Escape"));
-  CHECK(reopened.wait_for([](std::string_view grid) {
-    return grid.find("Theme [t] \"dark\"") != std::string_view::npos &&
-           grid.find("Appearance preview cancelled") != std::string_view::npos;
-  }).find("Theme [t] \"dark\"") != std::string::npos);
-  REQUIRE(reopened.top_page("Config"));
-  REQUIRE(reopened.secondary_section("Editor"));
-  REQUIRE(reopened.content());
-  CHECK(reopened.wait_for([](std::string_view grid) {
-    return grid.find("Explicit editor argv: [\"/bin/true\"]") != std::string_view::npos;
-  }).find("Explicit editor argv: [\"/bin/true\"]") != std::string::npos);
-  REQUIRE(reopened.type("q"));
+  const auto saved = raw_rpc(daemon.socket(), "settings.get", Json::object()); REQUIRE(saved.value("ok", false));
+  CHECK(saved["result"]["appearance"]["theme"] == "dark"); CHECK(saved["result"]["editor"]["argv"] == Json::array({"/bin/true"}));
+  CHECK(raw_rpc(daemon.socket(), "module.get", {{"profile_id", id}, {"module", "routing"}})["result"]["text"] == before["result"]["text"]);
+  CapturedTui reopened(daemon.socket()); REQUIRE(reopened.started()); REQUIRE(reopened.top_page("Config")); REQUIRE(reopened.secondary_section("Appearance"));
+  expect_text(reopened, "XRM Slate"); REQUIRE(reopened.content()); REQUIRE(reopened.type("e")); expect_text(reopened, "XRM appearance");
+  REQUIRE(reopened.key("Down")); REQUIRE(reopened.key("Enter")); REQUIRE(reopened.key("Escape")); expect_text(reopened, "Unsaved form");
+  REQUIRE(reopened.key("Tab")); REQUIRE(reopened.key("Enter"));
+  CHECK(raw_rpc(daemon.socket(), "settings.get", Json::object())["result"]["appearance"]["theme"] == "dark");
+  REQUIRE(reopened.top_page("Config")); REQUIRE(reopened.secondary_section("Editor")); expect_text(reopened, "/bin/true");
 }
 
 TEST_CASE("UI-12 local VLESS form saves a manual node and Group as a Profile outlet", "[UI-12][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Profiles"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("n"));
-  REQUIRE(tui.type("Home")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("Profile created and selected for use") != std::string_view::npos;
-  }).find("Home") != std::string::npos);
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("a1"));
-  for (const auto& value : {"vless", "Local fixture", "127.0.0.1", "19001",
-                             "00000000-0000-4000-8000-000000000111", "raw", "none"}) {
-    REQUIRE(tui.type(value)); REQUIRE(tui.key("Enter"));
-  }
-  auto grid = tui.wait_for([](std::string_view screen) {
-    return screen.find("Manual node saved to Local") != std::string_view::npos &&
-           screen.find("Local fixture") != std::string_view::npos;
-  });
-  REQUIRE(grid.find("Local fixture") != std::string::npos);
-  REQUIRE(tui.type("/Local")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.wait_for([](std::string_view screen) {
-    return screen.find("Search: Local") != std::string_view::npos;
-  }).find("Local fixture") != std::string::npos);
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.secondary_section("All Subscriptions"));
-  CHECK(tui.wait_for([](std::string_view screen) {
-    return screen.find("[All Subscriptions]") != std::string_view::npos;
-  }).find("Search: —") != std::string::npos);
-  REQUIRE(tui.secondary_section("Local"));
-  CHECK(tui.wait_for([](std::string_view screen) {
-    return screen.find("[Local]") != std::string_view::npos;
-  }).find("Search: Local") != std::string::npos);
-  const auto listed = Json::parse(cli(daemon.socket(), {"node", "list", "--limit", "20"}));
-  REQUIRE(listed.value("total", 0) == 1);
-  const auto node_id = listed.at("items").at(0).value("id", "");
-  REQUIRE_FALSE(node_id.empty());
-  CHECK(listed.at("items").at(0).at("source_id").is_null());
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("a4"));
-  for (const auto& value : {"Local group", "automatic", "random", "local"}) {
-    REQUIRE(tui.type(value)); REQUIRE(tui.key("Enter"));
-  }
-  grid = tui.wait_for([](std::string_view screen) {
-    return screen.find("Group saved as a routing balancer") != std::string_view::npos &&
-           screen.find("Local group") != std::string_view::npos;
-  });
-  REQUIRE(grid.find("Local group") != std::string::npos);
-  const auto profiles = Json::parse(cli(daemon.socket(), {"profile", "list"}));
-  REQUIRE(profiles.size() == 1);
-  const auto profile_id = profiles.at(0).value("id", "");
-  const auto groups = Json::parse(cli(daemon.socket(), {"group", "list", profile_id}));
-  REQUIRE(groups.size() == 1);
-  CHECK(groups.at(0).value("name", "") == "Local group");
-  CHECK(groups.at(0).at("members").value("include_local", false));
-  REQUIRE(tui.top_page("Modules"));
-  grid = tui.wait_for([](std::string_view screen) {
-    return screen.find("routing") != std::string_view::npos;
-  });
-  CHECK(grid.find("routing") != std::string::npos);
-  REQUIRE(tui.secondary_section("routing"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("g"));
-  grid = tui.wait_for([](std::string_view screen) {
-    return screen.find("[Nodes]") != std::string_view::npos &&
-           screen.find("Local group") != std::string_view::npos &&
-           screen.find("Group selection is persistent") != std::string_view::npos;
-  });
-  CHECK(grid.find("Local group") != std::string::npos);
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.type("q"));
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Profiles")); REQUIRE(tui.content()); REQUIRE(tui.type("n"));
+  expect_text(tui, "new Profile"); REQUIRE(tui.type("Home")); REQUIRE(tui.key("C-s")); expect_text(tui, "Home saved");
+  REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.secondary_section("Local")); REQUIRE(tui.content()); REQUIRE(tui.type("a")); expect_text(tui, "Add node");
+  REQUIRE(tui.type("Local fixture")); REQUIRE(tui.repeat_key("Tab", 2)); replace_input(tui, "127.0.0.1"); REQUIRE(tui.key("Tab")); replace_input(tui, "19001");
+  REQUIRE(tui.key("Tab")); REQUIRE(tui.type("00000000-0000-4000-8000-000000000111")); REQUIRE(tui.key("C-s")); expect_text(tui, "Local fixture saved");
+  const auto listed = Json::parse(cli(daemon.socket(), {"node", "list", "--limit", "20"})); REQUIRE(listed.value("total", 0) == 1);
+  const auto node_id = listed["items"][0].at("id").get<std::string>(); CHECK(listed["items"][0]["source_id"].is_null());
+  REQUIRE(tui.type("/")); expect_text(tui, "Filter nodes"); REQUIRE(tui.type("Local")); REQUIRE(tui.key("C-s")); expect_text(tui, "Local fixture");
+  REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.secondary_section("Groups")); REQUIRE(tui.content()); REQUIRE(tui.type("a")); expect_text(tui, "Add Group");
+  REQUIRE(tui.type("Local group")); REQUIRE(tui.repeat_key("Tab", 4)); REQUIRE(tui.key("Space")); REQUIRE(tui.key("C-s")); expect_text(tui, "Local group saved");
+  const auto profiles = Json::parse(cli(daemon.socket(), {"profile", "list"})); REQUIRE(profiles.size() == 1);
+  const auto profile_id = profiles[0].at("id").get<std::string>();
+  const auto groups = Json::parse(cli(daemon.socket(), {"group", "list", profile_id})); REQUIRE(groups.size() == 1);
+  CHECK(groups[0].value("name", "") == "Local group"); CHECK(groups[0]["members"]["node_ids"] == Json::array({node_id}));
+  REQUIRE(tui.type("s")); expect_text(tui, "Target saved");
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}));
+  CHECK(profile.at("selected").at("kind") == "group"); CHECK(profile.at("selected").at("id_or_tag") == groups[0].at("id"));
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
 }
 
 TEST_CASE("TUI history preview cancels and confirms selected safe records", "[HISTORY-TUI]") {
@@ -1232,147 +1043,71 @@ TEST_CASE("TUI history preview cancels and confirms selected safe records", "[HI
   REQUIRE((*store)->put_node(different));
   store->reset();
   Daemon daemon(temp.path); REQUIRE(daemon.start());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Subscriptions"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("[Subscriptions]") != std::string_view::npos &&
-           grid.find("History Fixture") != std::string_view::npos;
-  }).find("History Fixture") != std::string::npos);
-  REQUIRE(tui.type("h"));
-  auto grid = tui.wait_for([](std::string_view value) {
-    return value.find("History cleanup") != std::string_view::npos &&
-           value.find("current 1") != std::string_view::npos &&
-           value.find("historical 2") != std::string_view::npos;
-  });
-  INFO("history preview grid: " << grid);
-  REQUIRE(grid.find("History cleanup") != std::string::npos);
+CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Subscriptions")); REQUIRE(tui.content()); expect_text(tui, "History Fixture");
+  REQUIRE(tui.type("h")); expect_text(tui, "History cleanup");
   CHECK(Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id})).value("history_count", 0) == 2);
   REQUIRE(tui.key("Escape"));
   CHECK(Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id})).value("history_count", 0) == 2);
-  REQUIRE(tui.type("h"));
-  grid = tui.wait_for([](std::string_view value) { return value.find("History cleanup") != std::string_view::npos; });
-  REQUIRE(grid.find("History cleanup") != std::string::npos);
-  // The fixture rows are ordered by stable ID; the distinct-name row is blocked.
-  REQUIRE(tui.key("Down"));
-  REQUIRE(tui.key("Space"));
-  REQUIRE(tui.type("c"));
-  grid = tui.wait_for([](std::string_view value) { return value.find("Confirm deletion") != std::string_view::npos; });
-  REQUIRE(grid.find("Confirm deletion") != std::string::npos);
-  REQUIRE(tui.key("Escape"));
+  REQUIRE(tui.type("h")); expect_text(tui, "History cleanup"); REQUIRE(tui.key("Space"));
+  REQUIRE(tui.key("Escape")); expect_text(tui, "Unsaved form"); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Enter"));
   CHECK(Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id})).value("history_count", 0) == 2);
-  REQUIRE(tui.type("c"));
-  REQUIRE(tui.type("y"));
-  grid = tui.wait_for([](std::string_view value) {
-    return value.find("Removed 1 selected historical records") != std::string_view::npos;
-  });
-  INFO("history result grid: " << grid);
-  REQUIRE(grid.find("Removed 1 selected historical records") != std::string::npos);
+  REQUIRE(tui.type("h")); expect_text(tui, "History cleanup"); REQUIRE(tui.key("Space")); REQUIRE(tui.key("C-s")); expect_text(tui, "History cleaned");
   const auto after = Json::parse(cli(daemon.socket(), {"node", "history", "preview", source.id}));
-  CHECK(after.value("current_count", 0) == 1);
-  CHECK(after.value("history_count", 0) == 1);
+  CHECK(after.value("current_count", 0) == 1); CHECK(after.value("history_count", 0) == 1);
   CHECK(after.at("candidates").front().value("id", "") == "old-different");
+
 }
 
-TEST_CASE("TUI offers confirmed local SOCKS repair for an existing empty-inbounds Profile", "[PROFILE-LOCAL-TUI][port10808]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  const auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE,
-                                                      "--name", "legacy fixture"}));
-  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Legacy",
-                                                         "--core", core.at("id").get<std::string>()}));
+TEST_CASE("TUI native inbound Add requires Edit and preserves a disabled module", "[PROFILE-LOCAL-TUI][port10808]") {
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Legacy"}));
   const auto id = profile.at("id").get<std::string>();
-  REQUIRE_FALSE(cli(daemon.socket(), {"config", "edit", id, "inbounds", "--text", "{\"inbounds\":[]}"}).empty());
+
+  const std::string original = R"({"inbounds":[]})";
+  REQUIRE_FALSE(cli(daemon.socket(), {"config", "edit", id, "inbounds", "--text", original}).empty());
   REQUIRE_FALSE(cli(daemon.socket(), {"config", "disable", id, "inbounds"}).empty());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  auto grid = tui.wait_for([](std::string_view value) {
-    return value.find("[Overview]") != std::string_view::npos &&
-           value.find("inbounds disabled") != std::string_view::npos;
-  });
-  INFO("legacy profile before repair: " << grid);
-  REQUIRE(grid.find("inbounds disabled") != std::string::npos);
-  const int occupied = ::socket(AF_INET, SOCK_STREAM, 0);
-  REQUIRE(occupied >= 0);
-  const int reuse = 1;
-  REQUIRE(::setsockopt(occupied, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == 0);
-  sockaddr_in occupied_address{};
-  occupied_address.sin_family = AF_INET;
-  occupied_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-  occupied_address.sin_port = htons(10808);
-  REQUIRE(::bind(occupied, reinterpret_cast<const sockaddr*>(&occupied_address), sizeof(occupied_address)) == 0);
-  REQUIRE(::listen(occupied, 1) == 0);
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("i"));
-  grid = tui.wait_for([](std::string_view value) {
-    return value.find("127.0.0.1:10808 is currently unavailable") != std::string_view::npos;
-  });
-  REQUIRE(grid.find("127.0.0.1:10808 is currently unavailable") != std::string::npos);
-  ::close(occupied);
-  REQUIRE(tui.type("i"));
-  grid = tui.wait_for([](std::string_view value) {
-    return value.find("Add local proxy entry") != std::string_view::npos &&
-           value.find("127.0.0.1:10808") != std::string_view::npos;
-  });
-  REQUIRE(grid.find("Add local proxy entry") != std::string::npos);
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.content()); REQUIRE(tui.type("i"));
+  expect_text(tui, "Source read-only"); REQUIRE(tui.key("Enter")); expect_text(tui, "Inbound listeners");
+  REQUIRE(tui.type("a"));
+  CHECK(raw_rpc(daemon.socket(), "module.get", {{"profile_id", id}, {"module", "inbounds"}})["result"]["text"] == original);
   REQUIRE(tui.key("Escape"));
-  auto before = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
-  REQUIRE(before.value("ok", false));
-  CHECK(before["result"].at("text") == "{\"inbounds\":[]}");
-  REQUIRE(tui.type("i"));
-  REQUIRE(tui.wait_for([](std::string_view value) {
-    return value.find("Add local proxy entry") != std::string_view::npos;
-  }).find("Add local proxy entry") != std::string::npos);
-  REQUIRE(tui.type("y"));
-  grid = tui.wait_for([](std::string_view value) {
-    return value.find("enable inbounds in Modules") != std::string_view::npos;
-  });
-  INFO("legacy profile after confirmed source save: " << grid);
-  REQUIRE(grid.find("enable inbounds in Modules") != std::string::npos);
-  auto after = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
-  REQUIRE(after.value("ok", false));
+
+  edit_module(tui, "inbounds"); REQUIRE(tui.key("Enter")); expect_text(tui, "Inbound listeners");
+  REQUIRE(tui.type("a")); expect_text(tui, "protocol"); REQUIRE(tui.key("Space")); REQUIRE(tui.key("Tab")); REQUIRE(tui.type("local-socks")); expect_text(tui, "local-socks"); REQUIRE(tui.key("Tab"));
+  REQUIRE(tui.key("Home")); REQUIRE(tui.repeat_key("Down", 4)); REQUIRE(tui.key("Enter")); expect_text(tui, "socks ›");
+  REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Space")); REQUIRE(tui.key("Tab")); REQUIRE(tui.type("127.0.0.1")); expect_text(tui, "127.0.0.1"); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Space")); REQUIRE(tui.key("Tab")); REQUIRE(tui.type("10808")); expect_text(tui, "10808");
+  REQUIRE(tui.key("C-s")); REQUIRE(tui.key("Escape")); expect_text(tui, "Unsaved *");
+  REQUIRE(tui.key("C-s")); expect_notification(tui, "Saved Legacy / inbounds");
+
+  const auto after = raw_rpc(daemon.socket(), "module.get", {{"profile_id", id}, {"module", "inbounds"}}); REQUIRE(after.value("ok", false));
   CHECK_FALSE(after["result"].value("included", true));
-  const auto body = Json::parse(after["result"].at("text").get<std::string>());
-  REQUIRE(body.at("inbounds").size() == 1);
-  CHECK(body["inbounds"][0].value("protocol", "") == "socks");
-  CHECK(body["inbounds"][0].value("listen", "") == "127.0.0.1");
-  CHECK(body["inbounds"][0].value("port", 0) == 10808);
+  const auto body = Json::parse(after["result"]["text"].get<std::string>());
+  REQUIRE(body.at("inbounds").size() == 1); CHECK(body["inbounds"][0]["protocol"] == "socks");
+  CHECK(body.at("inbounds").at(0).at("listen") == "127.0.0.1"); CHECK(body.at("inbounds").at(0).at("port") == 10808);
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
 }
 
 TEST_CASE("TUI local-use entry keeps an existing custom inbound intact", "[PROFILE-LOCAL-TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  const auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE,
-                                                      "--name", "custom fixture"}));
-  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Custom",
-                                                         "--core", core.at("id").get<std::string>()}));
+TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Legacy"}));
   const auto id = profile.at("id").get<std::string>();
-  const auto custom = R"({"inbounds":[{"tag":"my-server","listen":"127.0.0.1","port":14001,"protocol":"vless","settings":{"clients":[],"unknown":"kept"},"vendor":{"flag":true}}]})";
+
+  const std::string custom = R"({"inbounds":[{"tag":"my-server","listen":"127.0.0.1","port":14001,"protocol":"vless","settings":{"clients":[],"unknown":"kept"},"vendor":{"flag":true}}]})";
   REQUIRE_FALSE(cli(daemon.socket(), {"config", "edit", id, "inbounds", "--text", custom}).empty());
   CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.wait_for([](std::string_view value) {
-    return value.find("no local SOCKS entry") != std::string_view::npos;
-  }).find("no local SOCKS entry") != std::string::npos);
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("i"));
-  REQUIRE(tui.wait_for([](std::string_view value) {
-    return value.find("Existing inbounds are preserved") != std::string_view::npos;
-  }).find("Existing inbounds are preserved") != std::string::npos);
-  REQUIRE(tui.type("y"));
-  REQUIRE(tui.wait_for([](std::string_view value) {
-    return value.find("Local SOCKS 127.0.0.1:10808 saved") != std::string_view::npos;
-  }).find("Local SOCKS 127.0.0.1:10808 saved") != std::string::npos);
-  auto changed = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
-  REQUIRE(changed.value("ok", false));
-  const auto body = Json::parse(changed["result"].at("text").get<std::string>());
-  REQUIRE(body.at("inbounds").size() == 2);
-  CHECK(body["inbounds"][0] == Json::parse(custom).at("inbounds")[0]);
-  CHECK(body["inbounds"][1].value("protocol", "") == "socks");
-  const auto stale_creation = raw_rpc(daemon.socket(), "module.save", Json{
-      {"profile_id", id}, {"module", "inbounds"}, {"text", "{\"inbounds\":[]}"},
-      {"expected_absent", true}});
-  CHECK_FALSE(stale_creation.value("ok", true));
-  const auto after_rejected = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "inbounds"}});
-  CHECK(after_rejected.at("result").at("text") == changed.at("result").at("text"));
+
+  edit_module(tui, "inbounds"); REQUIRE(tui.key("Enter")); expect_text(tui, "Inbound listeners");
+  REQUIRE(tui.type("a")); expect_text(tui, "protocol"); REQUIRE(tui.key("Space")); REQUIRE(tui.key("Tab")); REQUIRE(tui.type("local-socks")); expect_text(tui, "local-socks"); REQUIRE(tui.key("Tab"));
+  REQUIRE(tui.key("Home")); REQUIRE(tui.repeat_key("Down", 4)); REQUIRE(tui.key("Enter")); expect_text(tui, "socks ›");
+  REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Space")); REQUIRE(tui.key("Tab")); REQUIRE(tui.type("127.0.0.1")); expect_text(tui, "127.0.0.1"); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Space")); REQUIRE(tui.key("Tab")); REQUIRE(tui.type("10808")); expect_text(tui, "10808");
+  REQUIRE(tui.key("C-s")); REQUIRE(tui.key("Escape")); expect_text(tui, "Unsaved *");
+  REQUIRE(tui.key("C-s")); expect_notification(tui, "Saved Legacy / inbounds");
+
+  const auto changed = raw_rpc(daemon.socket(), "module.get", {{"profile_id", id}, {"module", "inbounds"}}); REQUIRE(changed.value("ok", false));
+  const auto body = Json::parse(changed["result"]["text"].get<std::string>()); REQUIRE(body["inbounds"].size() == 2);
+  CHECK(body["inbounds"][0] == Json::parse(custom)["inbounds"][0]); CHECK(body["inbounds"][1]["protocol"] == "socks");
+  CHECK_FALSE(raw_rpc(daemon.socket(), "module.save", {{"profile_id", id}, {"module", "inbounds"}, {"text", "{\"inbounds\":[]}"}, {"expected_absent", true}}).value("ok", true));
+  CHECK(raw_rpc(daemon.socket(), "module.get", {{"profile_id", id}, {"module", "inbounds"}})["result"]["text"] == changed["result"]["text"]);
 }
 
 TEST_CASE("TUI node viewport follows the selected row across a 1205-node subscription", "[UI-SCROLL][TUI]") {
@@ -1400,75 +1135,26 @@ TEST_CASE("TUI node viewport follows the selected row across a 1205-node subscri
   REQUIRE_FALSE(updated.empty());
   const auto inventory = Json::parse(cli(daemon.socket(), {"node", "list", "--offset", "1200", "--limit", "100"}));
   REQUIRE(inventory.value("total", 0) == 1205);
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.content());
-  auto grid = tui.wait_for([](std::string_view value) {
-    return value.find("[Nodes]") != std::string_view::npos &&
-           value.find("1205 current") != std::string_view::npos;
-  }, std::chrono::seconds(15));
-  REQUIRE(grid.find("1205 current") != std::string::npos);
-  REQUIRE(tui.key("End"));
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
-  INFO("current terminal grid at End: " << grid);
-  REQUIRE(visible_selected_row(grid, "Node-1204"));
-  CHECK(grid.find("[Nodes]") != std::string::npos);
-  CHECK(visibly_inverted(tui.grid(true), "Node-1204"));
-  REQUIRE(tui.resize(60, 20));
-  grid = tui.wait_for([](std::string_view value) {
-    return value.find("Terminal too small") != std::string_view::npos;
-  });
-  REQUIRE(grid.find("Terminal too small") != std::string::npos);
-  REQUIRE(tui.resize(100, 32));
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
-  REQUIRE(visible_selected_row(grid, "Node-1204"));
+const auto last_name = inventory.at("items").back().value("name", "");
+  const auto first_name = Json::parse(cli(daemon.socket(), {"node", "list", "--limit", "1"}))["items"][0].value("name", "");
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.content());
+  expect_text(tui, first_name); REQUIRE(tui.key("End")); expect_text(tui, last_name);
+  CHECK(visible_selected_row(tui.grid(), last_name));
+  REQUIRE(tui.resize(60, 20)); expect_text(tui, "Terminal too small"); REQUIRE(tui.resize(100, 32)); expect_text(tui, last_name);
+  CHECK(visible_selected_row(tui.grid(), last_name));
   REQUIRE(tui.key("PPage"));
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1194"); });
-  CHECK(visible_selected_row(grid, "Node-1194"));
-  REQUIRE(tui.key("Home"));
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-0000"); });
-  CHECK(visible_selected_row(grid, "Node-0000"));
-  REQUIRE(tui.key("Up"));
-  CHECK(visible_selected_row(tui.wait_for([](std::string_view value) {
-    return visible_selected_row(value, "Node-0000");
-  }), "Node-0000"));
-  for (int count = 0; count < 20; ++count) REQUIRE(tui.key("Down"));
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-0020"); });
-  CHECK(visible_selected_row(grid, "Node-0020"));
-  REQUIRE(tui.key("Home"));
+  const auto previous = tui.wait_for([&](std::string_view text) { return !visible_selected_row(text, last_name); });
+  CHECK_FALSE(visible_selected_row(previous, last_name));
+  REQUIRE(tui.key("Home")); expect_text(tui, first_name); CHECK(visible_selected_row(tui.grid(), first_name));
+  REQUIRE(tui.key("Up")); CHECK(visible_selected_row(tui.grid(), first_name));
   REQUIRE(tui.key("NPage"));
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-0010"); });
-  CHECK(visible_selected_row(grid, "Node-0010"));
-  REQUIRE(tui.key("End"));
-  REQUIRE(visible_selected_row(tui.wait_for([](std::string_view value) {
-    return visible_selected_row(value, "Node-1204");
-  }), "Node-1204"));
-  REQUIRE(tui.top_page("Subscriptions"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.wait_for([](std::string_view value) { return value.find("[Subscriptions]") != std::string_view::npos; })
-              .find("[Subscriptions]") != std::string::npos);
-  REQUIRE(tui.type("u"));
-  const auto refreshed = tui.wait_for([](std::string_view value) {
-    return value.find("[Subscriptions]") != std::string_view::npos &&
-           value.find("success") != std::string_view::npos;
-  }, std::chrono::seconds(15));
-  CHECK(refreshed.find("success") != std::string::npos);
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.content());
-  grid = tui.wait_for([](std::string_view value) { return visible_selected_row(value, "Node-1204"); });
-  CHECK(visible_selected_row(grid, "Node-1204"));
-  CHECK(valid_utf8(grid));
-  REQUIRE(tui.type("/"));
-  REQUIRE(tui.type("Node-1204"));
-  REQUIRE(tui.key("Enter"));
-  grid = tui.wait_for([](std::string_view value) {
-    return value.find("showing 1") != std::string_view::npos &&
-           visible_selected_row(value, "Node-1204");
-  });
-  CHECK(grid.find("showing 1") != std::string::npos);
-  CHECK(visible_selected_row(grid, "Node-1204"));
-  REQUIRE(tui.top_page("Subscriptions"));
-  REQUIRE(tui.type("q"));
+  CHECK_FALSE(visible_selected_row(tui.wait_for([&](std::string_view text) { return !visible_selected_row(text, first_name); }), first_name));
+  REQUIRE(tui.key("End")); expect_text(tui, last_name);
+  REQUIRE(tui.top_page("Subscriptions")); REQUIRE(tui.content()); REQUIRE(tui.type("u")); expect_text(tui, "completed");
+  REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.content()); expect_text(tui, last_name); CHECK(visible_selected_row(tui.grid(), last_name));
+  REQUIRE(tui.type("/")); expect_text(tui, "Filter nodes"); REQUIRE(tui.type(last_name)); REQUIRE(tui.key("C-s")); expect_text(tui, last_name);
+  const auto filtered = tui.grid(); CHECK(valid_utf8(filtered)); CHECK_FALSE(visible_selected_row(filtered, first_name)); CHECK(visible_selected_row(tui.grid(), last_name));
+
 }
 
 TEST_CASE("80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter input", "[UI-01][I52]") {
@@ -1488,1070 +1174,246 @@ TEST_CASE("80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter 
   auto core_json = Json::parse(core_text);
   const auto profile_text = cli(daemon.socket(), {"profile", "create", "--name", "tui", "--core", core_json.at("id").get<std::string>()});
   const auto profile = Json::parse(profile_text).at("id").get<std::string>();
-  auto tui = start_tui(daemon.socket(), profile); REQUIRE(tui.pid > 0);
-  auto initial = read_screen(tui.master, std::chrono::milliseconds(1500));
-  int initial_status = 0;
-  const auto initial_wait = ::waitpid(tui.pid, &initial_status, WNOHANG);
-  INFO("initial PTY bytes=" << initial.size() << " screen=" << initial << " child_wait=" << initial_wait
-       << " child_status=" << initial_status);
-  CHECK(initial.find("? Help") != std::string::npos);
-  keys(tui.master, "?");
-  const auto help = read_screen(tui.master);
-  INFO("help PTY bytes=" << help.size() << " screen=" << help);
-  CHECK(help.find("Help") != std::string::npos);
-  CHECK(help.find("Tab") != std::string::npos);
-  keys(tui.master, "\x1b");
-  keys(tui.master, "\t");
-  const auto tabbed = read_screen(tui.master);
-  CHECK(tabbed.find("[Profiles]") != std::string::npos);
-  keys(tui.master, "\x1b[Z");
-  const auto shifted = read_screen(tui.master);
-  INFO("shift-tab PTY bytes=" << shifted.size() << " screen=" << shifted);
-  CHECK(shifted.find("Overview") != std::string::npos);
-  navigate_content(tui.master, 0, 4);
-  keys(tui.master, "\x1b"); // Content -> SecondaryNav.
-  (void)read_screen(tui.master);
-  keys(tui.master, "\t"); // Local.
-  (void)read_screen(tui.master);
-  keys(tui.master, "\r"); // SecondaryNav -> Content.
-  auto first = read_screen(tui.master);
-  INFO("nodes initial screen=" << first);
-  CHECK(first.find("alpha-node") != std::string::npos);
-  CHECK(valid_utf8(first));
-  keys(tui.master, "/qe ");
-  auto filter_input = read_screen(tui.master);
-  int status = 0;
-  CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
-  CHECK(filter_input.find("Filter nodes: qe ") != std::string::npos);
-  keys(tui.master, "\x1b");
-  keys(tui.master, "/中文");
-  keys(tui.master, "\r");
-  auto chinese = read_screen(tui.master);
-  INFO("Chinese node screen=" << chinese);
-  CHECK(chinese.find("中文节点") != std::string::npos);
-  CHECK(valid_utf8(chinese));
-  keys(tui.master, "/node");
-  keys(tui.master, "\r");
-  auto emoji = read_screen(tui.master);
-  INFO("emoji node screen=" << emoji);
-  CHECK(emoji.find("🚀-node") != std::string::npos);
-  CHECK(valid_utf8(emoji));
-  keys(tui.master, "/node");
-  keys(tui.master, "\r");
-  keys(tui.master, "\x1b[B");
-  keys(tui.master, "r");
-  const auto refreshed = read_screen(tui.master, std::chrono::milliseconds(500));
-  INFO("selection after refresh=" << refreshed);
-  CHECK(visible_selected_row(refreshed, "🚀-node"));
-  CHECK(valid_utf8(refreshed));
-  keys(tui.master, "/long");
-  keys(tui.master, "\r");
-  auto long_name = read_screen(tui.master);
-  INFO("long name screen=" << long_name);
-  CHECK(long_name.find("long-") != std::string::npos);
-  CHECK(valid_utf8(long_name));
-  navigate_top(tui.master, 4, 4);
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
+CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); expect_text(tui, "F1");
+  REQUIRE(tui.key("F1")); expect_text(tui, "Help"); expect_text(tui, "Tab"); REQUIRE(tui.key("Escape"));
+  REQUIRE(tui.key("Tab")); expect_text(tui, "[Profiles]"); REQUIRE(tui.key("BTab")); expect_text(tui, "[Overview]");
+  REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.secondary_section("Local")); REQUIRE(tui.content()); expect_text(tui, "alpha-node");
+  REQUIRE(tui.type("/")); expect_text(tui, "Filter nodes"); REQUIRE(tui.type("q e u p ? "));
+  expect_text(tui, "q e u p ?"); REQUIRE(tui.key("F1")); expect_text(tui, "Help & actions"); REQUIRE(tui.key("Escape"));
+  replace_input(tui, "中文"); REQUIRE(tui.key("C-s")); expect_text(tui, "中文节点"); CHECK(valid_utf8(tui.grid()));
+  REQUIRE(tui.type("/")); expect_text(tui, "Filter nodes"); replace_input(tui, "node"); REQUIRE(tui.key("C-s")); expect_text(tui, "🚀-node"); CHECK(valid_utf8(tui.grid()));
+  REQUIRE(tui.key("End")); REQUIRE(tui.type("r"));
+  const auto refreshed = tui.wait_for([](std::string_view screen) { return visible_selected_row(screen, "🚀-node"); });
+  CHECK(visible_selected_row(refreshed, "🚀-node")); CHECK(valid_utf8(refreshed));
+  REQUIRE(tui.type("/")); expect_text(tui, "Filter nodes"); replace_input(tui, "long"); REQUIRE(tui.key("C-s")); expect_text(tui, "long-"); CHECK(valid_utf8(tui.grid()));
+  REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.type("q"));
+
+}
+
+// These cases drive current terminal grids and the component contract. The
+// original source/runtime/process invariants remain; sequential prompts and
+// old debug footer strings are deliberately not part of the new interface.
+namespace {
+Json rpc_value(const Daemon& daemon, std::string method, Json params = Json::object()) {
+  auto response = raw_rpc(daemon.socket(), std::move(method), std::move(params));
+  INFO(response.dump()); REQUIRE(response.value("ok", false)); return response.at("result");
+}
+std::string core_profile(const Daemon& daemon, const std::string& name) {
+  auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE, "--name", "fixture"}));
+  auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", name, "--core", core.at("id").get<std::string>()}));
+  return profile.at("id").get<std::string>();
+}
+Json wait_state(const Daemon& daemon, std::string_view state) {
+  Json status;
+  for (int i=0;i<160;++i) { status=rpc_value(daemon,"runtime.status");if(status.value("state","")==state)return status;::poll(nullptr,0,50); }
+  INFO(status.dump()); REQUIRE(status.value("state","")==state); return status;
+}
+std::string direct_node(const Daemon& daemon, const std::string& name) {
+  return rpc_value(daemon,"node.add",{{"name",name},{"outbound",{{"protocol","freedom"},{"settings",Json::object()}}}}).at("id").get<std::string>();
+}
+void select_direct(const Daemon& daemon,const std::string& profile,const std::string& node) {
+  rpc_value(daemon,"connection.select",{{"profile_id",profile},{"target",{{"kind","node"},{"id_or_tag",node}}}});
+}
+void discard_dialog(const CapturedTui& tui) {
+  REQUIRE(tui.key("Escape"));expect_text(tui,"Unsaved");REQUIRE(tui.key("Tab"));REQUIRE(tui.key("Enter"));
+}
+std::optional<unsigned> first_log(std::string_view grid) {
+  auto pos=grid.find("XRM_FAKE_CORE_LOG_");if(pos==std::string_view::npos)return {};
+  return unsigned(std::stoul(std::string(grid.substr(pos+18,4))));
+}
+void add_subscription_ui(const CapturedTui& tui,const std::string& name,const std::string& url) {
+  REQUIRE(tui.top_page("Subscriptions"));REQUIRE(tui.content());REQUIRE(tui.type("a"));expect_text(tui,"Add subscription");
+  REQUIRE(tui.type(name));REQUIRE(tui.key("Tab"));REQUIRE(tui.type(url));REQUIRE(tui.key("C-s"));expect_text(tui,"Subscription "+name+" saved");
+}
 }
 
 TEST_CASE("UI-02/T25 logs expose pause and resume actions on the actual TUI", "[UI-02][T25][I52]") {
-  TempDir temp;
-  auto store = Store::open(temp.path / "state.sqlite"); REQUIRE(store);
-  Node node; node.id = "log-node"; node.original_name = "logs";
-  node.settings = RawOutbound{Json{{"protocol", "freedom"}, {"settings", Json::object()}}};
-  REQUIRE((*store)->put_node(node));
-  store->reset();
-  Daemon daemon(temp.path);
-  REQUIRE(daemon.start());
-  auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE, "--name", "log fixture"}));
-  auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "logs", "--core", core.at("id").get<std::string>()}));
-  REQUIRE(!profile.value("id", "").empty());
-  set_profile_process_environment(daemon.socket(), temp.path, profile.at("id").get<std::string>(), Json{
-      {"XRM_FAKE_CORE_STDOUT", "BOOT_LOG_MARKER"},
-      {"XRM_FAKE_CORE_LOG_COUNT", "1000"},
-      {"XRM_FAKE_CORE_LOG_INTERVAL_MS", "10"}});
-  REQUIRE(!cli(daemon.socket(), {"select", "node", profile.at("id").get<std::string>(), "log-node"}).empty());
-  const auto connect_result = cli(daemon.socket(), {"connect", profile.at("id").get<std::string>()});
-  REQUIRE(!connect_result.empty());
-  bool running = false;
-  const auto running_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
-  while (!running && std::chrono::steady_clock::now() < running_deadline) {
-    const auto status = cli(daemon.socket(), {"status"});
-    if (!status.empty()) running = Json::parse(status).value("state", "") == "running";
-    if (!running) ::poll(nullptr, 0, 20);
+  TempDir temp;Daemon daemon(temp.path);REQUIRE(daemon.start());const auto id=core_profile(daemon,"logs");
+  select_direct(daemon,id,direct_node(daemon,"logs"));
+  set_profile_process_environment(daemon.socket(),temp.path,id,{{"XRM_FAKE_CORE_LOG_COUNT","10000"},{"XRM_FAKE_CORE_LOG_INTERVAL_MS","10"}});
+  rpc_value(daemon,"connection.connect",{{"profile_id",id}});wait_state(daemon,"running");
+  {
+    CapturedTui tui(daemon.socket());REQUIRE(tui.started());REQUIRE(tui.top_page("Logs"));REQUIRE(tui.content());expect_text(tui,"XRM_FAKE_CORE_LOG_");expect_text(tui,"Following");
+    REQUIRE(tui.key("F1"));expect_text(tui,"Pause reading");REQUIRE(tui.key("Escape"));
+    auto first=first_log(tui.grid());REQUIRE(first);auto followed=tui.wait_for([&](std::string_view g){auto v=first_log(g);return v&&*v>*first;});REQUIRE(first_log(followed)>first);
+    REQUIRE(tui.type("p"));expect_text(tui,"Paused");auto paused=first_log(tui.grid());REQUIRE(paused);
+    ::poll(nullptr,0,1200);CHECK(first_log(tui.grid())==paused);CHECK(tui.grid().find("new ")!=std::string::npos);
+    REQUIRE(tui.key("PPage"));CHECK(first_log(tui.grid())<paused);REQUIRE(tui.type("p"));
+    auto resumed=tui.wait_for([&](std::string_view g){return g.find("Following")!=std::string_view::npos&&first_log(g)>paused;});CHECK(first_log(resumed)>paused);
+    CHECK(resumed.find("Viewport top:")==std::string::npos);REQUIRE(tui.top_page("Logs"));REQUIRE(tui.type("q"));
   }
-  REQUIRE(running);
-
-  auto tui = start_tui(daemon.socket(), profile.at("id").get<std::string>());
-  REQUIRE(tui.pid > 0);
-  read_screen(tui.master, std::chrono::milliseconds(700));
-  navigate_content(tui.master, 0, 5);
-  auto logs = terminal_text(read_screen(tui.master, std::chrono::milliseconds(1000)));
-  CHECK(logs.find("Logs — FOLLOW") != std::string::npos);
-  keys(tui.master, "?");
-  const auto help = terminal_text(read_screen(tui.master));
-  CHECK(help.find("Logs: p pause/resume") != std::string::npos);
-  keys(tui.master, "\x1b");
-  read_screen(tui.master);
-  const auto followed_top = log_view_top(logs);
-  REQUIRE(followed_top.has_value());
-  CHECK(logs.find("XRM_FAKE_CORE_LOG_") != std::string::npos);
-  auto followed_again = terminal_text(read_screen(tui.master, std::chrono::milliseconds(500)));
-  const auto followed_top_again = log_view_top(followed_again);
-  REQUIRE(followed_top_again.has_value());
-  CHECK(*followed_top_again > *followed_top);
-  keys(tui.master, "p");
-  auto paused = terminal_text(read_screen(tui.master));
-  CHECK(paused.find("PAUSED") != std::string::npos);
-  const auto paused_top = log_view_top(paused);
-  REQUIRE(paused_top.has_value());
-  auto background = terminal_text(read_screen(tui.master, std::chrono::milliseconds(600)));
-  CHECK(background.find("new logs:") != std::string::npos);
-  CHECK(log_view_top(background) == paused_top);
-  keys(tui.master, "\x1b[A");
-  auto history = terminal_text(read_screen(tui.master));
-  CHECK(log_view_top(history).value_or(*paused_top) < *paused_top);
-  keys(tui.master, "p");
-  auto resumed = wait_screen_text(tui.master, [&](const std::string& text) {
-    const auto top = log_view_top(text);
-    return text.find("FOLLOW") != std::string::npos && top && *top > *paused_top;
-  });
-  CHECK(resumed.find("FOLLOW") != std::string::npos);
-  const auto resumed_top = log_view_top(resumed);
-  REQUIRE(resumed_top.has_value());
-  CHECK(*resumed_top > *paused_top);
-  navigate_top(tui.master, 5, 5);
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
-  const auto after_exit = Json::parse(cli(daemon.socket(), {"status"}));
-  CHECK(after_exit.value("state", "") == "running");
+  CHECK(rpc_value(daemon,"runtime.status").value("state","")=="running");
 }
 
 TEST_CASE("UI-03 overview distinguishes the saved target from the running target", "[UI-03][I52]") {
-  TempDir temp;
-  auto store = Store::open(temp.path / "state.sqlite"); REQUIRE(store);
-  for (const auto& [id, name] : std::vector<std::pair<std::string, std::string>>{
-      {"target-a", "Target A"}, {"target-b", "Target B"}}) {
-    Node node; node.id = id; node.original_name = name;
-    node.settings = RawOutbound{Json{{"protocol", "freedom"}, {"settings", Json::object()}}};
-    REQUIRE((*store)->put_node(node));
-  }
-  store->reset();
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE, "--name", "target fixture"}));
-  auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "targets", "--core", core.at("id").get<std::string>()}));
-  const auto profile_id = profile.at("id").get<std::string>();
-  REQUIRE(!cli(daemon.socket(), {"select", "node", profile_id, "target-a"}).empty());
-  REQUIRE(!cli(daemon.socket(), {"connect", profile_id}).empty());
-  bool running = false;
-  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
-  while (!running && std::chrono::steady_clock::now() < deadline) {
-    const auto status = cli(daemon.socket(), {"status"});
-    if (!status.empty()) running = Json::parse(status).value("state", "") == "running";
-    if (!running) ::poll(nullptr, 0, 20);
-  }
-  REQUIRE(running);
-  REQUIRE(!cli(daemon.socket(), {"select", "node", profile_id, "target-b"}).empty());
-
-  auto tui = start_tui(daemon.socket(), profile_id); REQUIRE(tui.pid > 0);
-  const auto overview = terminal_text(read_screen(tui.master, std::chrono::milliseconds(900)));
-  INFO("target dashboard: " << overview);
-  CHECK(overview.find("Saved target: node: Target B") != std::string::npos);
-  CHECK(overview.find("Actual target: node: Target A") != std::string::npos);
-  auto changed_store = Store::open(temp.path / "state.sqlite"); REQUIRE(changed_store);
-  REQUIRE((*changed_store)->erase_node("target-a"));
-  changed_store->reset();
-  navigate_content(tui.master, 0, 0);
-  keys(tui.master, "r");
-  const auto snapshot = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Target A (running snapshot; removed from source)") != std::string::npos;
-  });
-  CHECK(snapshot.find("Actual target: node: Target A (running snapshot; removed from source)") !=
-        std::string::npos);
-  navigate_content(tui.master, 0, 2);
-  keys(tui.master, "v");
-  const auto runtime_module = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Runtime") != std::string::npos;
-  });
-  CHECK(runtime_module.find("00_log.json") != std::string::npos);
-  CHECK(runtime_module.find("Showing read-only active runtime files") != std::string::npos);
-  navigate_top(tui.master, 2, 2);
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
-  const auto status = Json::parse(cli(daemon.socket(), {"status"}));
-  CHECK(status.value("state", "") == "running");
-  CHECK(status.at("active").at("selection").value("id_or_tag", "") == "target-a");
+  TempDir temp;Daemon daemon(temp.path);REQUIRE(daemon.start());const auto id=core_profile(daemon,"targets");
+  const auto a=direct_node(daemon,"Target A"), b=direct_node(daemon,"Target B");select_direct(daemon,id,a);rpc_value(daemon,"connection.connect",{{"profile_id",id}});auto before=wait_state(daemon,"running");select_direct(daemon,id,b);
+  CapturedTui tui(daemon.socket());REQUIRE(tui.started());expect_text(tui,"Actual target");expect_text(tui,"Node · Target A");expect_text(tui,"Saved target");expect_text(tui,"Node · Target B");
+  {auto store=Store::open(temp.path/"state.sqlite");REQUIRE(store);REQUIRE((*store)->erase_node(a));}
+  REQUIRE(tui.content());REQUIRE(tui.type("r"));expect_text(tui,"running snapshot; removed from source");
+  REQUIRE(tui.top_page("Modules"));REQUIRE(tui.secondary_section("log"));REQUIRE(tui.content());REQUIRE(tui.type("v"));expect_text(tui,"Runtime read-only");
+  REQUIRE(tui.type("i"));expect_text(tui,"00_log.json");REQUIRE(tui.key("Escape"));REQUIRE(tui.top_page("Modules"));REQUIRE(tui.type("q"));
+  const auto after=rpc_value(daemon,"runtime.status");CHECK(after.at("pid")==before.at("pid"));CHECK(after.at("active").at("selection").value("id_or_tag","")==a);
 }
 
 TEST_CASE("disabled native modules without source open safely and remain disabled", "[product-repair][UI-04]") {
-  TempDir temp;
-  auto store = Store::open(temp.path / "state.sqlite"); REQUIRE(store);
-  store->reset();
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE, "--name", "empty module fixture"}));
-  auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "empty", "--core", core.at("id").get<std::string>()}));
-  const auto profile_id = profile.at("id").get<std::string>();
-  auto modules = Json::parse(cli(daemon.socket(), {"config", "modules", profile_id}));
-  REQUIRE(modules.size() == 15);
-  const auto profile_root = temp.path / "profiles" / profile_id / "modules";
-
-  auto tui = start_tui(daemon.socket(), profile_id);
-  REQUIRE(tui.pid > 0);
-  read_screen(tui.master, std::chrono::milliseconds(600));
-  navigate_top(tui.master, 0, 2);
-  keys(tui.master, "\r"); // module secondary tabs
-  read_screen(tui.master);
-  for (std::size_t i = 0; i < modules.size(); ++i) {
-    if (i != 0) keys(tui.master, "\t");
-    keys(tui.master, "\r"); // content
-    keys(tui.master, "\r"); // editor
-    const auto opened = terminal_text(read_screen(tui.master, std::chrono::milliseconds(120)));
-    int status = 0;
-    const auto child_state = ::waitpid(tui.pid, &status, WNOHANG);
-    INFO("module=" << modules[i].value("key", "") << " screen=" << opened << " waitpid=" << child_state << " status=" << status);
-    CHECK(child_state == 0);
-    CHECK((opened.find("Visual") != std::string::npos ||
-           opened.find("JSON") != std::string::npos));
-    if (modules[i].at("text").is_null()) {
-      CHECK(opened.find("no source file") != std::string::npos);
-      CHECK_FALSE(modules[i].value("included", false));
-      CHECK_FALSE(std::filesystem::exists(profile_root / modules[i].at("runtime_file").get<std::string>()));
-    }
-    keys(tui.master, "\x1b");
-    keys(tui.master, "\x1b"); // content -> module tabs
-    read_screen(tui.master);
+  TempDir temp;Daemon daemon(temp.path);REQUIRE(daemon.start());const auto profile=rpc_value(daemon,"profile.create",{{"name","empty"},{"preset","custom"}});const auto id=profile.value("id","");
+  const auto modules=rpc_value(daemon,"module.list",{{"profile_id",id}});REQUIRE(modules.size()==15);
+  CapturedTui tui(daemon.socket());REQUIRE(tui.started());
+  for(const auto& module:modules){REQUIRE(tui.top_page("Modules"));REQUIRE(tui.secondary_section(module.value("key","")));REQUIRE(tui.content());expect_text(tui,"Source read-only");
+    REQUIRE(tui.key("F2"));expect_text(tui,"JSON");REQUIRE(tui.type("qeux"));REQUIRE(tui.key("C-s"));
+    CHECK(rpc_value(daemon,"module.get",{{"profile_id",id},{"module",module.at("key")}}).at("text")==module.at("text"));
+    if(module.at("text").is_null()){CHECK_FALSE(module.value("included",false));CHECK_FALSE(std::filesystem::exists(temp.path/"profiles"/id/"modules"/module.at("runtime_file").get<std::string>()));}
   }
-  keys(tui.master, "\x1b");
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
+  CHECK(rpc_value(daemon,"module.list",{{"profile_id",id}})==modules);
 }
 
 TEST_CASE("first use from xrm tui needs no Profile ID and completes local subscription to connect", "[product-repair][UI-01][E2E-06][TUI-SUB-01][UI-R01][UI-R06]") {
-  TempDir temp;
-  const std::string node_uri = "vless://00000000-0000-4000-8000-000000000111@127.0.0.1:9?type=tcp&security=none#TUI-first-node";
-  LocalSubscriptionServer subscription(node_uri + "\n", std::chrono::milliseconds(650));
-  REQUIRE(subscription.valid());
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto tui = start_tui(daemon.socket(), ""); REQUIRE(tui.pid > 0);
-  auto overview = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("First use") != std::string::npos;
-  });
-  CHECK(overview.find("First use") != std::string::npos);
-  CHECK(overview.find("First use") != std::string::npos);
-
-  navigate_content(tui.master, 0, 3);
-  auto subscriptions_page = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Subscriptions") != std::string::npos;
-  });
-  CHECK(subscriptions_page.find("Subscriptions") != std::string::npos);
-  keys(tui.master, "a");
-  auto add_modal = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Subscription name") != std::string::npos;
-  });
-  CHECK(add_modal.find("Subscription name") != std::string::npos);
-  CHECK(add_modal.find("Subscriptions") != std::string::npos);
-  keys(tui.master, "local fixture\r");
-  keys(tui.master, subscription.url() + "\r");
-  auto subscription_added = terminal_text(read_screen(tui.master));
-  CHECK((subscription_added.find("Subscription URL") != std::string::npos ||
-         subscription_added.find("subscription saved") != std::string::npos));
-  keys(tui.master, "u");
-  auto updating = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Contacting xrmd") != std::string::npos;
-  });
-  CHECK(updating.find("Contacting xrmd") != std::string::npos);
-  auto refreshed = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Subscription update complete") != std::string::npos &&
-        text.find("1 current") != std::string::npos;
-  }, std::chrono::seconds(5));
-  CHECK(refreshed.find("Subscription update complete") != std::string::npos);
-  CHECK(refreshed.find("1 current") != std::string::npos);
-  // Completion must be delivered while this page remains open; no extra key,
-  // manual refresh, reconnect, or runtime file generation is needed.
-  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
-  CHECK(Json::parse(cli(daemon.socket(), {"profile", "list"})).empty());
-  navigate_content(tui.master, 3, 4);
-  auto node_screen = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("TUI-first-node") != std::string::npos;
-  }, std::chrono::seconds(5));
-  CHECK(node_screen.find("TUI-first-node") != std::string::npos);
-  node_screen = terminal_text(read_screen(tui.master));
-  CHECK(node_screen.find("TUI-first-node") != std::string::npos);
-
-  navigate_content(tui.master, 4, 6);
-  keys(tui.master, "a");
-  keys(tui.master, std::string(XRM_TEST_FAKE_CORE) + "\r");
-  auto registered = terminal_text(read_screen(tui.master));
-  CHECK(registered.find("existing Xray registered") != std::string::npos);
-
-  navigate_content(tui.master, 6, 1);
-  keys(tui.master, "n");
-  keys(tui.master, "first profile\r");
-  auto created = wait_screen_text(tui.master, [](const std::string& value) {
-    return value.find("Profile created and selected for use") != std::string::npos;
-  });
-  CHECK(created.find("Profile created and selected for use") != std::string::npos);
-  CHECK(created.find("first profile") != std::string::npos);
-
-  // A subscription added before any Profile remains global. Explicitly bind
-  // it to the newly created Profile before selecting its outlet.
-  navigate_content(tui.master, 1, 3);
-  keys(tui.master, "b");
-  CHECK(terminal_text(read_screen(tui.master)).find("Source included in") != std::string::npos);
-  navigate_content(tui.master, 3, 4);
-  CHECK(terminal_text(read_screen(tui.master)).find("TUI-first-node") != std::string::npos);
-  const auto profile_inventory = Json::parse(cli(daemon.socket(), {"profile", "list"}));
-  REQUIRE(profile_inventory.is_array());
-  REQUIRE(profile_inventory.size() == 1);
-  const auto profile_id = profile_inventory.front().value("id", "");
-  const auto core_run_argv = (temp.path / "first-use-core-run.argv").string();
-  const auto core_check_argv = (temp.path / "first-use-core-check.argv").string();
-  set_profile_process_environment(daemon.socket(), temp.path, profile_id,
-      Json{{"XRM_FAKE_CORE_RUN_ARGV", core_run_argv}, {"XRM_FAKE_CORE_CHECK_ARGV", core_check_argv}});
-
-  // Connecting the highlighted inventory row must use that row even when the
-  // Profile did not previously have a saved selection. The old TUI sent only
-  // profile_id and the assembler then failed for a missing default target.
-  CHECK(Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}))
-            .value("selected", Json(nullptr)).is_null());
-  keys(tui.master, "c");
-  Json direct_status;
-  const auto direct_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(15);
-  while (std::chrono::steady_clock::now() < direct_deadline) {
-    const auto output = cli(daemon.socket(), {"status"});
-    if (!output.empty()) direct_status = Json::parse(output);
-    if (direct_status.value("state", "") == "running" || direct_status.value("state", "") == "failed") break;
-    ::poll(nullptr, 0, 50);
-  }
-  INFO("direct node Connect status: " << direct_status.dump());
-  REQUIRE(direct_status.value("state", "") == "running");
-  REQUIRE((direct_status.contains("active") && direct_status.at("active").is_object()));
-  CHECK(direct_status.at("active").at("selection").value("kind", "") == "node");
-  CHECK(Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}))
-            .value("selected", Json(nullptr)).is_object());
-  (void)wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Xray core running") != std::string::npos;
-  }, std::chrono::seconds(5));
-  keys(tui.master, "d");
-  const auto stopped_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
-  while (std::chrono::steady_clock::now() < stopped_deadline &&
-         Json::parse(cli(daemon.socket(), {"status"})).value("state", "") != "stopped")
-    ::poll(nullptr, 0, 50);
-  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
-
-  keys(tui.master, "s");
-  const auto saved_profile = Json::parse(cli(daemon.socket(), {"profile", "show", profile_id}));
-  INFO("saved profile selection: " << saved_profile.value("selected", Json(nullptr)).dump());
-  REQUIRE(saved_profile.value("selected", Json(nullptr)).is_object());
-  navigate_content(tui.master, 4, 0);
-  const auto overview_before_connect = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Overview") != std::string::npos;
-  });
-  CHECK(overview_before_connect.find("Overview") != std::string::npos);
-  keys(tui.master, "c");
-  const auto connect_started = wait_screen_text(tui.master, [](const std::string& text) {
-    return text.find("Connect…") != std::string::npos ||
-           text.find("Running Profile: first profile") != std::string::npos;
-  }, std::chrono::seconds(5));
-  INFO("connect feedback: " << connect_started);
-  CHECK((connect_started.find("Connect…") != std::string::npos ||
-         connect_started.find("Running Profile: first profile") != std::string::npos));
-  Json status;
-  const auto connected_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(15);
-  while (std::chrono::steady_clock::now() < connected_deadline) {
-    auto text = cli(daemon.socket(), {"status"});
-    if (!text.empty()) status = Json::parse(text);
-    if (status.value("state", "") == "running" || status.value("state", "") == "failed") break;
-    ::poll(nullptr, 0, 50);
-  }
-  INFO("status: " << status.dump());
-  CHECK(status.value("state", "") == "running");
-  CHECK(std::filesystem::exists(core_check_argv));
-  CHECK(std::filesystem::exists(core_run_argv));
-  REQUIRE((status.contains("active") && status.at("active").is_object()));
-  CHECK(status.at("active").at("selection").value("kind", "") == "node");
-  keys(tui.master, "r");
-  CHECK(terminal_text(read_screen(tui.master)).find("Profile") != std::string::npos);
-
-  navigate_top(tui.master, 0, 5);
-  CHECK(terminal_text(read_screen(tui.master)).find("Logs") != std::string::npos);
-  navigate_top(tui.master, 5, 0);
-  CHECK(terminal_text(read_screen(tui.master)).find("Statistics") != std::string::npos);
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
-  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "running");
-  CHECK(!cli(daemon.socket(), {"disconnect"}).empty());
-  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
+  TempDir temp;LocalSubscriptionServer subscription("vless://00000000-0000-4000-8000-000000000111@127.0.0.1:9?type=tcp&security=none#TUI-first-node\n",std::chrono::milliseconds(350));REQUIRE(subscription.valid());
+  Daemon daemon(temp.path);REQUIRE(daemon.start());CapturedTui tui(daemon.socket());REQUIRE(tui.started());expect_text(tui,"Viewing: none");
+  add_subscription_ui(tui,"local fixture",subscription.url());REQUIRE(tui.type("u"));expect_text(tui,"Update local fixture: completed");CHECK(rpc_value(daemon,"profile.list").empty());CHECK(rpc_value(daemon,"runtime.status").value("state","")=="stopped");
+  REQUIRE(tui.top_page("Nodes"));expect_text(tui,"TUI-first-node");
+  REQUIRE(tui.top_page("Config"));REQUIRE(tui.content());REQUIRE(tui.type("a"));expect_text(tui,"Register Xray core");REQUIRE(tui.type("fixture"));REQUIRE(tui.key("Tab"));REQUIRE(tui.type(XRM_TEST_FAKE_CORE));REQUIRE(tui.key("C-s"));expect_text(tui,"Registered fixture");
+  REQUIRE(tui.top_page("Profiles"));REQUIRE(tui.content());REQUIRE(tui.type("n"));expect_text(tui,"new Profile");REQUIRE(tui.type("first profile"));REQUIRE(tui.key("Tab"));REQUIRE(tui.key("Down"));REQUIRE(tui.key("Enter"));REQUIRE(tui.key("C-s"));expect_text(tui,"Profile first profile saved");
+  // New Profile can be viewed without implicitly selecting a runtime target.
+  REQUIRE(tui.type("u"));expect_text(tui,"Next: first profi");
+  REQUIRE(tui.top_page("Subscriptions"));REQUIRE(tui.content());REQUIRE(tui.type("b"));expect_text(tui,"Sources for first profile");REQUIRE(tui.key("Space"));REQUIRE(tui.key("C-s"));expect_text(tui,"Source bindings saved");
+  auto rows=rpc_value(daemon,"profile.list");REQUIRE(rows.size()==1);const auto id=rows[0].value("id","");
+  const auto run=(temp.path/"run.argv").string(),check=(temp.path/"check.argv").string();set_profile_process_environment(daemon.socket(),temp.path,id,{{"XRM_FAKE_CORE_RUN_ARGV",run},{"XRM_FAKE_CORE_CHECK_ARGV",check}});
+  CHECK(rpc_value(daemon,"profile.get",{{"profile_id",id}}).at("selected").is_null());
+  REQUIRE(tui.top_page("Nodes"));REQUIRE(tui.content());expect_text(tui,"TUI-first-node");REQUIRE(tui.type("c"));auto connected=wait_state(daemon,"running");CHECK(connected.at("active").at("selection").value("kind","")=="node");CHECK(rpc_value(daemon,"profile.get",{{"profile_id",id}}).at("selected").is_object());
+  REQUIRE(tui.top_page("Overview")); REQUIRE(tui.content()); REQUIRE(tui.type("d"));
+  expect_text(tui,"Stop core"); REQUIRE(tui.key("BTab")); REQUIRE(tui.key("Enter"));
+  wait_state(daemon,"stopped");
+  std::cout << "Overview after server stopped, before Manager completion:\n" << tui.grid();
+  // A terminal lifecycle action finishes when the Manager consumes its result;
+  // observing the server state alone can precede that completion event. Keep
+  // the live page open: notification history is an intentionally static view.
+  expect_text(tui,"Stop first profile: completed");
+  std::cout << "Overview after Manager stop completion:\n" << tui.grid();
+  REQUIRE(tui.type("c")); const auto restarted = wait_state(daemon,"running");
+  CHECK(restarted.at("active").at("run_id") != connected.at("active").at("run_id"));
+  CHECK(std::filesystem::exists(run)); CHECK(std::filesystem::exists(check));
+  REQUIRE(tui.top_page("Logs"));REQUIRE(tui.top_page("Overview"));expect_text(tui,"Statistics");REQUIRE(tui.type("q"));CHECK(rpc_value(daemon,"runtime.status").value("state","")=="running");rpc_value(daemon,"connection.disconnect");wait_state(daemon,"stopped");
 }
 
 TEST_CASE("TUI-SUB-02 failed refresh is visible and keeps the prior node inventory", "[TUI-SUB-02][UI-R01][UI-R06]") {
-  TempDir temp;
-  auto store = Store::open(temp.path / "state.sqlite"); REQUIRE(store);
-  Node old; old.id = "preexisting-manual"; old.original_name = "kept-node";
-  old.settings = RawOutbound{Json{{"protocol", "freedom"}, {"settings", Json::object()}}};
-  REQUIRE((*store)->put_node(old));
-  store->reset();
-  LocalSubscriptionServer subscription("unavailable\n", std::chrono::milliseconds(350), 403);
-  REQUIRE(subscription.valid());
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Subscriptions"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("a"));
-  REQUIRE(tui.type("403 fixture")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type(subscription.url())); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("u"));
-  const auto updating = tui.wait_for([](std::string_view grid) {
-    return grid.find("Contacting xrmd") != std::string_view::npos ||
-           grid.find("updating") != std::string_view::npos;
-  });
-  CHECK((updating.find("Contacting xrmd") != std::string::npos ||
-         updating.find("updating") != std::string::npos));
-  REQUIRE(tui.key("Enter")); // Subscription detail owns the error message.
-  const auto result = tui.wait_for([](std::string_view grid) {
-    return grid.find("HTTP 403") != std::string_view::npos;
-  }, std::chrono::seconds(5));
-  INFO("failed refresh current grid: " << result);
-  CHECK(result.find("HTTP 403") != std::string::npos);
-  // Manual inventory is deliberately under Local, not All Subscriptions.
-  REQUIRE(tui.key("Escape"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("Last update error:") == std::string_view::npos;
-  }).find("Last update error:") == std::string::npos);
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("[Nodes]") != std::string_view::npos;
-  }).find("[Nodes]") != std::string::npos);
-  REQUIRE(tui.secondary_section("Local"));
-  const auto local = tui.wait_for([](std::string_view grid) {
-    return grid.find("kept-node") != std::string_view::npos;
-  });
-  INFO("local current grid=" << local);
-  CHECK(local.find("kept-node") != std::string::npos);
-  REQUIRE(tui.top_page("Nodes"));
-  REQUIRE(tui.type("q"));
+  TempDir temp;LocalSubscriptionServer subscription("unavailable\n",std::chrono::milliseconds(350),403);REQUIRE(subscription.valid());Daemon daemon(temp.path);REQUIRE(daemon.start());const auto node=direct_node(daemon,"kept-node");
+  CapturedTui tui(daemon.socket());REQUIRE(tui.started());add_subscription_ui(tui,"403 fixture",subscription.url());REQUIRE(tui.type("u"));expect_text(tui,"403");
+  REQUIRE(tui.top_page("Nodes"));REQUIRE(tui.secondary_section("Local"));expect_text(tui,"kept-node");CHECK(rpc_value(daemon,"node.get",{{"id",node}}).value("original_name","")=="kept-node");CHECK(rpc_value(daemon,"runtime.status").value("state","")=="stopped");
 }
 
 TEST_CASE("TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts", "[TUI-SUB-03][UI-R01]") {
-  TempDir temp;
-  const std::string body =
-      "vless://00000000-0000-4000-8000-000000000111@127.0.0.1:9?type=tcp&security=none#partial-node\n"
-      "anytls://opaque\nnot-a-uri\n";
-  LocalSubscriptionServer subscription(body, std::chrono::milliseconds(350));
-  REQUIRE(subscription.valid());
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Subscriptions"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.type("a"));
-  REQUIRE(tui.type("partial fixture")); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type(subscription.url())); REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.type("u"));
-  const auto updating = tui.wait_for([](std::string_view grid) {
-    return grid.find("updating") != std::string_view::npos ||
-           grid.find("Contacting xrmd") != std::string_view::npos;
-  });
-  CHECK((updating.find("updating") != std::string::npos ||
-        updating.find("Contacting xrmd") != std::string::npos));
-  REQUIRE(tui.top_page("Nodes"));
-  const auto result = tui.wait_for([](std::string_view grid) {
-    return grid.find("partial-node") != std::string_view::npos &&
-           grid.find("1 current") != std::string_view::npos;
-  }, std::chrono::seconds(5));
-  CHECK(result.find("partial-node") != std::string::npos);
-  REQUIRE(tui.top_page("Subscriptions"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.key("Enter")); // Open detail, do not immediately close it.
-  const auto row = tui.wait_for([](std::string_view grid) {
-    return grid.find("Unsupported: 1") != std::string_view::npos &&
-           grid.find("malformed: 1") != std::string_view::npos;
-  });
-  CHECK(row.find("Unsupported: 1") != std::string::npos);
-  CHECK(row.find("malformed: 1") != std::string::npos);
-  REQUIRE(tui.key("Escape"));
-  REQUIRE(tui.top_page("Subscriptions"));
-  REQUIRE(tui.type("q"));
+  TempDir temp;LocalSubscriptionServer subscription("vless://00000000-0000-4000-8000-000000000111@127.0.0.1:9?type=tcp&security=none#partial-node\nanytls://opaque\nnot-a-uri\n",std::chrono::milliseconds(350));REQUIRE(subscription.valid());Daemon daemon(temp.path);REQUIRE(daemon.start());
+  CapturedTui tui(daemon.socket());REQUIRE(tui.started());add_subscription_ui(tui,"partial",subscription.url());REQUIRE(tui.type("u"));expect_text(tui,"Partial: inspect");REQUIRE(tui.key("Enter"));REQUIRE(tui.type("F"));expect_text(tui,"unsupported_count: 1");expect_text(tui,"malformed_count: 1");REQUIRE(tui.key("Escape"));
+  REQUIRE(tui.top_page("Nodes"));expect_text(tui,"partial-node");auto rows=rpc_value(daemon,"subscription.list");REQUIRE(rows.size()==1);CHECK(rows[0].value("node_count",0)==1);CHECK(rows[0].value("unsupported_count",0)==1);CHECK(rows[0].value("malformed_count",0)==1);
 }
 
 TEST_CASE("UI-06/UI-07 zero-profile startup and Profile management use names", "[UI-06][UI-07][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto tui = start_tui(daemon.socket(), ""); REQUIRE(tui.pid > 0);
-  (void)read_screen(tui.master, std::chrono::milliseconds(1500));
-  navigate_top(tui.master, 0, 0);
-
-  auto overview = terminal_text(read_screen(tui.master, std::chrono::milliseconds(500)));
-  CHECK(overview.find("Viewing Profile") != std::string::npos);
-  CHECK(overview.find("No profile selected") != std::string::npos);
-
-  navigate_top(tui.master, 0, 3);
-  auto subscriptions = terminal_text(read_screen(tui.master));
-  CHECK(subscriptions.find("Subscriptions") != std::string::npos);
-  CHECK(subscriptions.find("No subscriptions yet") != std::string::npos);
-
-  navigate_top(tui.master, 3, 4);
-  auto nodes = terminal_text(read_screen(tui.master));
-  CHECK(nodes.find("Nodes") != std::string::npos);
-
-  navigate_top(tui.master, 4, 6);
-  auto cores = terminal_text(read_screen(tui.master));
-  CHECK(cores.find("Core") != std::string::npos);
-
-  navigate_top(tui.master, 6, 1);
-  auto profiles = terminal_text(read_screen(tui.master));
-  CHECK(profiles.find("Profiles") != std::string::npos);
-  CHECK(profiles.find("No Profile") != std::string::npos);
-
-  navigate_top(tui.master, 1, 4);
-  keys(tui.master, "\r");
-  keys(tui.master, "\t"); // Local.
-  keys(tui.master, "\t"); // Groups.
-  auto groups = terminal_text(read_screen(tui.master));
-  CHECK(groups.find("No profile selected") != std::string::npos);
-  CHECK(groups.find("Create a profile to use this feature") != std::string::npos);
-
-  navigate_top(tui.master, 4, 2);
-  auto modules = terminal_text(read_screen(tui.master));
-  CHECK(modules.find("No profile selected") != std::string::npos);
-  CHECK(modules.find("Create a profile to use this feature") != std::string::npos);
-
-  navigate_content(tui.master, 2, 0);
-  keys(tui.master, "c");
-  const auto connect_prompt = wait_screen_text(tui.master, [](const std::string& value) {
-    return value.find("Create Default Profile") != std::string::npos;
-  });
-  CHECK(connect_prompt.find("Create Default Profile") != std::string::npos);
-  keys(tui.master, "\x1b");
-
-  navigate_content(tui.master, 0, 6);
-  keys(tui.master, "a");
-  keys(tui.master, std::string(XRM_TEST_FAKE_CORE) + "\r");
-  CHECK(wait_screen_text(tui.master, [](const std::string& value) {
-    return value.find("existing Xray registered") != std::string::npos;
-  }).find("existing Xray registered") != std::string::npos);
-  navigate_content(tui.master, 6, 1);
-  keys(tui.master, "n");
-  keys(tui.master, "Home\r");
-  const auto created_home = wait_screen_text(tui.master, [](const std::string& value) {
-    return value.find("Profile created and selected for use") != std::string::npos &&
-           value.find("Home") != std::string::npos;
-  });
-  CHECK(created_home.find("Profile created and selected for use") != std::string::npos);
-  CHECK(created_home.find("Home") != std::string::npos);
-  keys(tui.master, "r");
-  keys(tui.master, "Router\r");
-  const auto renamed_router = wait_screen_text(tui.master, [](const std::string& value) {
-    return value.find("Profile renamed") != std::string::npos &&
-           value.find("Router") != std::string::npos;
-  });
-  CHECK(renamed_router.find("Profile renamed") != std::string::npos);
-  CHECK(renamed_router.find("Router") != std::string::npos);
-  keys(tui.master, "c");
-  keys(tui.master, "Test\r");
-  const auto cloned_test = wait_screen_text(tui.master, [](const std::string& value) {
-    return value.find("Profile created and selected for use") != std::string::npos &&
-           value.find("Test") != std::string::npos;
-  });
-  CHECK(cloned_test.find("Profile created and selected for use") != std::string::npos);
-  CHECK(cloned_test.find("Test") != std::string::npos);
-  keys(tui.master, "d");
-  CHECK(wait_screen_text(tui.master, [](const std::string& value) {
-    return value.find("Profile removed") != std::string::npos;
-  }).find("Profile removed") != std::string::npos);
-
-  navigate_top(tui.master, 1, 1);
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
-  const auto remaining = Json::parse(cli(daemon.socket(), {"profile", "list"}));
-  REQUIRE(remaining.is_array());
-  REQUIRE(remaining.size() == 1);
-  CHECK(remaining.front().value("name", "") == "Router");
+  TempDir temp;Daemon daemon(temp.path);REQUIRE(daemon.start());CapturedTui tui(daemon.socket());REQUIRE(tui.started());expect_text(tui,"Viewing: none");
+  REQUIRE(tui.top_page("Subscriptions"));expect_text(tui,"No subscriptions");REQUIRE(tui.top_page("Nodes"));REQUIRE(tui.secondary_section("Groups"));expect_text(tui,"View a Profile");REQUIRE(tui.top_page("Modules"));expect_text(tui,"View a Profile");
+  REQUIRE(tui.top_page("Overview"));REQUIRE(tui.content());REQUIRE(tui.type("c"));expect_text(tui,"Use is empty");CHECK(rpc_value(daemon,"profile.list").empty());
+  REQUIRE(tui.top_page("Profiles"));REQUIRE(tui.content());REQUIRE(tui.type("n"));expect_text(tui,"new Profile");REQUIRE(tui.type("Home"));REQUIRE(tui.key("C-s"));expect_text(tui,"Profile Home saved");
+  REQUIRE(tui.type("R"));expect_text(tui,"rename Profile");replace_input(tui,"Router",20);REQUIRE(tui.key("C-s"));expect_text(tui,"Profile Router saved");
+  REQUIRE(tui.type("c"));expect_text(tui,"copy Profile");replace_input(tui,"Test",30);REQUIRE(tui.key("C-s"));expect_text(tui,"Profile Test saved");
+  auto rows=rpc_value(daemon,"profile.list");REQUIRE(rows.size()==2);REQUIRE(tui.key("Home"));for(auto&row:rows){if(row.value("name","")=="Test")break;REQUIRE(tui.key("Down"));}
+  REQUIRE(tui.type("D"));expect_text(tui,"Delete Profile");REQUIRE(tui.key("BTab"));REQUIRE(tui.key("Enter"));expect_text(tui,"Delete Test saved");auto remaining=rpc_value(daemon,"profile.list");REQUIRE(remaining.size()==1);CHECK(remaining[0].value("name","")=="Router");CHECK(rpc_value(daemon,"runtime.status").value("state","")=="stopped");
 }
 
 TEST_CASE("UI-07 Profile management is name-oriented and browsing keeps the running Profile", "[UI-07][UI-08][UX-01][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE, "--name", "profile UX core"}));
-  auto home = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Home", "--core", core.at("id").get<std::string>()}));
-  auto office = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Office", "--core", core.at("id").get<std::string>()}));
-  const auto home_id = home.at("id").get<std::string>();
-  const auto office_id = office.at("id").get<std::string>();
-  auto node = Json::parse(cli(daemon.socket(), {"node", "add", "--name", "profile UX direct",
-      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"profile-ux-direct"})"}));
-  const auto node_id = node.at("id").get<std::string>();
-  REQUIRE(!cli(daemon.socket(), {"select", "node", home_id, node_id}).empty());
-  REQUIRE(!cli(daemon.socket(), {"select", "node", office_id, node_id}).empty());
-  REQUIRE(!cli(daemon.socket(), {"connect", home_id}).empty());
-  const auto profile_rows = Json::parse(cli(daemon.socket(), {"profile", "list"}));
-  REQUIRE(profile_rows.is_array());
-  const auto home_row = std::find_if(profile_rows.begin(), profile_rows.end(), [&](const Json& row) { return row.value("id", "") == home_id; });
-  const auto office_row = std::find_if(profile_rows.begin(), profile_rows.end(), [&](const Json& row) { return row.value("id", "") == office_id; });
-  REQUIRE(home_row != profile_rows.end());
-  REQUIRE(office_row != profile_rows.end());
-  const auto home_index = static_cast<std::size_t>(home_row - profile_rows.begin());
-  const auto office_index = static_cast<std::size_t>(office_row - profile_rows.begin());
-  auto picker = start_tui(daemon.socket(), ""); REQUIRE(picker.pid > 0);
-  const auto picker_screen = terminal_text(read_screen(picker.master, std::chrono::milliseconds(1200)));
-  CHECK(picker_screen.find("Profiles") != std::string::npos);
-  CHECK(picker_screen.find("Home") != std::string::npos);
-  CHECK(picker_screen.find("Office") != std::string::npos);
-  CHECK(picker_screen.find("editing") == std::string::npos);
-  int picker_status = 0;
-  CHECK(::waitpid(picker.pid, &picker_status, WNOHANG) == 0);
-  // The no-profile picker is a separate PTY; its lifetime is owned by Child.
-
-  auto tui = start_tui(daemon.socket(), "Home"); REQUIRE(tui.pid > 0);
-  (void)read_screen(tui.master, std::chrono::milliseconds(1200));
-  Json before;
-  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(8);
-  while (std::chrono::steady_clock::now() < deadline) {
-    const auto response = cli(daemon.socket(), {"status"});
-    if (!response.empty()) before = Json::parse(response);
-    if (before.value("state", "") == "running" || before.value("state", "") == "failed") break;
-    ::poll(nullptr, 0, 30);
-  }
-  REQUIRE(before.value("state", "") == "running");
-
-  navigate_content(tui.master, 0, 1);
-  const auto profile_page = terminal_text(read_screen(tui.master));
-  CHECK(profile_page.find("Home") != std::string::npos);
-  CHECK(profile_page.find("Office") != std::string::npos);
-  CHECK(profile_page.find(home_id) == std::string::npos);
-  CHECK(profile_page.find(office_id) == std::string::npos);
-
-  std::string move_to_office;
-  if (office_index > home_index)
-    for (std::size_t i = home_index; i < office_index; ++i) move_to_office += "\x1b[B";
-  else
-    for (std::size_t i = office_index; i < home_index; ++i) move_to_office += "\x1b[A";
-  move_to_office += "\r"; // View the highlighted Profile; no Use or Edit.
-  keys(tui.master, move_to_office);
-  const auto switched = terminal_text(read_screen(tui.master));
-  CHECK(switched.find("Viewing: Office") != std::string::npos);
-  CHECK(switched.find("Running: Home") != std::string::npos);
-  const auto after = Json::parse(cli(daemon.socket(), {"status"}));
-  CHECK(after.at("pid") == before.at("pid"));
-  CHECK(after.at("active").at("confdir") == before.at("active").at("confdir"));
-  CHECK(after.at("active").at("selection") == before.at("active").at("selection"));
-
-  keys(tui.master, "e"); // Edit is an explicit context, not a side effect of View.
-  const auto editing = terminal_text(read_screen(tui.master));
-  CHECK(editing.find("edit context") != std::string::npos);
-  const auto during_edit = Json::parse(cli(daemon.socket(), {"status"}));
-  CHECK(during_edit.at("pid") == before.at("pid"));
-  CHECK(during_edit.at("active").at("confdir") == before.at("active").at("confdir"));
-
-  keys(tui.master, "u"); // Explicitly Use Office before connecting it.
-  const auto used = terminal_text(read_screen(tui.master));
-  CHECK(used.find("edit context") == std::string::npos);
-  CHECK(used.find("Using saved Profile Office") != std::string::npos);
-  CHECK(used.find("Use: Office") != std::string::npos);
-  const auto after_use = Json::parse(cli(daemon.socket(), {"status"}));
-  CHECK(after_use.at("pid") == before.at("pid"));
-  CHECK(after_use.at("active").at("confdir") == before.at("active").at("confdir"));
-  navigate_content(tui.master, 1, 0);
-  (void)read_screen(tui.master);
-  keys(tui.master, "c");
-  (void)read_screen(tui.master);
-  Json office_status;
-  const auto connect_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(8);
-  while (std::chrono::steady_clock::now() < connect_deadline) {
-    const auto response = cli(daemon.socket(), {"status"});
-    if (!response.empty()) office_status = Json::parse(response);
-    if (office_status.contains("active") && office_status.at("active").is_object() &&
-        office_status.at("active").value("profile_id", "") == office_id) break;
-    ::poll(nullptr, 0, 30);
-  }
-  CHECK((office_status.contains("active") && office_status.at("active").is_object()));
-  if (office_status.contains("active") && office_status.at("active").is_object())
-    CHECK(office_status.at("active").value("profile_id", "") == office_id);
-  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "running");
-  (void)cli(daemon.socket(), {"disconnect"});
+  TempDir temp;Daemon daemon(temp.path);REQUIRE(daemon.start());const auto home=core_profile(daemon,"Home");const auto core=rpc_value(daemon,"profile.get",{{"profile_id",home}}).value("core_id","");const auto office=rpc_value(daemon,"profile.create",{{"name","Office"},{"core_id",core}}).value("id","");const auto node=direct_node(daemon,"direct");select_direct(daemon,home,node);select_direct(daemon,office,node);rpc_value(daemon,"connection.connect",{{"profile_id",home}});const auto before=wait_state(daemon,"running");
+  CapturedTui tui(daemon.socket());REQUIRE(tui.started());expect_text(tui,"[Profiles]");expect_text(tui,"Home");expect_text(tui,"Office");REQUIRE(tui.content());
+  auto rows=rpc_value(daemon,"profile.list");REQUIRE(tui.key("Home"));for(auto&r:rows){if(r.value("id","")==office)break;REQUIRE(tui.key("Down"));}
+  REQUIRE(tui.key("Enter"));expect_text(tui,"View Office");expect_text(tui,"Running: Home");REQUIRE(tui.type("e"));expect_text(tui,"Module Edit: Office");CHECK(tui.grid().find("Edit Profile")==std::string::npos);
+  REQUIRE(tui.type("u"));expect_text(tui,"Next: Office");REQUIRE(tui.type("u"));expect_text(tui,"Next: none");const auto unchanged=rpc_value(daemon,"runtime.status");CHECK(unchanged.at("pid")==before.at("pid"));CHECK(unchanged.at("active").at("confdir")==before.at("active").at("confdir"));CHECK(unchanged.at("active").at("selection")==before.at("active").at("selection"));
+  REQUIRE(tui.type("u"));REQUIRE(tui.top_page("Overview"));REQUIRE(tui.content());REQUIRE(tui.type("c"));
+  auto switched=tui.wait_for([&](std::string_view g){auto status=rpc_value(daemon,"runtime.status");return status.contains("active")&&status["active"].is_object()&&status["active"].value("profile_id","")==office&&g.find("Running: Office")!=std::string_view::npos;});CHECK(switched.find("Running: Office")!=std::string::npos);
+  CHECK(rpc_value(daemon,"runtime.status").value("state","")=="running");
 }
 
 TEST_CASE("UI-05 opens a configured external editor from the native module draft", "[UI-05][I52]") {
-  TempDir temp;
-  auto store = Store::open(temp.path / "state.sqlite"); REQUIRE(store);
-  store->reset();
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE, "--name", "editor fixture"}));
-  auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "editor", "--core", core.at("id").get<std::string>()}));
-  const auto profile_id = profile.at("id").get<std::string>();
-  const auto module_text = [&](std::string_view expected) {
-    const auto response = Json::parse(cli(daemon.socket(), {"config", "show", profile_id,
-        "--module-key", "log", "--source", "source"}));
-    return response.at("text").get<std::string>().find(expected) != std::string::npos;
-  };
-  const auto launch_editor = [&](std::string mode, std::string suffix) {
-    const auto marker = (temp.path / ("editor-" + mode + ".txt")).string();
-    auto tui = start_tui(daemon.socket(), profile_id,
-        {std::string("VISUAL=") + XRM_TEST_FAKE_EDITOR + " --mode " + mode + " --marker " + marker,
-         "EDITOR=/usr/bin/false"});
-    REQUIRE(tui.pid > 0);
-    const auto overview = wait_screen_text(tui.master, [](const std::string& text) {
-      return text.find("Overview") != std::string::npos;
-    });
-    REQUIRE(overview.find("Overview") != std::string::npos);
-    navigate_content(tui.master, 0, 2);
-    keys(tui.master, "\r"); // open the selected Source module draft
-    const auto opened = wait_screen_text(tui.master, [](const std::string& text) {
-      return text.find("Visual") != std::string::npos && text.find("loglevel") != std::string::npos;
-    });
-    REQUIRE(opened.find("loglevel") != std::string::npos);
-    keys(tui.master, "\x1bOQ"); // F2 -> JSON text view
-    if (!suffix.empty()) keys(tui.master, suffix);
-    keys(tui.master, "\x1b[17~"); // F6 -> external editor
-    const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-    while (!std::filesystem::exists(marker) && std::chrono::steady_clock::now() < until)
-      ::poll(nullptr, 0, 10);
-    REQUIRE(std::filesystem::exists(marker));
-    keys(tui.master, "\x1b[C");
-    auto result = wait_screen_text(tui.master, [&](const std::string& text) {
-      if (mode == "output") return text.find("[unsaved]") != std::string::npos && text.find("warning") != std::string::npos;
-      if (mode == "nonzero") return text.find("external editor failed; draft kept") != std::string::npos;
-      if (mode == "cancel") return text.find("external editor cancelled; draft kept") != std::string::npos;
-      if (mode == "invalid") return text.find("invalid JSON retained") != std::string::npos;
-      return true;
-    });
-    return std::pair{std::move(tui), std::move(result)};
-  };
-  const auto quit_after_editor = [&](Child& tui) {
-    keys(tui.master, "\x1b"); // A dirty Source draft now requests an explicit decision.
-    const auto leave = terminal_text(read_screen(tui.master, std::chrono::milliseconds(500)));
-    if (leave.find("Save / Discard / Continue") != std::string::npos)
-      keys(tui.master, "d"); // Explicitly discard only a dirty draft.
-    (void)read_screen(tui.master);
-    navigate_top(tui.master, 2, 2);
-    keys(tui.master, "q");
-    CHECK(tui.wait(std::chrono::seconds(5)));
-  };
-
-  const auto before = Json::parse(cli(daemon.socket(), {"config", "show", profile_id,
-      "--module-key", "log", "--source", "source"})).at("text").get<std::string>();
-  auto [normal_tui, normal] = launch_editor("output", "");
-  CHECK(normal.find("FAKE_EDITOR_TERMINAL_OUTPUT") != std::string::npos);
-  CHECK(normal.find("[unsaved]") != std::string::npos);
-  CHECK(module_text(before));
-  CHECK(normal.find("warning") != std::string::npos);
-  keys(normal_tui.master, "\x13");
-  const auto saved = wait_screen_text(normal_tui.master, [](const std::string& text) {
-    return text.find("saved source text") != std::string::npos &&
-           text.find("runtime inclusion is unchanged") != std::string::npos;
-  });
-  CHECK(saved.find("saved source text") != std::string::npos);
-  CHECK(saved.find("runtime inclusion is unchanged") != std::string::npos);
-  CHECK(module_text("warning"));
-  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
-  quit_after_editor(normal_tui);
-
-  // VISUAL takes precedence; with it unset, EDITOR is used directly via argv.
-  const auto fallback_marker = (temp.path / "editor-fallback.txt").string();
-  auto fallback_tui = start_tui(daemon.socket(), profile_id,
-      {"VISUAL=", std::string("EDITOR=") + XRM_TEST_FAKE_EDITOR + " --mode success --marker " + fallback_marker});
-  REQUIRE(fallback_tui.pid > 0);
-  wait_screen_text(fallback_tui.master, [](const std::string& text) {
-    return text.find("Overview") != std::string::npos;
-  });
-  navigate_content(fallback_tui.master, 0, 2);
-  keys(fallback_tui.master, "\r");
-  REQUIRE(wait_screen_text(fallback_tui.master, [](const std::string& text) {
-    return text.find("Visual:") != std::string::npos;
-  }).find("Visual:") != std::string::npos);
-  keys(fallback_tui.master, "\x1b[17~");
-  const auto fallback_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-  while (!std::filesystem::exists(fallback_marker) && std::chrono::steady_clock::now() < fallback_deadline)
-    ::poll(nullptr, 0, 10);
-  INFO("fallback editor screen=" << terminal_text(read_screen(fallback_tui.master)));
-  CHECK(std::filesystem::exists(fallback_marker));
-  REQUIRE(wait_screen_text(fallback_tui.master, [](const std::string& text) {
-    return text.find("external draft loaded") != std::string::npos;
-  }).find("external draft loaded") != std::string::npos);
-  quit_after_editor(fallback_tui);
-
-  auto unset_tui = start_tui(daemon.socket(), profile_id, {"VISUAL=", "EDITOR="});
-  REQUIRE(unset_tui.pid > 0);
-  wait_screen_text(unset_tui.master, [](const std::string& text) {
-    return text.find("Overview") != std::string::npos;
-  });
-  navigate_content(unset_tui.master, 0, 2);
-  keys(unset_tui.master, "\r");
-  REQUIRE(wait_screen_text(unset_tui.master, [](const std::string& text) {
-    return text.find("Visual:") != std::string::npos;
-  }).find("Visual:") != std::string::npos);
-  keys(unset_tui.master, "\x1b[17~"); keys(unset_tui.master, "\x1b[C");
-  const auto no_editor = wait_screen_text(unset_tui.master, [](const std::string& text) {
-    return text.find("VISUAL/EDITOR") != std::string::npos;
-  });
-  CHECK(no_editor.find("VISUAL/EDITOR") != std::string::npos);
-  quit_after_editor(unset_tui);
-
-  auto [failed_tui, failed] = launch_editor("nonzero", "DRAFT_NONZERO");
-  CHECK(failed.find("external editor failed; draft kept") != std::string::npos);
-  CHECK(failed.find("DRAFT_NONZERO") != std::string::npos);
-  quit_after_editor(failed_tui);
-
-  auto [cancel_tui, cancelled] = launch_editor("cancel", "DRAFT_CANCEL");
-  CHECK(cancelled.find("external editor cancelled; draft kept") != std::string::npos);
-  CHECK(cancelled.find("DRAFT_CANCEL") != std::string::npos);
-  quit_after_editor(cancel_tui);
-
-  auto [invalid_tui, invalid] = launch_editor("invalid", "");
-  CHECK(invalid.find("invalid JSON retained") != std::string::npos);
-  CHECK(invalid.find("invalid JSON") != std::string::npos);
-  quit_after_editor(invalid_tui);
-
-  // A second client changes the source after the editor has loaded its base.
-  REQUIRE(cli(daemon.socket(), {"config", "edit", profile_id, "log", "--text",
-      "{\"log\":{\"loglevel\":\"info\"}}\n"}).find("saved") != std::string::npos);
-  const auto marker = (temp.path / "editor-conflict.txt").string();
-  auto conflict_tui = start_tui(daemon.socket(), profile_id,
-      {std::string("VISUAL=") + XRM_TEST_FAKE_EDITOR + " --mode output --marker " + marker, "EDITOR="});
-  REQUIRE(conflict_tui.pid > 0);
-  wait_screen_text(conflict_tui.master, [](const std::string& text) {
-    return text.find("Overview") != std::string::npos;
-  });
-  navigate_content(conflict_tui.master, 0, 2);
-  keys(conflict_tui.master, "\r");
-  REQUIRE(wait_screen_text(conflict_tui.master, [](const std::string& text) {
-    return text.find("Visual:") != std::string::npos;
-  }).find("Visual:") != std::string::npos);
-  keys(conflict_tui.master, "\x1b[17~");
-  const auto conflict_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-  while (!std::filesystem::exists(marker) && std::chrono::steady_clock::now() < conflict_deadline)
-    ::poll(nullptr, 0, 10);
-  REQUIRE(std::filesystem::exists(marker));
-  keys(conflict_tui.master, "\x1b[C");
-  (void)wait_screen_text(conflict_tui.master, [](const std::string& text) {
-    return text.find("[unsaved]") != std::string::npos;
-  });
-  REQUIRE(cli(daemon.socket(), {"config", "edit", profile_id, "log", "--text",
-      "{\"log\":{\"loglevel\":\"error\"}}\n"}).find("saved") != std::string::npos);
-  keys(conflict_tui.master, "\x13");
-  keys(conflict_tui.master, "\x1b[C");
-  const auto conflict = wait_screen_text(conflict_tui.master, [](const std::string& text) {
-    return text.find("文件在读取后已被外部修改") != std::string::npos;
-  });
-  CHECK(conflict.find("文件在读取后已被外部修改") != std::string::npos);
-  CHECK(conflict.find("warning") != std::string::npos);
-  CHECK(module_text("error"));
-  quit_after_editor(conflict_tui);
+  TempDir temp;Daemon daemon(temp.path);REQUIRE(daemon.start());const auto id=core_profile(daemon,"editor");
+  auto source=[&]{return rpc_value(daemon,"module.get",{{"profile_id",id},{"module","log"}}).at("text").get<std::string>();};
+  for(const auto& mode:{"output","success","nonzero","cancel","invalid","unset","conflict"}) {
+    CAPTURE(mode);rpc_value(daemon,"module.save",{{"profile_id",id},{"module","log"},{"text","{\"log\":{\"loglevel\":\"info\"}}\n"}});const auto before=source();const auto marker=(temp.path/(std::string(mode)+".marker")).string();
+    std::string command=std::string(XRM_TEST_FAKE_EDITOR)+" --mode "+(std::string(mode)=="conflict"?"output":mode)+" --marker "+marker;
+    CapturedTui tui(daemon.socket(),{std::string("VISUAL=")+(std::string(mode)=="success"||std::string(mode)=="unset"?"":command),std::string("EDITOR=")+(std::string(mode)=="success"?command:std::string(mode)=="unset"?"":"/usr/bin/false")});REQUIRE(tui.started());edit_module(tui,"log");REQUIRE(tui.key("F2"));
+    if(std::string(mode)=="nonzero"||std::string(mode)=="cancel")REQUIRE(tui.type("DRAFT_KEEP"));
+    REQUIRE(tui.key("F6"));
+    if(std::string(mode)=="unset"){expect_notification(tui,"Configure an editor");CHECK(source()==before);continue;}
+    auto until=std::chrono::steady_clock::now()+std::chrono::seconds(3);while(!std::filesystem::exists(marker)&&std::chrono::steady_clock::now()<until)::poll(nullptr,0,20);REQUIRE(std::filesystem::exists(marker));
+    if(std::string(mode)=="nonzero"||std::string(mode)=="cancel"){expect_notification(tui,std::string(mode)=="cancel"?"External editor cancelled":"External editor failed");expect_text(tui,"DRAFT_KEEP");CHECK(source()==before);discard_dialog(tui);continue;}
+    if(std::string(mode)=="invalid"){expect_text(tui,"invalid JSON");REQUIRE(tui.key("C-s"));expect_text(tui,"Invalid JSON line 1");expect_text(tui,"{ invalid JSON");CHECK(source()==before);discard_dialog(tui);continue;}
+    expect_text(tui,"warning");expect_text(tui,"Unsaved *");CHECK(source()==before);
+    if(std::string(mode)=="conflict"){rpc_value(daemon,"module.save",{{"profile_id",id},{"module","log"},{"text","{\"log\":{\"loglevel\":\"error\"}}\n"}});REQUIRE(tui.key("C-s"));expect_text(tui,"source file changed");expect_text(tui,"warning");CHECK(source().find("error")!=std::string::npos);discard_dialog(tui);}
+    else {REQUIRE(tui.key("C-s"));expect_notification(tui,"Saved editor / log");CHECK(source().find("warning")!=std::string::npos);}
+    CHECK(rpc_value(daemon,"runtime.status").value("state","")=="stopped");
+  }
 }
 
 TEST_CASE("T25 pause keeps a bounded log viewport and reports server buffer truncation", "[T25][I52]") {
-  TempDir temp;
-  auto store = Store::open(temp.path / "state.sqlite"); REQUIRE(store);
-  Node node; node.id = "truncate-node"; node.original_name = "truncate logs";
-  node.settings = RawOutbound{Json{{"protocol", "freedom"}, {"settings", Json::object()}}};
-  REQUIRE((*store)->put_node(node));
-  store->reset();
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto core = Json::parse(cli(daemon.socket(), {"core", "register", XRM_TEST_FAKE_CORE, "--name", "truncation fixture"}));
-  auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "truncation", "--core", core.at("id").get<std::string>()}));
-  const auto profile_id = profile.at("id").get<std::string>();
-  set_profile_process_environment(daemon.socket(), temp.path, profile_id,
-      Json{{"XRM_FAKE_CORE_STDOUT_BYTES", "5000000"}});
-  REQUIRE(!cli(daemon.socket(), {"select", "node", profile_id, "truncate-node"}).empty());
-  auto tui = start_tui(daemon.socket(), profile_id); REQUIRE(tui.pid > 0);
-  read_screen(tui.master, std::chrono::milliseconds(700));
-  navigate_content(tui.master, 0, 5);
-  CHECK(terminal_text(read_screen(tui.master)).find("Logs — FOLLOW") != std::string::npos);
-  keys(tui.master, "p");
-  CHECK(terminal_text(read_screen(tui.master)).find("PAUSED") != std::string::npos);
-  const auto started = cli(daemon.socket(), {"connect", profile_id});
-  CHECK(!started.empty());
-  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
-  std::string observed;
-  while (std::chrono::steady_clock::now() < deadline && observed.find("older logs dropped / truncated") == std::string::npos) {
-    const auto chunk = terminal_text(read_screen(tui.master, std::chrono::milliseconds(200)));
-    observed += chunk;
-  }
-  CHECK(observed.find("older logs dropped / truncated") != std::string::npos);
-  CHECK(observed.find("PAUSED") != std::string::npos);
-  navigate_top(tui.master, 5, 5);
-  keys(tui.master, "q");
-  CHECK(tui.wait(std::chrono::seconds(3)));
-  const auto stop = cli(daemon.socket(), {"disconnect"});
-  CHECK(!stop.empty());
+  TempDir temp;Daemon daemon(temp.path);REQUIRE(daemon.start());const auto id=core_profile(daemon,"truncation");select_direct(daemon,id,direct_node(daemon,"truncate"));set_profile_process_environment(daemon.socket(),temp.path,id,{{"XRM_FAKE_CORE_STDOUT_BYTES","5000000"}});
+  CapturedTui tui(daemon.socket());REQUIRE(tui.started());REQUIRE(tui.top_page("Logs"));REQUIRE(tui.content());REQUIRE(tui.type("p"));expect_text(tui,"Paused");rpc_value(daemon,"connection.connect",{{"profile_id",id}});wait_state(daemon,"running");
+  const auto grid=tui.wait_for([](std::string_view g){return g.find("server history incomplete")!=std::string_view::npos;},std::chrono::seconds(20));INFO(grid);CHECK(grid.find("server history incomplete")!=std::string::npos);CHECK(grid.find("Paused")!=std::string::npos);CHECK(grid.find("F1 Help")!=std::string::npos);CHECK(grid.find("Viewport top:")==std::string::npos);
+  rpc_value(daemon,"connection.disconnect");wait_state(daemon,"stopped");
 }
 
 TEST_CASE("UX-02/03/04/05/06 focus layers route only the current keyboard scope", "[UX-02][UX-03][UX-04][UX-05][UX-06]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Home"}));
-  REQUIRE(created.contains("id"));
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  const auto initial = tui.wait_for([](std::string_view grid) { return grid.find("[Overview]") != std::string_view::npos; });
-  INFO("initial grid=" << initial);
-  REQUIRE(initial.find("[Overview]") != std::string::npos);
-
-  // Neither legacy direct navigation nor hidden content actions may escape TopNav.
-  REQUIRE(tui.type("3[7puecs"));
-  auto top = tui.grid();
-  CHECK(top.find("[Overview]") != std::string::npos);
-  CHECK(top.find("Routing preset ·") == std::string::npos);
-  REQUIRE(tui.key("Tab"));
-  auto profiles = tui.wait_for([](std::string_view grid) { return grid.find("[Profiles]") != std::string_view::npos; });
-  CHECK(profiles.find("[Profiles]") != std::string::npos);
-  REQUIRE(tui.key("Enter"));
-  CHECK(tui.wait_for([](std::string_view grid) { return grid.find("Focus: Content") != std::string_view::npos; })
-      .find("Focus: Content") != std::string::npos);
-  REQUIRE(tui.key("Enter"));  // View, not Use or Edit.
-  const auto viewed = tui.grid();
-  CHECK(viewed.find("editing") == std::string::npos);
-  CHECK(viewed.find("Home") != std::string::npos);
-
+  TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Home"}));
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); expect_text(tui, "TopNav");
+  REQUIRE(tui.type("3[7puecs")); CHECK(visibly_emphasized(tui.grid(true), "[Overview]"));
+  REQUIRE(tui.top_page("Profiles")); REQUIRE(tui.content()); REQUIRE(tui.key("Enter"));
+  expect_text(tui, "View Home"); CHECK(tui.grid().find("Next: Home") != std::string::npos);
+  CHECK(tui.grid().find("Module Edit: none") != std::string::npos);
+  REQUIRE(tui.top_page("Modules")); REQUIRE(tui.secondary_section("routing"));
+  REQUIRE(tui.type("p")); CHECK(tui.grid().find("Keep custom native") == std::string::npos);
+  REQUIRE(tui.content()); REQUIRE(tui.type("p")); expect_text(tui, "Source read-only");
+  CHECK(tui.grid().find("Keep custom native") == std::string::npos);
+  edit_module(tui, "routing"); REQUIRE(tui.type("p")); expect_text(tui, "Keep custom native");
   REQUIRE(tui.key("Escape"));
-  REQUIRE(tui.wait_for([](std::string_view grid) { return grid.find("Focus: TopNav") != std::string_view::npos; })
-      .find("Focus: TopNav") != std::string::npos);
-  REQUIRE(tui.key("Tab"));  // Modules.
-  REQUIRE(tui.wait_for([](std::string_view grid) { return grid.find("[Modules]") != std::string_view::npos; })
-      .find("[Modules]") != std::string::npos);
-  REQUIRE(tui.key("Enter"));  // SecondaryNav, not editor.
-  REQUIRE(tui.wait_for([](std::string_view grid) { return grid.find("Focus: SecondaryNav") != std::string_view::npos; })
-      .find("Focus: SecondaryNav") != std::string::npos);
-  for (int i = 0; i < 4; ++i) REQUIRE(tui.key("Tab"));
-  CHECK(tui.wait_for([](std::string_view grid) { return grid.find("[routing]") != std::string_view::npos; })
-      .find("[routing]") != std::string::npos);
-  REQUIRE(tui.type("p"));
-  CHECK(tui.grid().find("Routing preset ·") == std::string::npos);
-  REQUIRE(tui.key("Enter"));  // Content, not editor.
-  CHECK(tui.wait_for([](std::string_view grid) { return grid.find("Focus: Content") != std::string_view::npos; })
-      .find("Focus: Content") != std::string::npos);
-  REQUIRE(tui.type("p"));
-  CHECK(tui.wait_for([](std::string_view grid) {
-    return grid.find("Routing preset ·") != std::string_view::npos;
-  }).find("Routing preset ·") != std::string::npos);
-  REQUIRE(tui.key("Escape"));
+  CHECK(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "stopped");
 }
 
 TEST_CASE("UX-07/09 module views use one full-width draft and F2 never saves", "[UX-07][UX-09]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  auto created = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Home"}));
-  REQUIRE(created.contains("id"));
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  const auto before = raw_rpc(daemon.socket(), "module.get",
-      Json{{"profile_id", created.at("id")}, {"module", "log"}});
-  REQUIRE(before.contains("result"));
-  REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Tab")); // Modules from Overview.
-  REQUIRE(tui.key("Enter")); // SecondaryNav.
-  REQUIRE(tui.key("Enter")); // Content.
-  REQUIRE(tui.key("Enter")); // Open source draft in Visual.
-  auto visual = tui.wait_for([](std::string_view grid) {
-    return grid.find("loglevel") != std::string_view::npos && grid.find("Visual") != std::string_view::npos;
-  });
-  CHECK(visual.find("loglevel") != std::string::npos);
-  REQUIRE(tui.key("Down"));
-  REQUIRE(tui.key("Space")); // Visual loglevel warning -> info.
-  CHECK(tui.wait_for([](std::string_view grid) { return grid.find("string = \"info\"") != std::string_view::npos; })
-      .find("string = \"info\"") != std::string::npos);
-  REQUIRE(tui.key("F2"));
-  auto json = tui.wait_for([](std::string_view grid) {
-    return grid.find("JSON") != std::string_view::npos && grid.find("\"loglevel\"") != std::string_view::npos;
-  });
-  CHECK(json.find("\"loglevel\": \"info\"") != std::string::npos);
-  CHECK(json.find("[unsaved]") != std::string::npos);
-  const auto unchanged = raw_rpc(daemon.socket(), "module.get",
-      Json{{"profile_id", created.at("id")}, {"module", "log"}});
-  REQUIRE(unchanged.contains("result"));
-  CHECK(unchanged["result"].at("text") == before["result"].at("text"));
-  for (int i = 0; i < 3; ++i) REQUIRE(tui.key("Up"));
-  REQUIRE(tui.key("End")); REQUIRE(tui.key("Left"));
-  for (int i = 0; i < 4; ++i) REQUIRE(tui.key("BSpace"));
-  REQUIRE(tui.type("debug"));
-  REQUIRE(tui.key("F2"));
-  CHECK(tui.wait_for([](std::string_view grid) { return grid.find("string = \"debug\"") != std::string_view::npos; })
-      .find("string = \"debug\"") != std::string::npos);
-  REQUIRE(tui.key("C-s"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("saved source text") != std::string_view::npos;
-  }).find("saved source text") != std::string::npos);
-  const auto saved = raw_rpc(daemon.socket(), "module.get",
-      Json{{"profile_id", created.at("id")}, {"module", "log"}});
-  REQUIRE(saved.contains("result"));
-  CHECK(Json::parse(saved["result"].at("text").get<std::string>())["log"].value("loglevel", "") == "debug");
+  TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Home"}));
+  const auto id = profile.at("id").get<std::string>();
+  const auto original = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}}).at("result").at("text");
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); edit_module(tui, "log");
+  REQUIRE(tui.key("Enter")); expect_text(tui, "loglevel");
+  REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Home")); REQUIRE(tui.repeat_key("Down", 2)); REQUIRE(tui.key("Enter"));
+  REQUIRE(tui.key("C-s")); expect_text(tui, "Unsaved *"); REQUIRE(tui.key("F2")); expect_text(tui, "\"info\"");
+  CHECK(raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}}).at("result").at("text") == original);
+  REQUIRE(tui.key("C-Home")); REQUIRE(tui.repeat_key("Delete", 4096));
+  REQUIRE(tui.type(R"({"log":{"loglevel":"debug","extension":{"kept":true}}})"));
+  REQUIRE(tui.key("F2")); expect_text(tui, "Visual"); REQUIRE(tui.key("Enter")); expect_text(tui, "debug"); REQUIRE(tui.key("Escape"));
+  REQUIRE(tui.key("C-s")); expect_notification(tui, "Saved Home / log");
+  const auto saved = Json::parse(raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}}).at("result").at("text").get<std::string>());
+  CHECK(saved["log"]["loglevel"] == "debug"); CHECK(saved["log"]["extension"]["kept"] == true);
 }
 
 TEST_CASE("UX-08 invalid JSON stays in the same draft until repaired", "[UX-08][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Draft"}));
-  const auto id = profile.at("id").get<std::string>();
-  const auto original = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}})
-      .at("result").at("text");
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.wait_for([](std::string_view grid) { return grid.find("Visual") != std::string_view::npos; })
-      .find("Visual") != std::string::npos);
-  REQUIRE(tui.key("F2"));
-  REQUIRE(tui.type("x"));
-  auto invalid = tui.wait_for([](std::string_view grid) {
-    return grid.find("[unsaved]") != std::string_view::npos;
-  });
-  CHECK(invalid.find("x█") != std::string::npos);
-  REQUIRE(tui.key("F2"));
-  invalid = tui.wait_for([](std::string_view grid) {
-    return grid.find("Invalid JSON at ") != std::string_view::npos;
-  });
-  CHECK(invalid.find("Invalid JSON at ") != std::string::npos);
-  CHECK(invalid.find(":") != std::string::npos);
-  CHECK(invalid.find("x█") != std::string::npos);
-  CHECK(invalid.find("JSON") != std::string::npos);
-  CHECK(raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}})
-      .at("result").at("text") == original);
-  REQUIRE(tui.key("BSpace"));
-  REQUIRE(tui.key("F2"));
-  CHECK(tui.wait_for([](std::string_view grid) {
-    return grid.find("Visual") != std::string_view::npos && grid.find("loglevel") != std::string_view::npos;
-  }).find("loglevel") != std::string::npos);
+  TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Draft"})); const auto id=profile.at("id").get<std::string>();
+  const auto original=raw_rpc(daemon.socket(), "module.get", Json{{"profile_id",id},{"module","log"}}).at("result").at("text");
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); edit_module(tui,"log");
+  REQUIRE(tui.key("F2")); REQUIRE(tui.type("x")); REQUIRE(tui.key("C-s")); expect_text(tui,"Invalid JSON");
+  REQUIRE(tui.key("F2")); expect_text(tui,"JSON"); expect_text(tui,"Unsaved *");
+  CHECK(tui.grid().find("line 1")!=std::string::npos);
+  CHECK(raw_rpc(daemon.socket(),"module.get",Json{{"profile_id",id},{"module","log"}}).at("result").at("text")==original);
+  REQUIRE(tui.key("BSpace")); REQUIRE(tui.key("F2")); expect_text(tui,"Xray logging");
 }
 
 TEST_CASE("UX-07 leaving an unsaved module draft requires an explicit choice", "[UX-07][TUI]") {
-  TempDir temp;
-  Daemon daemon(temp.path); REQUIRE(daemon.start());
-  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Draft boundary"}));
-  const auto id = profile.at("id").get<std::string>();
-  const auto original = raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}})
-      .at("result").at("text");
-  CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  REQUIRE(tui.content());
-  REQUIRE(tui.key("Enter"));
-  REQUIRE(tui.key("Down"));
-  REQUIRE(tui.key("Space"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("[unsaved]") != std::string_view::npos;
-  }).find("[unsaved]") != std::string::npos);
-  REQUIRE(tui.key("Escape"));
-  CHECK(tui.wait_for([](std::string_view grid) {
-    return grid.find("Save / Discard / Continue") != std::string_view::npos;
-  }).find("Save / Discard / Continue") != std::string::npos);
-  REQUIRE(tui.type("c"));
-  CHECK(tui.wait_for([](std::string_view grid) {
-    return grid.find("[unsaved]") != std::string_view::npos &&
-           grid.find("Save / Discard / Continue") == std::string_view::npos;
-  }).find("[unsaved]") != std::string::npos);
-  REQUIRE(tui.key("Escape"));
-  REQUIRE(tui.wait_for([](std::string_view grid) {
-    return grid.find("Save / Discard / Continue") != std::string_view::npos;
-  }).find("Save / Discard / Continue") != std::string::npos);
-  REQUIRE(tui.type("d"));
-  const auto discarded_grid = tui.wait_for([](std::string_view grid) {
-    return grid.find("draft discarded") != std::string_view::npos;
-  });
-  REQUIRE(discarded_grid.find("draft discarded") != std::string::npos);
-  CHECK(discarded_grid.find("[unsaved]") == std::string::npos);
-  REQUIRE(tui.key("Escape"));
-  REQUIRE(tui.key("Tab"));
-  const auto dns = tui.wait_for([](std::string_view grid) {
-    return grid.find("[dns]") != std::string_view::npos;
-  });
-  CHECK(dns.find("[unsaved]") == std::string::npos);
-  CHECK(raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}})
-      .at("result").at("text") == original);
+  TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile=Json::parse(cli(daemon.socket(),{"profile","create","--name","Draft boundary"})); const auto id=profile.at("id").get<std::string>();
+  const auto original=raw_rpc(daemon.socket(),"module.get",Json{{"profile_id",id},{"module","log"}}).at("result").at("text");
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); edit_module(tui,"log"); REQUIRE(tui.key("F2")); REQUIRE(tui.type(" "));
+  REQUIRE(tui.key("Escape")); expect_text(tui,"Unsaved module"); REQUIRE(tui.repeat_key("Tab",2)); REQUIRE(tui.key("Enter")); expect_text(tui,"Unsaved *");
+  REQUIRE(tui.key("Escape")); expect_text(tui,"Unsaved module"); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Enter")); expect_text(tui,"SecondaryNav");
+  CHECK(tui.grid().find("Unsaved *")==std::string::npos); REQUIRE(tui.secondary_section("dns"));
+  CHECK(raw_rpc(daemon.socket(),"module.get",Json{{"profile_id",id},{"module","log"}}).at("result").at("text")==original);
 }
 
 TEST_CASE("UX-09 formatting compact Source and switching read-only Runtime never saves", "[UX-09][TUI]") {
@@ -2573,30 +1435,103 @@ TEST_CASE("UX-09 formatting compact Source and switching read-only Runtime never
          Json::parse(cli(daemon.socket(), {"status"})).value("state", "") != "running")
     ::poll(nullptr, 0, 30);
   REQUIRE(Json::parse(cli(daemon.socket(), {"status"})).value("state", "") == "running");
+  const auto pid=Json::parse(cli(daemon.socket(),{"status"})).at("pid");
   CapturedTui tui(daemon.socket()); REQUIRE(tui.started());
-  REQUIRE(tui.top_page("Modules"));
-  REQUIRE(tui.content());
-  const auto pretty = tui.wait_for([](std::string_view grid) {
-    return grid.find("\"loglevel\": \"warning\"") != std::string_view::npos;
-  });
-  CHECK(pretty.find("\"vendor\": {") != std::string::npos);
-  CHECK(pretty.find("[unsaved]") == std::string::npos);
-  REQUIRE(tui.key("F2"));
-  CHECK(tui.wait_for([](std::string_view grid) { return grid.find("loglevel : string") != std::string_view::npos; })
-      .find("loglevel : string") != std::string::npos);
-  REQUIRE(tui.key("F2"));
-  CHECK(tui.wait_for([](std::string_view grid) { return grid.find("\"loglevel\": \"warning\"") != std::string_view::npos; })
-      .find("[unsaved]") == std::string::npos);
-  CHECK(raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}})
-      .at("result").at("text").get<std::string>() == compact);
-  REQUIRE(tui.type("v"));
-  CHECK(tui.wait_for([](std::string_view grid) {
-    return grid.find("read-only active runtime") != std::string_view::npos;
-  }).find("read-only active runtime") != std::string::npos);
-  REQUIRE(tui.key("Enter"));
-  CHECK(tui.wait_for([](std::string_view grid) {
-    return grid.find("Runtime is read-only") != std::string_view::npos;
-  }).find("Runtime is read-only") != std::string::npos);
-  CHECK(raw_rpc(daemon.socket(), "module.get", Json{{"profile_id", id}, {"module", "log"}})
-      .at("result").at("text").get<std::string>() == compact);
+  REQUIRE(tui.top_page("Modules")); REQUIRE(tui.content()); REQUIRE(tui.key("F2")); expect_text(tui,"\"vendor\"");
+  CHECK(tui.grid().find("Unsaved *")==std::string::npos); REQUIRE(tui.key("F2")); expect_text(tui,"Xray logging");
+  REQUIRE(tui.type("v")); expect_text(tui,"Runtime read-only"); REQUIRE(tui.key("F2")); REQUIRE(tui.type("x")); REQUIRE(tui.key("C-s"));
+  CHECK(tui.grid().find("Unsaved *")==std::string::npos);
+  CHECK(raw_rpc(daemon.socket(),"module.get",Json{{"profile_id",id},{"module","log"}}).at("result").at("text").get<std::string>()==compact);
+  const auto status=Json::parse(cli(daemon.socket(),{"status"})); CHECK(status.value("state","")=="running"); CHECK(status.at("pid")==pid);
+}
+
+TEST_CASE("UX-INT node JSON and Group field errors keep the bound PTY draft", "[UX-INT][I-11][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Draft"}));
+  const auto profile_id = profile.at("id").get<std::string>();
+  const auto uri = "vless://00000000-0000-4000-8000-000000000222@127.0.0.1:12345?type=tcp&security=none#Local";
+  const auto node = Json::parse(cli(daemon.socket(), {"node", "add", "--uri", uri}));
+  const auto node_id = node.at("id").get<std::string>();
+  const auto node_before = raw_rpc(daemon.socket(), "node.get", Json{{"id", node_id}})
+      .at("result").at("settings");
+  {
+    CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.secondary_section("Local")); REQUIRE(tui.content());
+    REQUIRE(tui.type("J")); expect_text(tui,"Advanced node"); REQUIRE(tui.key("Tab")); REQUIRE(tui.type("x")); REQUIRE(tui.key("C-s")); expect_text(tui,"Invalid JSON object");
+    CHECK(raw_rpc(daemon.socket(),"node.get",Json{{"id",node_id}}).at("result").at("settings")==node_before);
+    REQUIRE(tui.key("Escape")); expect_text(tui,"Unsaved form"); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Enter"));
+  }
+  const auto local = Json::parse(cli(daemon.socket(), {"node", "add", "--name", "group-local",
+      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"group-local"})"}));
+  const auto group = Json::parse(cli(daemon.socket(), {"group", "add", profile_id,
+      "--name", "Pinned", "--tag", "pinned", "--mode", "manual", "--members",
+      local.at("id").get<std::string>()}));
+  const auto group_id = group.at("id").get<std::string>();
+  const auto group_before = raw_rpc(daemon.socket(), "group.get",
+      Json{{"profile_id", profile_id}, {"group_id", group_id}}).at("result");
+  {
+    CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Nodes")); REQUIRE(tui.secondary_section("Groups")); REQUIRE(tui.content());
+    REQUIRE(tui.type("e")); expect_text(tui,"Edit Group"); replace_input(tui,""); REQUIRE(tui.key("C-s")); expect_text(tui,"Required");
+    CHECK(raw_rpc(daemon.socket(),"group.get",Json{{"profile_id",profile_id},{"group_id",group_id}}).at("result")==group_before);
+    REQUIRE(tui.type("Repaired draft")); expect_text(tui,"Repaired draft");
+  }
+}
+
+TEST_CASE("UX-INT Profile and Subscription editors save their own sources", "[UX-INT][TUI]") {
+  TempDir temp;
+  Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile = Json::parse(cli(daemon.socket(), {"profile", "create", "--name", "Home"}));
+  const auto profile_id = profile.at("id").get<std::string>();
+  const auto source = Json::parse(cli(daemon.socket(), {"sub", "add", "--name", "Fixture",
+      "--url", "http://127.0.0.1:1/fixture"}));
+  const auto source_id = source.at("id").get<std::string>();
+  REQUIRE(!cli(daemon.socket(), {"profile", "sources", "set", profile_id, "--source", source_id}).empty());
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Profiles")); REQUIRE(tui.content());
+  REQUIRE(tui.type("m")); expect_text(tui,"metadata Profile"); replace_input(tui,"Home renamed"); REQUIRE(tui.key("C-s")); expect_text(tui,"Home renamed saved;");
+  CHECK(Json::parse(cli(daemon.socket(),{"profile","show",profile_id})).value("name","")=="Home renamed");
+  REQUIRE(tui.type("m")); expect_text(tui,"metadata Profile"); replace_input(tui,"Stale draft");
+  REQUIRE_FALSE(cli(daemon.socket(),{"profile","rename",profile_id,"--name","External name"}).empty()); REQUIRE(tui.key("C-s"));
+  expect_text(tui,"Stale draft"); expect_text(tui,"changed");
+  CHECK(Json::parse(cli(daemon.socket(),{"profile","show",profile_id})).value("name","")=="External name");
+  REQUIRE(tui.key("Escape")); expect_text(tui,"Unsaved form"); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Enter"));
+  REQUIRE_FALSE(cli(daemon.socket(),{"profile","rename",profile_id,"--name","Home renamed"}).empty());
+  REQUIRE(tui.top_page("Subscriptions")); REQUIRE(tui.content()); REQUIRE(tui.type("e")); expect_text(tui,"Edit subscription");
+  replace_input(tui,"Fixture renamed"); REQUIRE(tui.key("C-s")); expect_text(tui,"Settings changed");
+  auto updated=Json::parse(cli(daemon.socket(),{"sub","show",source_id})).at("subscription"); CHECK(updated.value("name","")=="Fixture renamed"); CHECK(updated.value("auto_refresh",false));
+  REQUIRE(tui.type("e")); replace_input(tui,"Stale subscription"); REQUIRE_FALSE(cli(daemon.socket(),{"sub","edit",source_id,"--name","External source"}).empty()); REQUIRE(tui.key("C-s"));
+  expect_text(tui,"changed outside this form"); expect_text(tui,"Stale subscription");
+  CHECK(Json::parse(cli(daemon.socket(),{"sub","show",source_id})).at("subscription").value("name","")=="External source");
+  REQUIRE(tui.key("Escape")); expect_text(tui,"Unsaved form"); REQUIRE(tui.key("Tab")); REQUIRE(tui.key("Enter"));
+  REQUIRE_FALSE(cli(daemon.socket(),{"sub","edit",source_id,"--name","Fixture renamed"}).empty()); REQUIRE(tui.type("r")); REQUIRE(tui.type("t")); expect_text(tui,"Auto refresh");
+  CHECK_FALSE(Json::parse(cli(daemon.socket(),{"sub","show",source_id})).at("subscription").value("auto_refresh",true));
+  const auto other=Json::parse(cli(daemon.socket(),{"profile","create","--name","Office"}));
+  REQUIRE_FALSE(cli(daemon.socket(),{"profile","sources","set",other.at("id").get<std::string>(),"--source",source_id}).empty());
+  REQUIRE(tui.type("r")); REQUIRE(tui.type("D")); expect_text(tui,"Remove Fixture renamed"); expect_text(tui,"Office"); expect_text(tui,"Home renamed");
+  REQUIRE(tui.key("Escape")); CHECK(Json::parse(cli(daemon.socket(),{"sub","show",source_id})).at("subscription").value("name","")=="Fixture renamed");
+  REQUIRE(tui.type("D")); REQUIRE(tui.key("C-s")); expect_text(tui,"Subscription removed");
+  const auto remaining=Json::parse(cli(daemon.socket(),{"sub","list"})); CHECK(std::none_of(remaining.begin(),remaining.end(),[&](const Json& source){return source.value("id","")==source_id;}));
+  CHECK(Json::parse(cli(daemon.socket(),{"status"})).value("state","")=="stopped");
+}
+
+TEST_CASE("UX-INT offline inventory is unknown and cached data recovers in place", "[UX-INT][TUI]") {
+  TempDir temp; Daemon daemon(temp.path);
+  { CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); expect_text(tui,"unavailable"); CHECK(tui.grid().find("0 nodes")==std::string::npos);
+    REQUIRE(daemon.start()); REQUIRE(tui.content()); REQUIRE(tui.type("r")); expect_text(tui,"xrmd ready"); expect_text(tui,"0 nodes"); }
+  REQUIRE_FALSE(cli(daemon.socket(),{"profile","create","--name","Cached Home"}).empty());
+  { CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.top_page("Profiles")); REQUIRE(tui.content()); expect_text(tui,"Cached Home");
+    daemon.stop(); REQUIRE(tui.type("r")); expect_text(tui,"cached"); expect_text(tui,"Cached Home"); expect_text(tui,"Content");
+    REQUIRE(daemon.start()); REQUIRE(tui.type("r")); expect_text(tui,"xrmd ready"); expect_text(tui,"Cached Home"); expect_text(tui,"Content"); }
+  CHECK(Json::parse(cli(daemon.socket(),{"status"})).value("state","")=="stopped");
+}
+
+TEST_CASE("UX-INT a dirty native draft survives same-session resize and exposes full paths", "[UX-INT][TUI]") {
+  TempDir temp; Daemon daemon(temp.path); REQUIRE(daemon.start());
+  const auto profile=Json::parse(cli(daemon.socket(),{"profile","create","--name","Resize"})); const auto id=profile.at("id").get<std::string>();
+  const auto original=raw_rpc(daemon.socket(),"module.get",Json{{"profile_id",id},{"module","log"}}).at("result").at("text");
+  CapturedTui tui(daemon.socket()); REQUIRE(tui.started()); REQUIRE(tui.content()); REQUIRE(tui.type("f")); expect_text(tui,"No running confdir"); REQUIRE(tui.key("Escape"));
+  edit_module(tui,"log"); REQUIRE(tui.type("i")); expect_text(tui,"Source:"); expect_text(tui,"Runtime:"); REQUIRE(tui.key("Escape"));
+  REQUIRE(tui.key("F2")); REQUIRE(tui.type("x")); expect_text(tui,"Unsaved *");
+  REQUIRE(tui.resize(120,40)); expect_text(tui,"Unsaved *"); REQUIRE(tui.resize(70,20)); expect_text(tui,"Terminal too small");
+  REQUIRE(tui.resize(80,24)); expect_text(tui,"Unsaved *"); REQUIRE(tui.key("BSpace")); REQUIRE(tui.key("F2")); expect_text(tui,"Xray logging");
+  CHECK(raw_rpc(daemon.socket(),"module.get",Json{{"profile_id",id},{"module","log"}}).at("result").at("text")==original);
 }

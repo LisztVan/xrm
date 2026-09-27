@@ -1,0 +1,227 @@
+证据收集完毕。以下是独立审查报告。
+
+---
+
+# XRM 独立产品设计审查报告
+
+## 审查证据与限制（先于结论声明）
+
+1. **第一阶段截图**：用户未实际附带截图。我改用仓库内真实 PTTY/PNG 终端捕获（`docs/evidence/visual-polish/`、`docs/evidence/component-rewrite/`、`build/component-rewrite/visual-first/`，约 100 张 80×24 / 120×40 / 180×48 三尺寸真实屏幕 + `cli-evidence.json` 约 150 条真实 CLI 调用记录）。这些是**实现方自己跑的捕获，存在 happy-path 偏选风险**，我按此打了折扣。
+2. **第二阶段实机运行被阻断**：当前会话处于 review 守卫模式，`tui-lab.py`、tmux、`xrm` 二进制、甚至提问工具均被拒绝执行（6 次拒绝记录）。**未能独立实机验证**。所有交互结论来自上述真实捕获，无法从截图验证的条目明确标注 **Not enough evidence**，不猜测。
+3. 未阅读实现者执行总结、测试数量、commit message。
+
+**Not enough evidence 清单**：中文输入法行为；TextInput 的 Left/Right/Home/End/Backspace/Delete 手感；Toast 连续堆叠的实际时序；F1 在 Profiles/Logs/Dialog 等 5 种上下文的实际内容（只有表单内 Help 捕获）；订阅编辑表单 URL 掩码是产品行为还是取证脱敏；Group 创建表单有限选项是否真用选择组件；Use 取消后核心仍在运行的提示动线。
+
+---
+
+## 1. Executive verdict
+
+XRM 当前是一个**骨架正确、皮肤半成品**的产品。
+
+它最有价值的资产是一套在终端代理工具里少见的、思考过的状态模型：View / Use / Edit / Run / Draft / Saved 被明确区分，并且在每一页底部持续可见；Edit 作为"指定 Profile 的模块写入模式"而非元数据编辑器，Use 可取消且不隐式停止核心——这些语义在捕获中（`use-cancelled`、`dialog-unsaved`、`15-save-failure`）是真实落地的，不是文档宣称。Toast 的"说明改变了什么、什么没变"（"Saved Alpha / dns; runtime unchanged"）是成熟产品级别的反馈文案。
+
+但它**不像一个被设计过的产品，像一个被规范过的原型**：每一页是同一副"顶部导航 + 一张表 + 右侧 Inspection + 底部 token 行"的骨架，120×40 下约 70–80% 是空白；15 个模块的二级导航在 80 列甚至 120 列都被截断且没有任何溢出指示；错误文案泄漏内部 RPC 方法名、errno 原文并中英混杂；Dialog 有双边框渲染缺陷；所有页面动作零屏幕提示，可发现性完全押注在 F1 上。
+
+一句话：**状态架构是资深工程师做的，页面信息设计是没有人真正以用户身份坐下来用过的。**
+
+---
+
+## 2. Overall score: **63 / 100**
+
+区间定位：60–69，"功能可用，但产品设计明显不成熟"。不给 70+ 的原因：可发现性、信息密度、错误文案、渲染完整性这四个维度都有实证缺陷，而这些恰是用户每分钟都会撞到的东西。
+
+## 3. Score breakdown
+
+| 维度 | 得分 | 要点 |
+|---|---|---|
+| A. Interaction Architecture /20 | **13** | 状态模型与保存/运行边界优秀（+）；动作零屏幕提示、导航溢出不可发现、Edit 门槛本身需要被"发现"（−） |
+| B. Information Architecture /15 | **9** | 层级框架正确、原生路径可见、unknown≠zero（+）；密度失衡、状态行是 token dump、空状态是死胡同（−） |
+| C. TUI Visual Design /15 | **9** | 配色克制、对齐良好（+）；双边框、toast 压坏底层文本、截断无省略号、大面积空白（−） |
+| D. Component System /15 | **9** | 组件组合一致、枚举用 radio、校验保留输入与焦点（+）；集合编辑器"Value:"+常驻五按钮笨拙、Dialog 渲染缺陷（−） |
+| E. Configuration Editing UX /10 | **7** | DNS/routing 是真领域编辑器、未知字段保留、Visual/JSON 共享草稿（+）；其余 13 模块基本是 JSON/占位，深度不均（−） |
+| F. Feedback & Error Recovery /10 | **6** | Toast 与草稿保留是亮点（+）；错误文案质量差、Dialog 无说明、离线仅页脚一行（−） |
+| G. Terminal Ergonomics /5 | **4** | 80×24 可操作、60×18 有保护且保留草稿、resize 不丢状态（+）；导航与子系统列截断（−） |
+| H. CLI UX /10 | **6** | 分组帮助、TTY/管道分流、成功文案讲边界（+）；错误前缀是内部方法名、中英混杂、human 输出漏 `null`、connect 成功报 UUID（−） |
+
+---
+
+## 4. Page-by-page scores
+
+| 页面 | Visual | Hierarchy | Interaction | Efficiency | Consistency |
+|---|---|---|---|---|---|
+| Overview | 7 | 6 | **4** | 5 | 7 |
+| Profiles | 6 | 5 | 6 | 6 | 7 |
+| Modules | 6 | 7 | 6 | **4** | 6 |
+| Subscriptions | 6 | 6 | 5 | 5 | 7 |
+| Nodes | 6 | 6 | 6 | 6 | 7 |
+| Logs | **5** | 5 | 6 | 6 | 6 |
+| Config | 6 | 6 | 6 | 5 | 7 |
+
+**最成熟页面：Modules。** 它是唯一有"纵深"的页面：15 个原生键、Source/Runtime 分界、Visual/JSON 双视图、集合增删改重排、原生路径（`dns.servers`、`modules/01_dns.json`）明示、未知字段往返保留（`"futureNative": 42` 实证）。这里能看出产品想做什么。
+
+**最弱页面：Overview。** 它是用户的第一落点，却是信息设计最半成品的：占据整屏但没有任何一个可见动作（Connect/Stop 在契约里存在，页面上零痕迹）；"Statistics OBSERVED / Traffic: unavailable · latency: unmeasured / Requires stats, policy, metrics"告诉用户"没有"，却不告诉"怎样才有"；"Health process_only"是内部词汇（新版捕获已改为 "Process alive; traffic unverified"，方向对）。Logs 紧随其后：cursor 编号重复（#24×4、#25×4）让"序号"失去定位意义，TIME 稀疏出现且无分组视觉，120 列下 subsystem 被截成 `transport/internet/t~`。
+
+---
+
+## 5. Strongest aspects
+
+1. **状态模型与全局状态行**。`View Alpha · Use Alpha · Edit none · Run Alpha` 每页常驻；Use 取消后 `Use none · Run Alpha` 与"核心仍在跑"的关系一目了然。这在同类工具里是超前的。
+2. **Toast 反馈哲学**。覆盖式不推布局、说明"改了什么+什么没改"、重复合并计数 `(2)`、"more in history"折叠、自动过期。这是全产品最成熟的一个组件。
+3. **保存/运行边界的文案纪律**。"Saved settings apply only on Connect / Apply"、"running configuration unchanged"、"process running; traffic unverified"——从不说"成功"两字糊弄，永远说清边界。CLI 同样遵守。
+4. **草稿韧性实证**。非法输入保留值与焦点（`port: bad` + `! Enter a whole number`）、保存失败保留模式/稿件/焦点、终端缩小到 60×18 显示保护屏并明确"Your draft and focus are preserved"。
+5. **原生保真**。`ruleTag` 是真原生字段、未知字段保留、原生嵌套路径可见、15 模块全覆盖导航。
+6. **CLI 帮助体系**。根帮助按"Inventory / Saved configuration / Run and observe / Interactive"分组、每层裸命令打印当前层帮助、help 不触 daemon、TTY 给人类表格/管道给 TSV、`--json` 错误走纯机器格式。
+
+---
+
+## 6. Root UX problems
+
+**ROOT-01：单键动作 + 零屏幕提示 = 可发现性押注在记忆和 F1 上。**
+所有页面的动作（u/e/n/c/R/m/D/F2…）在界面上没有任何痕迹。契约规定"不可执行操作不列入 Help、常驻快捷键长条删除"，这是对的，但实现把"删除快捷键长条"执行成了"删除一切动作可见性"。成熟做法（lazygit、k9s）是在上下文里给 2–4 个当前可用主操作的轻量提示。受影响：全部 7 页，Overview 最致命（用户打开产品第一件事是连接，页面上没有"连接"的任何痕迹）。
+
+**ROOT-02：二级导航截断且无溢出 affordance。**
+Modules 的 15 键在 80×24 显示到 `stats pol…`、在 **120×40 仍然**显示到 `version bu…`（`burstObservatory` 被腰斩）；它确实随选择滚动（10b 捕获证明），但没有任何 ‹ › 或省略号告诉用户"右边还有 5 个模块"。fakedns/geodata/env/version/burstObservatory 在最小和常用尺寸下**不可发现**。这正是契约自己警告的"用户必须记住而不是能够发现"。
+
+**ROOT-03：错误与状态文案泄漏实现层，且中英混杂。**
+TUI：`stale — 连接xrmd失败: no such file or directory`（页脚与表单内联错误同款）。CLI：`module.form [Home]:`、`connection.connect [Home]:`、`cli.routing.preset.plan:` 这些 RPC 方法名作为错误前缀；`核心不存在`、`发送IPC请求失败: broken pipe` 混在英文界面里；`no such file or directory` 是 errno 原文，用户要的自己翻译为"daemon 没启动"。human 输出漏 JSON：`applied target: null`；connect 成功报 `Connected Profile [238ac3cd-…]` 而不是名字。错误三要素（action+object+reason）有，但 reason 说的是机器语言，且几乎不给 recovery（`连接xrmd失败` 配了 `Check: … status` 是唯一例外，值得肯定）。
+
+**ROOT-04：组件组合层有实证渲染缺陷。**
+① Dialog 双边框——`dialog-unsaved` PNG 里清晰的两层嵌套框、中间一圈空白，任何真人都不会这样画。② Toast 覆盖后底层重绘错误——`config-10` 捕获里表格行被 toast 拼接成 `reduce_mXRM appearance`、`theme   ───` 断行。③ Toast 正好盖住正在编辑的 JSON 区域。④ 截断无省略号：Config 的 Path 显示 `/home/lisztzy/Project` 戛然而止。这些说明组件"各自可复用"但**叠加态没有被人用眼看过**。
+
+**ROOT-05：表格 + Inspection 页型空间利用率极低，空状态无引导。**
+Profiles / Subscriptions / Nodes / Config 四页共用一行表格 + 右侧 Inspection（3–5 个字段）+ 约 70% 空白。Inspection 是被动字段陈列，不放相关动作、不放关联信息（Profile 的 Inspection 不放来源绑定/目标节点，只有 Core 和 Saved）。空模块页只有一行 `burstObservatory settings`——它是什么、停用意味着什么、只读能看什么，全无。空集合显示 `No entries` 却常驻 `[Add][Update][Delete][Up][Down]` 五按钮，上面挂一个孤儿标签 `Value:`。
+
+**ROOT-06：Logs 的序列语义混乱。**
+CURSOR 列对连续多条记录重复同一编号（#24×4），它看起来是 IPC chunk 号而不是记录号——契约说"不假定 IPC chunk 是记录"，但 UI 上它就是被当成了记录序号展示。TIME 只在部分行出现，续行与新记录仅靠"没有时间"区分；80 列砍掉 SUBSYSTEM 列把子系统塞进消息体（`proxy/vless: loopback fixture…`）尚可接受，120 列截断成 `transport/internet/t~` 不可接受。底部 `PAUSED · 42 lines · dropped no` 与正文分离做得对，但 `cursor 33` 是 debug 信息混进了 chrome。
+
+---
+
+## 7. AI-generated UI smell
+
+如果不知道作者是谁，以下迹象会让我怀疑这是 AI 拼装：
+
+- **Layout**：七页共用完全相同的骨架（顶导航/表/右栏/底 token 行），页面类型差异（日志流 vs 仪表盘 vs 列表管理）没有反映到版式差异上。人类设计师会让 Logs 和 Overview 长得明显不同。
+- **Terminology**：内部标识符直接当 UI 词汇：`CURSOR`、`SOURCE · READ ONLY · Visual`、`included/excluded`、`process_only`、错误里的 `module.form [Home]:`。这是"后端数据结构直接投射到界面"的教科书症状。
+- **State presentation**：状态被表达为点分隔的 flag 流（`dns · Source editable · JSON · unsaved · included`）——把一组布尔位 join 成字符串，而不是设计"用户此刻最需要知道哪一个"。
+- **Interaction**：每页发明零个自己的交互——这反过来也可疑：所有可发现性被推给一个统一 Help 弹层，页面上没有任何动作痕迹，像"交互需求被一条规范（删除快捷键长条）机械执行到底"的结果。
+- **Component composition**：组件各自规整，叠加出双边框、toast 压字——典型的"逐组件快照测试通过、整屏视觉无人验收"。
+- **Help**：Help 内容是按键清单（"Ctrl-Home / Ctrl-End → Document start / end"），还自造了一个第三列 scope 标签（`Multiline text`、`Current draft`）制造信息感；最后一行 `Scroll with Up / Down     Esc closes Help` 两条不相关说明挤一行。Help 回答"按什么"，从不回答"我现在该做什么"。
+- **Forms**：所有集合无一例外渲染为 `Entries / No entries / Value: / 五按钮`，语义不同的集合（域名列表 vs expectedIPs vs 规则）得到完全相同的机械表达。
+- **Visual hierarchy**：页面标题、字段标签、数据、chrome 几乎同一字重同一色系（cyan），靠 `─` 横线代替层级——"用 border 代替布局"的变体。
+
+---
+
+## 8. TUI visual critique
+
+配色纪律是好的：单一 cyan 强调、Error 红、running 绿、Warning 黄，有 256/paper 主题变体捕获，不依赖 Nerd Font——这部分达到成熟终端工具的及格线。对齐在表格内是干净的。
+
+问题集中在**空间与完整性**：120×40 下每个列表页约 70% 空白而底部被允许用掉 3–4 行 token 文本，预算分配倒挂；Overview 在 180×48 下纯拉伸，下方一半屏幕全空；截断普遍无省略号（导航、Path、subsystem 三种截断三种画法）；双边框与 toast 压字是肉眼级缺陷。`XRM [Overview] Profiles …` 顶导航用方括号标记当前页，清晰但和页内标题（`Overview  Runtime & saved configuration`）重复表达同一信息。
+
+## 9. Interaction critique
+
+语义层（什么动作有什么含义）是产品最强处；表达层（用户怎么知道有这些动作）是最弱处。具体：
+
+- **Edit 门槛的引入成本**：用户进 Modules 看到 `READ ONLY`，界面上没有任何"按 e 在 Profiles 页开启 Edit"的指引。契约的门槛设计本身合理，但产品把引导责任完全推给了文档。
+- **Use 取消语义可见性**：`Use none · Run Alpha` 清楚；但"取消 Use 不停止核心"这一关键安全语义只在 Toast/契约里，Profiles 页 Session 列从 `Use Run` 变 `Run` 需要用户自己领悟。
+- **Enter 查看 / 明确动作才切换**的纪律在捕获中成立。
+- 草稿解决对话（Save/Discard/Continue）存在且正确，但 Dialog 本身没有一句话说明"哪个表单的什么改动将丢失"。
+
+## 10. Component-system critique
+
+一致性是真实存在的：所有页面确实由同一套 Form/Table/Dialog/Toast/Help 组成，校验内联、焦点保留、枚举用 radio（Appearance 表单六组 radio 是正面样本）、布尔用 checkbox。扣分在三处：
+
+1. **CollectionEditor 的表达**：`Entries / No entries / Value: / [Add][Update][Delete][Up][Down]` 常驻五按钮 + 空态孤儿标签，是"操作完备但表达粗糙"；
+2. **Dialog**：双边框 + 无正文说明；
+3. **Toast**：覆盖策略与底层重绘有实证冲突（ROOT-04②③）。
+
+TextInput 的键位行为、中文输入：**Not enough evidence**。
+
+## 11. Module editor critique
+
+DNS 编辑器是真领域编辑器：Address/port/domains/expectedIPs/queryStrategy（radio）/skipFallback（`[ ] Explicit [Use default][not set]` 三态）/timeoutMs，字段有原生语义映射，校验内联。Routing 规则支持复制与重排，`ruleTag` 是原生字段（旧捕获里的 "Rule label" 措辞与原生名不一致，小瑕疵）。Visual/JSON 共享草稿、非法 JSON 阻止切回、未知字段保留，均有实证。
+
+但深度严重不均：15 个模块里只有 DNS/routing 有这种待遇，其余多数打开就是 JSON 或一行占位（`burstObservatory settings`）。契约允许分阶段，但**产品页面对"这个模块能干什么"零解释**，把"还没做 Visual"呈现为"这里什么都没有"。Edit 门槛 + F2 + Add to draft + Save 的四层保存心智（子表单→父稿→源文件→Connect 发布）是对的，但每一步的边界只有Toast 在事后告诉你，事前界面不预告。
+
+## 12. Logs critique
+
+正面：viewer 状态（PAUSED/lines/dropped/truncated）在底部与正文明确分离；级别着色；未知格式不伪造级别（留空）；长行对齐续行；原始记录详情弹层存在。
+
+负面：CURSOR 重复编号使"序号"失效；TIME 稀疏无分组；120 列 subsystem 腰斩；页脚混入 `cursor 33` debug 信息；旧构建 SOURCE/LEVEL 粘连（`core_stdoInfo`）在新构建已修为 `stdout`+独立 LEVEL 列，说明在迭代，但当前版本仍把 subsystem 截断。真实 Xray 日志下的表现仅有一条 real-core 捕获（03-real-xray-running），样本太薄，**部分 Not enough evidence**。
+
+## 13. CLI critique
+
+正面（达到 80+ 水准的部分）：根帮助分组+真实示例+"Help is local and never connects to xrmd"；裸分组打印当前层帮助；TTY 人类表/管道 TSV 分流；成功文案讲边界；`--json` 错误纯机器格式；退出码区分（106 参数错/109 未知参数/3 daemon/1 业务错）。
+
+负面：
+1. 错误前缀是 RPC 方法名（`module.form [Home]:`）——用户没有这个概念；
+2. 中英混杂 + errno 原文（`连接xrmd失败: no such file or directory`）；
+3. `xrm connect Home` 失败只给 `核心不存在`，不给"用 `xrm core register` 登记"的下一步；
+4. human 输出漏机器值：`applied target: null`；
+5. `Connected Profile [238ac3cd-…]` 用 UUID 不用名字，和"Profile arguments accept exact names"的引导自相矛盾；
+6. 每个帮助页尾部 5 行模板（Replace Home…/Machine output…/Place global --json…）重复出现约 150 次，根帮助放一次即可。
+
+CLI 与 TUI 术语一致性：Profile/Use/Saved/Runtime 一致（+）；CLI 的 `select`/`connect` 与 TUI 的 Use/Connect 语义对应关系需要用户自己建立映射（−，轻微）。
+
+## 14. Terminal-size/accessibility critique
+
+80×24 全部七页可操作，列有降级策略（Logs 砍 SUBSYSTEM 列）；60×18 显示保护屏且明确保留稿件与焦点；resize 保留草稿（dirty-resize 系列实证）；存在 256 色与 paper 主题捕获，色彩不作为唯一信息通道的意图可见（级别同时有文字）。缺陷：Modules 导航在 80/120 列截断无指示（ROOT-02）；subsystem/Path 截断无省略号。中文输入与 Unicode 宽度实测：**Not enough evidence**（旧捕获中 `Alph?a` 的 `?` 疑似宽字符替换痕迹，无法确证是产品问题还是捕获脱敏）。
+
+---
+
+## 15. Issues
+
+**P0 Blocker**：基于现有证据无。核心任务链（建 Profile→开 Edit→改模块→保存→连接）在捕获中是通的。注：实机复核被守卫阻断，此结论保留。
+
+**P1 Major**
+1. Modules 15 键导航在 80/120 列截断且无溢出指示，5 个模块不可发现（ROOT-02）。
+2. 错误文案系统性泄漏实现层：RPC 方法名前缀、errno 原文、中英混杂（TUI 页脚/表单 + CLI 全量）（ROOT-03）。
+3. Dialog 双边框、Toast 覆盖导致底层表格文本损坏（`reduce_mXRM appearance`）（ROOT-04）。
+4. 全产品零屏幕动作提示，可发现性完全依赖 F1 与记忆（ROOT-01）。
+5. 订阅编辑表单 URL 显示为 `•••••`（12-subscription-multifield 捕获）：若为产品行为则直接违反交互契约"编辑返回真实内容"；若为取证脱敏则降级为 P3。**需实机确认，当前标记存疑。**
+
+**P2 Moderate**
+1. 表格+Inspection 页型 70% 空白，Inspection 内容稀薄（ROOT-05）。
+2. Overview 无可操作入口、Statistics 不可行动（不说怎么开启）。
+3. Logs cursor 重复/TIME 稀疏/subsystem 截断（ROOT-06）。
+4. 空状态无引导：空模块一行占位、`No entries` 配五个常驻按钮、`Value:` 孤儿标签。
+5. Unsaved Dialog 无"将丢失什么"的说明。
+6. CLI human 输出漏 `null`、connect 成功报 UUID、connect 失败无下一步指引。
+
+**P3 Polish**
+1. `1 nodes · 1 sources` 复数语法。2. Help 内 `Scroll with Up / Down   Esc closes Help` 混排。3. 帮助页 5 行模板尾注重复。4. 页脚 `cursor 33` debug 残留。5. 三处截断三种画法、均无省略号。6. "Rule label" 与原生 `ruleTag` 措辞不一致。
+
+---
+
+## 16. Top 5 changes with highest UX return
+
+1. **让动作可见**：每页在上下文位置显示 2–4 个当前可执行主操作（由真实 Action 定义生成，禁用即消失），并把 Modules 二级导航加 `‹ ›` 溢出指示。一处改动同时解决 ROOT-01/ROOT-02。
+2. **建一层用户语言错误文案**：`action + object + reason + recovery`，消灭 RPC 方法名、errno 原文，统一英文（或完整 i18n），connect 类错误附下一步命令。
+3. **修叠加渲染**：Dialog 单边框；Toast 出现时底层内容正确重绘或避让正在编辑区域。
+4. **重做表格页密度**：Inspection 填充真实关联信息（Profile→绑定来源/目标/模块摘要；Node→延迟/来源/凭据状态），空状态给出下一步动作。
+5. **Overview 可操作化**：放置 Connect saved/Stop 动作入口与"如何开启统计"的指引（指向 `xrm config statistics enable` 或对应 TUI 路径）。
+
+## 17. Things that should NOT be changed
+
+- View/Use/Edit/Run/Draft 状态模型与底部全局状态行——产品最大资产。
+- Edit 门槛语义（模块写入唯一入口、Profile 元数据不受限）、保存失败保留模式/稿件/焦点。
+- Toast 的"改变了什么+什么没变"文案模式、合并计数、右上角覆盖定位、历史折叠。
+- CLI：分组帮助、help 不触 daemon、TTY/管道分流、`--json` 契约、退出码体系、成功文案的边界说明。
+- 原生键/原生路径（`dns.servers`、`modules/01_dns.json`）在界面上的可见性；未知字段往返保留。
+- 60×18 保护屏与 resize 保留草稿的行为。
+
+## 18. Re-review checklist
+
+1. 实机完成原任务 A–I（本次被环境守卫阻断，全部为最高优先级复核项）。
+2. 80×24 与 120×40 下用键盘从 dns 导航到 burstObservatory，确认溢出指示存在。
+3. 触发 daemon 离线、保存失败、connect 无 core 三类错误，确认无 RPC 方法名/errno/中文混杂，且有 recovery 指引。
+4. 打开 Unsaved Dialog 与任意 Toast，截图确认单边框、底层文本不被压坏。
+5. 订阅编辑表单确认 URL 是否为真实可编辑值（P1-5 存疑项）。
+6. F1 在 Profiles/Modules/Form/Logs/Dialog 五上下文逐一对照"当前可执行动作"。
+7. 空模块、空集合、空订阅列表三种空状态检查引导文案。
+8. Logs 用真实 Xray 输出复核 cursor/TIME/subsystem 列。
+9. 中文输入 + 长文本 + Home/End/Delete 在 TextInput/TextArea 实测。
+10. `xrm connect` 成功/失败、`xrm status` 人读输出复核 UUID 与 `null` 泄漏。
+
+---
+
+**一句话结论**：XRM 的交互语义已经想清楚了，但"用户看得见、找得到、读得懂"这一层还没有被同等认真对待；63 分里丢的 37 分几乎全部在表达层而非架构层——这是好消息，因为表达层的问题可以逐项修，不需要再推倒一次。

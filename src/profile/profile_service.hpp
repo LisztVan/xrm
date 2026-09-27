@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace xrm {
 
@@ -26,6 +27,7 @@ class ProfileService {
   Result<ProfileSettings> create(const ProfileCreate&);
   Result<std::vector<ProfileSummary>> list() const;
   Result<ProfileSettings> get(const Id&) const;
+  Result<std::pair<ProfileSettings, std::string>> get_with_source(const Id&) const;
   Result<void> save(const Id&, const ProfileEdit&);
   Result<void> rename(const Id&, std::string new_name);
   Result<ProfileSettings> clone(const Id&, std::string new_name);

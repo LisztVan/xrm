@@ -97,7 +97,12 @@ struct ProcessService::Impl {
     if (count < 0) {
       uv_read_stop(stream);
       auto* handle = reinterpret_cast<uv_handle_t*>(stream);
-      if (!uv_is_closing(handle)) uv_close(handle, on_handle_closed);
+      if (!uv_is_closing(handle)) {
+        if (child->callbacks.output_closed)
+          child->callbacks.output_closed(child->id, stdout_stream
+              ? LogStream::core_stdout : LogStream::core_stderr);
+        uv_close(handle, on_handle_closed);
+      }
     }
   }
 

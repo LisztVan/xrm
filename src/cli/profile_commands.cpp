@@ -18,6 +18,26 @@ void add_profile_commands(CLI::App& app, Request& request) {
   auto* show = profile->add_subcommand("show", "Show Profile settings");
   show->add_option("profile_id", request.profile_id)->required();
   show->callback([&] { request.method = std::string(methods::profile_get); request.params = {{"profile_id", request.profile_id}}; });
+  auto* clone = profile->add_subcommand("clone", "Copy a saved Profile under a new name");
+  clone->add_option("profile_id", request.profile_id)->required();
+  clone->add_option("--name", request.profile_name)->required();
+  clone->callback([&] {
+    request.method = std::string(methods::profile_clone);
+    request.params = {{"profile_id", request.profile_id}, {"name", request.profile_name}};
+  });
+  auto* rename = profile->add_subcommand("rename", "Rename a saved Profile");
+  rename->add_option("profile_id", request.profile_id)->required();
+  rename->add_option("--name", request.profile_name)->required();
+  rename->callback([&] {
+    request.method = std::string(methods::profile_rename);
+    request.params = {{"profile_id", request.profile_id}, {"name", request.profile_name}};
+  });
+  auto* remove = profile->add_subcommand("remove", "Delete a saved Profile");
+  remove->add_option("profile_id", request.profile_id)->required();
+  remove->callback([&] {
+    request.method = std::string(methods::profile_remove);
+    request.params = {{"profile_id", request.profile_id}};
+  });
   auto* sources = profile->add_subcommand("sources", "Set the subscription sources used by one Profile");
   auto* source_set = sources->add_subcommand("set", "Replace source bindings; no --source means use none");
   source_set->add_option("profile_id", request.profile_id)->required();
@@ -34,7 +54,7 @@ void add_profile_commands(CLI::App& app, Request& request) {
   auto* show_module = config->add_subcommand("show", "Show one source module or the generated runtime files");
   show_module->add_option("profile_id", request.profile_id)->required();
   show_module->add_option("module", request.module_key);
-  show_module->add_option("--module-key", request.module_show_key, "Native module key (avoids conflict with top-level commands)");
+  show_module->add_option("--module-key", request.module_show_key, "Native Xray module key, for example dns or routing");
   show_module->add_option("--source", request.source)->check(CLI::IsMember({"source", "runtime"}));
   show_module->callback([&] {
     if (!request.module_show_key.empty()) request.module_key = request.module_show_key;
@@ -50,8 +70,13 @@ void add_profile_commands(CLI::App& app, Request& request) {
   auto* edit = config->add_subcommand("edit", "Save a module's original JSON text");
   edit->add_option("profile_id", request.profile_id)->required();
   edit->add_option("module", request.module_key)->required();
-  edit->add_option("--text", request.module_text)->required();
-  edit->callback([&] {
+  auto* text = edit->add_option("--text", request.module_text, "Native module JSON passed as an argument");
+  auto* file = edit->add_option("--file", request.module_file, "Read native module JSON from PATH, or - for stdin");
+  text->excludes(file);
+  edit->callback([&, text, file] {
+    if (text->count() == 0 && file->count() == 0)
+      throw CLI::ValidationError("config edit", "specify exactly one of --text or --file");
+    request.module_file_specified = file->count() != 0;
     request.method = std::string(methods::module_save);
     request.params = {{"profile_id", request.profile_id}, {"module", request.module_key}, {"text", request.module_text}};
   });
@@ -174,11 +199,12 @@ void add_profile_commands(CLI::App& app, Request& request) {
   }
   auto* export_command = config->add_subcommand("export", "Export generated multi-file confdir");
   export_command->add_option("profile_id", request.profile_id)->required();
-  export_command->add_option("--source", request.source)->check(CLI::IsMember({"saved", "runtime"}));
+  export_command->add_option("--source", request.export_source, "Saved candidate or actual running confdir")
+      ->check(CLI::IsMember({"saved", "runtime"}));
   export_command->add_option("--output", request.output_path)->required();
   export_command->callback([&] {
     request.method = std::string(methods::config_export);
-    request.params = {{"profile_id", request.profile_id}, {"source", request.source}, {"output", request.output_path}};
+    request.params = {{"profile_id", request.profile_id}, {"source", request.export_source}, {"output", request.output_path}};
   });
 }
 

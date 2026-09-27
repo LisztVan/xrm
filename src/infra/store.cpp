@@ -202,7 +202,7 @@ bool request_settings_equal(const Subscription& left, const Subscription& right)
 }
 
 Json default_program_settings() {
-  return Json{{"appearance", {{"theme", "default"}, {"color_mode", "auto"},
+  return Json{{"appearance", {{"theme", "dark"}, {"color_mode", "auto"},
                                   {"density", "comfortable"}, {"icon_mode", "unicode"},
                                   {"reduce_motion", false}, {"cli_color", "auto"}}},
               {"editor", {{"argv", Json::array()}}},
@@ -562,6 +562,8 @@ Result<void> Store::put_source(const Subscription& requested) {
       state.last_modified.reset();
       state.last_success.reset();
       state.last_result = "settings_changed";
+      state.last_error.reset();
+      state.last_error_stage.reset();
       state.last_unsupported_count = 0;
       state.last_malformed_count = 0;
     }

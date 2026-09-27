@@ -6,28 +6,68 @@
       "name": "dev",
       "displayName": "Developer build",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/dev",
+      "binaryDir": "${sourceDir}/out/dev",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "XRM_BUILD_TESTING": "ON"
       }
     },
     {
+      "name": "dev-offline",
+      "displayName": "Developer build from retained dependencies",
+      "inherits": "dev",
+      "cacheVariables": {
+        "FETCHCONTENT_FULLY_DISCONNECTED": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release binaries",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "XRM_BUILD_TESTING": "OFF"
+      }
+    },
+    {
       "name": "asan",
       "displayName": "Address and undefined behavior sanitizers",
       "inherits": "dev",
-      "binaryDir": "${sourceDir}/build/asan",
+      "binaryDir": "${sourceDir}/out/asan",
       "cacheVariables": {
         "XRM_ENABLE_ASAN": "ON"
+      }
+    },
+    {
+      "name": "real-core",
+      "displayName": "Pinned real-Xray test build",
+      "inherits": "dev-offline",
+      "binaryDir": "${sourceDir}/out/real-core",
+      "cacheVariables": {
+        "XRM_REQUIRE_REAL_XRAY": "ON",
+        "XRM_TEST_XRAY": "${sourceDir}/.deps/tools/xray-26.9.9/xray"
       }
     }
   ],
   "buildPresets": [
     { "name": "dev", "configurePreset": "dev" },
-    { "name": "asan", "configurePreset": "asan" }
+    { "name": "dev-offline", "configurePreset": "dev-offline" },
+    { "name": "release", "configurePreset": "release" },
+    { "name": "asan", "configurePreset": "asan" },
+    { "name": "real-core", "configurePreset": "real-core" }
   ],
   "testPresets": [
     { "name": "dev", "configurePreset": "dev", "output": { "outputOnFailure": true } },
-    { "name": "asan", "configurePreset": "asan", "output": { "outputOnFailure": true } }
+    { "name": "dev-offline", "configurePreset": "dev-offline", "output": { "outputOnFailure": true } },
+    { "name": "asan", "configurePreset": "asan", "output": { "outputOnFailure": true } },
+    {
+      "name": "real-core",
+      "configurePreset": "real-core",
+      "output": { "outputOnFailure": true },
+      "environment": {
+        "XRM_TEST_XRAY": "${sourceDir}/.deps/tools/xray-26.9.9/xray"
+      }
+    }
   ]
 }

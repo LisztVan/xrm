@@ -211,6 +211,8 @@ void to_json(Json& json, const SubscriptionState& value) {
               {"reported_notices", value.reported_notices},
               {"last_unsupported_count", value.last_unsupported_count},
               {"last_malformed_count", value.last_malformed_count}};
+  if (value.last_error) json["last_error"] = *value.last_error;
+  if (value.last_error_stage) json["last_error_stage"] = *value.last_error_stage;
 }
 
 void from_json(const Json& json, SubscriptionState& value) {
@@ -219,6 +221,9 @@ void from_json(const Json& json, SubscriptionState& value) {
   value.etag = read_optional_string(json, "etag");
   value.last_modified = read_optional_string(json, "last_modified");
   value.last_result = json.at("last_result").get<std::string>();
+  if (json.contains("last_error")) value.last_error = read_optional_string(json, "last_error");
+  if (json.contains("last_error_stage"))
+    value.last_error_stage = read_optional_string(json, "last_error_stage");
   value.reported_usage = read_optional_string(json, "reported_usage");
   value.reported_notices = json.value("reported_notices", std::vector<std::string>{});
   value.last_unsupported_count = json.value("last_unsupported_count", std::size_t{0});

@@ -1,4 +1,5 @@
 #include "cli/command_options.hpp"
+#include "cli/presentation.hpp"
 #include "cli/rpc_session.hpp"
 #include "contract/methods.hpp"
 
@@ -7,6 +8,7 @@
 #include <memory>
 #include <optional>
 #include <thread>
+#include <unistd.h>
 
 namespace xrm::cli {
 namespace {
@@ -70,7 +72,30 @@ Result<Json> completed_operation(RpcSession& session, Result<Json> response) {
 
 int output(const Request& request, const Result<Json>& result) {
   if (!result || request.json) return print_result(request, result);
-  std::cout << result->dump(2) << '\n';
+  if (request.method == "cli.geodata.list") {
+    if (::isatty(STDOUT_FILENO)) {
+      HumanRows rows;
+      for (const auto& item : *result)
+        rows.push_back({item.value("name", ""), item.value("kind", ""), item.value("file_name", ""),
+                       item.value("last_result", "never"), item.value("id", "")});
+      human_table({"NAME", "KIND", "FILE", "RESULT", "ID"}, rows, "No geodata resources");
+      return 0;
+    }
+    for (const auto& resource : *result)
+      std::cout << resource.value("id", "") << '\t' << resource.value("name", "") << '\t'
+                << resource.value("kind", "") << '\t' << resource.value("file_name", "") << '\t'
+                << resource.value("last_result", "never") << '\n';
+  } else if (request.method == "cli.geodata.add") {
+    std::cout << "Registered geodata " << result->value("name", "") << " [" << result->value("id", "")
+              << "]; download and runtime unchanged\n";
+  } else if (request.method == "cli.geodata.remove") {
+    std::cout << "Removed geodata " << request.params.value("resource", "") << '\n';
+  } else if (request.method == "cli.geodata.bind") {
+    std::cout << "Bound geodata " << request.params.value("resource", "") << " to Profile "
+              << request.params.value("profile", "") << "; runtime unchanged\n";
+  } else if (request.method == "cli.geodata.update") {
+    std::cout << "Updated and validated geodata " << request.params.value("resource", "") << '\n';
+  }
   return 0;
 }
 

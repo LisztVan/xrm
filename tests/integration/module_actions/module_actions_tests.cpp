@@ -122,6 +122,57 @@ void save_sources(ApplicationFixture& fixture, const ProfileSettings& original,
 
 }  // namespace
 
+TEST_CASE("A confirmed Stop with a stale run identity never changes core intent",
+          "[runtime][stop-confirmation]") {
+  ApplicationFixture fixture;
+  ApiRouter router(*fixture.application);
+  std::optional<RpcResponse> response;
+  router.dispatch("stop-confirmation-client", RpcRequest{1, 1, "connection.disconnect",
+      Json{{"expected_run_id", "run-from-confirmation"}}},
+      [&](RpcResponse value) { response = std::move(value); });
+  REQUIRE(response);
+  REQUIRE_FALSE(response->ok);
+  REQUIRE(response->error);
+  CHECK(response->error->code == ErrorCode::conflict);
+  CHECK(response->error->subject == "run-from-confirmation");
+  const auto status = fixture.application->core_manager().status();
+  CHECK_FALSE(status.active);
+  CHECK_FALSE(status.desired_running);
+
+  response.reset();
+  router.dispatch("stop-confirmation-client", RpcRequest{1, 2, "connection.disconnect",
+      Json{{"expected_run_id", nullptr}}},
+      [&](RpcResponse value) { response = std::move(value); });
+  REQUIRE(response);
+  CHECK(response->ok);
+}
+
+TEST_CASE("Subscription URL syntax is checked before storing a source",
+          "[subscription][url-validation]") {
+  ApplicationFixture fixture;
+  ApiRouter router(*fixture.application);
+  std::optional<RpcResponse> response;
+  router.dispatch("source-client", RpcRequest{1, 1, "subscription.add",
+      Json{{"name", "Broken"}, {"url", "not-a-url"}}},
+      [&](RpcResponse value) { response = std::move(value); });
+  REQUIRE(response);
+  REQUIRE_FALSE(response->ok);
+  REQUIRE(response->error);
+  CHECK(response->error->code == ErrorCode::invalid_argument);
+  CHECK(response->error->subject == "url");
+  const auto sources = fixture.store->list_sources();
+  REQUIRE(sources);
+  CHECK(sources->empty());
+
+  response.reset();
+  router.dispatch("source-client", RpcRequest{1, 2, "subscription.add",
+      Json{{"name", "Valid"}, {"url", "http://127.0.0.1:9/fixture?token=private"}}},
+      [&](RpcResponse value) { response = std::move(value); });
+  REQUIRE(response);
+  REQUIRE(response->ok);
+  CHECK(response->result->contains("id"));
+}
+
 TEST_CASE("Profile source binding scopes connection inputs without copying the global inventory",
           "[PROFILE][source-binding]") {
   ApplicationFixture fixture;

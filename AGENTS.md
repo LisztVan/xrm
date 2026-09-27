@@ -1,6 +1,8 @@
 # XRM 开发约束
 
-**当前首版实现已进入人工验收后的缺陷修复；G5 仍未通过。** 产品要求见 `docs/requirements.md`，实现边界见 `docs/architecture.md`，当前修复依据见 `docs/product-repair-spec.md`。以用户最后确认的需求和这些文件为依据，不拼接聊天中已被否定的方案。
+修改 TUI、CLI、帮助或人读输出前，加载项目 Skill `.agents/skills/xrm-interaction-design/SKILL.md`，并以 `docs/xrm-interaction-spec.md` 为本轮唯一交互契约。
+
+**当前已获授权执行 TUI 组件层重写与 CLI 交互重设计；G5 仍未通过。** 历史执行输入见 `docs/history/prompts/xrm-component-ui-rewrite-prompt.md`；以唯一交互契约中的新语义为准：Use 可取消，Edit 是指定 Profile 的模块写入模式；不恢复旧逐字段 Prompt 或旧 Edit 元数据语义。 产品要求见 `docs/requirements.md`，实现边界见 `docs/architecture.md`，当前修复依据见 `docs/product-repair-spec.md`。以用户最后确认的需求和这些文件为依据，不拼接聊天中已被否定的方案。
 
 ## 1. 项目目标
 

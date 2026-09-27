@@ -10,6 +10,7 @@ struct ProcessCallbacks {
   std::function<void(ProcessId, std::string)> stdout_chunk;
   std::function<void(ProcessId, std::string)> stderr_chunk;
   std::function<void(ProcessId, ProcessExit)> exited;
+  std::function<void(ProcessId, LogStream)> output_closed;
 };
 
 class ProcessService {

@@ -1,14 +1,20 @@
 #include "cli/command_options.hpp"
+#include "cli/presentation.hpp"
+#include "infra/pipe_write_scope.hpp"
 
 #include "client/rpc_client.hpp"
+#include "client/human_message.hpp"
 #include "contract/methods.hpp"
 #include "contract/wire.hpp"
 
 #include <uv.h>
 
 #include <cstdlib>
+#include <cerrno>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <cctype>
 #include <thread>
@@ -68,7 +74,7 @@ Result<Json> finish_operation(const std::string& socket, Result<Json> result) {
     }
   }
   return std::unexpected(AppError{ErrorCode::timed_out,
-      "等待Server操作超过5分钟；operation仍可继续查询", std::nullopt, std::nullopt});
+      "等待Server操作超过5分钟；operation仍可继续查询", operation, std::nullopt});
 }
 
 std::pair<std::string, std::string> host_platform_arch() {
@@ -94,14 +100,93 @@ int exit_code_for(const AppError& error) {
   return 1;
 }
 
-std::string display_error(const Json& error) {
-  if (!error.is_object() || !error.contains("message") || !error.at("message").is_string()) {
-    return error.dump();
+void print_embedded_error(const Json& value, std::string_view action, std::string_view object = {},
+                          std::ostream& output = std::cout, bool verbose = false,
+                          std::string_view method = {}) {
+  const auto parsed = error_from_json(value);
+  const auto error = parsed ? *parsed : AppError{ErrorCode::protocol_error,
+      value.dump(), {}, {}};
+  const auto message = human::error(error, action, object, method);
+  output << message.title << "\nReason: " << message.reason
+         << "\nRecovery: " << message.recovery << '\n';
+  if (verbose) output << "Diagnostic (original):\n" << message.diagnostic << '\n';
+}
+
+std::string target_label(const Json& target) {
+  if (!target.is_object()) return "none";
+  return target.value("kind", "unknown") + std::string(" ") + target.value("id_or_tag", "");
+}
+
+std::string request_module(const Request& request) {
+  if (!request.module_key.empty()) return request.module_key;
+  if (request.method != "module.form") return {};
+  const auto action = request.params.value("action", "");
+  return action.substr(0, action.find('.'));
+}
+
+std::string request_subject(const Request& request) {
+  // URL, headers and native JSON can contain credentials. Use identifiers only.
+  if (!request.profile_id.empty()) return "Profile " + request.profile_id +
+      (request_module(request).empty() ? "" : " / " + request_module(request));
+  if (!request.subscription_id.empty()) return request.subscription_id;
+  if (!request.node_id.empty()) return request.node_id;
+  if (!request.group_id.empty()) return request.group_id;
+  if (!request.operation_id.empty()) return request.operation_id;
+  if (!request.core_id.empty()) return request.core_id;
+  for (const auto* key : {"profile", "resource"})
+    if (request.params.contains(key) && request.params.at(key).is_string())
+      return request.params.at(key).get<std::string>();
+  return {};
+}
+
+std::string shell_quote(std::string_view text) {
+  std::string quoted = "'";
+  for (char ch : text) {
+    if (ch == '\'') quoted += "'\\''";
+    else quoted += ch;
   }
-  return error.at("message").get<std::string>();
+  quoted += '\'';
+  return quoted;
+}
+
+std::string recovery_command(const Request& request, const AppError& error, human::Recovery next) {
+  const auto prefix = "xrm --socket " + shell_quote(request.socket) + " ";
+  if (error.code == ErrorCode::core_check_failed && request.method == "config.check" &&
+      !request.profile_id.empty())
+    return prefix + "--verbose config check " + shell_quote(request.profile_id);
+  if (next == human::Recovery::endpoint) return prefix + "server info";
+  if (next == human::Recovery::core)
+    return prefix + "core list\nSetup help: " + prefix + "core register --help\nSelect core help: " + prefix + "core use --help";
+  if (next == human::Recovery::operation && error.subject &&
+      error.message.find("operation") != std::string::npos)
+    return prefix + "operation get " + shell_quote(*error.subject);
+  if (next == human::Recovery::source && !request.profile_id.empty() && !request_module(request).empty())
+    return prefix + "config show " + shell_quote(request.profile_id) + " " + shell_quote(request_module(request));
+  if (next == human::Recovery::runtime || next == human::Recovery::operation) return prefix + "status";
+  if (request.method.starts_with("subscription.")) return prefix + "sub list";
+  if (request.method.starts_with("node.")) return prefix + "node list";
+  if (request.method.starts_with("cli.geodata.")) return prefix + "geodata list";
+  if (request.method.starts_with("core.")) return prefix + "core list";
+  if (request.method.starts_with("group.") && !request.profile_id.empty())
+    return prefix + "group list " + shell_quote(request.profile_id);
+  if (!request.profile_id.empty() || request.method.starts_with("profile.") ||
+      request.method.starts_with("cli.routing.")) return prefix + "profile list";
+  return prefix + request.command.substr(request.command.starts_with("xrm ") ? 4 : 0) + " --help";
+}
+
+std::string profile_identity(const Request& request, const std::string& id) {
+  if (id.empty()) return "unknown";
+  const auto profile = call_rpc_once(request.socket, "profile.get", Json{{"profile_id", id}});
+  if (profile && profile->is_object() && !profile->value("name", "").empty())
+    return profile->value("name", "") + " [" + id + "]";
+  return "[" + id + "] (name unavailable)";
 }
 
 bool human_color_enabled(const Request& request, const Json& result) {
+  // Non-terminal and NO_COLOR output needs no extra daemon query.
+  const auto* term = std::getenv("TERM");
+  if (!::isatty(STDOUT_FILENO) || std::getenv("NO_COLOR") ||
+      (term && std::string_view(term) == "dumb")) return false;
   static std::optional<std::string> saved_preference;
   if (request.method == "settings.get" || request.method == "settings.update") {
     saved_preference = result.value("appearance", Json::object()).value("cli_color", "auto");
@@ -110,12 +195,20 @@ bool human_color_enabled(const Request& request, const Json& result) {
     saved_preference = settings && settings->is_object()
         ? settings->value("appearance", Json::object()).value("cli_color", "auto") : "auto";
   }
-  return *saved_preference == "always" || (*saved_preference == "auto" && ::isatty(STDOUT_FILENO));
+  if (std::getenv("NO_COLOR")) return false;
+  return ::isatty(STDOUT_FILENO) &&
+      (*saved_preference == "always" || *saved_preference == "auto");
 }
 
 std::string colored(std::string_view text, std::string_view ansi, bool enabled) {
   if (!enabled) return std::string(text);
   return "\x1b[" + std::string(ansi) + "m" + std::string(text) + "\x1b[0m";
+}
+
+std::string diagnostic_line(std::string value) {
+  value = terminal_text(std::move(value));
+  while (!value.empty() && value.back() == ' ') value.pop_back();
+  return value;
 }
 
 bool is_uuid(std::string_view value) {
@@ -165,6 +258,41 @@ Result<Id> resolve_profile_ref(const std::string& socket, std::string_view input
       "找不到对应Profile（请使用精确名称或UUID）", std::string(input), std::nullopt});
 }
 
+Result<Id> resolve_subscription_ref(const std::string& socket, std::string_view input) {
+  auto sources = call_rpc_once(socket, "subscription.list", Json::object());
+  if (!sources) return std::unexpected(sources.error());
+  if (!sources->is_array())
+    return std::unexpected(AppError{ErrorCode::protocol_error,
+        "subscription.list did not return a source list", std::nullopt, std::nullopt});
+
+  // Prefer an existing exact ID even if another source happens to use that ID as its name.
+  for (const auto& source : *sources)
+    if (source.is_object() && source.value("id", std::string{}) == input)
+      return source.value("id", std::string{});
+  if (is_uuid(input)) {
+    for (const auto& source : *sources)
+      if (source.is_object() && lowercase(source.value("id", std::string{})) == lowercase(input))
+        return source.value("id", std::string{});
+  }
+
+  std::vector<std::string> matches;
+  for (const auto& source : *sources)
+    if (source.is_object() && source.value("name", std::string{}) == input &&
+        source.contains("id") && source.at("id").is_string())
+      matches.push_back(source.at("id").get<std::string>());
+  if (matches.size() == 1) return matches.front();
+  if (matches.size() > 1) {
+    std::string ids;
+    for (const auto& id : matches) ids += (ids.empty() ? "" : ", ") + id;
+    return std::unexpected(AppError{ErrorCode::conflict,
+        "Subscription name is ambiguous. Use one source ID: " + ids,
+        std::string(input), std::nullopt});
+  }
+  return std::unexpected(AppError{ErrorCode::not_found,
+      "No subscription source matches this exact name or ID; run xrm sub list",
+      std::string(input), std::nullopt});
+}
+
 int refresh_exit_code(const Request& request, const Json& result) {
   if (request.method != "subscription.refresh" || !result.is_object()) return 0;
   if (result.contains("failed") && result["failed"].is_array() && !result["failed"].empty()) return 4;
@@ -186,10 +314,45 @@ std::string default_socket_path() {
 
 int execute_request(const Request& request) {
   Json params = request.params;
+  if (request.method == "module.save") {
+    std::string text = request.module_text;
+    if (request.module_file_specified) {
+      if (request.module_file == "-") {
+        text.assign(std::istreambuf_iterator<char>(std::cin), std::istreambuf_iterator<char>());
+        if (std::cin.bad())
+          return print_result(request, std::unexpected(AppError{ErrorCode::io_error,
+              "Could not read complete JSON from stdin", std::nullopt, std::nullopt}));
+      } else {
+        std::ifstream file(request.module_file, std::ios::binary);
+        if (!file)
+          return print_result(request, std::unexpected(AppError{ErrorCode::io_error,
+              "Could not open JSON input file", request.module_file, std::nullopt}));
+        text.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+        if (file.bad())
+          return print_result(request, std::unexpected(AppError{ErrorCode::io_error,
+              "Could not read complete JSON input file", request.module_file, std::nullopt}));
+      }
+    }
+    try { const auto checked = Json::parse(text); (void)checked; }
+    catch (const Json::parse_error& error) {
+      return print_result(request, std::unexpected(AppError{ErrorCode::invalid_argument,
+          "Invalid native module JSON at byte " + std::to_string(error.byte),
+          request.module_key, std::nullopt}));
+    }
+    params["text"] = std::move(text);
+  }
   if (params.is_object() && params.contains("profile_id") && params.at("profile_id").is_string()) {
     auto profile_id = resolve_profile_ref(request.socket, params.at("profile_id").get_ref<const std::string&>());
     if (!profile_id) return print_result(request, std::unexpected(profile_id.error()));
     params["profile_id"] = std::move(*profile_id);
+  }
+  if (request.method == "subscription.get" || request.method == "subscription.replace" ||
+      request.method == "subscription.remove" ||
+      (request.method == "subscription.refresh" && !request.subscription_id.empty())) {
+    auto source_id = resolve_subscription_ref(request.socket, request.subscription_id);
+    if (!source_id) return print_result(request, std::unexpected(source_id.error()));
+    if (request.method == "subscription.refresh") params["source_ids"] = Json::array({*source_id});
+    else params["id"] = *source_id;
   }
   if (request.method == "module.form") {
     auto plan = call_rpc_once(request.socket, "module.change_plan", params);
@@ -279,11 +442,45 @@ int execute_request(const Request& request) {
   return print_result(request, result);
 }
 
+int print_watch_result(const Request& request, const Result<Json>& result) {
+  int result_code = 0;
+  bool failed = false;
+  int write_error = 0;
+  {
+    PipeWriteScope pipe_write;
+    errno = 0;
+    result_code = print_result(request, result);
+    std::cout.flush();
+    failed = !std::cout;
+    if (failed) write_error = errno;
+  }
+  if (failed) {
+    // A downstream reader closing stdout is a normal end to a sampling pipe.
+    // Other write failures retain the existing nonzero I/O boundary.
+    if (write_error == EPIPE) return watch_consumer_closed;
+    const AppError error{ErrorCode::io_error, "Cannot write stats output",
+                         std::nullopt, std::nullopt};
+    if (request.json) std::cerr << Json{{"error", error_to_json(error)}}.dump() << '\n';
+    else std::cerr << "stats: " << error.message << '\n';
+    return 3;
+  }
+  return result_code;
+}
+
 int print_result(const Request& request, const Result<Json>& result) {
   if (!result) {
     const auto error = error_to_json(result.error());
     if (request.json) std::cerr << Json{{"error", error}}.dump() << '\n';
-    else std::cerr << display_error(error) << '\n';
+    else {
+      const auto message = human::error(result.error(), request.command.empty() ? "XRM operation" : request.command,
+                                        request_subject(request), request.method);
+      std::cerr << "Error: " << message.title << "\nReason: " << message.reason
+                << "\nRecovery: " << message.recovery << "\nNext: "
+                << recovery_command(request, result.error(), message.next) << '\n';
+      if (message.next == human::Recovery::endpoint || request.verbose)
+        std::cerr << "Socket: " << request.socket << '\n';
+      if (request.verbose) std::cerr << "Diagnostic (original):\n" << message.diagnostic << '\n';
+    }
     return exit_code_for(result.error());
   }
   if (request.json) {
@@ -296,12 +493,17 @@ int print_result(const Request& request, const Result<Json>& result) {
     std::cout << colored("xrmd", "1;36", color) << ' ' << result->value("version", "unknown")
               << " (protocol " << result->value("protocol", 0) << ")\n";
   } else if (request.method == "settings.get" || request.method == "settings.update") {
-    std::cout << colored("Appearance:", "1;36", color) << ' '
-              << result->value("appearance", Json::object()).dump(2)
-              << '\n' << colored("Editor argv:", "1;36", color) << ' '
-              << result->value("editor", Json::object()).value("argv", Json::array()).dump()
-              << '\n' << colored("General:", "1;36", color)
-              << " no adjustable settings\n";
+    std::cout << colored("XRM appearance", "1;36", color) << '\n';
+    for (const auto& [key, value] : result->value("appearance", Json::object()).items())
+      std::cout << "  " << key << ": " << (value.is_string() ? value.get<std::string>() : value.dump()) << '\n';
+    std::cout << "Editor argv:";
+    const auto argv = result->value("editor", Json::object()).value("argv", Json::array());
+    if (argv.empty()) std::cout << " VISUAL / EDITOR fallback";
+    else for (const auto& argument : argv)
+      if (argument.is_string()) std::cout << ' ' << shell_quote(argument.get<std::string>());
+    std::cout << "\nNode test defaults:\n";
+    for (const auto& [key, value] : result->value("tests", Json::object()).items())
+      std::cout << "  " << key << ": " << (value.is_string() ? value.get<std::string>() : value.dump()) << '\n';
   } else if (request.method == "core.register") {
     std::cout << "Registered " << result->value("name", "") << " "
               << result->value("reported_version", "") << " ["
@@ -312,10 +514,18 @@ int print_result(const Request& request, const Result<Json>& result) {
     const std::string running_core = runtime && runtime->is_object() &&
         runtime->contains("active") && runtime->at("active").is_object()
         ? runtime->at("active").value("core_id", "") : "";
+    HumanRows core_rows;
     for (const auto& core : *result) {
       bool selected = false;
       if (profiles && profiles->is_array()) for (const auto& profile : *profiles)
         selected = selected || profile.value("core_id", "") == core.value("id", "");
+      if (::isatty(STDOUT_FILENO)) {
+        core_rows.push_back({core.value("name", ""), core.value("reported_version", ""),
+            std::string(core.value("managed", false) ? "managed" : "system") +
+              (selected ? "; selected" : "") + (running_core == core.value("id", "") ? "; running" : ""),
+            core.value("id", ""), core.value("path", "")});
+        continue;
+      }
       std::cout << core.value("id", "") << '\t' << core.value("name", "") << '\t'
                 << core.value("reported_version", "") << '\t'
                 << core.value("path", "") << '\t'
@@ -323,6 +533,8 @@ int print_result(const Request& request, const Result<Json>& result) {
                 << "installed" << (selected ? ",selected" : "")
                 << (running_core == core.value("id", "") ? ",running" : "") << '\n';
     }
+    if (::isatty(STDOUT_FILENO))
+      human_table({"NAME", "VERSION", "STATE", "ID", "PATH"}, core_rows, "No registered cores", color);
   } else if (request.method == "core.releases") {
     if (result->contains("items") && result->at("items").is_array()) for (const auto& release : result->at("items")) {
       std::cout << release.value("tag", "") << '\t'
@@ -332,7 +544,7 @@ int print_result(const Request& request, const Result<Json>& result) {
         for (const auto& asset : release.at("assets"))
           std::cout << "  " << asset.value("name", "") << '\t'
                     << asset.value("platform", "") << '/' << asset.value("architecture", "")
-                    << (asset.value("sha256", Json(nullptr)).is_string() ? "\tsha256 verified" : "\tno checksum")
+                    << (asset.value("sha256", Json(nullptr)).is_string() ? "\tchecksum available" : "\tno checksum")
                     << '\n';
     }
   } else if (request.method == "core.install.version") {
@@ -340,20 +552,30 @@ int print_result(const Request& request, const Result<Json>& result) {
     std::cout << "Installed " << installed.value("reported_version", "") << " ["
               << installed.value("id", "") << "] (managed; not selected)\n";
   } else if (request.method == "core.use.version") {
-    std::cout << "Profile core updated";
-    if (result->contains("effect")) std::cout << " (" << result->value("effect", "unknown") << ')';
-    std::cout << '\n';
-  } else if (request.method == "module.form") {
-    std::cout << "Saved native module fields:";
-    if (result->contains("changed_modules") && result->at("changed_modules").is_array())
-      for (const auto& key : result->at("changed_modules"))
-        if (key.is_string()) std::cout << ' ' << key.get<std::string>();
-    std::cout << '\n';
+    if (result->value("effect", "") == "checked_only")
+      std::cout << "Core selection saved or already current for Profile " << request.profile_id
+                << "; running instance unchanged\n";
+    else if (result->value("effect", "") == "running_new")
+      std::cout << "Core switched for Profile " << request.profile_id
+                << "; process running, traffic unverified\n";
+    else
+      std::cout << "Core selection finished; inspect Profile and runtime status\n";
   } else if (request.method == "node.add") {
     std::cout << "Saved " << result->value("name", "") << " ("
               << result->value("protocol", "unknown") << ") ["
               << result->value("id", "") << "]\n";
   } else if (request.method == "node.list") {
+    if (::isatty(STDOUT_FILENO)) {
+      HumanRows rows;
+      for (const auto& item : result->at("items"))
+        rows.push_back({item.value("name", ""), item.value("protocol", "unknown"),
+            item.value("support", "raw-only"),
+            std::string(item.value("enabled", false) ? "enabled" : "disabled") +
+                (item.value("source_missing", false) ? "; source missing" : ""), item.value("id", "")});
+      std::cout << "Nodes  " << result->value("total", 0) << " total\n\n";
+      human_table({"NAME", "PROTOCOL", "SUPPORT", "STATE", "ID"}, rows, "No matching nodes", color);
+      return 0;
+    }
     const auto& items = result->at("items");
     std::cout << "Nodes: " << result->value("total", 0) << '\n';
     for (const auto& node : items) {
@@ -382,6 +604,14 @@ int print_result(const Request& request, const Result<Json>& result) {
   } else if (request.method == methods::node_history_confirm) {
     std::cout << "Removed " << result->value("removed", 0) << " selected historical records; runtime unchanged\n";
   } else if (request.method == "subscription.list") {
+    if (::isatty(STDOUT_FILENO)) {
+      HumanRows rows;
+      for (const auto& item : *result)
+        rows.push_back({item.value("name", ""), item.value("enabled", false) ? "enabled" : "paused",
+            item.value("last_result", "never"), std::to_string(item.value("node_count", 0)), item.value("id", "")});
+      human_table({"NAME", "REFRESH", "RESULT", "NODES", "ID"}, rows, "No subscriptions", color);
+      return 0;
+    }
     for (const auto& source : *result) {
       std::cout << source.value("id", "") << '\t' << source.value("name", "") << '\t'
           << (source.value("enabled", false) ? "enabled" : "paused") << '\t'
@@ -394,42 +624,193 @@ int print_result(const Request& request, const Result<Json>& result) {
                 ? std::to_string(source["last_success"].get<std::int64_t>()) : "never") << '\n';
     }
   } else if (request.method == "subscription.get") {
-    std::cout << result->at("subscription").dump(2) << "\nstate: " << result->at("state").dump() << '\n';
+    const auto& source = result->at("subscription");
+    const auto& state = result->at("state");
+    if (::isatty(STDOUT_FILENO)) {
+      HumanRows fields{{"ID", source.value("id", "")},
+          {"Auto refresh", source.value("auto_refresh", false) ? "on" : "off"},
+          {"Last result", state.value("last_result", "never")}};
+      if (state.contains("last_error") && state.at("last_error").is_string()) {
+        fields.push_back({"Failure stage", state.value("last_error_stage", "unknown")});
+        fields.push_back({"Last error", diagnostic_line(state.at("last_error").get<std::string>())});
+      }
+      human_details("Subscription  " + source.value("name", ""), fields, color);
+      std::cout << "\nURL and headers: hidden; use xrm --json sub show for editing\n";
+      return 0;
+    }
+    std::cout << "Subscription " << source.value("name", "") << " [" << source.value("id", "") << "]\n"
+              << "Auto refresh: " << (source.value("auto_refresh", false) ? "on" : "off") << '\n'
+              << "Last result: " << state.value("last_result", "never") << '\n';
+    if (state.contains("last_error") && state.at("last_error").is_string())
+      std::cout << "Failure stage: " << state.value("last_error_stage", "unknown") << '\n'
+                << "Last error: " << diagnostic_line(state.at("last_error").get<std::string>()) << '\n';
+    std::cout << "URL and headers: hidden in human output; use --json sub show for editing\n";
   } else if (request.method == "subscription.refresh") {
     if (result->contains("completed")) for (const auto& source : result->at("completed"))
       std::cout << source.value("source_id", "") << " added=" << source.value("added", 0)
           << " updated=" << source.value("updated", 0) << " missing=" << source.value("missing", 0)
           << " unsupported=" << source.value("unsupported", 0) << " malformed=" << source.value("malformed", 0)
           << (source.value("partial", false) ? " partial" : "") << '\n';
-    if (result->contains("failed")) for (const auto& source : result->at("failed"))
-      std::cout << source.value("source_id", "") << " failed: " << source.value("error", Json::object()).value("message", "") << '\n';
+    if (result->contains("completed")) for (const auto& source : result->at("completed")) {
+      if (!source.value("partial", false)) continue;
+      std::cerr << "Partial subscription update — " << source.value("source_id", "") << ": "
+                << source.value("first_issue", "Some entries could not be parsed; inspect the source result") << '\n';
+    }
+    if (result->contains("failed")) for (const auto& source : result->at("failed")) {
+      std::cerr << "Error: ";
+      print_embedded_error(source.value("error", Json::object()), "Subscription update failed",
+                           source.value("source_id", ""), std::cerr, request.verbose, request.method);
+      auto details = call_rpc_once(request.socket, "subscription.get",
+          Json{{"id", source.value("source_id", "")}});
+      if (details && details->is_object() && details->contains("state") &&
+          details->at("state").is_object()) {
+        const auto& state = details->at("state");
+        if (state.contains("last_error") && state.at("last_error").is_string())
+          std::cerr << "Stage: " << state.value("last_error_stage", "unknown")
+                    << "\nCause: " << diagnostic_line(state.at("last_error").get<std::string>()) << '\n';
+      }
+    }
   } else if (request.method == "node.get") {
-    std::cout << result->dump(2) << '\n';
+    const auto name = result->contains("alias") && result->at("alias").is_string()
+        ? result->at("alias").get<std::string>() : result->value("original_name", "");
+    std::string protocol = "unknown";
+    if (result->contains("settings") && result->at("settings").is_object()) {
+      const auto& settings = result->at("settings");
+      if (settings.value("kind", "") == "stream" && settings.contains("protocol") && settings.at("protocol").is_object())
+        protocol = settings.at("protocol").value("kind", "unknown");
+      else if (settings.value("kind", "") == "raw" && settings.contains("value") && settings.at("value").is_object())
+        protocol = settings.at("value").value("protocol", "unknown");
+    }
+    if (::isatty(STDOUT_FILENO)) {
+      human_details("Node  " + name, {
+          {"ID", result->value("id", "")}, {"Protocol", protocol},
+          {"State", std::string(result->value("enabled", false) ? "enabled" : "disabled") +
+              (result->value("source_missing", false) ? "; source missing" : "")},
+          {"Source", result->contains("source_id") && result->at("source_id").is_string()
+              ? result->at("source_id").get<std::string>() : "local"}}, color);
+      std::cout << "\nConnection settings: hidden; use xrm --json node show for editing\n";
+      return 0;
+    }
+    std::cout << "Node " << name << " [" << result->value("id", "") << "]\n"
+              << "Protocol: " << protocol << '\n'
+              << "State: " << (result->value("enabled", false) ? "enabled" : "disabled")
+              << (result->value("source_missing", false) ? ", source missing" : "") << '\n'
+              << "Source: " << (result->contains("source_id") && result->at("source_id").is_string()
+                  ? result->at("source_id").get<std::string>() : "local") << '\n'
+              << "Connection settings: hidden in human output; use --json node show for editing\n";
   } else if (request.method == "profile.list") {
+    if (::isatty(STDOUT_FILENO)) {
+      HumanRows rows;
+      for (const auto& item : *result)
+        rows.push_back({item.value("name", ""), item.value("id", ""),
+                        item.value("core_id", "").empty() ? "none" : item.value("core_id", "")});
+      human_table({"NAME", "ID", "CORE ID"}, rows, "No Profiles. Create one with xrm profile create --name Home", color);
+      return 0;
+    }
     for (const auto& profile : *result)
       std::cout << profile.value("id", "") << '\t' << profile.value("name", "") << '\t'
                 << profile.value("core_id", "") << '\n';
+  } else if (request.method == "profile.get") {
+    if (::isatty(STDOUT_FILENO)) {
+      const auto sources = result->value("enabled_source_ids", Json(nullptr));
+      human_details("Profile  " + result->value("name", ""), {
+          {"ID", result->value("id", "")},
+          {"Core", result->value("core_id", "").empty() ? "none" : result->value("core_id", "")},
+          {"Saved target", target_label(result->value("selected", Json(nullptr)))},
+          {"Sources", sources.is_null() ? "all (legacy binding)" : sources.is_array()
+              ? std::to_string(sources.size()) + " bound" : "unknown"},
+          {"Modules", std::to_string(result->value("modules", Json::array()).size())},
+          {"Append selected", result->value("append_selected_default", false) ? "on" : "off"}}, color);
+      return 0;
+    }
+    std::cout << "Profile " << result->value("name", "") << " [" << result->value("id", "") << "]\n"
+              << "Core: " << (result->value("core_id", "").empty() ? "none" : result->value("core_id", "")) << '\n'
+              << "Saved target: " << target_label(result->value("selected", Json(nullptr))) << '\n'
+              << "Sources: ";
+    if (!result->contains("enabled_source_ids") || result->at("enabled_source_ids").is_null())
+      std::cout << "all (legacy binding)\n";
+    else if (result->at("enabled_source_ids").is_array())
+      std::cout << result->at("enabled_source_ids").size() << '\n';
+    else std::cout << "unknown\n";
+    std::cout << "Modules: " << result->value("modules", Json::array()).size() << '\n'
+              << "Append selected default: " << (result->value("append_selected_default", false) ? "on" : "off") << '\n'
+              << "Runtime: unaffected by this query\n";
+  } else if (request.method == "profile.create" || request.method == "profile.clone") {
+    std::cout << (request.method == "profile.create" ? "Created" : "Copied") << " Profile "
+              << result->value("name", "") << " [" << result->value("id", "")
+              << "]; no core started\n";
+  } else if (request.method == "profile.rename") {
+    std::cout << "Renamed Profile " << request.profile_id
+              << " to " << request.profile_name << "; running core unchanged\n";
+  } else if (request.method == "profile.remove") {
+    std::cout << "Removed Profile " << request.profile_id << '\n';
   } else if (request.method == "module.list") {
+    if (::isatty(STDOUT_FILENO)) {
+      HumanRows rows;
+      const bool compact = terminal_width() < 98;
+      for (const auto& item : *result) {
+        std::vector<std::string> row{item.value("key", ""), item.value("included", false) ? "included" : "excluded",
+                                    item.value("source_file", "") + (item.value("text", Json(nullptr)).is_null() ? " (not saved)" : "")};
+        if (compact) row.back() += "\n" + item.value("runtime_file", "");
+        else row.push_back(item.value("runtime_file", ""));
+        rows.push_back(std::move(row));
+      }
+      std::cout << "Source files are editable; runtime filenames are generated on Connect / Apply.\n";
+      human_table(compact ? std::vector<std::string>{"MODULE", "INCLUDE", "SOURCE FILE / RUNTIME FILE"}
+                          : std::vector<std::string>{"MODULE", "INCLUDE", "SOURCE FILE", "RUNTIME FILE"},
+                  rows, "No module settings", color);
+      return 0;
+    }
     for (const auto& module : *result)
       std::cout << module.value("key", "") << '\t' << (module.value("included", false) ? "enabled" : "disabled")
                 << '\t' << module.value("source_file", "") << '\t' << module.value("runtime_file", "") << '\n';
   } else if (request.method == "module.get") {
+    if (::isatty(STDOUT_FILENO)) {
+      human_details("Native module  " + result->value("key", ""), {
+          {"Include", result->value("included", false) ? "included" : "excluded"},
+          {"Source file", result->value("source_file", "")},
+          {"Runtime file", result->value("runtime_file", "")}}, color);
+      if (result->contains("text") && result->at("text").is_string())
+        std::cout << "\n" << result->at("text").get<std::string>() << '\n';
+      else std::cout << "\nNo source file saved\n";
+      return 0;
+    }
     std::cout << "module: " << result->value("key", "") << "\nenabled: "
               << (result->value("included", false) ? "yes" : "no") << "\nsource: "
               << result->value("source_file", "") << "\nruntime: "
               << result->value("runtime_file", "") << "\n";
     if (result->contains("text") && result->at("text").is_string()) std::cout << result->at("text").get<std::string>();
   } else if (request.method == "group.list") {
+    if (::isatty(STDOUT_FILENO)) {
+      HumanRows rows;
+      for (const auto& item : *result)
+        rows.push_back({item.value("name", ""), item.value("selection_mode", "automatic"),
+                       item.value("balancer", Json::object()).value("tag", ""), item.value("id", "")});
+      human_table({"NAME", "MODE", "BALANCER TAG", "ID"}, rows, "No groups in this Profile", color);
+      return 0;
+    }
     for (const auto& group : *result)
       std::cout << group.value("id", "") << '\t' << group.value("name", "") << '\t'
           << group.value("selection_mode", "automatic") << '\t'
           << group.value("balancer", Json::object()).value("tag", "") << '\n';
   } else if (request.method == "group.get") {
-    std::cout << result->dump(2) << '\n';
+    const auto balancer = result->value("balancer", Json::object());
+    const auto members = result->value("members", Json::object());
+    std::cout << "Group " << result->value("name", "") << " [" << result->value("id", "") << "]\n"
+              << "Profile: " << request.profile_id << '\n'
+              << "Selection mode: " << result->value("selection_mode", "automatic") << '\n'
+              << "Native balancer: " << balancer.value("tag", "") << '\n'
+              << "Strategy: " << balancer.value("strategy", Json::object()).value("type", "unknown") << '\n'
+              << "Members: " << members.value("kind", "unknown") << '\n';
+    for (const auto& id : members.value("node_ids", Json::array()))
+      if (id.is_string()) std::cout << "  " << id.get<std::string>() << '\n';
+    if (result->contains("selected_node_id") && result->at("selected_node_id").is_string())
+      std::cout << "Saved candidate: " << result->at("selected_node_id").get<std::string>() << '\n';
   } else if (request.method == "group.save") {
-    std::cout << "saved group " << result->value("id", "") << '\n';
+    std::cout << "Saved group " << result->value("name", "") << " [" << result->value("id", "")
+              << "] for Profile " << request.profile_id << "; runtime unchanged\n";
   } else if (request.method == "group.remove") {
-    std::cout << "group removed\n";
+    std::cout << "Removed group " << request.group_id << " from Profile " << request.profile_id << "; runtime unchanged\n";
   } else if (request.method == "group.select") {
     std::cout << "manual group selection saved; runtime unchanged\n";
   } else if (request.method == "group.override" || request.method == "group.override.clear") {
@@ -438,20 +819,46 @@ int print_result(const Request& request, const Result<Json>& result) {
       std::cout << ": " << result->at("actual_outbound").get<std::string>();
     std::cout << "\n";
   } else if (request.method == "connection.select") {
-    std::cout << "selection saved; runtime unchanged\n";
+    std::cout << "Saved target " << target_label(request.params.value("target", Json(nullptr)))
+              << " for Profile " << request.profile_id << "; runtime unchanged\n";
+  } else if (request.method == "connection.connect") {
+    const auto effect = result->value("effect", "unknown");
+    const auto active = result->value("active", Json(nullptr));
+    if (effect == "running_new" && active.is_object())
+      std::cout << "Connected Profile " << profile_identity(request, active.value("profile_id", ""))
+                << "; process running; traffic unverified\n";
+    else if (effect == "restored_old" && active.is_object())
+      std::cout << "Previous Profile " << profile_identity(request, active.value("profile_id", ""))
+                << " restored after connection failure; inspect status\n";
+    else
+      std::cout << "Connect completed with effect: " << effect << "; inspect status\n";
+    if (result->contains("attempt_error") && result->at("attempt_error").is_object())
+      print_embedded_error(result->at("attempt_error"), "Connection attempt failed", request.profile_id);
+  } else if (request.method == "connection.disconnect") {
+    std::cout << (result->value("effect", "") == "stopped"
+        ? "Core is stopped; saved Profile settings unchanged\n"
+        : "Stop completed; inspect status for actual state\n");
   } else if (request.method == "runtime.status") {
     std::cout << colored("state:", "1;36", color) << ' ' << result->value("state", "unknown")
               << '\n' << colored("health:", "1;36", color) << ' '
-              << result->value("health", "unknown") << "\n";
-    if (result->contains("saved_target")) std::cout << "saved target: " << result->at("saved_target").dump() << '\n';
-    if (result->contains("actual_target")) std::cout << "applied target: " << result->at("actual_target").dump() << '\n';
+              << (result->value("health", "unknown") == "process_only" ? "traffic unverified"
+                  : result->value("health", "unknown")) << "\n";
+    if (result->contains("active") && result->at("active").is_object())
+      std::cout << "running profile: " << profile_identity(request, result->at("active").value("profile_id", "")) << '\n';
+    else std::cout << "running profile: none\n";
+    if (result->contains("active") && result->at("active").is_object())
+      std::cout << "saved target (running Profile only): "
+                << target_label(result->value("saved_target", Json(nullptr))) << '\n';
+    else std::cout << "saved target: scope is running Profile only; inspect `profile show <ref>`\n";
+    if (result->contains("actual_target")) std::cout << "applied target: "
+        << (result->at("actual_target").is_null() ? "no running target" : target_label(result->at("actual_target"))) << '\n';
     std::cout << "runtime override: " << result->value("override_state", "unknown");
     if (result->contains("runtime_override") && result->at("runtime_override").is_string())
       std::cout << " " << result->at("runtime_override").get<std::string>();
     std::cout << '\n';
-    if (result->contains("active") && result->at("active").is_object())
-      std::cout << "profile: " << result->at("active").value("profile_id", "") << "\nconfdir: "
-                << result->at("active").value("confdir", "") << '\n';
+    if (result->contains("active") && result->at("active").is_object()) {
+      std::cout << "confdir: " << result->at("active").value("confdir", "") << '\n';
+    }
   } else if (request.method == "runtime.stats") {
     const auto availability = result->value("availability", "unknown");
     std::cout << colored("metrics:", "1;36", color) << ' ' << availability << '\n';
@@ -494,24 +901,112 @@ int print_result(const Request& request, const Result<Json>& result) {
                   << " downlink=" << (rate.contains("downlink_bytes_per_second") && !rate["downlink_bytes_per_second"].is_null()
                       ? rate["downlink_bytes_per_second"].dump() + " B/s" : "pending") << '\n';
     }
-  } else if (request.method == "module.enable_traffic_statistics") {
-    std::cout << "changed modules:";
+  } else if (request.method == "module.enable_traffic_statistics" || request.method == "module.form") {
+    std::cout << "Saved native module fields for Profile " << request.profile_id << ":";
     if (result->contains("changed_modules") && result->at("changed_modules").is_array())
       for (const auto& module : result->at("changed_modules"))
         if (module.is_string()) std::cout << ' ' << module.get<std::string>();
     std::cout << '\n';
     if (result->contains("failure") && !result->at("failure").is_null())
-      std::cout << "partial save failure: " << result->at("failure").dump() << '\n';
+      print_embedded_error(result->at("failure"), "Module save did not complete", request.profile_id);
     if (result->contains("notices") && result->at("notices").is_array())
       for (const auto& notice : result->at("notices"))
         if (notice.is_object()) std::cout << notice.value("message", "") << '\n';
   } else if (request.method == "logs.read") {
+    if (::isatty(STDOUT_FILENO) && result->at("entries").empty()) {
+      std::cout << "No log entries\n";
+      return 0;
+    }
     for (const auto& entry : result->at("entries"))
       std::cout << '[' << entry.value("cursor", 0) << "][" << entry.value("stream", "") << "] "
                 << entry.value("text", "");
   } else if (request.method == "config.render") {
     std::cout << "confdir: " << result->value("confdir", "") << '\n';
     for (const auto& file : result->at("files")) std::cout << file.get<std::string>() << '\n';
+  } else if (request.method == "profile.sources.set") {
+    std::cout << "Saved source bindings for Profile " << request.profile_id
+              << "; running configuration unchanged\n";
+  } else if (request.method == "module.save") {
+    std::cout << "Saved native module " << request.module_key << " for Profile "
+              << request.profile_id << "; running configuration unchanged\n";
+  } else if (request.method == "module.include") {
+    std::cout << (request.params.value("included", false) ? "Included " : "Disabled ") << "native module "
+              << request.module_key << " for Profile " << request.profile_id
+              << "; running configuration unchanged\n";
+  } else if (request.method == "subscription.add" || request.method == "subscription.replace") {
+    std::cout << (request.method == "subscription.add" ? "Added" : "Updated")
+              << " subscription [" << result->value("id", "")
+              << "]; running configuration unchanged\n";
+  } else if (request.method == "subscription.remove") {
+    std::cout << "Removed subscription " << request.subscription_id
+              << "; running configuration unchanged\n";
+  } else if (request.method == "node.update" || request.method == "node.copy" ||
+             request.method == "node.set_enabled" || request.method == "node.set_alias" ||
+             request.method == "node.set_labels" || request.method == "node.form_edit") {
+    std::cout << (request.method == "node.copy" ? "Copied" : "Saved")
+              << " node [" << result->value("id", "")
+              << "]; running configuration unchanged\n";
+  } else if (request.method == "node.remove") {
+    std::cout << "Removed node " << request.node_id << "; running configuration unchanged\n";
+  } else if (request.method == "core.remove") {
+    std::cout << "Removed managed core [" << result->value("removed", "") << "]\n";
+  } else if (request.method == "config.export") {
+    std::cout << "Exported multi-file configuration to " << result->value("output", "") << '\n';
+  } else if (request.method == "config.check" || request.method == "config.apply" ||
+             request.method == "core.stop" || request.method == "core.restart") {
+    std::cout << (request.command.empty() ? "Xray action" : request.command) << " completed: " << result->value("effect", "unknown") << '\n';
+  } else if (request.method == "node.test.cancel") {
+    std::cout << "Cancelled node test " << request.operation_id << '\n';
+  } else if (request.method == "config.files" && ::isatty(STDOUT_FILENO)) {
+    if (result->contains("runtime_dir")) {
+      std::cout << colored("Runtime configuration", "1;36", color) << "\n"
+                << "Directory: " << result->value("runtime_dir", "") << "\n";
+      for (const auto& file : result->value("files", Json::array()))
+        std::cout << "\n" << colored(file.value("file", ""), "1", color)
+                  << "\n" << file.value("text", "") << "\n";
+    } else {
+      std::cout << colored("Source configuration", "1;36", color) << "\n"
+                << "Source:  " << result->value("source_file", "") << "\n"
+                << "Runtime: " << result->value("runtime_file", "") << "\n\n";
+      if (result->contains("text") && result->at("text").is_string())
+        std::cout << result->at("text").get<std::string>() << '\n';
+      else std::cout << "No source file saved\n";
+    }
+  } else if ((request.method == "node.test.start" || request.method == "node.test.results") &&
+             ::isatty(STDOUT_FILENO)) {
+    HumanRows rows;
+    const auto items = result->is_array() ? *result : Json::array({*result});
+    for (const auto& item : items) {
+      const auto number = [&](const char* key, const char* unit) {
+        return item.contains(key) && item.at(key).is_number() ? item.at(key).dump() + unit : "unavailable";
+      };
+      rows.push_back({item.value("kind", "unknown"), item.value("status", "unknown") +
+          std::string(item.value("stale", false) ? "; stale" : ""),
+          number("latency_ms", " ms"), number("bytes_per_second", " B/s"), item.value("node_id", "")});
+    }
+    human_table({"TEST", "RESULT", "LATENCY", "RATE", "NODE ID"}, rows, "No node test results", color);
+    for (const auto& item : items)
+      if (!item.value("message", "").empty())
+        std::cout << "\n" << item.value("node_id", "") << ": " << terminal_text(item.value("message", "")) << '\n';
+  } else if (request.method == "operation.get" && ::isatty(STDOUT_FILENO)) {
+    std::cout << colored("Operation", "1;36", color) << ' ' << result->value("operation_id", "")
+              << "\nStatus: " << result->value("status", "unknown") << '\n';
+    if (result->contains("error") && result->at("error").is_object())
+      print_embedded_error(result->at("error"), "Operation failed", request.operation_id);
+    if (result->contains("result") && !result->at("result").is_null()) {
+      const auto& value = result->at("result");
+      if (value.is_object()) for (const auto& [key, field] : value.items()) {
+        if (field.is_string()) std::cout << key << ": " << terminal_text(field.get<std::string>()) << '\n';
+        else if (field.is_primitive()) std::cout << key << ": " << field.dump() << '\n';
+        else std::cout << key << ": " << field.size() << (field.is_array() ? " items" : " fields") << '\n';
+      }
+      std::cout << "Full result: xrm --json operation get " << shell_quote(request.operation_id) << '\n';
+    }
+  } else if (request.method == "config.files" || request.method == "config.dump" ||
+             request.method == "operation.get" || request.method == "node.test.start" ||
+             request.method == "node.test.results") {
+    // Retain the established non-terminal and explicit native-dump contract.
+    std::cout << result->dump(2) << '\n';
   }
   return refresh_exit_code(request, *result);
 }

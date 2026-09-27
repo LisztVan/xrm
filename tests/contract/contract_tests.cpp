@@ -106,4 +106,16 @@ TEST_CASE("C2 subscription DTO summary does not disclose its URL", "[CT-02]") {
   REQUIRE(decoded_state.last_unsupported_count == 2);
   REQUIRE(decoded_state.last_malformed_count == 1);
   REQUIRE(decoded_state.reported_notices == state.reported_notices);
+  REQUIRE_FALSE(decoded_state.last_error);
+  state.last_error = "HTTP 503";
+  state.last_error_stage = "http";
+  const auto failed_state = xrm::Json(state).get<xrm::SubscriptionState>();
+  REQUIRE(failed_state.last_error == "HTTP 503");
+  REQUIRE(failed_state.last_error_stage == "http");
+  xrm::SubscriptionSummary failed_summary = summary;
+  failed_summary.last_error = failed_state.last_error;
+  failed_summary.last_error_stage = failed_state.last_error_stage;
+  const auto public_summary = xrm::Json(failed_summary);
+  REQUIRE(public_summary.at("last_error") == "HTTP 503");
+  REQUIRE_FALSE(public_summary.contains("url"));
 }

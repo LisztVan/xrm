@@ -1,0 +1,411 @@
+# XRM 独立产品设计审查报告
+
+**审查角色**：独立产品设计审查员（未修改任何代码）
+**审查对象**：`/home/lisztzy/Projects/xrm`，`build/component-rewrite` 对应的当前 TUI/CLI 呈现
+**基准契约**：`docs/xrm-interaction-spec.md`（唯一交互契约）、`.agents/skills/xrm-interaction-design/SKILL.md`、`docs/tui-visual-design.md`
+
+---
+
+## 0. 审查依据与证据边界（先说明，避免把推断当结论）
+
+**没有收到任何用户提供的截图。** 本次会话中我并未收到图片附件，因此第一阶段"盲审"使用仓库内的**当前屏幕实证据**：`docs/evidence/visual-polish/*.txt|.png|.ansi`（9月26日 23:31，比 `component-rewrite/` 的 22:28 更新，我以 visual-polish 为"当前状态"，component-rewrite 仅作历史对照并已标注）。
+
+**我能做的**：读取真实屏幕格（.txt）、真实渲染（.png 含颜色）、交互契约、视觉系统文档、动作模型源码（`src/tui/shell/actions.cpp`、`components/widgets.hpp`）、CLI 捕获证据（`cli.json` 264 场景）。
+
+**我不能做的**：本次 harness 处于 review 模式，**拒绝执行任何程序**（`xrm`、`xrm --help`、`scripts/tui-lab.py`、甚至沙箱脚本全部被 guard 拦截：`MODE_FORBIDS_MUTATION` / `MUTABILITY_UNPROVEN`）。因此第五阶段"实机交互审查"中的**键盘行为、焦点保留、中文输入、Home/End/Backspace/Delete、Toast 是否抢焦点、各页面 ? 的上下文敏感性、真实日志现场**，我**没有实测证据**。凡此类条目我一律写 **Not enough evidence**，不猜测。
+
+另外要指出：**证据集本身有产品级缺口**——没有当前版本的 Groups 表单、节点测试结果对话框、订阅表单、TUI 内 geodata/tests/env/version/policy 模块、Profiles/Modules/Nodes/Config/Logs 五处的 Help、以及除"保存失败"以外的错误/离线现场。这既是我的证据限制，也是交付验证的真实盲区。
+
+---
+
+## 1. Executive verdict
+
+这是一个**架构与状态语义明显高于同级 AI 生成产物、但呈现层产品化未完成**的终端工具。
+
+真正成熟的部分：状态模型（View/Use/Edit/Run/Draft 分离）、不造假（`traffic unverified`、`runtime unchanged`、`Saved settings apply only on Connect / Apply`）、未知字段往返保留、单一稿件 Visual/JSON、内联校验留稿、语义化颜色 token、不依赖 Nerd Font、80×24 保护视图、CLI 帮助树的任务式分组。
+
+不成熟的部分集中在"用户看到什么、能不能发现、能不能一次做完"：
+
+- **动作完全不可见**：页面自有的可执行动作只存在于 F1 Help 里，屏幕上没有任何可操作暗示。Overview 这个落地的首页，唯一高价值动作 Connect/Stop 在视觉上根本不存在。
+- **空间被浪费**：每个页面都是"顶部标题 + 几行数据 + 底部状态 + 60~90% 空白"，垂直空间没有任何载体（没有常驻详情区、没有概览块、没有预览）。
+- **二级导航是一条被截断的扁平标签条**：80×24（契约自称最小可操作尺寸）下 15 个原生模块有 5 个不可见且**无任何溢出指示**；Nodes 里过滤器 `Local` 与数据来源名 `Local lab source` 排版完全同权。
+- **公共表单组件缺少"控件可见性"底线**：空文本输入渲染为空白（`timeoutMs`、集合编辑器的 `Value:`），用户看不出哪里能输入；label / summary / control 同列无边界，出现 `Priority domain matches | Unset` 这种孤立串行。
+- **外观层未收口**：对话框双边框、不居中、无遮罩；toast 与底层文本发生合成；**Paper 主题大片回退成深色**，而它作为可选主题在 Appearance 里出售。
+
+一句话：**技术上能跑，界面上"看得见的少、能猜的多"**。这不是 polish 层问题，是产品化层问题。
+
+---
+
+## 2. Overall score
+
+# 63 / 100
+
+对照评分纪律："60–69：功能可用，但产品设计明显不成熟"。我给这个分档，理由是：功能确实可用（有保存/草稿/校验/多文件运行的真实证据），但呈现层在**可发现性、空间使用、组件可见性、主题完整性**四件事上同时未达标，且这些问题跨页重复出现，不是个别页面失误。后端能力、重构投入、测试数量、文档宣称均未计入。
+
+---
+
+## 3. Score breakdown
+
+| 维度 | 满分 | 得分 | 关键依据 |
+|---|---|---|---|
+| A. Interaction Architecture | 20 | **12** | 导航层次与状态模型清晰；但动作可发现性系统性地压进 F1，键位大小写作为语义轴，同动作多键，切换动作标签时而有状态（`Use Profile`/`Cancel Use`）时而无（`Include / exclude`） |
+| B. Information Architecture | 15 | **10** | 分组合理（Config 六子页、Nodes 三桶、模块键）；但状态可见性靠 token 串与颜色，右栏重复表内数据而不解释状态，密度两极分化（导航挤、正文空） |
+| C. TUI Visual Design | 15 | **9** | 颜色纪律与字重纪律是本项目最强项；但垂直空间零利用、列头/元数据对比度过低、对话框双边框、Paper 主题残缺、集合表单串行 |
+| D. Component System | 15 | **9** | 组件集真实存在且标记语言统一（`[x]`/`(o)`/`!`/`*`）；但空输入不可见、Dialog/Toast 视觉规格缺失、LogViewer 词汇自成一派（`CURSOR`） |
+| E. Configuration Editing UX | 10 | **6** | Visual/JSON 同稿、保留未知字段（`futureNative`）、显式 unsaved 是真正亮点；但领域表单浅（routing 只到匹配字段）、`Rule label *` 强制原生非必需字段、三态可选字段暴露实现语义 |
+| F. Feedback & Error Recovery | 10 | **6** | toast 文案是全文最强的一处；但 Use/Edit 切换无反馈、断开只降级为 footer 小字、缓存日志与实时日志视觉不可区分、`(2)`/`more in history` 无解释 |
+| G. Terminal Ergonomics | 5 | **3.5** | 80×24/60×18 保护、resize 保稿有证据、无 Nerd Font 依赖、无色标记齐备；但在契约的最小尺寸上导航直接截断、详情区消失，IME/Unicode 宽度无证据 |
+| H. CLI UX | 10 | **7** | 根帮助按任务分组 + 示例 + `Next:` 提示，叶错误报命令+原因+该层 Usage，退出码/JSON/管道契约完整；但错误信息中英混排、`TEXT` 参数名、帮助里出现实现理由、`enabled/disabled` 与 TUI `included/excluded` 术语分裂 |
+| **总分** | **100** | **63** | |
+
+---
+
+## 4. Page-by-page scores
+
+评分轴：Visual clarity / Information hierarchy / Interaction clarity / Efficiency / Consistency，各 /10。不做简单平均，附最强与最弱判断。
+
+| 页面 | Visual | Info hier. | Interaction | Efficiency | Consistency | 判断 |
+|---|---|---|---|---|---|---|
+| Overview | 7 | 5 | **3** | 4 | 6 | 排版干净，但它是"最该能操作"的页面，页面上没有任何动作 |
+| Profiles | 7 | 5 | 4 | 5 | 6 | 表格清爽；`Session = "Use Edit Run"` 一列压三态；右栏重复表格内容 |
+| **Modules** | **5** | 5 | 4 | 5 | 6 | 二级导航溢出无指示；Edit 门槛不可见；`F2/F6/I/i/v/p/s/Ctrl-S` 全靠记忆 |
+| Subscriptions | 6 | 6 | 5 | 6 | 6 | 右栏 Attempt/Success/Unsupported/Malformed 是好设计；表单无当前证据（**证据不足**） |
+| Nodes | 6 | 5 | 5 | 5 | 6 | `Local` 与 `Local lab source` 同权混排；`Target = "Saved Run"` 又是 token 串；14 个动作全隐藏 |
+| **Logs** | 6 | 6 | 6 | 5 | 6 | **最成熟页面**：正文最亮、级别可扫、续行对齐、footer 状态分离 |
+| Config | 6 | 5 | 6 | 6 | 7 | 组件复用最好；但 120 列路径被截成不存在的路径、`Inspection` 面板塞进厂商 tagline |
+
+- **最成熟：Logs。** 原因不是它更漂亮，而是它**只有一个职责**（看输出），并且把这个职责做完整：正文与元数据分离、级别有语义色、多行消息对齐、视图状态（PAUSED/行数/丢弃/截断）明确移出正文。它是唯一一个"页面 = 任务完成"的地方。
+- **最弱：Modules（并列 Overview）。** Modules 是全产品的核心承诺（15 原生模块统一入口），但入口本身在最小尺寸下被截成 `... stats pol`，第 6~15 个键不可见；同时写入门槛（Edit）在屏幕上不可读，只能靠 Help 得知。Overview 的问题相反：它很干净，但它把产品最重要的动词藏了起来。
+- 跨页一致性问题：契约写"底部为查看对象详情"，实际 120×40 在**右侧**、80×24 **不存在**。同一心智模型在三种尺寸下有三种位置，其中一种直接消失。
+
+---
+
+## 5. Strongest aspects（先记录，避免只批判）
+
+1. **状态诚实**：`Process alive; traffic unverified`、`Saved settings apply only on Connect / Apply`、`Target saved for X; runtime unchanged`。这是同类工具里罕见的自我克制，不把"进程活着"说成"代理可用"。
+2. **保留未知字段**：`futureNative` 在 Visual 与 JSON 同一稿件中往返保留，且保存前后运行文件摘要一致。
+3. **反馈语义正确**：toast 同时回答"改了什么"和"运行时是否变了"（`Saved Alpha / dns; runtime unchanged`）。
+4. **校验不吞输入**：`! Enter a whole number` 就地显示，值 `oops` 与稿件保留。
+5. **颜色纪律**：token 有语义定义，边框只留给瞬时对话框/通知，正文优先；`NO_COLOR`/`TERM=dumb` 有降级路径；不依赖 Nerd Font。
+6. **CLI 帮助是真帮助**：根帮助按 Interactive/Saved configuration/Inventory/Run and observe/XRM settings 分组，带示例、带 `Next:`、带"帮助不访问 daemon""保存不等于连接"。
+7. **错误面清晰**：`xrm config show: The following argument was not expected: --bad-option` + 该层完整 Usage + 退出码 109。
+
+---
+
+## 6. Root UX problems（先归纳根因，再列症状）
+
+### ROOT-01 内容区没有为"当前任务"设计载体
+页面被渲染成"表头 + 若干行 + 状态 + 大片空白"。垂直空间（终端最大的资源）没有任何用途：没有常驻详情区、没有选中对象的操作区、没有概览/预览块。
+**受影响**：Overview、Profiles、Subscriptions、Nodes、Config、Modules（全部）。
+**症状（不要单独修）**：Overview 90% 空白；Profiles 右栏只有 3 行；120×40 的表格只占左侧 57%；180×48 模块页三分之一宽度使用。
+
+### ROOT-02 动作可发现性被系统性收缩到 F1
+唯一入口是右下角 `? / F1 Help`；页面上没有任何动作列表、动作别名、或选中对象的操作面板。叠加三个次级问题：
+(a) 大小写作为语义轴（`I` 含入/排除 vs `i` 路径；`s`/`S`；`t`/`T`；`u`/`U`；`c`/`C`；`D`/`d`）；
+(b) 同一动作绑定两个键并被列为两条 Help 项（Modules 的 `Ctrl-S` 与 `s` 都是 Save module source）；
+(c) 切换类动作的标签不一致地反映状态（Profiles 的 `u` 会在 `Use Profile`/`Cancel Use` 之间切换，Modules 的 `I` 永远叫 `Include / exclude`，不说当前会往哪个方向切）。
+**受影响**：全部页面；Overview（Connect/Stop 不可见）最严重。
+
+### ROOT-03 公共表单/集合组件缺少统一的对象编辑模型
+- 空的可编辑控件渲染为**空白**：`timeoutMs`（form-validation PNG）、集合编辑器 `Value:`（form-string-list PNG）——用户无法判断"这里有输入框"还是"这是只读文本"。
+- 字段边界不存在：label、摘要、控件、错误同处一列，出现 `Priority domain matches | Unset` 这样孤立串行，像是上一个字段的残影（form-string-list）。
+- 三态可选字段直接暴露实现语义：`skipFallback  [ ] Explicit  [ Use default ]   [not set]`，一个语义用了三个控件表达（form-validation）。
+- 集合编辑器有 Add/Update/Delete/Up/Down 的完整操作集（这点做对了），但新条目输入没有载体，`Entries / No entries / Value:` 之间没有可输入区域。
+
+### ROOT-04 二级导航被实现为扁平可滚动标签条
+- Modules：15 个原生子键排成一行小写单词；80 列下 `log dns inbounds outbounds routing observatory api metrics stats pol`（policy 被截、fakedns/geodata/env/version/burstObservatory 不可见）；120 列下 `... stats policy fakedns geodata env version bur`；**没有省略号、没有 `+N`、没有滚动指示**。选择位置只能从下一行的 `dns SOURCE · READ ONLY · Visual` 反推。
+- Nodes：`All  Local  Groups  Local lab source` 把**范围过滤器**和**数据来源名**混在同一行同一样式；`Local`（本地库存）与 `Local lab source`（订阅来源）只差几个词。
+- 同一行同时承载两种含义（选中 vs 模块启用/停用）却只用颜色/下划线区分。
+
+### ROOT-05 内部实现词汇直接进入界面
+`CURSOR` 同时是 Logs 的**列名**（实际是序号）、Profiles/Config 右栏的**面板名**、Logs 详情里的**字段名**（`Cursor 1`）、以及 footer 的 `Cursor Alpha`；`dropped no`/`truncated no` 把布尔值渲染成英语；`Run unknown`；`(2)` 无标签计数器；`Process fixture`/`run_id`/`process_only` 类内部枚举；CLI 的 `TEXT` 参数名与 `(avoids conflict with top-level commands)`。
+**受影响**：Logs、Overview/Profiles/Nodes/Config footer、CLI help。
+
+### ROOT-06 多状态被压进单列 token 串，靠颜色解码
+`Session = "Use Edit Run"`、`Target = "Saved Run"`、模块行靠绿/灰表示启用。三个正交布尔共用一个单元格，扫读时只能逐 token 反推，且强调完全由颜色承担（ROOT-04 同一病因的另一个出口）。
+
+### ROOT-07 外观/浮层层没有全量规格
+- **Dialog 双边框**（`dialog-unsaved-80x24`：外层空框 + 内层 `Unsaved form` 框，上下各两条边），不居中、无遮罩，位置在内容区左上。
+- **Toast 与底层文本合成**（`component-rewrite/05`、`12`：toast 框体所在行的水平分隔线穿过框内空白区，出现 `No─────...`、`────┤Module Edit enabled│` 这类可见伪影）。
+- **Paper 主题残缺**：`logs-paper-80x24.png` 中浅色只覆盖有文字的日志单元格，右侧与底部大片回退为深色块；`logs-256` 里同一区域因同为深色而不显眼。Appearance 把 `XRM Paper (light)` 作为正式主题出售。
+
+---
+
+## 7. AI-generated UI smell
+
+如果不知道这是 AI 写的，以下**具体迹象**仍会让我怀疑：
+
+**layout**
+- 每个页面的信息都顶到最上面，然后留下一大片纯空；没有一处试图"用满屏幕"。这是"渲染列表就交差"的形状，而不是"为一个任务分配空间"的形状。
+- Overview 两栏并列但无分隔线，两栏之间是纯粹靠空隙区分的 `label: value` 转储；`Statistics` / `Inventory` 是被顺手追加的第三、第四个小节，之间没有关系。
+- 空状态用一句开发者口吻的注释顶替：`Traffic: unavailable · latency: unmeasured` 下一行 `Requires stats, policy, metrics`——这是"把后端前置条件写进界面"的典型 AI 痕迹：它告诉了用户事实，没告诉用户该按什么。
+
+**terminology**
+- 同屏出现 `CURSOR`（列名/面板名/footer/详情字段四处复用同一个词表示四种东西）。
+- `dropped no` / `truncated no`：把布尔渲染成英语句子，且零值也不省略。
+- `Run unknown`：把内部状态枚举直接写进用户状态位。
+- `Inspection CURSOR` + footer `Cursor Alpha`：重复陈述同一事实两次，且用内部术语。
+- CLI 中英混排：`连接xrmd失败: no such file or directory`、`发送IPC请求失败: broken pipe`（真的出现在机器可读 JSON 里）。
+
+**interaction**
+- 每个页面自己发明加速键，且共用字母在页面间含义不同（`c` 在 Overview 是 Connect、Profiles 是 Copy Profile、Nodes 是 Save & Connect cursor）。
+- 键位的大小写差异承担语义（`I`/`i`、`D`/`d`、`T`/`t`、`U`/`u`），但屏幕不给任何提示，Help 也不解释这套规则。
+- 同一动作绑两个键（`Ctrl-S` 与 `s`）并且被当成两个动作列进 Help。
+
+**component composition**
+- Dialog 两个嵌套边框同时在屏——这是"组件各自 render 自己的框，没人负责外层"的合成结果。
+- Toast 框体不清空其矩形区域，底层分隔线穿框而过——同样是"叠加时没有背景规格"。
+- 空输入没有可见载体（没有 surface、没有下划线、没有占位），说明 TextInput 的视觉规格只在"有值/聚焦"时定义过。
+
+**help**
+- Help 按**控件类别**分节（Actions / Navigation / Input），内容是通用快捷键；它解释不了当前对象（这是什么模块、Save 会写哪个文件、`Add to draft` 与 Save 的区别）。同一份 Input 段落可以原样出现在任何页面——这就是"通用 Help 冒充上下文 Help"的迹象。
+- 帮助面板最后一行 `Scroll with Up / Down     Esc closes Help` 与上一节列不对齐，像是从别处的提示条粘进来的残留。
+
+**forms**
+- 表单是"label 列 + 值列"的转储；只有聚焦的那一行才变成真正的控件。未聚焦时 `queryStrategy (o) Unset / use core default` 与只读文本视觉同权。
+- 有限枚举确实用了选择组件（这点做对了），但**可选三态**被实现成 `[ ] + [按钮] + [状态文本]`。
+- `Rule label *` 是必填，而原生 `ruleTag` 并非必需——表单把实现侧的整洁需求变成了用户的输入负担。
+
+**state presentation**
+- 状态靠颜色（模块行绿/灰）、靠 token 串（`Use Edit Run`）、靠 footer 小字（`xrmd stale / disconnected`），而不是靠结构化位置。
+- 断开连接时，列表里的日志与实时日志**长得完全一样**，只有 footer 一行字不同。
+
+**visual hierarchy**
+- 标题、正文、值大量使用同一字重与同一亮度；元数据（列头 `TIME CURSOR SOURCE LEVEL`、`SOURCE · READ ONLY · Visual`）在深色底上过暗，实际读起来接近"不可见"。
+- 宽屏没有带来信息增益（180×48 模块页三分之二宽度是空的），窄屏也没有做取舍（80×24 直接丢详情区）。
+
+**需要说明的公道话**：这套界面**没有**典型的 AI 装饰性缺陷——没有 emoji、没有假仪表盘、没有营销式文案、没有虚假进度动画、没有渐变滥用。它的 AI 味来自"结构想清楚了、形体没画完"，不是来自"堆装饰"。
+
+---
+
+## 8. TUI visual critique
+
+**做对的**
+- 深色底 + 高对比白值 + 语义色的三层结构成立；成功/运行绿、警告黄、错误红、脏稿黄都在正确的位置出现过。
+- 表格用列宽而非竖线分隔，选择用整行 surface，焦点用 row cursor，符合终端表格的成熟做法（`120x40-profiles.png` 表格区域干净）。
+- 边框只出现在对话框/通知，主画布无框，符合 `tui-visual-design.md` 的自述。
+- 字号/字重策略（标题粗体、值正常、元数据 muted）在 Overview 与 Logs 上确实读得出来。
+
+**不够的**
+1. **元数据对比度过低**：列头（`Profile Core Session`）、`SOURCE · READ ONLY · Visual`、`Config / Core` 面包屑的次级片段、Logs 的 `CURSOR` 列，在深色底上属于"要凑近看"的等级。终端的 muted 不等于可以低到看不清——尤其列头承担的是**扫读锚点**职责。
+2. **垂直空间零利用**：这是视觉上最像"半成品"的地方。终端界面可以留白，但留白必须是被**结构**挤出来的（内容撑满后自然剩余），而不是"渲染完列表就停手"。当前是所有页面都在上半屏工作、下半屏空白。
+3. **对话框形体错误**：双边框（`dialog-unsaved-80x24.png`）是硬缺陷；不居中、无遮罩导致对话框与背景列表同权，用户看不出"现在只能回应这个框"。
+4. **toast 与底层合成**（历史证据 `05`/`12`）：即使当前版本的 `toast-over-editor-80x24.png` 内部是干净的，规格上仍需要"toast 必须不透明铺满自己的矩形"这条约束，否则在任何底纹/分隔线/表格行上都会复发。
+5. **Paper 主题**：作为可选主题出现在 UI 里，但唯一一张证据显示浅色只覆盖文字单元格，其余回退深色。要么修完，要么从选项里去掉。
+6. **宽度响应没有带来增益**：120 → 180 列，模块页只是把左侧树拉长、右侧仍旧空着；Profiles 的"宽屏预览"只多出 2 行（Core/Saved）。宽屏应该增加**新信息**（例如详情、时间线、字段计数、日志尾部），而不是把同样的内容摆得更开。
+
+---
+
+## 9. Interaction critique
+
+**模型层（好）**：Cursor/View/Use/Edit/Draft/Saved/Running 的分离是这套产品真正的智力成果，`Use` 可为空、`Edit` 是模块写入上下文、取消 Use 不关核心、保存不发布运行文件——这些语义在代码（`src/tui/shell/actions.cpp`）与契约里是一致的，属于超出预期的设计质量。
+
+**呈现层（差）**：
+1. **零动作可见性**。`actions()` 每个页面都定义了完整动作表（含禁用原因），但屏幕只把它渲染进 F1。结果是：Overview 有 `c Connect saved` / `d Stop core`，用户看不到；Profiles 有 6 个管理动作，用户看不到；Modules 有 7 个动作，用户看不到。契约**明确禁止**"常驻快捷键长条"，这个决定本身可辩护（避免 htop 那种噪声），但**替代方案缺失**：既没有选中对象的动作面板，也没有"当前可用 N 个动作"的提示，也没有把动作暴露成可视入口（按钮/菜单）。禁止旧方案不等于新方案已成立。
+2. **Edit 门槛不可见**。`Modules` 页写入要求 `Edit == View && Source`，页面上只有 `SOURCE · READ ONLY` 这个结论，没有"如何变为可写"的路径（要回 Profiles 按 `e`）。用户看到"只读"，但不知道下一步去哪。
+3. **Use 切换无反馈**。`use-cancelled-80x24.txt` 显示取消 Use 后仅 footer 从 `Use Alpha` 变为 `Use none`、Session 列少一个 token；没有 toast、没有"Alpha 不再是连接目标、核心仍在运行"的说明。而同一产品的其他变更（保存目标、保存模块）都有 toast。反馈一致性缺失。
+4. **断开信号太轻**。`disconnected-80x24.txt` 中 `xrmd stale / disconnected` 与普通 footer 文本同权同色，日志正文没有任何"这是缓存"的视觉标识。README 声称"已有记录明确属于缓存状态"——屏幕上不成立。
+5. **不支持数字跳转/方向键跨主菜单**（契约规定），意味着从 Overview 到 Logs 要按 5 次 Tab；这在纯键盘工具里是效率损失，但属于可辩护的取舍，不列为缺陷，仅记录。
+6. **未验证部分**：中文输入、IME、`q`/`e`/`u` 在文本框内不触发全局动作、上下键不泄漏、多行 Enter 换行、Toast 不抢焦点、Help 在 5 个不同上下文是否真的不同——**Not enough evidence**（无法执行程序）。
+
+---
+
+## 10. Component-system critique
+
+**组件清单是真实的**（`widgets.hpp`）：TextInput / TextArea / ReadOnlyText / Select / MultiSelect / Toggle / StringList / Integer validator / Form / Table / SectionTree / CollectionEditor / Dialog / Confirm / ContextHelp / HelpOverlay / ToastHost / LogViewer。不是"页面各自拼字符"的伪复用，这一点达标。
+
+**但"组件复用"≠"组件设计好"**，具体差在：
+
+| 组件 | 问题 |
+|---|---|
+| TextInput/TextArea | 空值状态**无视觉载体**；只读与空可写无法区分（`timeoutMs`） |
+| Select | 未聚焦折叠为单行 `(o) 当前值`，聚焦才展开为单选组——同一控件两种形体，且折叠态与只读文本同形 |
+| OptionalCheckbox / 三态 | `[ ] Explicit` + `[ Use default ]` + `[not set]` 三件套表达一个语义；这是把 `optional<T>` 直接画在屏幕上 |
+| StringList / CollectionEditor | 操作按钮齐备（Add/Update/Delete/Up/Down）✓；但"新条目输入"无载体，`Value:` 后为空——用户不知道在哪输入 |
+| Form | 标签 26 列固定泳道 ✓；但字段之间没有分隔，summary/label/control/error 容易串行 |
+| Dialog | 双边框、不居中、无遮罩；与 Confirm 共用边界但边框层没统一 |
+| Toast | 文案与计时模型是强项；但背景不清屏、`(2)` 无标签、`more in history` 无入口说明 |
+| Help | 结构（Actions/Navigation/Input）合理；内容是控件级通用键，缺对象语义与后果 |
+| LogViewer | 结构与级别语义是全场最好；列名 `CURSOR`（应为序号/记录号）、滚动条字形远离内容、`dropped no` 布尔英语 |
+
+**一致性问题**：Modal 出现在内容区左上而不是居中（`form-select-80x24`、`form-validation-80x24`、`help-form-80x24` 三处一致地"顶格"，说明这是刻意但不是良好决策）；脏稿标记在 Visual 视图叫 `Draft`、在 JSON 视图叫 `unsaved`（`module-visual-updated` vs `09-routing-copy-reordered-json`）。
+
+---
+
+## 11. Module editor critique
+
+**这是全产品最接近"结构化领域编辑器"的部分，也确实不是 JSON 的浅层包装**：
+
+- `dns` 拆成 `DNS servers / DNS query and cache settings / DNS hosts` 三段，正文按原生路径 `dns.servers` 展示并给出字段级视图（`port` / `strategy`）。
+- `routing` 的规则表单是真正的规则字段（`domain/ip/port/network/sourceIP/sourcePort/localIP/localPort/user`），没有发明 `enabled`/`type` 便利字段。
+- `F2` 在同一全宽工作区切 Visual/JSON，且**同一份稿件**（`futureNative` 在两侧都在，保存后仍在）。
+- `Add to draft` / `Cancel` 与模块级 Save 的二级边界正确：子表单只改父稿，模块保存才写 Source。
+
+**但它还不是"编辑效率工具"**：
+
+1. **表单深度不足**：routing 规则表单在证据里只展示到匹配字段，且 `Rule label *` 必填（原生 `ruleTag` 非必需）——用户为了加一条规则必须先编一个名字。目标/出站 tag、策略等关键字段在这一屏不可见（**若在滚动区下方则属证据不足**，但即便如此，首屏没有"我接下来要选目标"的迹象）。
+2. **集合的新增入口不可见**（ROOT-03）。
+3. **15 个模块的实际编辑体验没有证据**：geodata/tests/env/version/policy/fakedns/burstObservatory 在 TUI 里没有当前屏幕证据（只有 `10b` 证明按键可达）。`burstObservatory` 在 footer 还被截成 `modules/14_burstObserv`。
+4. **模块的可写性解释缺失**：`SOURCE · READ ONLY · Visual` 是结论，不是路径。
+5. **"Visual 覆盖到哪里"没有诚实边界提示**：高级未覆盖字段由 JSON 管理这一事实，在 Visual 视图里只体现为"看不见"。至少应在段落层显示"本段 N 个字段在 JSON 中"。
+
+---
+
+## 12. Logs critique
+
+**这是最强页面**，逐项回答：
+
+- **timestamp**：`TIME` 列在 80×24 几乎总是空的（fixture 大多无时间戳），真实记录才有 `12:41:02`。可接受，但"多数行为空"的列会削弱扫读锚点；建议空值不占位或合并进消息前缀。
+- **sequence**：列名 `CURSOR` —— 语义错误。它是 daemon 的 chunk 序号，用户心里的名字是"记录号/行号"。这是 ROOT-05 的最典型样本。
+- **source**：`stdout` 单调，但在断开场景有意义。
+- **level**：`Info/Warning/Error` 有语义色，且**宽度对齐**（`Error   ` 补齐），扫读等级是可行的。✓
+- **subsystem**：120 列才有独立列，80 列降级为消息前缀（`proxy/vless: ...`）——这是**正确的响应式取舍**。✓ 缺点：子系统名被 `~` 截断（`transport/internet/t~`）。
+- **message**：长消息换行后**对齐到 MESSAGE 列**，多行续行没有错位。✓ 这是真正的排版功力。
+- **Warning/Error 是否容易发现**：是（有颜色 + 固定列位）；但依赖颜色，无色模式下的可发现性未验证。
+- **Viewer 自身状态**：`PAUSED · 42 lines · new 0 · dropped no · truncated no` 与正文分离在 footer ✓；但 `dropped no` / `truncated no` 是布尔英语（应为 `dropped 0` / `truncated —`，或零值省略），`cursor 33` 与日志表的 `CURSOR` 列混用同一个词表示两个东西（滚动位置 vs 记录序号）。
+- **滚动条**：`┃` / `╹` 悬在正文右边缘，与内容列无关联，视觉上是噪点。
+- **Raw details**：`Details` 对话框给出 Time/Cursor/Source/Level/Subsystem + 原始消息 ✓；`Time not supplied` 诚实 ✓。
+- **缺失**（Not enough evidence / 无证据）：搜索、过滤、错误级别计数、暂停时新日志的"已缓存 N 条"提示；以及断开状态下"缓存"标识。
+
+---
+
+## 13. CLI critique
+
+**逐项**
+
+1. **根帮助是否帮助发现功能**：是。任务式分组 + 每个子命令一行目的说明 + `Examples` + `Next: xrm <command> --help` + 三条边界说明（帮助不访问 daemon / 保存不连接 / 机器输出）。这一项明显高于 CLI11 默认水平。**✓ 强项**
+2. **子命令层级**：清楚（profile/config/node/sub/core/geodata/connect/disconnect/status/logs/operation/stats/server/settings）。`config` 有 15 个模块相关子命令 + render/check/dump/apply/export，`--help` 里说明都带"做什么/不做什么"（例如 `api Edit native Xray API services without automatically opening the API`）。**✓ 强项**
+3. **缺 subcommand 显示当前层帮助**：是（`xrm`、`xrm profile`、`xrm config`、`xrm server` 均返回该层 Usage + 子命令 + 示例，退出码 0）。✓
+4. **help 是否提供 meaningful description**：大部分是；但有实现理由泄漏：`--module-key TEXT Native module key (avoids conflict with top-level commands)`——括号里在向用户解释 CLI 设计历史。
+5. **参数名是否易懂**：`--name TEXT REQUIRED`、`--text TEXT REQUIRED`、`profile_id TEXT REQUIRED`、`module TEXT REQUIRED` —— `TEXT` 是 CLI11 的值名占位符，不是领域名；`--source TEXT:{source,runtime} [source]` 更把校验器语法与默认值标记直接画进帮助。**扣分项**。
+6. **error 是否说明 action + object + reason**：是。`xrm config show: The following argument was not expected: --bad-option` + 该层 Usage（exit 109）；`--name is required`（JSON 模式, exit 106）。**✓ 但**：非 JSON 模式缺参的完整样本我未在证据中找到（**证据不足**）。
+7. **success 是否说明改变了什么**：CLI 是"结果导向"输出（列表/详情/状态），不是"变更确认"输出；`--json` 返回完整对象。属于可接受设计，但**与 TUI 的"Saved X; runtime unchanged"文案不共享语言**。
+8. **输出是否方便人阅读**：表格无外框、两格列距 ✓；但 `xrm config modules Home` 把 `modules/01_dns.json` 与 `01_dns.json` 上下各打一行——**同一份数据打印两遍**，是为区分 Source/Runtime 而产生的噪声（读者要自己推断第二行是运行文件名）。
+9. **是否有不必要的信息**：`xrm profile list` 的单条记录被空行包围（`Home / ID / CORE ID / 空行 / 空行`），`CORE ID: none` 用大写标签且值为 `none`；`node list` 的 `SUPPORT raw-only` 在 TUI 里完全没有对应概念（TUI 显示 `State available`）。
+10. **CLI 与 TUI 术语是否一致**：
+ - 模块输出状态：CLI `enabled/disabled` ↔ TUI footer `included/excluded`、动作 `Include / exclude` —— **同一概念三种词**。
+ - 节点状态：CLI `STATE enabled` + `SUPPORT raw-only` ↔ TUI `State available` —— **不一致**。
+ - TUI 有 `Use/Edit/Run` 会话状态，CLI `profile list` 完全不显示"哪个 Profile 是当前 Use/Run 目标"。
+ - **硬缺陷**：错误信息中英混排 —— `{"code":"io_error","message":"连接xrmd失败: no such file or directory"}`、`发送IPC请求失败: broken pipe`（出现在**机器可读 JSON 的 stderr** 里）。
+ - **无法实测**：我没有执行任何 CLI 命令，上述全部基于 `docs/evidence/visual-polish/cli.json` 的捕获结果（264 场景），属二手证据，已在结论中降权。
+
+---
+
+## 14. Terminal-size / accessibility critique
+
+| 尺寸 | 结论 |
+|---|---|
+| **80×24** | 基本可用（有全部主区域），但：Modules 二级导航**截断**（15 键可见 10）；详情/检查区**完全消失**（Profiles/Subscriptions/Nodes/Config 的右栏没了，只剩 footer 一行 `Cursor <name>`）；Logs 失去 subsystem 列（可接受）。契约称 80×24 为"最小可操作尺寸"，实际是"最小可见尺寸"。 |
+| **120×40** | 主要工作尺寸；右栏 Inspection 出现；但路径类长值被**从中间硬切**且无省略号：`Path /home/lisztzy/Project`（120×40-config）——它指向一个不存在的路径，是**误导性截断**，比不显示更差。180×48 下同一字段完整，证明是纯截断问题。 |
+| **180×48** | 无溢出（15 个模块键全显示）；但**没有新增信息**，只是把空隙放大，模块页右侧 2/3 空白。 |
+| **60×18** | 保护视图 `Terminal too small / 60x18 available; 80x24 required` —— 明确、直接、不崩溃。✓ |
+| **resize** | `dirty-resize-*` 四张证据显示同一进程内在 120/180/80 之间切换后稿件与焦点保留；60×18 再回 80×24 也保留。✓ 这是很强的工程保障。 |
+| 键盘 | **Not enough evidence**（无法执行）。契约声称 Home/End/Backspace/Delete 归控件、`q/e/u/p` 在文本内不触发全局动作、单行上下不泄漏——这些只有代码/契约，没有我能验证的现场。 |
+| 颜色无关性 | 标记语言齐备（`[x]`/`( )`/`(o)`/`!`/`*`/bold/reverse cursor）、提供 `NO_COLOR`/`TERM=dumb`/No color 与 16/256/truecolor 降级、不要求 Nerd Font ✓。**但**：列头/元数据的低对比度在 16 色与低亮度终端上会更糟，无证据。 |
+| Unicode 宽度 | 有证据显示续行对齐在 80 列正确；**无证据**证明 CJK 宽字符、组合字符、emoji 在表格/日志中的宽度处理（`component-rewrite/12` 里出现 `Alph?a` 与 `•` 遮罩，疑似证据管线的编码伪影而非产品缺陷，我无法区分，故记为**证据不足**）。 |
+| CJK 输入 | **Not enough evidence**（无法执行，无中文字段截图）。 |
+
+---
+
+## 15. P0 / P1 / P2 / P3 issues
+
+### P0 — Blocker
+1. **P0-01 Modules 二级导航在契约的最小尺寸直接截断，无溢出指示。** 触发条件：80×24 打开 Modules（默认态）。后果：15 个原生模块中 `fakedns/geodata/env/version/burstObservatory` 不可见，用户无法发现它们存在；契约"15 个原生键统一入口"在此尺寸下不成立。证据：`80x24-modules.txt`（`... stats pol`）、`120x40-modules.txt`（`... version bur`）。可达性（Tab 能否滚到）**未验证**。
+2. **P0-02 Paper 主题呈现残缺。** 触发条件：Appearance → Theme → `XRM Paper (light)`，打开 Logs。后果：浅色只覆盖有文字的单元格，其余回退深色，界面看起来是坏的；这是被出售的可选主题。证据：`logs-paper-80x24.png`。
+
+### P1 — Major
+1. **P1-01 页面级动作零可见性。** Overview 的 `Connect saved`/`Stop core`、Profiles 的 6 个管理动作、Modules 的 7 个动作在屏幕上没有任何入口；全部依赖 F1。首次使用者无法从界面推断产品能做什么。
+2. **P1-02 空可编辑控件不可见。** `timeoutMs`、集合编辑器 `Value:` 渲染为空白，可写与只读、有控件与无控件无法区分。
+3. **P1-03 表单字段边界不可分辨。** label / 摘要 / 控件 / 错误同列无分隔，出现 `Priority domain matches | Unset` 孤立行；用户无法判断一行属于哪个字段。
+4. **P1-04 三态可选字段暴露实现语义。** `[ ] Explicit` + `[ Use default ]` + `[not set]` 需要用户理解"未设置 / 显式默认 / 显式值"三态，而 UI 不解释。
+5. **P1-05 多状态压成单列 token 串。** `Session = "Use Edit Run"`、`Target = "Saved Run"`；扫读与差异比较困难，状态可见性实际由颜色承担。
+6. **P1-06 二级导航混合语义。** Nodes 的 `All/Local/Groups`（范围）与 `Local lab source`（数据来源）同权同行，`Local` 与 `Local lab source` 极易混淆。
+7. **P1-07 Dialog 形体错误。** 双边框（可见缺陷）+ 不居中 + 无遮罩；用户无法感知"这是模态"。
+8. **P1-08 Toast 与底层内容合成。** 有历史证据显示框体内空白处穿透底层分隔线（`component-rewrite/05`、`12`）。
+9. **P1-09 断开/缓存状态弱化。** `xrmd stale / disconnected` 只在 footer 以普通文本出现；日志正文与实时态视觉相同，缺少"缓存/已断开"标识。
+10. **P1-10 键位大小写作语义轴且同动作多键。** `I`/`i`、`D`/`d`、`T`/`t`、`U`/`u`、`c`/`C`；`Ctrl-S` 与 `s` 同为 Save module source 并列为两条 Help。
+11. **P1-11 CLI 错误信息中英混排（含 JSON 输出）。** `连接xrmd失败: no such file or directory`、`发送IPC请求失败: broken pipe`。
+12. **P1-12 CLI/TUI 术语分裂。** 模块 `enabled/disabled` ↔ `included/excluded`；节点 `enabled`+`raw-only` ↔ `available`；CLI `profile list` 不显示 Use/Edit/Run。
+13. **P1-13 80×24 丢失对象详情区。** 契约说"详情在底部"，实际右侧（120+）或不存在（80），同一心智模型三处漂移。
+
+### P2 — Moderate
+1. 120 列长路径被从中间硬切且无省略号，`Path /home/lisztzy/Project` 指向不存在的路径。
+2. `Rule label *` 强制必填，而原生 `ruleTag` 非必需——表单增加了用户的输入负担。
+3. `1 nodes · 1 sources` / `1 sources` 语法错误（Overview、Subscriptions）。
+4. 脏稿标记不一致：Visual 视图 `Draft`、JSON 视图 `unsaved`。
+5. Use/Edit 切换无 toast 反馈，而保存类操作有——反馈策略不一致。
+6. 列头与元数据对比度过低（`Profile/Core/Session`、`SOURCE · READ ONLY`）。
+7. `Logs` 列名 `CURSOR` 表示序号，`cursor 33` 表示滚动位置；同词两义。
+8. `dropped no` / `truncated no` 布尔英语；`Run unknown` 内部枚举入 UI。
+9. `(2)` 无标签计数；`more in history` 无"如何查看"的入口（N 键只在 Help 里）。
+10. 模块启用/选中在同一行只用颜色/下划线区分（颜色承担信息架构）。
+11. `Modules` 与 `Profiles` 的模块可写路径缺失：只显示"只读"，不显示"如何变成可写"。
+12. CLI `xrm config modules` 同一文件打印两行（source + runtime basename）。
+13. `Overview` 的 `Requires stats, policy, metrics` 只给事实不给动作。
+14. Logs 滚动条字形 `┃/╹` 漂浮在正文右缘，噪声。
+15. 宽屏不增加信息量（180×48 模块页 2/3 空白）。
+
+### P3 — Polish
+1. CLI `TEXT` 作为参数值名（`--name TEXT`、`--text TEXT`）。
+2. CLI 帮助泄漏实现理由：`(avoids conflict with top-level commands)`。
+3. CLI 帮助泄漏校验器语法：`--source TEXT:{source,runtime} [source]`。
+4. `xrm profile list` 单条记录周围多余空行；`CORE ID: none` 大写标签。
+5. `Help` 面板末行 `Scroll with Up / Down   Esc closes Help` 与列不对齐，疑似残留提示条。
+6. `Help` 描述把两个概念塞进一格（`Document start / end · Multiline text`）。
+7. toast 标题 `+ Done` / `+ Completed` 的前缀符号无说明。
+8. `Process fixture` 这类 fixture 名在被截图状态下出现（对真实用户应无此值，仅记录）。
+
+---
+
+## 16. Top 5 changes with highest UX return
+
+1. **让内容区有职责：给每个列表页一个"永远存在"的对象详情/动作区（底部优先），并把选中对象的可执行动作以列表形式放进该区。**
+ 一次同时修掉：大面积空白（ROOT-01）、动作不可见（ROOT-02）、80×24 丢详情（P1-13）、宽屏无增益（P2-15）。这不是恢复"常驻快捷键长条"——它是**选中对象的动作面板**（k9s/lazygit 的做法），随对象变化、可扫描、可点击/可回车，与"永久全局键位提示条"是两种东西。
+2. **重做二级导航为真正的选择器。** 宽屏自动换行成 2 行并显示全部；窄屏显示 `…+5` 溢出标记与计数；Nodes 把范围过滤器与数据来源分成两个视觉组（例如前三个用不同强调 + 空行/分隔符）；同一行不再同时用颜色表示两种含义（启用态移到对象行或 footer）。
+3. **给公共录入组件补上视觉规格。** 每个可编辑控件在**空值且未聚焦**时也必须可见（surface 底或下划线或 `—` 占位）；字段之间加固定分隔（label 泳道 + 控件泳道 + 一空格）；用单个 `Select` 表达 `未设置 / 默认 / 自定义` 三态，替换 `[ ]+[按钮]+[status]`；集合编辑器给出真实的新条目行（输入 + Add）。这一条同时修掉 P1-02/03/04 与表单的 "JSON 换输入框"怀疑。
+4. **收口外观层。** Dialog 单一边框、水平居中、加遮罩（或反色整屏背景）；Toast 强制不透明绘制自己的矩形；Paper 主题要么补全为完整调色板（所有 cell 显式背景），要么从选项移除。
+5. **统一状态与词汇层。** 拆开 `Session`/`Target` 的 token 串（每态一列或一图标+短名固定列）；把 `CURSOR` 改成 `记录/序号`、`dropped no` 改成 `丢弃 0`（零值省略）、`Run unknown` 改成用户语；CLI/TUI 统一 `included/excluded` 与节点状态词；清掉错误信息里的中文（或统一为一种语言）。
+
+---
+
+## 17. Things that should NOT be changed
+
+1. **View / Use / Edit / Run / Draft / Saved / Running 的模型与边界**（保存不等于连接、Use 可为空、取消 Use 不关核心、Edit 是单一 Profile 的模块写入上下文）。这是产品最有价值的抽象。
+2. **诚实文案**：`traffic unverified`、`runtime unchanged`、`Saved settings apply only on Connect / Apply`、`Time not supplied`、`Not refreshed`。
+3. **Toast 的信息结构与计时模型**（改了什么 + 运行时是否变 + 3/5/8 秒 + 最多 3 条 + 历史）。
+4. **单一稿件 Visual/JSON + F2 全宽切换 + 未知字段与数组顺序保留**。
+5. **内联校验 `!` + 保稿、`*` 脏字段、`[x]/(o)/( )` 标记、colors 仅增强语义、不依赖 Nerd Font**。
+6. **克制调色板与"边框只给瞬时对话框/通知"的原则**（不要为了填满空白改成卡片堆叠）。
+7. **CLI 的任务式根帮助分组、示例、`Next:`、退出码、`--json` schema、错误走 stderr、非 TTY 无 ANSI**。
+8. **80×24 可用 + 60×18 保护视图 + resize 保稿保焦点**（这是很强的工程保障，不要为了美观牺牲）。
+9. **没有假仪表盘、没有假进度动画、没有 emoji 语义**。
+10. **模块与绑定的数据边界**（原生 wrapper、动态绑定不进原生正文、不发明顶层 groups/tls/sniffing）。
+
+---
+
+## 18. Re-review checklist（下一轮必须提供的证据）
+
+**必须先补的现场（当前完全缺失）**
+1. 80×24 / 120×40 下 **Modules 的 Tab 可达性**：能否到达 `fakedns..burstObservatory`？滚动时是否有任何位置提示？（决定 P0-01 的定级）
+2. **Nodes → Groups** 的 Group 表单：成员多选是否用选择组件、是否要求手输字符串。
+3. **节点表单 / 订阅表单 / 节点测试结果** 的当前屏幕（协议、传输、安全字段如何组织；有限枚举是否真的用选择器）。
+4. **TUI 内 geodata / tests / policy / env / version / fakedns / burstObservatory** 六个模块的 Visual 视图（证明"不是只做了 DNS/routing"）。
+5. **五个上下文的 Help**：Profiles / Modules / Nodes / Config / Logs，验证是否真的 context-sensitive（而非同一份键表）。
+6. **Toast 在 Profiles / Nodes / Logs 上的现场**：是否抢焦点、是否推开布局、连续 4 条通知的表现。
+7. **真实运行日志**（非 fixture）的 80/120 列：时间戳覆盖、级别分布、超长行、多行栈、控制字符。
+8. **断开态**：日志正文是否有"缓存"标识；重建连接后状态如何恢复。
+9. **错误现场**：保存失败之外——daemon 不可用、引用不存在对象、订阅下载失败、配置检查失败，各自是否就地呈现并可恢复。
+10. **Paper 主题全页**（不只 Logs）以及 16 色 / `NO_COLOR` 下的全页可读性。
+
+**必须实测的用户任务（不是我做的，是下一轮必须有的记录）**
+A. Profile：create → view → use → cancel use → rename → copy → delete，并确认 Edit 不被误解为 Profile 元数据编辑。
+B. Modules：Edit OFF 查看 → Edit ON 改 DNS 集合 → routing 规则增删改排序 → Visual→JSON→Visual 往返。
+C. Form：TextInput/TextArea/Select/Radio/Checkbox/MultiSelect/List/Collection/Dialog 各自的 Left/Right/Home/End/Backspace/Delete，以及**中文与长文本输入**。
+D. Subscription：add/edit/update/pause/bind/remove 的成功与失败恢复。
+E. Nodes/Groups：有限选项是否用选择组件；非法数据下错误是否就地、字段与焦点是否保留。
+F. Logs：timestamp/sequence/source/level/subsystem/message 层级；FOLLOW/PAUSED/cursor/buffer/dropped 与正文分离。
+G. Notification：success/warning/error 三态；overlay、不抢焦点、不推页、自动消失、连续通知。
+H. Help：五个上下文的 `?`/F1。
+I. Terminal：80×24、120×40、一个宽屏，判断是"拉伸"还是"响应式"。
+
+**评分复算条件**：若 P0-01/P0-02 修复、并补齐 ROOT-01/02/03 的载体与规格，我在 A/B/C/D 四项上的分数会显著上移（预估总分区间 74–80）。若仅增加测试与证据数量而不改呈现，总分不变——**测试通过不提高设计分**。

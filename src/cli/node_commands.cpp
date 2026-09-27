@@ -41,7 +41,7 @@ void add_node_commands(CLI::App& app, Request& request) {
     if (!request.node_search.empty()) request.params["text"] = request.node_search;
   });
 
-  auto* show = node->add_subcommand("show", "Show one node including required connection settings");
+  auto* show = node->add_subcommand("show", "Show a node summary; --json includes editable connection settings");
   show->add_option("id", request.node_id)->required();
   show->callback([&request] { request.method = "node.get"; request.params = {{"id", request.node_id}}; });
   auto* edit = node->add_subcommand("edit", "Edit one typed transport/security/sockopt/finalmask/mux subobject");

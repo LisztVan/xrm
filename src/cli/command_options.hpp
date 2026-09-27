@@ -9,7 +9,9 @@ namespace xrm::cli {
 struct Request {
   std::string socket;
   bool json = false;
+  bool verbose = false;
   std::string method;
+  std::string command;
   Json params = Json::object();
   std::string node_name;
   std::string node_outbound;
@@ -50,6 +52,8 @@ struct Request {
   std::string module_key;
   std::string module_show_key;
   std::string module_text;
+  std::string module_file;
+  bool module_file_specified = false;
   std::string metrics_listen;
   std::string form_key;
   std::string form_value;
@@ -59,6 +63,7 @@ struct Request {
   std::string form_json;
   std::vector<std::string> form_values;
   std::string source = "source";
+  std::string export_source = "saved";
   std::string output_path;
   std::string target_id;
   std::string group_id;
@@ -88,6 +93,8 @@ void add_routing_preset_commands(CLI::App& app, Request& request);
 std::optional<int> execute_geodata_cli(const Request& request);
 std::optional<int> execute_routing_preset_cli(const Request& request);
 int execute_request(const Request& request);
+inline constexpr int watch_consumer_closed = -1;
+int print_watch_result(const Request& request, const Result<Json>& result);
 int print_result(const Request& request, const Result<Json>& result);
 std::string default_socket_path();
 

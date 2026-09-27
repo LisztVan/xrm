@@ -109,6 +109,9 @@ Application::Application(Store& store, ProcessService& processes,
   core_manager_->on_output([this](LogStream stream, std::string bytes) {
     logs_.append(stream, bytes);
   });
+  core_manager_->on_output_closed([this](LogStream stream) {
+    logs_.finish(stream);
+  });
   geodata_schedule_ = new GeodataSchedule{};
   geodata_schedule_->owner = this;
   if (uv_timer_init(&loop, &geodata_schedule_->timer) != 0) {

@@ -468,6 +468,10 @@ TEST_CASE("HTTP-01 direct requests, headers, and explicit proxy", "[HTTP-01][rea
   bad_proxy.route.proxy_url = "http://127.0.0.1:1";
   const auto failed = fetch_sync<xrm::HttpResponse>(client, loop.value, std::move(bad_proxy));
   CHECK_FALSE(failed);
+  if (!failed) {
+    CHECK(failed.error().message.find('\0') == std::string::npos);
+    CHECK(failed.error().message.size() < 512);
+  }
   CHECK_FALSE(fixture.got_bad_proxy_direct_request());
   xrm::HttpRequest unsupported_proxy;
   unsupported_proxy.url = fixture.url();

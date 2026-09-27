@@ -3,8 +3,12 @@
 #include "contract/methods.hpp"
 #include "infra/files.hpp"
 
+#include <curl/curl.h>
+
 #include <limits>
 #include <array>
+#include <cctype>
+#include <memory>
 #include <random>
 
 namespace xrm {
@@ -12,6 +16,24 @@ namespace {
 
 AppError bad_params(std::string message, std::string subject = "params") {
   return {ErrorCode::invalid_argument, std::move(message), std::move(subject), std::nullopt};
+}
+
+bool valid_subscription_url(const std::string& url) {
+  std::unique_ptr<CURLU, decltype(&curl_url_cleanup)> parsed(curl_url(), curl_url_cleanup);
+  if (!parsed || curl_url_set(parsed.get(), CURLUPART_URL, url.c_str(), 0) != CURLUE_OK)
+    return false;
+  char* scheme = nullptr;
+  char* host = nullptr;
+  const auto scheme_result = curl_url_get(parsed.get(), CURLUPART_SCHEME, &scheme, 0);
+  const auto host_result = curl_url_get(parsed.get(), CURLUPART_HOST, &host, 0);
+  std::string protocol = scheme ? scheme : "";
+  for (auto& ch : protocol)
+    ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+  const bool valid = scheme_result == CURLUE_OK && host_result == CURLUE_OK &&
+      host && *host && (protocol == "http" || protocol == "https");
+  curl_free(scheme);
+  curl_free(host);
+  return valid;
 }
 
 bool read_string(const Json& params, std::string_view key, std::string& value) {
@@ -50,6 +72,10 @@ Json refresh_result_json(const BatchRefreshResult& result) {
         {"updated", report.updated}, {"missing", report.missing},
         {"malformed", report.malformed}, {"unsupported", report.unsupported},
         {"partial", report.partial}});
+  for (std::size_t i = 0; i < result.completed.size(); ++i) {
+    if (result.completed[i].first_issue)
+      completed[i]["first_issue"] = *result.completed[i].first_issue;
+  }
   Json failed = Json::array();
   for (const auto& [id, error] : result.failed)
     failed.push_back(Json{{"source_id", id}, {"error", error_to_json(error)}});
@@ -82,7 +108,8 @@ Result<SubscriptionSummary> subscription_summary(Store& store, const Subscriptio
   if (!nodes) return std::unexpected(nodes.error());
   return SubscriptionSummary{source.id, source.name, source.auto_refresh,
       state->last_result, state->last_attempt, state->last_success, nodes->total,
-      state->last_unsupported_count, state->last_malformed_count};
+      state->last_unsupported_count, state->last_malformed_count,
+      state->last_error, state->last_error_stage};
 }
 
 Id new_source_id() {
@@ -470,6 +497,10 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
       url = params["url"].get<std::string>();
     }
     source.name = std::move(name);
+    if (!valid_subscription_url(url)) {
+      fail(bad_params("订阅URL必须是包含主机名的完整HTTP(S)地址", "url"));
+      return;
+    }
     source.url = std::move(url);
     if (params.contains("user_agent")) {
       if (!params["user_agent"].is_string()) { fail(bad_params("user_agent必须是字符串")); return; }
@@ -721,8 +752,16 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
   if (method == methods::profile_get) {
     std::string id;
     if (!read_string(params, "profile_id", id)) { fail(bad_params("profile.get需要profile_id")); return; }
-    auto profile = application_->profiles().get(id);
-    if (!profile) fail(profile.error()); else succeed(Json(*profile));
+    if (params.value("include_source_text", false)) {
+      auto snapshot = application_->profiles().get_with_source(id);
+      if (!snapshot) { fail(snapshot.error()); return; }
+      Json view(snapshot->first);
+      view["source_text"] = std::move(snapshot->second);
+      succeed(std::move(view));
+    } else {
+      auto profile = application_->profiles().get(id);
+      if (!profile) fail(profile.error()); else succeed(Json(*profile));
+    }
     return;
   }
   if (method == methods::profile_clone) {
@@ -1026,6 +1065,22 @@ void ApiRouter::dispatch(const Id& connection_id, RpcRequest request, RpcReply r
     return;
   }
   if (method == methods::connection_disconnect || method == methods::core_stop) {
+    if (params.contains("expected_run_id")) {
+      std::string expected;
+      const bool expected_none = params.at("expected_run_id").is_null();
+      if (!expected_none && !read_string(params, "expected_run_id", expected)) {
+        fail(bad_params("expected_run_id必须是非空字符串或null", "expected_run_id")); return;
+      }
+      const auto status = application_->core_manager().status();
+      if ((expected_none && status.active) ||
+          (!expected_none && (!status.active || status.active->run_id != expected))) {
+        fail(AppError{ErrorCode::conflict,
+            "运行实例已改变；没有停止当前实例",
+            expected_none ? std::optional<std::string>{} : std::optional<std::string>{expected},
+            "刷新运行状态，确认目标后再停止"});
+        return;
+      }
+    }
     const auto operation = application_->operations().begin();
     auto accepted = application_->core_manager().stop([application = application_, operation](auto result) {
       if (!result) application->operations().complete(operation, std::unexpected(result.error()));

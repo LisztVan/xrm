@@ -41,7 +41,11 @@ Result<std::string> profile_id(RpcSession& session, std::string_view reference) 
 
 int output(const Request& request, const Result<Json>& result) {
   if (!result || request.json) return print_result(request, result);
-  std::cout << result->dump(2) << '\n';
+  if (request.method == "cli.routing.preset.save")
+    std::cout << "Saved routing preset " << request.params.value("preset", "") << " for Profile "
+              << request.params.value("profile", "") << "; runtime unchanged\n";
+  else
+    std::cout << result->dump(2) << '\n';  // Explicit native-config preview, including the save baseline.
   return 0;
 }
 

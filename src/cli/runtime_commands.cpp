@@ -94,8 +94,10 @@ void add_runtime_commands(CLI::App& app, Request& request) {
   auto* status = app.add_subcommand("status", "Show expected/actual core runtime state");
   status->callback([&] { request.method = std::string(methods::runtime_status); request.params = Json::object(); });
   auto* logs = app.add_subcommand("logs", "Read the bounded server/core log buffer");
-  logs->add_option("--cursor", request.log_cursor);
-  logs->add_option("--limit", request.log_limit);
+  logs->add_option("--cursor", request.log_cursor,
+      "Transport buffer cursor, not a log record number; 0 starts at the oldest available chunk");
+  logs->add_option("--limit", request.log_limit,
+      "Maximum log text bytes returned by this read (default 65536)");
   logs->callback([&] {
     request.method = std::string(methods::logs_read);
     request.params = {{"cursor", request.log_cursor}, {"limit", request.log_limit}};

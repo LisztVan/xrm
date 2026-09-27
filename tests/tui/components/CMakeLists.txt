@@ -1,0 +1,6 @@
+add_executable(xrm_tui_components_tests components_tests.cpp log_polish_tests.cpp)
+target_link_libraries(xrm_tui_components_tests PRIVATE xrm_tui_components Catch2::Catch2WithMain)
+include(Catch)
+catch_discover_tests(xrm_tui_components_tests)
+add_executable(xrm_component_showcase showcase.cpp)
+target_link_libraries(xrm_component_showcase PRIVATE xrm_tui_components)

@@ -222,9 +222,12 @@ struct HttpClient::Impl {
       } else if (request->curl_result == CURLE_OK) {
         result = std::move(request->response);
       } else {
-        const std::string detail = request->curl_error.empty()
+        // CURLOPT_ERRORBUFFER is a NUL-terminated C string inside a fixed-size
+        // buffer.  Copying the whole buffer leaks padding into RPC/JSON errors.
+        const std::string detail = request->curl_error.empty() ||
+                                           request->curl_error.front() == '\0'
                                        ? curl_easy_strerror(request->curl_result)
-                                       : request->curl_error;
+                                       : request->curl_error.c_str();
         result = std::unexpected(error(ErrorCode::network_error,
                                        "HTTP下载失败: " + detail));
       }

@@ -480,11 +480,15 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   REQUIRE(partial);
   REQUIRE(partial->completed.size() == 1);
   CHECK(partial->completed.front().partial);
+  REQUIRE(partial->completed.front().first_issue);
+  CHECK(partial->completed.front().first_issue->find("item 2") != std::string::npos);
   CHECK(partial->completed.front().malformed == 1);
   CHECK(partial->completed.front().unsupported == 1);
   const auto partial_state = (*opened)->get_source_state("source-A");
   REQUIRE(partial_state);
   CHECK(partial_state->last_result == "partial");
+  CHECK(partial_state->last_error == partial->completed.front().first_issue);
+  CHECK(partial_state->last_error_stage == "parse");
   CHECK(partial_state->last_malformed_count == 1);
   CHECK(partial_state->last_unsupported_count == 1);
   auto after_partial = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
@@ -499,6 +503,11 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
     REQUIRE(rejected);
     REQUIRE(rejected->completed.empty());
     REQUIRE(rejected->failed.size() == 1);
+    const auto failed_state = (*opened)->get_source_state("source-A");
+    REQUIRE(failed_state);
+    CHECK(failed_state->last_result == "failed");
+    CHECK(failed_state->last_error == rejected->failed.front().second.message);
+    CHECK(failed_state->last_error_stage == "parse");
     auto retained = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
     REQUIRE(retained);
     CHECK(std::any_of(retained->items.begin(), retained->items.end(),
@@ -524,6 +533,12 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   REQUIRE(unavailable);
   REQUIRE(unavailable->completed.empty());
   REQUIRE(unavailable->failed.size() == 1);
+  const auto http_state = (*opened)->get_source_state("source-A");
+  REQUIRE(http_state);
+  CHECK(http_state->last_error_stage == "http");
+  REQUIRE(http_state->last_error);
+  CHECK(http_state->last_error->find("HTTP 503") != std::string::npos);
+  CHECK(http_state->last_success.has_value());
   auto retained_after_http_failure = (*opened)->list_nodes(
       xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
   REQUIRE(retained_after_http_failure);
@@ -533,6 +548,10 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   auto complete = refresh_sync(service, loop.value, {"source-A"});
   REQUIRE(complete);
   REQUIRE(complete->completed.size() == 1);
+  const auto recovered_state = (*opened)->get_source_state("source-A");
+  REQUIRE(recovered_state);
+  CHECK_FALSE(recovered_state->last_error);
+  CHECK_FALSE(recovered_state->last_error_stage);
   CHECK(complete->completed.front().missing == 1);
   CHECK_FALSE((*opened)->get_node(old_id));
   const auto current = (*opened)->list_nodes(

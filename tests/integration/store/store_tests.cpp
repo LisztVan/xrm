@@ -121,7 +121,7 @@ TEST_CASE("XRM program settings persist without touching Profile or core state",
     REQUIRE((*opened)->save_runtime(xrm::RuntimePersistent{.desired_running = true}));
     auto defaults = (*opened)->load_program_settings();
     REQUIRE(defaults);
-    REQUIRE(defaults->at("appearance").at("theme") == "default");
+    REQUIRE(defaults->at("appearance").at("theme") == "dark");
     REQUIRE(defaults->at("appearance").at("icon_mode") == "unicode");
     REQUIRE(defaults->at("editor").at("argv") == xrm::Json::array());
     auto updated = (*opened)->update_program_settings(xrm::Json{

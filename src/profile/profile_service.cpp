@@ -133,17 +133,6 @@ Result<void> validate_settings(const ProfileSettings& settings) {
   return {};
 }
 
-Result<ProfileSettings> read_profile_file(const std::filesystem::path& directory) {
-  auto text = read_text(directory / "profile.json", max_profile_file_bytes);
-  if (!text) return std::unexpected(text.error());
-  try {
-    return Json::parse(*text).get<ProfileSettings>();
-  } catch (const std::exception& exception) {
-    return fail<ProfileSettings>(ErrorCode::invalid_argument,
-        "读取 Profile JSON 失败：" + std::string(exception.what()), "profile.json");
-  }
-}
-
 std::vector<ModuleSetting> default_module_settings() {
   std::vector<ModuleSetting> modules;
   modules.reserve(module_catalog().size());
@@ -323,14 +312,27 @@ Result<std::vector<ProfileSummary>> ProfileService::list() const {
 }
 
 Result<ProfileSettings> ProfileService::get(const Id& id) const {
+  auto snapshot = get_with_source(id);
+  if (!snapshot) return std::unexpected(snapshot.error());
+  return std::move(snapshot->first);
+}
+
+Result<std::pair<ProfileSettings, std::string>> ProfileService::get_with_source(const Id& id) const {
   auto directory = profile_directory(store_, id);
   if (!directory) return std::unexpected(directory.error());
-  auto settings = read_profile_file(*directory);
-  if (!settings) return std::unexpected(settings.error());
-  if (settings->id != id) return fail<ProfileSettings>(ErrorCode::conflict,
+  auto source = read_text(*directory / "profile.json", max_profile_file_bytes);
+  if (!source) return std::unexpected(source.error());
+  ProfileSettings settings;
+  try {
+    settings = Json::parse(*source).get<ProfileSettings>();
+  } catch (const std::exception& exception) {
+    return fail<std::pair<ProfileSettings, std::string>>(ErrorCode::invalid_argument,
+        "读取 Profile JSON 失败：" + std::string(exception.what()), "profile.json");
+  }
+  if (settings.id != id) return fail<std::pair<ProfileSettings, std::string>>(ErrorCode::conflict,
       "Profile 文件 ID 与索引不一致", id);
-  if (auto valid = validate_settings(*settings); !valid) return std::unexpected(valid.error());
-  return settings;
+  if (auto valid = validate_settings(settings); !valid) return std::unexpected(valid.error());
+  return std::pair{std::move(settings), std::move(*source)};
 }
 
 Result<void> ProfileService::save(const Id& id, const ProfileEdit& edit) {

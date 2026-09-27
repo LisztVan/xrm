@@ -2,6 +2,7 @@
 #include <csignal>
 #include <algorithm>
 #include <chrono>
+#include <charconv>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -17,6 +18,19 @@ namespace {
 
 void write_from_environment(const char* key, std::ostream& output) {
   if (const char* value = std::getenv(key)) output << value;
+}
+
+void write_hex_from_environment(const char* key, std::ostream& output) {
+  const char* value = std::getenv(key);
+  if (!value) return;
+  const std::string hex(value);
+  if (hex.size() % 2) std::exit(92);
+  for (std::size_t i = 0; i < hex.size(); i += 2) {
+    unsigned int byte = 0;
+    const auto parsed = std::from_chars(hex.data() + i, hex.data() + i + 2, byte, 16);
+    if (parsed.ec != std::errc{} || parsed.ptr != hex.data() + i + 2) std::exit(92);
+    output.put(static_cast<char>(byte));
+  }
 }
 
 void write_repeated_from_environment(const char* key, std::ostream& output) {
@@ -86,6 +100,7 @@ int main(int argc, char** argv) {
     std::cout << "Xray 26.9.9 (Xray, Penetrates Everything.)\n";
   }
   write_from_environment("XRM_FAKE_CORE_STDOUT", std::cout);
+  write_hex_from_environment("XRM_FAKE_CORE_STDOUT_HEX", std::cout);
   write_repeated_from_environment("XRM_FAKE_CORE_STDOUT_BYTES", std::cout);
   write_from_environment("XRM_FAKE_CORE_STDERR", std::cerr);
   write_repeated_from_environment("XRM_FAKE_CORE_STDERR_BYTES", std::cerr);

@@ -20,6 +20,8 @@ struct SubscriptionSummary {
   std::size_t node_count = 0;
   std::size_t unsupported_count = 0;
   std::size_t malformed_count = 0;
+  std::optional<std::string> last_error;
+  std::optional<std::string> last_error_stage;
 };
 
 inline void to_json(Json& json, const SubscriptionSummary& value) {
@@ -28,6 +30,8 @@ inline void to_json(Json& json, const SubscriptionSummary& value) {
               {"last_success", value.last_success}, {"node_count", value.node_count},
               {"unsupported_count", value.unsupported_count},
               {"malformed_count", value.malformed_count}};
+  if (value.last_error) json["last_error"] = *value.last_error;
+  if (value.last_error_stage) json["last_error_stage"] = *value.last_error_stage;
 }
 
 inline void from_json(const Json& json, SubscriptionSummary& value) {
@@ -40,6 +44,10 @@ inline void from_json(const Json& json, SubscriptionSummary& value) {
   value.node_count = json.at("node_count").get<std::size_t>();
   value.unsupported_count = json.at("unsupported_count").get<std::size_t>();
   value.malformed_count = json.at("malformed_count").get<std::size_t>();
+  if (json.contains("last_error") && !json.at("last_error").is_null())
+    value.last_error = json.at("last_error").get<std::string>();
+  if (json.contains("last_error_stage") && !json.at("last_error_stage").is_null())
+    value.last_error_stage = json.at("last_error_stage").get<std::string>();
 }
 
 struct NodeSummary {

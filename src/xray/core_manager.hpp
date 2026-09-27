@@ -21,6 +21,7 @@ class CoreManager {
   bool busy() const;
   RuntimeStatus status() const;
   void on_output(std::function<void(LogStream, std::string)> callback);
+  void on_output_closed(std::function<void(LogStream)> callback);
   Result<Id> activate(ActivationRequest, Completion<ActivationResult>);
   Result<Id> stop(Completion<ActivationResult>);
   Result<Id> restore_after_server_start(Completion<ActivationResult>);

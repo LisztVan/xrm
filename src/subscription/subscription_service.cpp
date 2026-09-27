@@ -90,6 +90,21 @@ Id new_node_id() {
   return id;
 }
 
+std::string issue_summary(const ParseIssue& issue) {
+  return "item " + std::to_string(issue.item_index + 1) + " · " +
+      issue.code + ": " + issue.message;
+}
+
+void redact_literal(std::string& message, std::string_view secret,
+                    std::string_view replacement) {
+  if (secret.empty()) return;
+  std::size_t start = 0;
+  while ((start = message.find(secret, start)) != std::string::npos) {
+    message.replace(start, secret.size(), replacement);
+    start += replacement.size();
+  }
+}
+
 }  // namespace
 
 struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
@@ -156,13 +171,19 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
     schedule_next();
   }
 
-  void record_attempt_failure(const Id& source_id, ErrorCode code, std::string message) {
+  void record_attempt_failure(const Id& source_id, ErrorCode code,
+                              std::string message, std::string_view stage) {
     const auto found = in_flight.find(source_id);
     if (found == in_flight.end()) return;
     const auto source = found->second.source;
+    redact_literal(message, source.url, "[subscription URL]");
+    if (source.route.proxy_url)
+      redact_literal(message, *source.route.proxy_url, "[proxy URL]");
     auto state = found->second.state;
     state.last_attempt = now_millis();
     state.last_result = "failed";
+    state.last_error = message;
+    state.last_error_stage = stage;
     RefreshReport report;
     report.source_id = source_id;
     report.malformed = state.last_malformed_count;
@@ -228,7 +249,7 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
       if (auto self = weak.lock()) self->on_response(source_id, std::move(response));
     });
     if (!requested) {
-      record_attempt_failure(source_id, requested.error().code, requested.error().message);
+      record_attempt_failure(source_id, requested.error().code, requested.error().message, "download");
       return;
     }
     found = in_flight.find(source_id);
@@ -246,13 +267,15 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
     const auto source = found->second.source;
     auto state = found->second.state;
     if (!response) {
-      record_attempt_failure(source_id, response.error().code, response.error().message);
+      record_attempt_failure(source_id, response.error().code, response.error().message, "download");
       return;
     }
     if (response->status == 304) {
       if (has_success_cache(source_id, state)) {
         state.last_attempt = now_millis();
         state.last_result = "not_modified";
+        state.last_error.reset();
+        state.last_error_stage.reset();
         RefreshReport report;
         report.source_id = source_id;
         report.unsupported = state.last_unsupported_count;
@@ -268,18 +291,18 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
         return;
       }
       record_attempt_failure(source_id, ErrorCode::network_error,
-                             "订阅返回304但本地没有有效成功缓存");
+                             "订阅返回304但本地没有有效成功缓存", "http");
       return;
     }
     if (response->status < 200 || response->status >= 300) {
       record_attempt_failure(source_id, ErrorCode::network_error,
-                             "订阅服务器返回HTTP " + std::to_string(response->status));
+                             "订阅服务器返回HTTP " + std::to_string(response->status), "http");
       return;
     }
 
     auto parsed = parse_subscription(response->body);
     if (!parsed) {
-      record_attempt_failure(source_id, parsed.error().code, parsed.error().message);
+      record_attempt_failure(source_id, parsed.error().code, parsed.error().message, "parse");
       return;
     }
     std::vector<std::string> information;
@@ -304,19 +327,17 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
       report.partial = !parsed->issues.empty();
       state_after.last_malformed_count = report.malformed;
       state_after.last_unsupported_count = report.unsupported;
+      std::string message = "订阅没有可用节点（malformed=" + std::to_string(report.malformed) +
+          ", unsupported=" + std::to_string(report.unsupported) + "），旧库存已保留";
+      if (!parsed->issues.empty()) message += "；首个问题：" + issue_summary(parsed->issues.front());
+      redact_literal(message, source.url, "[subscription URL]");
+      state_after.last_error = message;
+      state_after.last_error_stage = "parse";
       SourceCommit commit{source.settings_revision, {}, state_after, report};
       auto saved = store->commit_source(source_id, commit);
       if (!saved) complete_source(source_id, std::unexpected(saved.error()));
-      else {
-        std::string message = "订阅没有可用节点（malformed=" + std::to_string(report.malformed) +
-            ", unsupported=" + std::to_string(report.unsupported) + "），旧库存已保留";
-        if (!parsed->issues.empty()) {
-          const auto& issue = parsed->issues.front();
-          message += "；首个问题：第" + std::to_string(issue.item_index + 1) + "项 " + issue.code + "：" + issue.message;
-        }
-        complete_source(source_id, std::unexpected(service_error(
-            ErrorCode::invalid_argument, std::move(message), source_id)));
-      }
+      else complete_source(source_id, std::unexpected(service_error(
+          ErrorCode::invalid_argument, std::move(message), source_id)));
       return;
     }
 
@@ -326,15 +347,23 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
       complete_source(source_id, std::unexpected(old_nodes.error()));
       return;
     }
+    std::optional<std::string> first_issue;
+    if (!parsed->issues.empty()) {
+      first_issue = issue_summary(parsed->issues.front());
+      redact_literal(*first_issue, source.url, "[subscription URL]");
+    }
     auto reconciled = reconcile({source, std::move(*old_nodes), std::move(*parsed)}, new_node_id);
     if (!reconciled) {
-      record_attempt_failure(source_id, reconciled.error().code, reconciled.error().message);
+      record_attempt_failure(source_id, reconciled.error().code, reconciled.error().message, "reconcile");
       return;
     }
     auto report = std::move(reconciled->report);
     report.partial = report.partial || !structurally_complete;
+    report.first_issue = std::move(first_issue);
     SubscriptionState next_state = state;
     next_state.last_attempt = now_millis();
+    next_state.last_error.reset();
+    next_state.last_error_stage.reset();
     if (structurally_complete && !report.partial)
       next_state.reported_notices = std::move(information);
     else if (!information.empty())
@@ -356,6 +385,9 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
       next_state.last_result = "success";
     } else {
       next_state.last_result = "partial";
+      if (report.first_issue) next_state.last_error = report.first_issue;
+      else next_state.last_error = "The source document was incomplete; prior inventory may remain.";
+      next_state.last_error_stage = "parse";
     }
     next_state.last_malformed_count = report.malformed;
     next_state.last_unsupported_count = report.unsupported;

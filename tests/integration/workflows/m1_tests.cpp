@@ -407,7 +407,8 @@ TEST_CASE("Overview statistics keep missing metrics and latency explicitly unava
   (void)read_tui(tui.master, std::chrono::milliseconds(120));
   send_tui(tui.master, "\x1b[Z");
   const auto screen = read_tui(tui.master, std::chrono::milliseconds(300));
-  CHECK(screen.find("CORE") != std::string::npos);
+  CHECK(screen.find("Runtime") != std::string::npos);
+  CHECK(screen.find("ACTUAL") != std::string::npos);
   CHECK(screen.find("Statistics") != std::string::npos);
   CHECK(screen.find("Traffic: unavailable") != std::string::npos);
   CHECK(screen.find("latency: unmeasured") != std::string::npos);
@@ -468,6 +469,7 @@ TEST_CASE("stats --watch keeps a UDS session alive until it sends an explicit st
     int status = 0;
     if (::waitpid(pid, &status, WNOHANG) == pid) break;
   }
+  CHECK(output.find("metrics: unavailable") != std::string::npos);
   REQUIRE(::kill(pid, SIGINT) == 0);
   int status = 0;
   for (int attempt = 0; attempt < 300 && ::waitpid(pid, &status, WNOHANG) == 0; ++attempt) {
@@ -489,6 +491,58 @@ TEST_CASE("stats --watch keeps a UDS session alive until it sends an explicit st
   REQUIRE(first_sample != std::string::npos);
   CHECK(output.find("metrics: unavailable", first_sample + 1) != std::string::npos);
   REQUIRE(server.stop());
+}
+
+TEST_CASE("stats --watch emits JSON before exit and reports daemon loss", "[CLI-UX][stats-watch]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  const auto out = temp.path / "watch.out";
+  const auto err = temp.path / "watch.err";
+  std::vector<std::string> args{XRM_TEST_MANAGER, "--socket", (temp.path / "xrmd.sock").string(),
+                                "--json", "stats", "--watch"};
+  std::vector<char*> argv;
+  for (auto& value : args) argv.push_back(value.data());
+  argv.push_back(nullptr);
+  posix_spawn_file_actions_t actions;
+  REQUIRE(posix_spawn_file_actions_init(&actions) == 0);
+  REQUIRE(posix_spawn_file_actions_addopen(&actions, STDOUT_FILENO, out.c_str(),
+      O_CREAT | O_TRUNC | O_WRONLY, 0600) == 0);
+  REQUIRE(posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, err.c_str(),
+      O_CREAT | O_TRUNC | O_WRONLY, 0600) == 0);
+  pid_t pid = -1;
+  const int spawned = posix_spawn(&pid, XRM_TEST_MANAGER, &actions, nullptr, argv.data(), environ);
+  posix_spawn_file_actions_destroy(&actions);
+  REQUIRE(spawned == 0);
+  std::string live_output;
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+  while (std::chrono::steady_clock::now() < deadline) {
+    live_output = read_file(out);
+    if (live_output.find('\n') != std::string::npos) break;
+    ::poll(nullptr, 0, 20);
+  }
+  INFO("watch output before shutdown: " << live_output);
+  CHECK(live_output.find('\n') != std::string::npos);
+  int status = 0;
+  const auto before_stop = ::waitpid(pid, &status, WNOHANG);
+  CHECK(before_stop == 0);
+  REQUIRE(server.stop());
+  bool exited = before_stop == pid;
+  for (int attempt = 0; attempt < 500; ++attempt) {
+    if (exited) break;
+    if (::waitpid(pid, &status, WNOHANG) == pid) { exited = true; break; }
+    ::poll(nullptr, 0, 10);
+  }
+  if (!exited && before_stop == 0) { ::kill(pid, SIGKILL); ::waitpid(pid, &status, 0); }
+  REQUIRE(exited);
+  REQUIRE(WIFEXITED(status));
+  CHECK(WEXITSTATUS(status) == 3);
+  const auto output = read_file(out);
+  const auto first = output.substr(0, output.find('\n'));
+  CHECK(Json::parse(first).value("availability", "") == "unavailable");
+  const auto error = read_file(err);
+  INFO("watch stderr: " << error);
+  CHECK(Json::parse(error).at("error").value("code", "") == "io_error");
 }
 
 TEST_CASE("FORM-03 traffic statistics convenience action saves only its native modules",
@@ -624,6 +678,110 @@ TEST_CASE("UI-09 CLI Profile references resolve exact names and UUIDs without gu
   CHECK(missing.code != 0);
   CHECK((missing.err.find("not_found") != std::string::npos ||
          missing.err.find("找不到") != std::string::npos));
+  REQUIRE(server.stop());
+}
+
+TEST_CASE("CLI human Profile and runtime receipts preserve machine results and saved scope",
+          "[CLI-UX]") {
+  TempDirectory temp;
+  Server server(temp);
+  REQUIRE(server.start());
+  const auto core = parsed(server.cli({"core", "register", XRM_TEST_FAKE_CORE, "--name", "UX core"}));
+  REQUIRE(core.contains("id"));
+  const auto core_id = core.at("id").get<std::string>();
+
+  const auto created = server.cli_text({"profile", "create", "--name", "UX Home", "--core", core_id});
+  REQUIRE(created.code == 0);
+  CHECK(created.err.empty());
+  CHECK(created.out.find("Created Profile UX Home [") != std::string::npos);
+  CHECK(created.out.find("no core started") != std::string::npos);
+  const auto profiles = parsed(server.cli({"profile", "list"}));
+  REQUIRE(profiles.is_array());
+  REQUIRE(profiles.size() == 1);
+  const auto profile_id = profiles[0].at("id").get<std::string>();
+  CHECK(created.out.find(profile_id) != std::string::npos);
+  const auto listed = server.cli_text({"profile", "list"});
+  CHECK(listed.out.find(profile_id) != std::string::npos);
+
+  const auto copy = server.cli_text({"profile", "clone", "UX Home", "--name", "UX Copy"});
+  REQUIRE(copy.code == 0);
+  CHECK(copy.out.find("Copied Profile UX Copy [") != std::string::npos);
+  const auto cloned = parsed(server.cli({"profile", "show", "UX Copy"}));
+  REQUIRE(cloned.contains("id"));
+  const auto copy_id = cloned.at("id").get<std::string>();
+  CHECK(copy_id != profile_id);
+  const auto renamed = server.cli_text({"profile", "rename", copy_id, "--name", "UX Renamed"});
+  REQUIRE(renamed.code == 0);
+  CHECK(renamed.out.find("Renamed Profile") != std::string::npos);
+  CHECK(parsed(server.cli({"profile", "show", "UX Renamed"})).at("id") == copy_id);
+  const auto removed = server.cli_text({"profile", "remove", "UX Renamed"});
+  REQUIRE(removed.code == 0);
+  CHECK(removed.out.find("Removed Profile") != std::string::npos);
+  CHECK(server.cli({"profile", "show", copy_id}).code != 0);
+
+  const auto source = parsed(server.cli({"sub", "add", "--name", "Private source",
+      "--url", "http://user:secret@127.0.0.1:1/sub", "--paused"}));
+  REQUIRE(source.contains("id"));
+  const auto source_id = source.at("id").get<std::string>();
+  const auto source_human = server.cli_text({"sub", "show", source_id});
+  CHECK(source_human.code == 0);
+  CHECK(source_human.out.find(source_id) != std::string::npos);
+  CHECK(source_human.out.find("secret") == std::string::npos);
+  CHECK(parsed(server.cli({"sub", "show", source_id})).at("subscription").at("url") ==
+        "http://user:secret@127.0.0.1:1/sub");
+  const auto private_node = parsed(server.cli({"node", "add", "--name", "Private node",
+      "--outbound-json", R"({"protocol":"vless","settings":{"vnext":[{"address":"example.invalid","port":443,"users":[{"id":"secret-id","encryption":"none"}]}]}})"}));
+  REQUIRE(private_node.contains("id"));
+  const auto private_id = private_node.at("id").get<std::string>();
+  const auto node_human = server.cli_text({"node", "show", private_id});
+  CHECK(node_human.code == 0);
+  CHECK(node_human.out.find(private_id) != std::string::npos);
+  CHECK(node_human.out.find("secret-id") == std::string::npos);
+  CHECK(parsed(server.cli({"node", "show", private_id})).dump().find("secret-id") != std::string::npos);
+
+  const auto node = parsed(server.cli({"node", "add", "--name", "UX direct",
+      "--outbound-json", R"({"protocol":"freedom","settings":{},"tag":"ux-direct"})"}));
+  REQUIRE(node.contains("id"));
+  const auto node_id = node.at("id").get<std::string>();
+  REQUIRE(server.cli({"select", "node", profile_id, node_id}).code == 0);
+  const auto stopped_json = server.cli({"status"});
+  REQUIRE(stopped_json.code == 0);
+  REQUIRE_FALSE(stopped_json.out.empty());
+  CHECK(stopped_json.out.find('\n') == stopped_json.out.size() - 1);
+  CHECK(parsed(stopped_json).at("saved_target").is_null());
+  const auto stopped_text = server.cli_text({"status"});
+  CHECK(stopped_text.out.find("saved target: scope is running Profile only") != std::string::npos);
+  const auto detail = server.cli_text({"profile", "show", "UX Home"});
+  CHECK(detail.out.find("Saved target: node " + node_id) != std::string::npos);
+  CHECK(detail.out.find("process_environment") == std::string::npos);
+  CHECK_FALSE(parsed(server.cli({"profile", "show", "UX Home"})).contains("source_text"));
+
+  const auto connected = server.cli_text({"connect", "UX Home"});
+  INFO(connected.out << connected.err);
+  REQUIRE(connected.code == 0);
+  CHECK(connected.out.find(profile_id) != std::string::npos);
+  CHECK(connected.out.find("traffic unverified") != std::string::npos);
+  CHECK(parsed(server.cli({"status"})).at("state") == "running");
+  const auto disconnected = server.cli_text({"disconnect"});
+  REQUIRE(disconnected.code == 0);
+  CHECK(disconnected.out.find("Core is stopped; saved Profile settings unchanged") != std::string::npos);
+
+  const auto missing = server.cli_text({"profile", "show", "missing"});
+  CHECK(missing.code != 0);
+  CHECK(missing.out.empty());
+  CHECK(missing.err.find("Error: xrm profile show — Profile missing") != std::string::npos);
+  CHECK(missing.err.find("Reason:") != std::string::npos);
+  CHECK(missing.err.find("Recovery:") != std::string::npos);
+  CHECK(missing.err.find("Diagnostic (original):") == std::string::npos);
+  const auto verbose_missing = server.cli_text({"--verbose", "profile", "show", "missing"});
+  CHECK(verbose_missing.code != 0);
+  CHECK(verbose_missing.err.find("Diagnostic (original):") != std::string::npos);
+  CHECK(missing.err.find("profile.get [missing]") == std::string::npos);
+  CHECK(missing.err.find((temp.path / "xrmd.sock").string()) != std::string::npos);
+  const auto missing_json = server.cli({"profile", "show", "missing"});
+  CHECK(missing_json.code != 0);
+  CHECK(missing_json.out.empty());
+  CHECK(Json::parse(missing_json.err).contains("error"));
   REQUIRE(server.stop());
 }
 
@@ -864,7 +1022,7 @@ TEST_CASE("UI-04 TUI module page renders all native module keys and UI-03 expose
   CHECK(screen.find("TUI policy") != std::string::npos);
   CHECK(screen.find("Config") != std::string::npos);
   CHECK(screen.find("Core") != std::string::npos);
-  CHECK((screen.find("system") != std::string::npos || screen.find("managed") != std::string::npos));
+  CHECK((screen.find("registered") != std::string::npos || screen.find("managed") != std::string::npos));
   REQUIRE(server.stop());
 }
 
@@ -889,24 +1047,27 @@ TEST_CASE("UI-01 text keys do not fire global actions and TUI exit leaves core r
     send_tui(tui.master, key);
     return read_tui(tui.master, std::chrono::milliseconds(120));
   };
-  (void)tap("\t"); (void)tap("\t"); // Modules TopNav.
-  (void)tap("\r"); (void)tap("\r"); (void)tap("\r"); // Secondary, Content, editor.
-  send_tui(tui.master, "qe ");
-  (void)read_tui(tui.master, std::chrono::milliseconds(120));
+  (void)tap("\t"); (void)tap("\r"); // Profiles Content.
+  (void)tap("n"); // Shared multi-field Profile form.
+  send_tui(tui.master, "qe ?");
+  const auto draft_screen = read_tui(tui.master, std::chrono::milliseconds(120));
+  CHECK(draft_screen.find("qe ?") != std::string::npos);
   int status = 0;
   CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
-  (void)tap("\x11"); // Leave a dirty module draft only through confirmation.
-  (void)tap("d");
-  (void)tap("\x1b"); (void)tap("\x1b"); // Modules -> TopNav.
-  (void)tap("\t"); (void)tap("\t"); // Nodes TopNav.
-  (void)tap("\r"); (void)tap("\t"); (void)tap("\r"); // Local category Content.
-  const auto details = tap("\r"); // Open highlighted Local node.
+  (void)tap("\x1b"); // Dirty form confirmation.
+  (void)tap("\t"); (void)tap("\r"); // Discard; Profile was not created.
+  REQUIRE(parsed(server.cli({"profile", "list"})).size() == 1);
+  (void)tap("\x1b"); // Profiles -> TopNav.
+  for (int i = 0; i < 3; ++i) (void)tap("\t"); // Nodes TopNav.
+  (void)tap("\r"); (void)tap("\t"); (void)tap("\r"); // Local Content.
+  const auto details = tap("\r");
   CHECK(details.find("manual-ui") != std::string::npos);
-  (void)tap("\x11");
+  CHECK(details.find("Details") != std::string::npos);
+  (void)tap("\x1b"); // Close read-only node details before actions.
   (void)tap("s");
   (void)tap("c");
   const auto running_screen = read_tui(tui.master, std::chrono::seconds(3));
-  CHECK(running_screen.find("Xray core running") != std::string::npos);
+  CHECK(running_screen.find("Connect ui-actions") != std::string::npos);
   CHECK(::waitpid(tui.pid, &status, WNOHANG) == 0);
   (void)tap("\x1b"); (void)tap("\x1b"); // q belongs only to TopNav.
   (void)tap("q");
@@ -934,7 +1095,7 @@ TEST_CASE("UI-01 text keys do not fire global actions and TUI exit leaves core r
   REQUIRE(server.stop());
 }
 
-TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject",
+TEST_CASE("UI-04 advanced node form preserves typed subobjects and core selection",
           "[UI-04][M4]") {
   TempDirectory temp;
   Server server(temp);
@@ -961,15 +1122,16 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   for (int i = 0; i < 4; ++i) (void)tap("\t"); // Nodes TopNav.
   (void)tap("\r"); (void)tap("\t"); (void)tap("\r"); // Local Content.
   const auto details = tap("\r"); // Open highlighted Local node.
-  CHECK(details.find("Native subobject: transport") != std::string::npos);
-  const auto editor = tap("e");
+  CHECK(details.find("typed-ui-node") != std::string::npos);
+  CHECK(details.find("Details") != std::string::npos);
+  (void)tap("\x1b"); // Close details; J acts on the selected node in Content.
+  const auto editor = tap("J");
   INFO("typed node editor screen: " << editor);
-  CHECK(editor.find("\"kind\": \"raw\"") != std::string::npos);
-  CHECK(editor.find("JSON: arrows Move") != std::string::npos);
+  CHECK(editor.find("Node.settings (advanced JSON)") != std::string::npos);
+  CHECK(editor.find("Name") != std::string::npos);
   const auto saved = tap("\x13");
   INFO("typed node save screen: " << saved);
-  CHECK(saved.find("saved node transport") != std::string::npos);
-  (void)tap("\x1b"); // Detail -> Content.
+  CHECK(saved.find("Node settings saved") != std::string::npos);
   (void)tap("\x1b"); (void)tap("\x1b"); // SecondaryNav -> TopNav.
   (void)tap("q");
   int status = 0;
@@ -994,17 +1156,24 @@ TEST_CASE("UI-04 node detail opens and saves the selected typed native subobject
   for (int i = 0; i < 6; ++i) (void)core_tap("\t"); // Config.
   (void)core_tap("\r");
   const auto core_page = core_tap("\r"); // Core Content.
-  CHECK(core_page.find("Core —") != std::string::npos);
-  CHECK(core_page.find("u Use in Profile") != std::string::npos);
+  CHECK(core_page.find("Core / release") != std::string::npos);
+  const auto core_details = core_tap("\r");
+  CHECK(core_details.find("Details") != std::string::npos);
+  CHECK(core_details.find("typed node editor fixture") != std::string::npos);
+  CHECK(core_details.find("reported_version:") != std::string::npos);
+  (void)core_tap("\x1b");
+  const auto core_help = core_tap("?");
+  CHECK(core_help.find("Use core in viewed Profile") != std::string::npos);
+  (void)core_tap("\x1b");
   send_tui(core_tui.master, "u");
   std::string use_result;
   for (int attempt = 0; attempt < 8; ++attempt) {
     use_result += read_tui(core_tui.master, std::chrono::milliseconds(250));
-    if (use_result.find("selected core for Profile") != std::string::npos) break;
+    if (use_result.find("Use core: completed") != std::string::npos) break;
     send_tui(core_tui.master, "r");
   }
   INFO("TUI core use result: " << use_result);
-  CHECK(use_result.find("selected core for Profile") != std::string::npos);
+  CHECK(use_result.find("Use core: completed") != std::string::npos);
   (void)core_tap("\x1b"); (void)core_tap("\x1b");
   (void)core_tap("q");
   status = 0;

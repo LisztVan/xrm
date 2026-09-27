@@ -18,6 +18,8 @@
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <termios.h>
+#include <utility>
 #include <unistd.h>
 
 #include <algorithm>
@@ -30,6 +32,8 @@
 #include <iostream>
 #include <iterator>
 #include <optional>
+#include <regex>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -486,6 +490,7 @@ struct TuiProcess {
   pid_t pid = -1;
   int master = -1;
   int exit_status = -1;
+  std::string pending;
 };
 
 TuiProcess start_tui_without_profile(const std::filesystem::path& socket,
@@ -493,7 +498,12 @@ TuiProcess start_tui_without_profile(const std::filesystem::path& socket,
                                      const std::string& profile = {}) {
   int master = -1, slave = -1;
   if (::openpty(&master, &slave, nullptr, nullptr, nullptr) != 0) return {};
-  winsize size{24, 80, 0, 0};
+  termios attributes{};
+  if (::tcgetattr(slave, &attributes) == 0) {
+    ::cfmakeraw(&attributes);
+    (void)::tcsetattr(slave, TCSANOW, &attributes);
+  }
+  winsize size{40, 120, 0, 0};
   (void)::ioctl(slave, TIOCSWINSZ, &size);
   std::vector<std::string> args{XRM_TEST_MANAGER, "--socket", socket.string(), "tui"};
   if (!profile.empty()) { args.push_back("--profile"); args.push_back(profile); }
@@ -567,8 +577,11 @@ struct TuiProcessGuard {
 };
 
 void tui_keys(TuiProcess& tui, std::string_view keys) {
+  tui.pending.clear();
   (void)::write(tui.master, keys.data(), keys.size());
-  ::poll(nullptr, 0, 300);
+  // Drain redraws while keys are processed. A full PTY must not defer an Esc
+  // until the following character arrives, or swallow the form submit frame.
+  tui.pending = tui_read(tui, 300ms);
 }
 void tui_navigate(TuiProcess& tui, int from, int to, bool content = true) {
   const auto tabs = (to + 7 - from) % 7;
@@ -589,7 +602,7 @@ void tui_navigate(TuiProcess& tui, int from, int to, bool content = true) {
 }
 
 std::string tui_read(TuiProcess& tui, std::chrono::milliseconds duration = 300ms) {
-  std::string result;
+  std::string result = std::exchange(tui.pending, {});
   const auto deadline = std::chrono::steady_clock::now() + duration;
   while (std::chrono::steady_clock::now() < deadline) {
     pollfd ready{tui.master, POLLIN, 0};
@@ -598,7 +611,8 @@ std::string tui_read(TuiProcess& tui, std::chrono::milliseconds duration = 300ms
     const auto count = ::read(tui.master, bytes.data(), bytes.size());
     if (count > 0) result.append(bytes.data(), static_cast<std::size_t>(count));
   }
-  return result;
+  static const std::regex ansi("\x1b\\[[0-?]*[ -/]*[@-~]");
+  return std::regex_replace(result, ansi, "");
 }
 
 std::string tui_wait_for(TuiProcess& tui, std::string_view needle,
@@ -610,6 +624,105 @@ std::string tui_wait_for(TuiProcess& tui, std::string_view needle,
     if (output.find(needle) != std::string::npos) break;
   }
   return output;
+}
+
+// Current component contract: Tab moves between simultaneous fields, Select
+// uses arrows + Space, and Ctrl-S explicitly submits the complete form.
+void tui_expect(TuiProcess& tui, std::string_view text) {
+  auto screen = tui_wait_for(tui, text);
+  INFO("Expected TUI text: " << text << "\n" << screen);
+  REQUIRE(screen.find(text) != std::string::npos);
+}
+void tui_profile_row(TuiProcess& tui, XrmServer& server, std::string_view name) {
+  const auto rows = server.json(server.cli({"profile", "list"}));
+  tui_keys(tui, "\x1b[A\x1b[A\x1b[A");
+  auto found = std::find_if(rows.begin(), rows.end(), [&](const Json& row) { return row.value("name", "") == name; });
+  REQUIRE(found != rows.end());
+  for (auto it = rows.begin(); it != found; ++it) tui_keys(tui, "\x1b[B");
+}
+void tui_receipt(TuiProcess& tui, std::string_view receipt) {
+  auto screen = tui_wait_for(tui, "Success");
+  INFO("Expected receipt (may wrap): " << receipt << "\n" << screen);
+  REQUIRE(screen.find("Success") != std::string::npos);
+  // Toast wrapping is presentation, so verify every receipt word without
+  // requiring the entire sentence to occupy one terminal row.
+  std::istringstream words{std::string(receipt)};
+  for (std::string word; words >> word;) REQUIRE(screen.find(word) != std::string::npos);
+}
+void tui_form_save(TuiProcess& tui, std::string_view receipt) {
+  tui_keys(tui, "\x13"); tui_receipt(tui, receipt);
+}
+void tui_register_core(TuiProcess& tui, const std::filesystem::path& xray) {
+  tui_keys(tui, "\x1bOP"); tui_expect(tui, "Register core");
+  tui_keys(tui, "\x1b");
+  tui_keys(tui, "a"); tui_expect(tui, "Register Xray core");
+  tui_keys(tui, "Fixed real Xray\t" + xray.string());
+  tui_form_save(tui, "Registered Fixed real Xray");
+}
+void tui_create_profile(TuiProcess& tui, std::string_view name) {
+  tui_keys(tui, "n"); tui_expect(tui, "new Profile");
+  tui_keys(tui, std::string(name) + "\t\x1b[B "); // Explicit core selection.
+  tui_form_save(tui, "Profile " + std::string(name) + " saved");
+}
+void tui_filter(TuiProcess& tui, std::string_view name) {
+  tui_keys(tui, "/"); tui_expect(tui, "Filter nodes");
+  tui_keys(tui, "\x1b[H");
+  for (int i = 0; i < 40; ++i) (void)::write(tui.master, "\x1b[3~", 4);
+  tui_keys(tui, name); tui_keys(tui, "\x13");
+  tui_expect(tui, name);
+}
+void tui_add_local(TuiProcess& tui, std::string_view name, std::uint16_t port,
+                   std::string_view uuid) {
+  tui_keys(tui, "a"); tui_expect(tui, "Add node");
+  tui_keys(tui, std::string(name) + "\t\t127.0.0.1\t\x1b[H\x1b[3~\x1b[3~\x1b[3~" +
+                 std::to_string(port) + "\t" + std::string(uuid));
+  tui_form_save(tui, "Node " + std::string(name) + " saved");
+}
+void tui_groups(TuiProcess& tui) {
+  tui_keys(tui, "\x1b"); // Content -> Nodes SecondaryNav.
+  tui_keys(tui, "\t\t\r"); // All -> Local -> Groups -> Content.
+  tui_expect(tui, "Scope: Groups");
+}
+void tui_add_group(TuiProcess& tui, std::string_view name, bool manual,
+                   int member_index = 0, bool has_sources = false) {
+  tui_keys(tui, "a"); tui_expect(tui, "Add Group");
+  tui_keys(tui, std::string(name) + "\t");
+  if (manual) tui_keys(tui, "\x1b[B ");
+  tui_keys(tui, "\t\t\x1b[B \t\t"); // Filter union -> Nodes -> next focusable field.
+  if (has_sources) tui_keys(tui, "\t"); // Empty Sources is not a focus stop.
+  tui_keys(tui, " "); // Include local.
+  if (manual) {
+    tui_keys(tui, "\t");
+    for (int i = 0; i <= member_index; ++i) tui_keys(tui, "\x1b[B");
+    tui_keys(tui, " ");
+  }
+  tui_form_save(tui, "Group " + std::string(name) + " saved");
+}
+void tui_bind_source(TuiProcess& tui, std::size_t source_index) {
+  tui_keys(tui, "b"); tui_expect(tui, "Enabled sources");
+  for (std::size_t i = 0; i < source_index; ++i) tui_keys(tui, "\x1b[B");
+  tui_keys(tui, " "); tui_form_save(tui, "Source bindings saved");
+}
+void tui_module(TuiProcess& tui, int from_page, int module_index) {
+  tui_navigate(tui, from_page, 2, false);
+  tui_keys(tui, "\r");
+  const auto navigation = tui_read(tui, 80ms);
+  static const std::regex position(R"((\d+)/15)");
+  int current = -1;
+  for (std::sregex_iterator it(navigation.begin(), navigation.end(), position), end;
+       it != end; ++it) current = std::stoi((*it)[1].str()) - 1;
+  REQUIRE(current >= 0);
+  REQUIRE(module_index >= 0);
+  REQUIRE(module_index < int(module_catalog().size()));
+  for (int i = 0; i < (module_index - current + 15) % 15; ++i)
+    tui_keys(tui, "\t");
+  tui_keys(tui, "\r");
+  const auto expected = std::string(module_catalog()[module_index].key) + "  SOURCE";
+  const auto screen = tui_wait_for(tui, expected);
+  INFO("Module navigation expected " << expected << " from " << current + 1
+       << "/15\n" << screen);
+  REQUIRE(screen.find(expected) != std::string::npos);
+  REQUIRE(screen.find("Visual") != std::string::npos);
 }
 
 Json inbound_config(std::uint16_t port) {
@@ -1157,23 +1270,11 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
 
   // Global inventory is established entirely through the no-profile TUI.
   tui_navigate(tui, 0, 3);
-  tui_keys(tui, "a");
-  tui_keys(tui, "local VLESS fixture\r");
-  tui_keys(tui, subscription.url() + "\r");
-  tui_keys(tui, "u");
-  CHECK(subscription.requests() >= 1);
-  const auto update_result = tui_wait_for(tui, "Subscription update complete", 8s);
-  INFO("TUI subscription completion: " << update_result);
-  REQUIRE(update_result.find("Subscription update complete") != std::string::npos);
-
-  tui_keys(tui, "a");
-  REQUIRE(tui_wait_for(tui, "Subscription name", 5s).find("Subscription name") != std::string::npos);
-  tui_keys(tui, "backup VLESS fixture\r");
-  REQUIRE(tui_wait_for(tui, "Subscription URL", 5s).find("Subscription URL") != std::string::npos);
-  tui_keys(tui, subscription.url() + "\r");
-  const auto backup_added = tui_wait_for(tui, "Subscription saved globally", 5s);
-  INFO("Backup subscription added: " << backup_added);
-  REQUIRE(backup_added.find("Subscription saved globally") != std::string::npos);
+  for (const auto* name : {"local VLESS fixture", "backup VLESS fixture"}) {
+    tui_keys(tui, "a"); tui_expect(tui, "Add subscription");
+    tui_keys(tui, std::string(name) + "\t" + subscription.url());
+    tui_form_save(tui, "Subscription " + std::string(name) + " saved");
+  }
   const auto global_sources = server.json(server.cli({"sub", "list"}));
   REQUIRE(global_sources.size() == 2);
   const auto source_id = [&](std::string_view name) {
@@ -1195,32 +1296,18 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
     tui_keys(tui, "\x1b[A\x1b[A");  // ArrowUp saturates at the first row.
     if (source_index(id) == 1) tui_keys(tui, "\x1b[B");
   };
-  point_to_source(source_b);
-  tui_keys(tui, "u");
-  REQUIRE(tui_wait_for(tui, "Subscription update complete", 8s).find(
-      "Subscription update complete") != std::string::npos);
+  for (auto id : {source_a, source_b}) {
+    point_to_source(id); tui_keys(tui, "u");
+    tui_expect(tui, "completed");
+  }
+  CHECK(subscription.requests() >= 2);
 
-  // Register the fixed core and create a named Profile in the same TUI session.
-  tui_navigate(tui, 3, 6);
-  tui_keys(tui, "a");
-  tui_keys(tui, xray.string() + "\r");
-  tui_navigate(tui, 6, 1);
-  tui_keys(tui, "n");
-  REQUIRE(tui_wait_for(tui, "Create Profile · choose a template", 5s).find(
-      "Create Profile · choose a template") != std::string::npos);
-  tui_keys(tui, "1"); // Desktop, then name; TUN remains an explicit separate choice.
-  tui_keys(tui, "Cold Start\r");
-  tui_navigate(tui, 1, 3);
-  point_to_source(source_a);
-  REQUIRE(tui_wait_for(tui, "Selected: local VLESS fixture", 5s).find(
-      "Selected: local VLESS fixture") != std::string::npos);
-  tui_keys(tui, "b");  // Only source A is used by this Profile.
-  REQUIRE(tui_wait_for(tui, "Source included in viewed Profile", 5s).find(
-      "Source included in viewed Profile") != std::string::npos);
+  tui_navigate(tui, 3, 6); tui_register_core(tui, xray);
+  tui_navigate(tui, 6, 1); tui_create_profile(tui, "Cold Start");
+  tui_keys(tui, "\rue"); // View, explicitly Use, allow module Edit.
+  tui_navigate(tui, 1, 3); tui_bind_source(tui, source_index(source_a));
   tui_navigate(tui, 3, 4);
-  auto node_screen = tui_wait_for(tui, "Cold-start-VLESS", 5s);
-  CHECK(node_screen.find("Cold-start-VLESS") != std::string::npos);
-  tui_keys(tui, "s");
+  tui_expect(tui, "Cold-start-VLESS"); tui_keys(tui, "s");
   const auto profile_rows = server.json(server.cli({"profile", "list"}));
   REQUIRE(profile_rows.is_array());
   REQUIRE(profile_rows.size() == 1);
@@ -1232,14 +1319,10 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
 
   // Configure the local client listener via Modules -> Inbounds -> external
   // editor, then explicitly save the source document.
-  tui_navigate(tui, 4, 2, false);
-  tui_keys(tui, "\r\t\t\r\r"); // Modules → inbounds → Content → Source draft.
-  REQUIRE(tui_wait_for(tui, "Visual", 5s).find("Visual") != std::string::npos);
-  tui_keys(tui, "\x1b[17~"); // F6 external editor.
-  tui_keys(tui, "\x13");
-  const auto after_module_save = tui_read(tui);
-  INFO("after module save: " << after_module_save);
-  tui_keys(tui, "c");
+  tui_module(tui, 4, 2);
+  tui_keys(tui, "\x1b[17~"); // F6 external editor updates only the draft.
+  tui_form_save(tui, "Saved Cold Start / inbounds");
+  tui_navigate(tui, 2, 0); tui_keys(tui, "c");
 
   Json running;
   const auto running_deadline = std::chrono::steady_clock::now() + 20s;
@@ -1251,8 +1334,8 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   }
   INFO("running status: " << running.dump());
   REQUIRE(running.value("state", "") == "running");
-  const auto tui_connected = tui_wait_for(tui, "Xray core running", 8s);
-  CHECK(tui_connected.find("Xray core running") != std::string::npos);
+  const auto tui_connected = tui_wait_for(tui, "completed", 8s);
+  CHECK(tui_connected.find("completed") != std::string::npos);
   REQUIRE(wait_for_socks(*socks_port));
   const auto proxied = wait_for_socks_marker(*socks_port, http.port(), marker);
   INFO("loopback VLESS response: " << proxied);
@@ -1261,15 +1344,9 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
 
   // The same cold-start TUI session can create a typed Local node and then
   // choose it as a Group outlet. Neither client config is handwritten here.
-  tui_navigate(tui, 2, 4);
-  tui_keys(tui, "a1");
-  for (const auto& field : {std::string("vless"), std::string("Local VLESS"),
-                            std::string("127.0.0.1"), std::to_string(*vless_port),
-                            std::string(uuid), std::string("raw"), std::string("none")})
-    tui_keys(tui, field + "\r");
-  const auto local_screen = tui_wait_for(tui, "Manual node saved to Local", 5s);
-  INFO("Local node TUI screen: " << local_screen);
-  REQUIRE(local_screen.find("Local VLESS") != std::string::npos);
+  tui_navigate(tui, 0, 4);
+  tui_add_local(tui, "Local VLESS", *vless_port, uuid);
+  tui_filter(tui, "Local VLESS");
   const auto first_run = server.json(server.cli({"status"})).at("active").value("run_id", "");
   tui_keys(tui, "sc");
   Json local_running;
@@ -1287,12 +1364,8 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   INFO("Local typed node loopback response: " << local_response);
   CHECK(local_response.find(marker) != std::string::npos);
 
-  tui_keys(tui, "a4");
-  for (const auto& field : {"Local group", "automatic", "random", "local"})
-    tui_keys(tui, std::string(field) + "\r");
-  const auto group_screen = tui_wait_for(tui, "Group saved as a routing balancer", 5s);
-  INFO("Group TUI screen: " << group_screen);
-  REQUIRE(group_screen.find("Local group") != std::string::npos);
+  tui_groups(tui);
+  tui_add_group(tui, "Local group", false, 0, true);
   const auto local_run_id = local_running.at("active").value("run_id", "");
   tui_keys(tui, "sc");
   Json group_running;
@@ -1351,37 +1424,19 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   const auto overview_deadline = std::chrono::steady_clock::now() + 12s;
   while (std::chrono::steady_clock::now() < overview_deadline) {
     overview_stats += tui_read(tui, 500ms);
-    if (overview_stats.find("Cumulative inbound/") != std::string::npos ||
-        overview_stats.find("Cumulative outbound/") != std::string::npos ||
-        overview_stats.find("Cumulative user/") != std::string::npos) break;
+    if (overview_stats.find("total up ") != std::string::npos) break;
   }
   INFO("Overview real statistics screen: " << overview_stats);
-  CHECK((overview_stats.find("Cumulative inbound/") != std::string::npos ||
-        overview_stats.find("Cumulative outbound/") != std::string::npos ||
-        overview_stats.find("Cumulative user/") != std::string::npos));
+  CHECK(overview_stats.find("total up ") != std::string::npos);
 
   // Viewing another Profile and binding the second source must not switch the
   // one running Xray process or duplicate the global node inventory.
   const auto before_office = stats_running;
   tui_navigate(tui, 0, 1);
-  tui_keys(tui, "n");
-  REQUIRE(tui_wait_for(tui, "Create Profile · choose a template", 5s).find(
-      "Create Profile · choose a template") != std::string::npos);
-  tui_keys(tui, "1");
-  const auto office_prompt = tui_wait_for(tui, "New desktop Profile name", 5s);
-  INFO("Office creation prompt: " << office_prompt);
-  REQUIRE(office_prompt.find("New desktop Profile name") != std::string::npos);
-  tui_keys(tui, "Office\r");
-  const auto office_created = tui_wait_for(tui, "Profile created and selected for use", 5s);
-  INFO("Office created screen: " << office_created);
-  REQUIRE(office_created.find("Profile created and selected for use") != std::string::npos);
-  tui_navigate(tui, 1, 3);
-  point_to_source(source_b);
-  REQUIRE(tui_wait_for(tui, "Selected: backup VLESS fixture", 5s).find(
-      "Selected: backup VLESS fixture") != std::string::npos);
-  tui_keys(tui, "b");
-  REQUIRE(tui_wait_for(tui, "Source included in viewed Profile", 5s).find(
-      "Source included in viewed Profile") != std::string::npos);
+  tui_create_profile(tui, "Office");
+  tui_profile_row(tui, server, "Office");
+  tui_keys(tui, "\r"); // Explicit View; Use remains Cold Start.
+  tui_navigate(tui, 1, 3); tui_bind_source(tui, source_index(source_b));
   const auto profiles_after_office = server.json(server.cli({"profile", "list"}));
   REQUIRE(profiles_after_office.size() == 2);
   const auto office_row = std::find_if(profiles_after_office.begin(), profiles_after_office.end(),
@@ -1391,6 +1446,13 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   const auto office = server.json(server.cli({"profile", "show", office_id}));
   REQUIRE(office.at("enabled_source_ids") == Json::array({source_b}));
   tui_navigate(tui, 3, 4);
+  // Nodes retains the previous Groups scope. Switch to All before using the
+  // node filter; Groups deliberately has no node-filter action.
+  tui_keys(tui, "\x1b");
+  for (int index = 0; index < 3; ++index) tui_keys(tui, "\t");
+  tui_keys(tui, "\r");
+  tui_expect(tui, "Nodes  Node inventory");
+  tui_filter(tui, "");
   REQUIRE(tui_wait_for(tui, "Cold-start-VLESS", 5s).find("Cold-start-VLESS") != std::string::npos);
   const auto while_viewing_office = server.json(server.cli({"status"}));
   CHECK(while_viewing_office.value("pid", Json(nullptr)) == before_office.value("pid", Json(nullptr)));
@@ -1399,29 +1461,37 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   CHECK(while_viewing_office.at("active").value("profile_id", "") ==
       before_office.at("active").value("profile_id", ""));
   tui_navigate(tui, 4, 1);
-  tui_keys(tui, "\x1b[A\r");  // View Home without changing the running core.
-  tui_keys(tui, "u"); // Explicit Use is separate from View.
+  tui_profile_row(tui, server, "Cold Start"); tui_keys(tui, "\r");
+  // Use remains Cold Start; viewing Office never toggled it.
 
   // Open and save a disabled native example without applying it.
   const auto before_edit = stats_running;
-  tui_navigate(tui, 1, 2);
-  tui_keys(tui, "f");
-  REQUIRE(tui_wait_for(tui, "Find native module key", 5s).find("Find native module key") != std::string::npos);
-  tui_keys(tui, "api\r");
-  REQUIRE(tui_wait_for(tui, "Viewing native module api", 5s).find("api") != std::string::npos);
-  tui_keys(tui, "\r"); // Finder leaves focus on SecondaryNav; Enter enters Content.
-  REQUIRE(tui_wait_for(tui, "Focus: Content · api disabled Source", 5s).find(
-      "Focus: Content · api disabled Source") != std::string::npos);
-  tui_keys(tui, "\r"); // Content Enter opens the disabled Source draft.
-  auto disabled = tui_wait_for(tui, "Visual:", 5s);
-  REQUIRE(disabled.find("Visual:") != std::string::npos);
-  tui_keys(tui, "\x1bOQ"); // JSON text view of the same draft.
-  tui_keys(tui, " "); // A valid source-only whitespace edit.
+  const std::string api_seed =
+      R"({"api":{"tag":"api","services":["HandlerService","StatsService"],"futureNative":{"enabled":false,"count":0,"order":["first","second"]}}})"
+      "\n";
+  REQUIRE(server.cli({"config", "edit", home_id, "api", "--text", api_seed}).code == 0);
+  const auto api_before = server.json(server.cli({"config", "show", home_id, "api"}));
+  REQUIRE(api_before.at("text") == api_seed);
+  const auto api_path = temp.path / "profiles" / home_id /
+                        api_before.at("source_file").get<std::string>();
+  tui_module(tui, 1, 6); // api is disabled; opening it does not include it.
+  tui_keys(tui, "\x1bOQ"); // JSON shares the same native draft.
+  tui_expect(tui, "JSON");
+  tui_keys(tui, " ");
+  tui_expect(tui, "UNSAVED *");
   tui_keys(tui, "\x13");
-  const auto save_feedback = tui_wait_for(tui, "saved source text", 5s);
-  INFO("disabled module save feedback: " << save_feedback.substr(
-      save_feedback.size() > 1800 ? save_feedback.size() - 1800 : 0));
-  REQUIRE(save_feedback.find("saved source text") != std::string::npos);
+  tui_keys(tui, "\x1bOQ"); // Visual reveals success toast; JSON typing keeps it deferred.
+  tui_receipt(tui, "Saved Cold Start / api");
+  const auto api_after = server.json(server.cli({"config", "show", home_id, "api"}));
+  REQUIRE(api_after.at("text") == " " + api_seed);
+  REQUIRE(read_file(api_path) == api_after.at("text").get<std::string>());
+  REQUIRE(Json::parse(api_after.at("text").get<std::string>()) ==
+          Json::parse(api_before.at("text").get<std::string>()));
+  const auto future = Json::parse(api_after.at("text").get<std::string>()).at("api").at("futureNative");
+  REQUIRE(future.at("enabled").is_boolean());
+  REQUIRE(future.at("count").is_number_integer());
+  REQUIRE(future.at("order") == Json::array({"first", "second"}));
+  REQUIRE(api_after.at("included") == api_before.at("included"));
   const auto after_edit = server.json(server.cli({"status"}));
   CHECK(after_edit.value("pid", Json(nullptr)) == before_edit.value("pid", Json(nullptr)));
   CHECK(after_edit.at("active").value("run_id", "") == before_edit.at("active").value("run_id", ""));
@@ -1445,22 +1515,23 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   auto legacy_tui = start_tui_without_profile(server.socket_path(), editor, legacy_id);
   TuiProcessGuard legacy_guard{legacy_tui};
   REQUIRE(legacy_tui.pid > 0);
-  const auto missing_entry = tui_wait_for(legacy_tui, "no local SOCKS entry", 5s);
-  INFO("existing Profile before confirmed repair: " << missing_entry);
-  REQUIRE(missing_entry.find("no local SOCKS entry") != std::string::npos);
-  tui_navigate(legacy_tui, 0, 0);
-  tui_keys(legacy_tui, "i");
-  const auto confirmation = tui_wait_for(legacy_tui, "Add local proxy entry", 5s);
-  REQUIRE(confirmation.find("127.0.0.1:10808") != std::string::npos);
-  tui_keys(legacy_tui, "y");
-  const auto saved_entry = tui_wait_for(legacy_tui, "Local SOCKS 127.0.0.1:10808 saved", 5s);
-  INFO("existing Profile entry saved: " << saved_entry);
-  REQUIRE(saved_entry.find("Local SOCKS 127.0.0.1:10808 saved") != std::string::npos);
-  tui_navigate(legacy_tui, 0, 3);
-  tui_keys(legacy_tui, "b");
-  tui_navigate(legacy_tui, 3, 4);
-  tui_keys(legacy_tui, "s");
-  tui_keys(legacy_tui, "c");
+  tui_expect(legacy_tui, "Overview");
+  const auto untouched = server.json(server.cli({"config", "show", legacy_id, "inbounds"}));
+  REQUIRE(Json::parse(untouched.at("text").get<std::string>()).at("inbounds").empty());
+  // The replacement Inspect action opens the native module. No hidden repair.
+  tui_navigate(legacy_tui, 0, 1);
+  tui_profile_row(legacy_tui, server, "Existing Empty Inbounds"); tui_keys(legacy_tui, "\re");
+  tui_navigate(legacy_tui, 1, 0); tui_keys(legacy_tui, "i");
+  tui_expect(legacy_tui, "inbounds");
+  {
+    std::ofstream output(editor);
+    output << "#!/bin/sh\nprintf '%s' '{\"inbounds\":[{\"listen\":\"127.0.0.1\",\"port\":10808,"
+              "\"protocol\":\"socks\",\"tag\":\"legacy-socks\",\"settings\":{\"auth\":\"noauth\"}}]}' > \"$1\"\n";
+  }
+  tui_keys(legacy_tui, "\x1b[17~");
+  tui_form_save(legacy_tui, "Saved Existing Empty Inbounds / inbounds");
+  tui_navigate(legacy_tui, 2, 3); tui_bind_source(legacy_tui, source_index(source_a));
+  tui_navigate(legacy_tui, 3, 4); tui_keys(legacy_tui, "sc");
   Json legacy_running;
   const auto legacy_deadline = std::chrono::steady_clock::now() + 20s;
   while (std::chrono::steady_clock::now() < legacy_deadline) {
@@ -1476,9 +1547,9 @@ TEST_CASE("E2E-07 cold-start human flow begins in TUI and carries real VLESS tra
   const auto legacy_marker = wait_for_socks_marker(10808, http.port(), marker);
   INFO("existing Profile loopback marker: " << legacy_marker);
   REQUIRE(legacy_marker.find(marker) != std::string::npos);
-  const auto legacy_feedback = tui_wait_for(legacy_tui, "Xray core running", 8s);
+  const auto legacy_feedback = tui_wait_for(legacy_tui, "completed", 8s);
   INFO("existing Profile TUI connect feedback: " << legacy_feedback);
-  REQUIRE(legacy_feedback.find("Xray core running") != std::string::npos);
+  REQUIRE(legacy_feedback.find("completed") != std::string::npos);
   REQUIRE(stop_tui(legacy_tui));
   CHECK(server.json(server.cli({"status"})).value("state", "") == "running");
   CHECK(server.cli({"disconnect"}).code == 0);
@@ -1528,17 +1599,9 @@ TEST_CASE("TUI manual Group selection A then B reaches the corresponding real Xr
   REQUIRE(tui.pid > 0);
   REQUIRE(tui_wait_for(tui, "Overview", 5s).find("Overview") != std::string::npos);
   tui_navigate(tui, 0, 6);
-  tui_keys(tui, "a");
-  tui_keys(tui, xray.string() + "\r");
-  tui_navigate(tui, 6, 1);
-  tui_keys(tui, "n");
-  REQUIRE(tui_wait_for(tui, "Create Profile · choose a template", 5s).find(
-      "Create Profile · choose a template") != std::string::npos);
-  tui_keys(tui, "1");
-  REQUIRE(tui_wait_for(tui, "New desktop Profile name", 5s).find(
-      "New desktop Profile name") != std::string::npos);
-  tui_keys(tui, "TUI Group A-B\r");
-  REQUIRE(tui_wait_for(tui, "Profile created and selected for use", 5s).find("TUI Group A-B") != std::string::npos);
+  tui_register_core(tui, xray);
+  tui_navigate(tui, 6, 1); tui_create_profile(tui, "TUI Group A-B");
+  tui_keys(tui, "\ru"); // View and Use are explicit, creation never connects.
   const auto profiles = server.json(server.cli({"profile", "list"}));
   REQUIRE(profiles.is_array());
   REQUIRE(profiles.size() == 1);
@@ -1552,11 +1615,7 @@ TEST_CASE("TUI manual Group selection A then B reaches the corresponding real Xr
   const auto add_local = [&](std::string_view name, std::uint16_t port, std::string_view uuid) {
     tui_navigate(tui, current_page, 4);
     current_page = 4;
-    tui_keys(tui, "a1");
-    for (const auto& field : {std::string("vless"), std::string(name), std::string("127.0.0.1"),
-                               std::to_string(port), std::string(uuid), std::string("raw"), std::string("none")})
-      tui_keys(tui, field + "\r");
-    REQUIRE(tui_wait_for(tui, "Manual node saved to Local", 5s).find("Manual node saved to Local") != std::string::npos);
+    tui_add_local(tui, name, port, uuid);
     const auto current = server.json(server.cli({"node", "list", "--limit", "20"}));
     REQUIRE(std::any_of(current.at("items").begin(), current.at("items").end(),
         [&](const Json& row) { return row.value("name", "") == name; }));
@@ -1574,16 +1633,10 @@ TEST_CASE("TUI manual Group selection A then B reaches the corresponding real Xr
   REQUIRE_FALSE(id_a.empty());
   REQUIRE_FALSE(id_b.empty());
 
-  tui_keys(tui, "/Exit A\r");
-  REQUIRE(tui_wait_for(tui, "Search: Exit A", 5s).find("Exit A") != std::string::npos);
-  tui_keys(tui, "a4");
-  // Manual mode fixes the underlying strategy to random and goes directly to
-  // the member scope prompt; unlike automatic mode it has no strategy prompt.
-  for (const auto& field : {"TUI manual exits", "manual", "local"})
-    tui_keys(tui, std::string(field) + "\r");
-  const auto group_screen = tui_wait_for(tui, "Group saved as a routing balancer", 5s);
-  INFO("manual Group creation screen: " << group_screen.substr(group_screen.size() > 1200 ? group_screen.size() - 1200 : 0));
-  REQUIRE(group_screen.find("TUI manual exits") != std::string::npos);
+  tui_filter(tui, "Exit A");
+  const auto index_a = std::find_if(inventory.at("items").begin(), inventory.at("items").end(),
+      [&](const Json& row) { return row.value("id", "") == id_a; }) - inventory.at("items").begin();
+  tui_groups(tui); tui_add_group(tui, "TUI manual exits", true, int(index_a));
   const auto groups = server.json(server.cli({"group", "list", profile_id}));
   REQUIRE(groups.size() == 1);
   const auto group_id = groups.front().value("id", "");
@@ -1622,24 +1675,17 @@ TEST_CASE("TUI manual Group selection A then B reaches the corresponding real Xr
   // The daemon can report running before the Manager consumes the operation's
   // completion event. Wait for the actual UI feedback before starting another
   // Connect, especially under ASan.
-  REQUIRE(tui_wait_for(tui, "Xray core running", 8s).find("Xray core running") != std::string::npos);
+  REQUIRE(tui_wait_for(tui, "completed", 8s).find("completed") != std::string::npos);
 
-  // Group -> choose member -> Nodes -> B -> save member -> Group -> connect.
-  tui_keys(tui, "m");
-  REQUIRE(tui_wait_for(tui, "choose a candidate on Nodes and press m", 5s).find("Nodes") != std::string::npos);
-  // The earlier A search is deliberately retained for this category. Change
-  // the visible filter through the normal Nodes search before choosing B.
-  tui_keys(tui, "/Exit B\r");
-  REQUIRE(tui_wait_for(tui, "Search: Exit B", 5s).find("Exit B") != std::string::npos);
-  tui_keys(tui, "m");
-  const auto selected_b = tui_wait_for(tui, "manual group member saved", 5s);
-  INFO("manual member B save screen: " << selected_b.substr(selected_b.size() > 1200 ? selected_b.size() - 1200 : 0));
-  REQUIRE(selected_b.find("manual group member saved") != std::string::npos);
+  // Group member is now an explicit Select Form, with no navigation detour.
+  tui_keys(tui, "m"); tui_expect(tui, "Select member");
+  const auto index_b = std::find_if(inventory.at("items").begin(), inventory.at("items").end(),
+      [&](const Json& row) { return row.value("id", "") == id_b; }) - inventory.at("items").begin();
+  // The unset selection is an explicit first choice in this control.
+  for (int i = 0; i <= index_b; ++i) tui_keys(tui, "\x1b[B");
+  tui_keys(tui, " "); tui_form_save(tui, "Manual member saved");
   REQUIRE(server.json(server.cli({"group", "show", profile_id, group_id})).value("selected_node_id", "") == id_b);
-  tui_keys(tui, "g");
-  REQUIRE(tui_wait_for(tui, "Group selection is persistent", 5s).find("TUI manual exits") != std::string::npos);
   tui_keys(tui, "c");
-  REQUIRE(tui_wait_for(tui, "Connect started", 5s).find("Connect started") != std::string::npos);
   Json running_b;
   const auto deadline_b = std::chrono::steady_clock::now() + 20s;
   while (std::chrono::steady_clock::now() < deadline_b) {
@@ -1657,7 +1703,7 @@ TEST_CASE("TUI manual Group selection A then B reaches the corresponding real Xr
   REQUIRE(marker_b.find("XRM-TUI-GROUP-EXIT-B-2c74") != std::string::npos);
   REQUIRE(http_a.served() >= 1);
   REQUIRE(http_b.served() >= 1);
-  REQUIRE(tui_wait_for(tui, "Xray core running", 8s).find("Xray core running") != std::string::npos);
+  REQUIRE(tui_wait_for(tui, "completed", 8s).find("completed") != std::string::npos);
   REQUIRE(stop_tui(tui));
   CHECK(server.json(server.cli({"status"})).value("state", "") == "running");
   CHECK(server.cli({"disconnect"}).code == 0);

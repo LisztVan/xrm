@@ -37,6 +37,11 @@ struct SubscriptionState {
   std::optional<std::string> etag;
   std::optional<std::string> last_modified;
   std::string last_result;
+  // The latest refresh diagnostic belongs to this source, not the last
+  // successful inventory. It is cleared when settings change or a refresh
+  // succeeds. Older state JSON may omit both fields.
+  std::optional<std::string> last_error;
+  std::optional<std::string> last_error_stage;
   std::optional<std::string> reported_usage;
   std::vector<std::string> reported_notices;
   std::size_t last_unsupported_count = 0;
@@ -73,6 +78,7 @@ struct RefreshReport {
   std::size_t unsupported = 0;
   bool changed = false;
   bool partial = false;
+  std::optional<std::string> first_issue;
   std::vector<Notice> notices;
 };
 

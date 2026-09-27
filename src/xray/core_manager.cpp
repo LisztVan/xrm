@@ -156,6 +156,10 @@ struct CoreManager::Impl {
     if (result) {
       output(LogStream::core_stdout, result->stdout_text);
       output(LogStream::core_stderr, result->stderr_text);
+      if (output_closed_callback) {
+        output_closed_callback(LogStream::core_stdout);
+        output_closed_callback(LogStream::core_stderr);
+      }
     }
     if (stop_requested) {
       if (completion) completion(std::unexpected(core_error(ErrorCode::cancelled, "连接请求被用户停止动作取消")));
@@ -370,6 +374,9 @@ struct CoreManager::Impl {
     };
     callbacks.exited = [this, restoring](ProcessId id, ProcessExit exit) {
       process_exited(id, exit, restoring);
+    };
+    callbacks.output_closed = [this](ProcessId, LogStream stream) {
+      if (output_closed_callback) output_closed_callback(stream);
     };
     auto spawned = process->spawn(run_command(run.spec), std::move(callbacks));
     if (!spawned) {
@@ -732,6 +739,7 @@ struct CoreManager::Impl {
   Completion<ActivationResult> completion;
   Completion<ActivationResult> stop_completion;
   std::function<void(LogStream, std::string)> output_callback;
+  std::function<void(LogStream)> output_closed_callback;
   ActivationMode activation_mode = ActivationMode::start_or_replace;
   bool restore_attempted = false;
   bool stop_requested = false;
@@ -755,6 +763,9 @@ RuntimeStatus CoreManager::status() const {
 }
 void CoreManager::on_output(std::function<void(LogStream, std::string)> callback) {
   impl_->output_callback = std::move(callback);
+}
+void CoreManager::on_output_closed(std::function<void(LogStream)> callback) {
+  impl_->output_closed_callback = std::move(callback);
 }
 Result<Id> CoreManager::activate(ActivationRequest request, Completion<ActivationResult> callback) {
   return impl_->activate(std::move(request), std::move(callback));

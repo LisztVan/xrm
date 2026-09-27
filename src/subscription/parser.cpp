@@ -66,6 +66,17 @@ void add_issue(ParseReport& report, std::size_t index, IssueKind kind,
   report.issues.push_back(ParseIssue{index, kind, std::move(code), std::move(message)});
 }
 
+bool safe_issue_subject(std::string_view subject) {
+  // Decoder subjects may be user-controlled URI parameter names. Only these
+  // fixed field names can appear in a public source diagnostic.
+  static constexpr std::array<std::string_view, 28> fields{
+      "scheme", "authority", "host", "port", "user", "password", "query",
+      "fragment", "path", "userinfo", "payload", "method", "id", "aid",
+      "flow", "security", "type", "sni", "alpn", "insecure", "extra",
+      "pbk", "ech", "plugin", "mode", "serviceName", "headerType", "fp"};
+  return std::find(fields.begin(), fields.end(), subject) != fields.end();
+}
+
 void parse_uri_items(const std::vector<std::string_view>& items, ParseReport& report) {
   bool malformed = false;
   for (std::size_t i = 0; i < items.size(); ++i) {
@@ -88,7 +99,8 @@ void parse_uri_items(const std::vector<std::string_view>& items, ParseReport& re
       const bool unsupported = parsed.error().code == ErrorCode::unsupported;
       const auto code = unsupported ? "unsupported_uri_feature" : "invalid_uri";
       const auto message = parsed.error().message +
-          (parsed.error().subject ? " (" + *parsed.error().subject + ")" : "");
+          (parsed.error().subject && safe_issue_subject(*parsed.error().subject)
+               ? " (" + *parsed.error().subject + ")" : "");
       add_issue(report, i, unsupported ? IssueKind::unsupported : IssueKind::malformed,
                 code, message);
       malformed = malformed || !unsupported;

@@ -2,6 +2,7 @@
 #include <csignal>
 
 #include "infra/process.hpp"
+#include "server/log_buffer.hpp"
 #include "xray/process_adapter.hpp"
 
 #include <uv.h>
@@ -38,6 +39,46 @@ std::string read_file(const std::filesystem::path& path) {
 }
 
 }  // namespace
+
+TEST_CASE("output close callbacks follow the final bytes on each real pipe", "[PROC][log-eof]") {
+  Loop loop;
+  xrm::ProcessService process(loop.value);
+  xrm::LogBuffer logs;
+  bool stdout_closed = false, stderr_closed = false, exited = false;
+  xrm::ProcessCallbacks callbacks;
+  callbacks.stdout_chunk = [&](auto, std::string bytes) {
+    CHECK_FALSE(stdout_closed);
+    logs.append(xrm::LogStream::core_stdout, bytes);
+  };
+  callbacks.stderr_chunk = [&](auto, std::string bytes) {
+    CHECK_FALSE(stderr_closed);
+    logs.append(xrm::LogStream::core_stderr, bytes);
+  };
+  callbacks.output_closed = [&](auto, xrm::LogStream stream) {
+    auto &closed = stream == xrm::LogStream::core_stdout ? stdout_closed : stderr_closed;
+    CHECK_FALSE(closed);
+    closed = true;
+    logs.finish(stream);
+  };
+  callbacks.exited = [&](auto, auto exit) {
+    CHECK(exit.exit_code == 0);
+    exited = true;
+  };
+  xrm::ProcessSpec spec;
+  spec.executable = XRM_TEST_FAKE_CORE;
+  spec.environment = {{"XRM_FAKE_CORE_STDOUT", "out:\xe4\xb8"},
+                      {"XRM_FAKE_CORE_STDERR", "err:\xf0\x9f"}};
+  REQUIRE(process.spawn(std::move(spec), std::move(callbacks)));
+  uv_run(&loop.value, UV_RUN_DEFAULT);
+  CHECK(exited);
+  CHECK(stdout_closed);
+  CHECK(stderr_closed);
+  std::string out, err;
+  for (const auto &entry : logs.read_after(0, 65536).entries)
+    (entry.stream == xrm::LogStream::core_stdout ? out : err) += entry.text;
+  CHECK(out == "out:\\xE4\\xB8");
+  CHECK(err == "err:\\xF0\\x9F");
+}
 
 TEST_CASE("PROC-01 preserves argv, cwd, and the child environment", "[PROC-01]") {
   const auto temp = std::filesystem::temp_directory_path() /

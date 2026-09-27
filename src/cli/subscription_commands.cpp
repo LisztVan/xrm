@@ -30,12 +30,12 @@ void add_subscription_commands(CLI::App& app, Request& request) {
   auto* list = sub->add_subcommand("list", "List sources without URL credentials");
   list->callback([&request] { request.method = "subscription.list"; request.params = Json::object(); });
 
-  auto* show = sub->add_subcommand("show", "Show one editable source, including its configured URL");
-  show->add_option("source_id", request.subscription_id)->required();
+  auto* show = sub->add_subcommand("show", "Show a source summary; --json includes its editable URL");
+  show->add_option("source_id", request.subscription_id, "Exact subscription name or source ID from sub list")->required();
   show->callback([&request] { request.method = "subscription.get"; request.params = {{"id", request.subscription_id}}; });
 
   auto* edit = sub->add_subcommand("edit", "Edit source name and/or URL");
-  edit->add_option("source_id", request.subscription_id)->required();
+  edit->add_option("source_id", request.subscription_id, "Exact subscription name or source ID from sub list")->required();
   edit->add_option("--name", request.subscription_name);
   edit->add_option("--url", request.subscription_url);
   edit->add_option("--header", request.subscription_headers, "Replace custom HTTP headers (repeatable)");
@@ -67,7 +67,7 @@ void add_subscription_commands(CLI::App& app, Request& request) {
   });
 
   auto* update = sub->add_subcommand("update", "Refresh one source or all sources; never applies runtime files");
-  update->add_option("source_id", request.subscription_id);
+  update->add_option("source_id", request.subscription_id, "Exact subscription name or source ID; omit for all sources");
   update->callback([&request] {
     request.method = "subscription.refresh";
     request.params = Json::object();
@@ -75,7 +75,7 @@ void add_subscription_commands(CLI::App& app, Request& request) {
   });
 
   auto* remove = sub->add_subcommand("remove", "Remove a source while preserving its nodes");
-  remove->add_option("source_id", request.subscription_id)->required();
+  remove->add_option("source_id", request.subscription_id, "Exact subscription name or source ID from sub list")->required();
   remove->add_flag("--keep-nodes", request.keep_nodes_manual,
                    "Convert its current nodes to independent manual nodes");
   remove->callback([&request] {

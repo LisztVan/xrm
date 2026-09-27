@@ -70,6 +70,17 @@ TEST_CASE("subscription malformed VLESS items retain a safe field-level diagnost
   CHECK(report->issues.front().message.find("maybe") == std::string::npos);
 }
 
+TEST_CASE("subscription diagnostics never echo arbitrary URI parameter keys") {
+  const auto report = xrm::parse_subscription(
+      "vless://00000000-0000-4000-8000-000000000001@node.example:443?"
+      "security=none&secret_token_marker=private#Example");
+  REQUIRE(report);
+  REQUIRE(report->issues.size() == 1);
+  CHECK(report->issues.front().message.find("unsupported VLESS URI parameter") != std::string::npos);
+  CHECK(report->issues.front().message.find("secret_token_marker") == std::string::npos);
+  CHECK(report->issues.front().message.find("private") == std::string::npos);
+}
+
 TEST_CASE("real VLESS TCP subscription shape tolerates an inapplicable gRPC mode parameter") {
   // The saved real subscription returns VLESS TCP/REALITY items with mode=multi.
   // mode is defined for gRPC, so it has no TCP setting to map and must not make
