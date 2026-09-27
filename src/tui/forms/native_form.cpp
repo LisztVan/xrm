@@ -1,4 +1,6 @@
-// XRM: Builds structured editors for native Xray module fields.
+// XRM: Maps supported native Xray object fields to structured Visual forms.
+// fields_for() describes only fields owned by Visual; update_object() edits
+// those paths in a copy of the original JSON so unknown fields survive.
 
 #include "tui/forms/native_form.hpp"
 #include "tui/components/style.hpp"
@@ -209,6 +211,8 @@ std::vector<Choice> target_strategies() {
 }
 std::vector<NativeField> fields_for(const std::string &kind,
                                     const NativeFormOptions &options) {
+  // Paths are relative to the native object being edited, not to an XRM
+  // replacement schema. Advanced fields remain available in module JSON.
   const auto dns_strategy =
       choices({"UseIP", "UseIPv4", "UseIPv6", "UseSystem"});
   if (kind == "dns")
@@ -511,6 +515,8 @@ std::optional<std::string> update_object(Json &output,
                                          const std::vector<NativeField> &specs,
                                          const std::vector<Field> &baseline,
                                          const ui::Form &form) {
+  // Compare value and presence independently. Writing every visible field
+  // would turn absent/defaulted fields into explicit native values.
   for (std::size_t i = 0; i < specs.size(); ++i) {
     if ((form.value(i) == baseline[i].value &&
          (!baseline[i].optional || form.present(i) == baseline[i].present)) ||
@@ -670,6 +676,8 @@ MakeObjectForm(const std::string &kind, const Json &input,
                const NativeFormOptions &options,
                std::function<std::optional<std::string>(const Json &)> accept,
                std::function<void()> cancel, bool view_only) {
+  // Child-form Save updates the parent module draft via accept(); it does not
+  // call module.save or publish a runtime confdir.
   const bool is_string_server = kind == "dns-server" && input.is_string();
   Json original = is_string_server ? Json{{"address", input}} : input;
   if (original.is_null())
@@ -931,6 +939,8 @@ std::vector<std::string> collection_cells(const Section &section,
 }
 class NativeEditor final : public ComponentBase,
                            public std::enable_shared_from_this<NativeEditor> {
+  // Sections navigate native objects; edits are applied to options_.draft.
+  // The editor must not own a second authoritative copy of module Source.
 public:
   explicit NativeEditor(NativeFormOptions options)
       : options_(std::move(options)) {
@@ -1103,6 +1113,8 @@ private:
   }
   std::optional<std::string>
   modify(const std::function<void(Json &)> &mutation) {
+    // Parse, mutate, and replace the one shared JSON draft only when content
+    // actually changes. Child dialog cancellation never touches this string.
     if (options_.readonly)
       return "Read only: enable this Profile's module Edit first";
     if (!options_.draft)
@@ -1122,6 +1134,8 @@ private:
     }
   }
   void build_sections() {
+    // These paths describe native object ownership. For example sniffing is
+    // under an inbound, and mux is under an outbound, not a new root module.
     const std::string &key = options_.module;
     const std::string path = "/" + key;
     auto object = [&](std::string label, std::string p, std::string kind) {
@@ -1552,6 +1566,8 @@ private:
 
   void open_connection(const Section &section, const std::string &id,
                        const Json &, bool view, std::function<void()> refresh) {
+    // One inbound/outbound object is split into readable subsections while
+    // each form still edits its original nested native path.
     auto self = std::static_pointer_cast<NativeEditor>(shared_from_this());
     const auto base = section.path + "/" + id;
     struct Part {

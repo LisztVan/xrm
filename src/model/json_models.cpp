@@ -1,4 +1,6 @@
-// XRM: Serializes and parses the domain models at storage and RPC boundaries.
+// XRM: Maps typed domain models to their persisted/RPC JSON representation.
+// Keep wire/storage field names and optional/null distinctions stable here;
+// runtime assembly and user-facing presentation are separate consumers.
 
 #include "model/node.hpp"
 #include "model/runtime.hpp"

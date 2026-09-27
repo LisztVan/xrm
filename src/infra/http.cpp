@@ -1,4 +1,6 @@
-// XRM: Implements bounded HTTP downloads for subscriptions and resources.
+// XRM: Implements bounded HTTP downloads through libcurl worker jobs.
+// The event loop owns request admission/completion; blocking transfer work
+// runs off-loop and honors cancellation, body limits, and transport errors.
 
 #include "infra/http.hpp"
 
@@ -117,6 +119,8 @@ void ensure_curl_global() {
 } // namespace
 
 struct HttpClient::Impl {
+  // Request keeps State alive until its libuv worker and completion have
+  // drained. Cancellation marks in-flight work; it cannot free that worker.
   struct State;
   struct Request {
     uv_work_t work{};
@@ -336,6 +340,8 @@ struct HttpClient::Impl {
     }
 
     void schedule() {
+      // Bound simultaneous transfers; queued requests stay owned by State
+      // until a worker slot opens or shutdown cancels them.
       auto keep_alive = shared_from_this();
       while (!shutting_down && active < HttpClient::max_concurrent_requests &&
              !pending.empty()) {

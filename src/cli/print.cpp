@@ -1,4 +1,6 @@
-// XRM: Formats CLI results while preserving JSON and pipe output contracts.
+// XRM: Executes CLI RPC requests and formats their human/machine results.
+// The JSON branch keeps the wire result/error shape; presentation changes
+// belong in the human branch and must preserve stderr and exit-code behavior.
 
 #include "cli/command_options.hpp"
 #include "cli/presentation.hpp"
@@ -75,6 +77,8 @@ Result<Json> call_rpc_once(const std::string &socket, const std::string &method,
 }
 
 Result<Json> finish_operation(const std::string &socket, Result<Json> result) {
+  // An asynchronous operation's accepted receipt is not its final result.
+  // Resolve it before the one-shot CLI reports success or failure.
   if (!result || !result->is_object() ||
       result->value("status", "") != "accepted" ||
       !result->contains("operation_id") ||
@@ -417,6 +421,8 @@ std::string default_socket_path() {
 }
 
 int execute_request(const Request &request) {
+  // Resolve local input/refs before RPC, but leave daemon business semantics
+  // in the server. A failed file/stdin read must never send module.save.
   Json params = request.params;
   if (request.method == "module.save") {
     std::string text = request.module_text;
@@ -611,6 +617,8 @@ int execute_request(const Request &request) {
 }
 
 int print_watch_result(const Request &request, const Result<Json> &result) {
+  // Scope EPIPE handling to stdout sampling. RPC or other write failures must
+  // retain nonzero exits even when the CLI is connected to a pipeline.
   int result_code = 0;
   bool failed = false;
   int write_error = 0;
@@ -640,6 +648,8 @@ int print_watch_result(const Request &request, const Result<Json> &result) {
 }
 
 int print_result(const Request &request, const Result<Json> &result) {
+  // Handle machine output before any human labels, colors, or recovery text.
+  // Both modes send errors to stderr and use the same error-to-exit mapping.
   if (!result) {
     const auto error = error_to_json(result.error());
     if (request.json)

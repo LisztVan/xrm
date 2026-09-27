@@ -1,4 +1,6 @@
-// XRM: Assembles saved native modules and node bindings into a FileSet.
+// XRM: Builds an in-memory FileSet from saved native modules and bindings.
+// No I/O or process control occurs here. One module owns each native root key;
+// outbounds may add a separate generated node tail under the same key.
 
 #include "xray/runtime_assembler.hpp"
 
@@ -607,6 +609,8 @@ Result<OutputFile> write_routing(const ModuleDocument &document,
 }
 
 Result<PreparedFiles> assemble(const BuildInput &input) {
+  // Resolve the reachable node/binding scope before emitting any native file.
+  // The writer later materializes this complete set for an explicit action.
   auto index = resolve_scope(input);
   if (!index)
     return std::unexpected(index.error());

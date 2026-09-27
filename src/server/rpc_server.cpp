@@ -1,4 +1,6 @@
-// XRM: Accepts and serves local daemon RPC connections.
+// XRM: Accepts local IPC connections and frames RPC requests/responses.
+// It owns connection lifetime and transport errors; ApiRouter decides method
+// parameter shape, while Application owns business state and core actions.
 
 #include "server/rpc_server.hpp"
 

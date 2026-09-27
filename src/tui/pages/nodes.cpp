@@ -1,10 +1,14 @@
-// XRM: Renders node inventory, source scopes, and group operations.
+// XRM: Provides node inventory and group forms within the Nodes workspace.
+// Inventory edits save nodes/bindings; they do not select a runtime target or
+// connect Xray unless the user chooses the explicit Save & Connect action.
 
 #include "tui/components/style.hpp"
 #include "tui/shell/workspace.hpp"
 #include <algorithm>
 namespace xrm::tui {
 void Workspace::node_form(bool editing) {
+  // Work from the full node document and patch fields this form owns. Re-read
+  // before saving to reject edits made after the form was opened.
   auto id = nodes_table_->selected_id();
   Json node = Json::object();
   if (editing) {
@@ -338,6 +342,8 @@ void Workspace::cancel_node_tests() {
     notify("No active node tests in this session");
 }
 void Workspace::group_form(bool editing) {
+  // Group bindings are Manager data; native routing balancers remain in the
+  // routing module's Source and have a separate edit path.
   if (view_.empty())
     return;
   auto id = groups_table_->selected_id();

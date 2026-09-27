@@ -1,4 +1,6 @@
-// XRM: Caches downloaded geodata resources for local use.
+// XRM: Stages and validates geodata assets before publishing cache versions.
+// Download, staging work, and Xray -test each have distinct completion paths;
+// a failed attempt must leave the previously usable asset version intact.
 
 #include "geodata/cache.hpp"
 
@@ -59,6 +61,8 @@ void write_file(const std::filesystem::path &path, std::string_view bytes) {
 } // namespace
 
 struct GeodataCache::Impl {
+  // Job owns one acquisition attempt. State keeps jobs alive until callbacks
+  // and staging cleanup finish, including during cancellation/shutdown.
   struct State;
   struct Job {
     uv_work_t work{};
@@ -204,6 +208,8 @@ struct GeodataCache::Impl {
     }
 
     static void staged(uv_work_t *work, int status) {
+      // Staging runs off-loop; validation and final completion resume on the
+      // event loop with the same Job, so errors retain their original stage.
       auto *raw = static_cast<Job *>(work->data);
       auto self = raw->owner;
       auto found = self->jobs.find(raw->id);

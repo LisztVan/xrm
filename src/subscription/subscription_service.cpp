@@ -1,4 +1,6 @@
-// XRM: Fetches and refreshes subscription sources.
+// XRM: Fetches sources and commits reconciled node inventory asynchronously.
+// Refresh affects inventory/status only. A failed or unusable response must
+// keep the previous usable nodes, and never publishes a runtime confdir.
 
 #include "subscription/subscription_service.hpp"
 
@@ -270,6 +272,8 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
   }
 
   void issue_request(const Id &source_id, bool conditional) {
+    // In-flight work is keyed by source ID. The weak callback avoids keeping
+    // the service alive after shutdown while preserving per-source waiters.
     auto found = in_flight.find(source_id);
     if (found == in_flight.end())
       return;
@@ -304,6 +308,8 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
   }
 
   void on_response(const Id &source_id, Result<HttpResponse> response) {
+    // HTTP success alone is not refresh success: parse/reconcile and the Store
+    // commit determine the final result reported to every batch waiter.
     auto found = in_flight.find(source_id);
     if (found == in_flight.end())
       return;
@@ -473,6 +479,8 @@ struct SubscriptionService::Impl : std::enable_shared_from_this<Impl> {
 
   Result<Id> refresh(std::vector<Id> source_ids,
                      Completion<BatchRefreshResult> completion) {
+    // De-duplicate the requested IDs into one batch; each source contributes
+    // one final outcome even when multiple callers await its in-flight fetch.
     if (shutting_down)
       return std::unexpected(
           service_error(ErrorCode::busy, "订阅服务正在关闭"));

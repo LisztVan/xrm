@@ -1,4 +1,6 @@
-// XRM: Starts and supervises child processes with explicit argv and ownership.
+// XRM: Starts owned child processes from argv/cwd/env and drains their handles.
+// Long-running cores use spawn(); bounded one-shot checks use execute().
+// Termination targets only handles created by this ProcessService instance.
 
 #include "infra/process.hpp"
 
@@ -40,6 +42,8 @@ void append_bounded(std::string &destination, const char *data,
 } // namespace
 
 struct ProcessService::Impl {
+  // Child remains owned until exit and stdout/stderr/timer handles close;
+  // process exit alone is not completion of captured output.
   struct Child {
     Impl *owner = nullptr;
     ProcessId id = 0;
@@ -335,6 +339,8 @@ Result<ProcessId> ProcessService::spawn(ProcessSpec spec,
 
 Result<Id> ProcessService::execute(ProcessSpec spec, Milliseconds timeout,
                                    Completion<ProcessResult> completion) {
+  // Wrap a spawned child with a command ID and deadline. The callback receives
+  // its final exit/capture result after the owned handles drain.
   if (timeout.count() <= 0) {
     return std::unexpected(AppError{ErrorCode::invalid_argument,
                                     "进程超时必须大于零", "timeout",

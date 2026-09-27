@@ -1,4 +1,6 @@
-// XRM: Coordinates TUI navigation, refresh, drafts, focus, and overlays.
+// XRM: Coordinates TUI navigation, cached page data, drafts, and overlays.
+// View/Use/Edit and the Modules draft live only in this session. Server RPCs
+// own saved state; runtime.status reports actual running state separately.
 
 #include "tui/shell/workspace.hpp"
 #include "client/human_message.hpp"
@@ -161,6 +163,8 @@ void Workspace::apply_colors() {
                                                     : original_color_);
 }
 void Workspace::refresh() {
+  // Keep the last successful page snapshot on partial RPC failure. fresh_
+  // marks whether displayed values are current; it is not a zero value.
   bool good = true;
   auto get = [&](std::string_view method, Json &target) {
     auto r = call(method);
@@ -269,6 +273,8 @@ Component Workspace::content() const {
   return table();
 }
 void Workspace::refresh_tables() {
+  // Rebuild presentation from cached RPC snapshots, preserving stable row IDs
+  // and the current module draft. This function does not issue write RPCs.
   // Secondary sections are identified by key: source list refreshes may
   // remove a source or shift its index while this page is open.
   if (!selected_section_ids_[page_].empty()) {
@@ -467,6 +473,8 @@ void Workspace::refresh_tables() {
 }
 void Workspace::background(std::function<Result<Json>()> job,
                            std::function<void(Result<Json>)> done) {
+  // One outstanding request keeps its result paired with its completion
+  // callback. poll() consumes it on the UI thread.
   if (background_.valid()) {
     notify("Another request is still pending", ui::Tone::Warning);
     return;
@@ -475,6 +483,8 @@ void Workspace::background(std::function<Result<Json>()> job,
   background_ = std::async(std::launch::async, std::move(job));
 }
 void Workspace::operation(std::string method, Json params, std::string label) {
+  // A returned operation ID means accepted, not completed. poll() observes
+  // the final result before reporting success or refreshing saved state.
   auto socket = socket_;
   background(
       [socket, method, params] { return request(socket, method, params); },
@@ -633,6 +643,8 @@ void Workspace::poll() {
     stats_reader_.reset();
 }
 void Workspace::read_logs() {
+  // The cursor belongs to IPC chunks. ParseLogChunks derives viewer records;
+  // neither cursor nor retained-chunk count is a log sequence number.
   auto r = call("logs.read", {{"cursor", log_cursor_}, {"limit", 65536}});
   if (!r)
     return;
@@ -743,6 +755,8 @@ void Workspace::cancel_form(std::weak_ptr<ui::Form> weak) {
                    "Keep all local values."}}));
 }
 void Workspace::leave_draft(std::function<void()> next) {
+  // Navigation waits for Save/Discard/Continue. A failed Save leaves the
+  // dialog and draft in place, so the pending transition cannot consume it.
   if (!draft_.dirty()) {
     next();
     return;
@@ -778,6 +792,8 @@ void Workspace::leave_draft(std::function<void()> next) {
                     "Keep all local changes."}}));
 }
 void Workspace::help() {
+  // Combine shell navigation and the active component's available actions.
+  // Help executes the same callbacks as keyboard actions in this context.
   std::vector<ui::HelpEntry> entries;
   std::string context = std::string(pages_[page_]) + " · View " + name(view_);
   std::string prerequisites;
@@ -1252,6 +1268,8 @@ Element Workspace::OnRender() {
          size(WIDTH, EQUAL, dimensions.dimx);
 }
 bool Workspace::OnEvent(Event event) {
+  // Overlay events are consumed before page/navigation events; Esc closes one
+  // local focus layer and cannot also back out of the workspace.
   if (event == Event::Custom) {
     poll();
     return true;

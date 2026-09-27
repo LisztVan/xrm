@@ -1,4 +1,6 @@
-// XRM: Applies structured Profile and module form edits.
+// XRM: Applies bounded edits to native module JSON in memory.
+// Helpers return ModuleEdit with the original Source baseline; the caller
+// chooses when to save it. Unknown native fields outside edited paths survive.
 
 #include "profile/forms.hpp"
 
@@ -136,6 +138,8 @@ bool duplicate_tag(const Json &values, const Json &value,
 
 Result<ModuleEdit> edit_json_draft(const ModuleDocument &document,
                                    const JsonDraftEdit &edit) {
+  // Limit JSON-pointer edits to this native wrapper. The returned text is a
+  // candidate Source edit, not an implicit save or runtime update.
   auto parsed = parse_document(document);
   if (!parsed)
     return std::unexpected(parsed.error());
@@ -391,6 +395,8 @@ Result<ModuleEdit> replace_burst_ping_config(const ModuleDocument &document,
 
 Result<ModuleEdit> edit_native_list(const ModuleDocument &document,
                                     const ListEdit &edit) {
+  // Collection operations preserve list order and all untouched object keys;
+  // only the collection owned by this module is rewritten.
   auto parsed = module_array(document, edit.collection);
   if (!parsed)
     return std::unexpected(parsed.error());

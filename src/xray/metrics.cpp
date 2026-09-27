@@ -1,4 +1,6 @@
-// XRM: Reads Xray traffic and observation statistics.
+// XRM: Samples Xray traffic and observation data for the active run.
+// Missing endpoint/sample means unavailable or unknown, never fabricated zero
+// counters. Viewer demand controls polling; samples are tied to a run ID.
 
 #include "xray/metrics.hpp"
 
@@ -45,6 +47,8 @@ counter_index(const MetricsSample &sample) {
 
 Result<MetricsSample> parse_metrics(const Json &json, const Id &run_id,
                                     UnixMillis received_at) {
+  // Preserve absent counters as optionals. A missing uplink/downlink field is
+  // different from an observed numeric zero.
   if (!json.is_object()) {
     return std::unexpected(
         AppError{ErrorCode::protocol_error,
@@ -251,6 +255,8 @@ void MetricsClient::attach(const RunRecord &record,
 }
 
 void MetricsClient::set_viewer_count(std::size_t count) {
+  // Do not poll a core solely because the daemon is running. One timer serves
+  // all viewers, and the final viewer leaving cancels an outstanding sample.
   auto &state = *impl_->shared;
   if (state.shutting_down)
     return;

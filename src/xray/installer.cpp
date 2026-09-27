@@ -1,4 +1,6 @@
-// XRM: Downloads and registers Xray core executables.
+// XRM: Resolves release assets and installs managed Xray core executables.
+// Metadata/download verification precedes publication to the managed core
+// directory; registration into Store is performed by Application afterward.
 
 #include "xray/installer.hpp"
 
@@ -534,6 +536,8 @@ extract_xray(std::string_view bytes, const std::filesystem::path &staging) {
 } // namespace
 
 struct CoreInstaller::Impl {
+  // State serializes installs of the same release tag while asynchronous
+  // metadata, download, verification, and file publication are outstanding.
   struct State : std::enable_shared_from_this<State> {
     State(HttpClient &http_client, ProcessService &process_service,
           std::filesystem::path root_path, std::string api_url)
@@ -579,6 +583,8 @@ struct CoreInstaller::Impl {
 
     Result<Id> start_install(InstallRequest request,
                              Completion<CoreInstall> completion) {
+      // Re-fetch release metadata instead of trusting a caller-supplied asset
+      // URL/checksum; publish only the verified selected release asset.
       if (!safe_release_tag(request.release.tag))
         return std::unexpected(error(
             ErrorCode::invalid_argument,

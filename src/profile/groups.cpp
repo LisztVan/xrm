@@ -1,4 +1,6 @@
-// XRM: Manages dynamic node groups and balancer bindings.
+// XRM: Saves Manager group and observation bindings beside each Profile.
+// These files choose nodes and generated balancer inputs; they are not native
+// routing module Source and are never read directly by Xray.
 
 #include "profile/profile_service.hpp"
 
@@ -193,6 +195,8 @@ Result<std::vector<GroupBinding>> ProfileService::groups(const Id &id) const {
 
 Result<void> ProfileService::save_groups(const Id &id,
                                          const BindingsEdit &edit) {
+  // Validate references against current inventory, then compare the caller's
+  // bindings-file baseline before replacing only groups.json.
   auto directory = profile_directory(store_, id);
   if (!directory)
     return std::unexpected(directory.error());

@@ -1,4 +1,6 @@
-// XRM: Parses supported subscription and node-link formats.
+// XRM: Parses supported subscription documents and share links into nodes.
+// Parsing reports malformed/unsupported entries separately; it does not
+// update inventory or decide whether old source nodes should be removed.
 
 #include "subscription/parser.hpp"
 
@@ -338,6 +340,8 @@ Result<ParsedNode> parse_native_outbound(std::string_view text,
 }
 
 Result<ParseReport> parse_subscription(std::string_view body) {
+  // Keep format detection and per-entry diagnostics here. Reconciliation and
+  // the decision to commit a usable refresh belong to SubscriptionService.
   if (body.starts_with("\xEF\xBB\xBF"))
     body.remove_prefix(3);
   body = trim(body);

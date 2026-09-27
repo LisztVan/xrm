@@ -1,4 +1,6 @@
-// XRM: Coordinates daemon business operations and core lifecycle.
+// XRM: Coordinates daemon operations across Store, ProfileService, and core.
+// This layer collects saved inputs for explicit runtime actions; editing a
+// node, source, or module alone must not publish a new confdir or start Xray.
 
 #include "server/application.hpp"
 
@@ -222,6 +224,8 @@ Json Application::server_info() const {
               {"boot_id", boot_id_}};
 }
 
+// Node inventory mutations stay in the saved library; they do not rebuild the
+// currently running confdir. Explicit connect/check does that later.
 Result<NodeSummary> Application::add_manual_node(std::string name,
                                                  Json outbound) {
   if (name.empty())
@@ -876,6 +880,7 @@ Application::edit_node_form(const Id &id, std::string_view field, Json value) {
 Store &Application::store() { return *store_; }
 SubscriptionService &Application::subscriptions() { return *subscriptions_; }
 
+// Core inventory is separate from Profile selection and process activation.
 Result<std::vector<CoreInstall>> Application::list_cores() const {
   return store_->cores();
 }
@@ -960,6 +965,9 @@ Result<Id> Application::install_core(InstallRequest request,
 
 void Application::use_core(const Id &profile_id, const Id &core_id,
                            Completion<ActivationResult> completion) {
+  // Save the requested core for future runs. If this Profile is already
+  // active, try to replace that run; failure attempts to restore the prior
+  // saved core ID and reports a restoration error if that write fails.
   auto profile = profiles_->get(profile_id);
   if (!profile) {
     completion(std::unexpected(profile.error()));
@@ -1098,6 +1106,8 @@ CoreManager &Application::core_manager() { return *core_manager_; }
 LogBuffer &Application::logs() { return logs_; }
 
 Result<BuildInput> Application::build_input(const Id &profile_id) {
+  // Assemble a snapshot from authoritative saved Profile, bindings, and node
+  // inventory. No TUI draft participates in this build input.
   auto profile = profiles_->snapshot(profile_id);
   if (!profile)
     return std::unexpected(profile.error());
@@ -1240,6 +1250,7 @@ Application::set_profile_geodata(const Id &profile_id,
                          ProfileEdit{{*current}, std::move(*profile)});
 }
 
+// Resource metadata is saved independently from the runtime asset snapshot.
 Result<std::vector<GeodataResourceRecord>>
 Application::list_geodata_resources() const {
   return store_->geodata_resources();
@@ -1344,6 +1355,8 @@ Result<Id> Application::update_geodata_resource(const Id &resource_id,
   return operation;
 }
 
+// Preset planning produces a reviewable Source candidate; saving it still
+// checks the original routing text and leaves Runtime unchanged.
 Result<Json>
 Application::plan_routing_preset(const Id &profile_id,
                                  std::string_view preset_name) const {
@@ -1486,6 +1499,8 @@ Result<Json> Application::save_routing_preset(const Id &profile_id,
 
 void Application::connect(const Id &profile_id, std::optional<Target> target,
                           Completion<ActivationResult> completion) {
+  // An explicit target first updates saved selection. Activation then builds
+  // from saved state; an omitted target does not infer View or a TUI cursor.
   if (target) {
     auto selected = select(profile_id, std::move(target));
     if (!selected) {
@@ -1614,6 +1629,8 @@ void Application::dump(const Id &profile_id, Completion<Json> completion) {
 }
 
 Result<PreparedDirectory> Application::render(const Id &profile_id) {
+  // Preview materializes a separate complete confdir from saved state. It
+  // neither replaces the current run nor becomes a writable module Source.
   auto input = build_input(profile_id);
   if (!input)
     return std::unexpected(input.error());
@@ -1686,6 +1703,8 @@ const char *health_name(RuntimeHealth health) {
 } // namespace
 
 Result<Json> Application::runtime_status() const {
+  // Report actual active run and persisted desired target separately. The
+  // absence of an active run must not be reconstructed from saved settings.
   const auto status = core_manager_->status();
   const bool override_current =
       status.active && override_run_id_ == status.active->run_id;
@@ -1751,6 +1770,8 @@ Result<Json> Application::runtime_status() const {
               {"error", std::move(error)}};
 }
 
+// Cross-module plans enumerate every affected native Source file before the
+// separate save operation; no runtime publication is implied.
 Result<ModuleChangePlan>
 Application::plan_module_changes(const Id &profile_id, std::string_view action,
                                  const Json &arguments) const {

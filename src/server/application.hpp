@@ -1,4 +1,6 @@
-// XRM: Declares the daemon application and its owned services.
+// XRM: Declares the daemon's business coordinator and owned services.
+// Follow a request from ApiRouter here, then into Store/ProfileService for
+// saved data or CoreManager for an explicit running-state change.
 
 #pragma once
 
@@ -30,6 +32,7 @@ public:
               SubscriptionService &subscriptions);
   ~Application();
 
+  // Inventory reads/writes and isolated node tests; no core activation.
   Json server_info() const;
   Result<NodeSummary> add_manual_node(std::string name, Json outbound);
   Result<NodeSummary> add_manual_typed_node(std::string name, Json settings);
@@ -57,6 +60,9 @@ public:
                              std::size_t max_body_bytes);
   Result<void> cancel_node_test(const Id &operation_id);
   Json node_test_results() const;
+
+  // Core inventory and selection. use_core may replace an active Profile's
+  // core; install/register alone only make an executable available.
   Store &store();
   SubscriptionService &subscriptions();
   Result<std::vector<CoreInstall>> list_cores() const;
@@ -74,6 +80,9 @@ public:
   Operations &operations();
   CoreManager &core_manager();
   LogBuffer &logs();
+
+  // Saved configuration and explicit runtime actions. build_input excludes
+  // any client-side draft; connect/check/render choose distinct effects.
   Result<BuildInput> build_input(const Id &profile_id);
   Result<void> select(const Id &profile_id, std::optional<Target> target);
   Result<void> set_profile_sources(const Id &profile_id,

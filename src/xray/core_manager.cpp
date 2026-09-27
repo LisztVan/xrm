@@ -1,4 +1,6 @@
-// XRM: Owns the Xray process and manages start, stop, and recovery.
+// XRM: Owns Xray process handles and the explicit start/stop/recovery machine.
+// Candidate configuration is checked before stopping an active run. The new
+// process is observed before acceptance; failure may restore old input once.
 
 #include "xray/core_manager.hpp"
 
@@ -56,6 +58,8 @@ ProcessSpec dump_command(const RunSpec &run) {
 }
 
 struct CoreManager::Impl {
+  // All phase transitions run on the Server event loop. Process callbacks
+  // refer to owned handles, never to a PID discovered outside this instance.
   enum class Phase {
     idle,
     preparing,
@@ -252,6 +256,8 @@ struct CoreManager::Impl {
   }
 
   void complete_stop() {
+    // User stop intent clears desired_running before retry/recovery can start
+    // another candidate. A pending activation receives cancellation.
     status.state = CoreState::stopped;
     status.desired_running = false;
     status.active.reset();
@@ -421,6 +427,8 @@ struct CoreManager::Impl {
   }
 
   void start_candidate(bool restoring) {
+    // A restoration replays the previous RunRecord and its existing confdir;
+    // it does not rebuild from newly edited Source or subscription inventory.
     const auto run = restoring ? *previous_record : *candidate_record;
     phase = restoring ? Phase::restoring : Phase::starting;
     status.state = CoreState::starting;
@@ -707,6 +715,8 @@ struct CoreManager::Impl {
   }
 
   void continue_candidate_failure() {
+    // Restore the prior run at most once. If stop was requested, that intent
+    // takes precedence over retry and recovery.
     if (candidate_record)
       discard_record(candidate_record);
     if (retrying) {
@@ -740,6 +750,8 @@ struct CoreManager::Impl {
 
   Result<Id> activate(ActivationRequest request,
                       Completion<ActivationResult> callback) {
+    // The idle phase is the admission boundary: reject overlapping commands
+    // before taking responsibility for their callback and process lifecycle.
     if (phase != Phase::idle)
       return std::unexpected(
           core_error(ErrorCode::busy, "核心正在处理另一个动作"));

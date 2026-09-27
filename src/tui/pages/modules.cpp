@@ -1,4 +1,6 @@
-// XRM: Renders native module Source and Runtime views and editors.
+// XRM: Owns the Modules page's single Source draft and its Visual/JSON views.
+// Both editors point at draft_.text. Explicit Save actions write Source;
+// Runtime stays read-only; publishing Source requires later Connect/Apply.
 
 #include "model/module_catalog.hpp"
 #include "tui/components/style.hpp"
@@ -22,6 +24,7 @@ std::string json_error(const Json::parse_error &error) {
 } // namespace
 
 bool Workspace::writable() const {
+  // Keep every write entry point tied to the same viewed Profile and draft.
   return !view_.empty() && edit_ == view_ && draft_.profile == view_ &&
          !draft_.runtime_view;
 }
@@ -33,6 +36,7 @@ void Workspace::load_module() {
     return;
   }
   auto key = section();
+  // Reuse a loaded draft for the same Profile/module during ordinary refresh.
   if (key == draft_.module && view_ == draft_.profile && !draft_.text.empty())
     return;
   auto r = call("module.get", {{"profile_id", view_}, {"module", key}});
@@ -47,6 +51,7 @@ void Workspace::load_module() {
   draft_.source = r->value("source_file", "");
   draft_.runtime = r->value("runtime_file", "");
   if (r->contains("text") && (*r)["text"].is_string()) {
+    // expected is the server's original Source for optimistic save conflicts.
     draft_.expected = (*r)["text"].get<std::string>();
     draft_.text = *draft_.expected;
   } else
@@ -62,6 +67,8 @@ void Workspace::load_module() {
   rebuild_module();
 }
 void Workspace::rebuild_module() {
+  // Recreate controls after a mode/permission change, retaining draft_.text.
+  // Visual edits update that same text; neither control writes the server.
   if (visual_)
     visual_->Detach();
   if (code_)
@@ -148,6 +155,7 @@ bool Workspace::save_module() {
   Json params{{"profile_id", draft_.profile},
               {"module", draft_.module},
               {"text", draft_.text}};
+  // Absence is a distinct baseline for a new module Source.
   if (draft_.expected)
     params["expected_text"] = *draft_.expected;
   else
@@ -171,6 +179,7 @@ void Workspace::switch_module_view() {
   if (draft_.module.empty())
     return;
   if (!draft_.visual) {
+    // An invalid JSON draft stays editable in JSON mode with its text intact.
     auto j = Json::parse(draft_.text, nullptr, false, true);
     if (j.is_discarded()) {
       try {
@@ -265,6 +274,8 @@ void Workspace::external_editor() {
            ui::Tone::Error);
     return;
   }
+  // Import only after a successful editor exit; invalid JSON is still kept as
+  // a local draft for repair, never silently saved or applied.
   std::ifstream in(pattern);
   draft_.text = {std::istreambuf_iterator<char>(in), {}};
   auto j = Json::parse(draft_.text, nullptr, false, true);
@@ -278,6 +289,8 @@ void Workspace::routing_preset() {
   if (!writable() || draft_.module != "routing")
     return;
   leave_draft([this] {
+    // The preview is based on saved routing Source. Pending edits must be
+    // resolved before asking the server to plan and save a preset.
     form(
         "Routing preset",
         {select_field("Preset", "custom_native",

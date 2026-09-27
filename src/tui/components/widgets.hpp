@@ -26,6 +26,8 @@ struct Choice {
   std::string label;
 };
 struct HelpEntry {
+  // A disabled action has a reason but must not run. consequence describes the
+  // saved/runtime effect shown beside the executable action in Help.
   std::string key, action, target, disabled_reason;
   std::function<void()> run;
   std::string consequence;
@@ -42,6 +44,8 @@ enum class FieldKind {
   OptionalCheckbox
 };
 struct Field {
+  // optional/present model native omission separately from an empty, false,
+  // or zero value. Controls edit value/present; Form submits their snapshot.
   std::string label;
   std::string value;
   FieldKind kind = FieldKind::Text;
@@ -192,6 +196,8 @@ struct CollectionActions {
 };
 class CollectionEditor final : public ftxui::ComponentBase {
 public:
+  // Action callbacks receive stable row IDs. Tab onto the button row keeps
+  // the selected collection item instead of selecting by a transient index.
   CollectionEditor(std::string title, std::vector<Column> columns,
                    CollectionActions actions, bool readonly = false);
   void set_rows(std::vector<Row> rows);

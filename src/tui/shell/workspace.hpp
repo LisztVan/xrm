@@ -44,6 +44,8 @@ private:
   int page_ = 0, secondary_ = 0, overview_scroll_ = 0;
   std::array<std::string, 7> selected_section_ids_{};
   Layer layer_ = Layer::Top;
+  // These JSON values are last-known RPC snapshots. fresh_ records whether
+  // the full refresh succeeded; cached values must not imply a live daemon.
   Json profiles_ = Json::array(), subscriptions_ = Json::array(),
        nodes_ = Json::array(), groups_ = Json::array(), cores_ = Json::array(),
        geodata_ = Json::array(), modules_ = Json::array();
@@ -69,6 +71,8 @@ private:
   std::jthread ticker_;
   std::future<Result<Json>> background_;
   std::function<void(Result<Json>)> background_done_;
+  // Operation IDs are polled for confirmed completion, never replayed on
+  // reconnect when an earlier write may already have succeeded.
   std::map<std::string, std::string> operations_;
   std::chrono::steady_clock::time_point next_poll_{};
   static constexpr std::array<const char *, 7> pages_{
@@ -86,6 +90,9 @@ private:
                   std::function<void(Result<Json>)> done);
   void operation(std::string method, Json params, std::string label);
   bool mutate(std::string_view method, Json params, std::string label);
+
+  // Navigation/content selection and contextual actions are separate from
+  // row cursor identity; Help uses the same actions() definitions as keys.
   std::string name(const std::string &id) const;
   std::string active_name() const;
   std::string target_label(const Json &target) const;
@@ -106,6 +113,7 @@ private:
   void cancel_form(std::weak_ptr<ui::Form> form);
   void confirm(std::string title, std::string message,
                std::function<void()> accept);
+  // Run continuation only after the current module draft is resolved.
   void leave_draft(std::function<void()> continuation);
   bool writable() const;
   void load_module();

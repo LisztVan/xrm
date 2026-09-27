@@ -1,4 +1,6 @@
-// XRM: Builds executable contextual TUI Help actions.
+// XRM: Builds the executable action list shared by contextual Help and keys.
+// Add actions here with their availability reason; page renderers must not
+// maintain a second action definition or a permanent shortcut footer.
 
 #include "tui/shell/workspace.hpp"
 namespace xrm::tui {
@@ -14,6 +16,8 @@ std::vector<Action> Workspace::actions() {
   auto id = t ? t->selected_id() : "";
   auto need = id.empty() ? "Select an object" : "";
   auto need_view = view_.empty() ? "View a Profile" : "";
+  // page_ selects the domain; selected table ID is only a cursor. View, Use,
+  // Edit and Running retain their own meanings across page changes.
   if (page_ == 0) {
     add(
         "c", "Connect saved", [this] { connect(); },

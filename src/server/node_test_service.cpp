@@ -1,4 +1,6 @@
-// XRM: Runs explicit node connectivity tests without changing saved selection.
+// XRM: Runs requested node tests using bounded, separate test resources.
+// A test may prepare a temporary core/proxy, but does not mutate the active
+// runtime, saved target, or source node document.
 
 #include "server/node_test_service.hpp"
 
@@ -109,6 +111,8 @@ PreparedFiles isolated_files(const Json &outbound, std::uint16_t port) {
 } // namespace
 
 struct NodeTestService::Impl : std::enable_shared_from_this<Impl> {
+  // Each Task owns its timer, optional resolver/process/HTTP request, and
+  // completion. finish() and shutdown must drain these before releasing it.
   struct Task;
   struct Socket {
     std::shared_ptr<Task> task;

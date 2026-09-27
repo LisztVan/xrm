@@ -1,4 +1,6 @@
-// XRM: Coordinates Profile operations against saved store state.
+// XRM: Owns saved Profile metadata and native module Source files.
+// Profile metadata, module text, and module include flags have separate write
+// paths. None of them publish runtime files; Application builds those later.
 
 #include "profile/profile_service.hpp"
 
@@ -416,6 +418,8 @@ ProfileService::get_with_source(const Id &id) const {
 }
 
 Result<void> ProfileService::save(const Id &id, const ProfileEdit &edit) {
+  // Compare the caller's Source baseline before replacing profile.json.
+  // A stale editor must receive a conflict instead of overwriting disk edits.
   auto directory = profile_directory(store_, id);
   if (!directory)
     return std::unexpected(directory.error());
@@ -582,6 +586,8 @@ Result<ModuleView> ProfileService::module(const Id &id,
 }
 
 Result<void> ProfileService::save_module(const Id &id, const ModuleEdit &edit) {
+  // Save only the requested native module file. The caller supplies its
+  // expected prior text (or expected absence) for single-file conflict checks.
   const auto *descriptor = find_module(edit.key);
   if (!descriptor)
     return fail<void>(ErrorCode::not_found, "未知原生模块", edit.key);
@@ -732,6 +738,8 @@ ProfileService::rename_module_file(const Id &id, std::string_view key,
 }
 
 Result<ModuleSnapshot> ProfileService::snapshot(const Id &id) const {
+  // Runtime assembly consumes the saved documents together with Profile
+  // settings; missing/disabled documents are not synthesized here.
   auto settings = get(id);
   if (!settings)
     return std::unexpected(settings.error());

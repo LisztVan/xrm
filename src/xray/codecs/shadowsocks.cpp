@@ -1,4 +1,6 @@
-// XRM: Encodes Shadowsocks node settings as native Xray outbounds.
+// XRM: Decodes supported Shadowsocks share URIs into typed node settings.
+// URI support is deliberately narrower than native Xray JSON; outbound
+// generation for stored typed nodes is maintained in codec.cpp.
 
 #include "xray/codecs/codec.hpp"
 
@@ -313,6 +315,8 @@ Result<ParsedUri> parse_uri(std::string_view uri) {
 } // namespace
 
 Result<DecodedNode> parse_shadowsocks_uri(std::string_view uri) {
+  // Accept only URI forms whose credentials and endpoint can be mapped
+  // without guessing a different encryption or transport meaning.
   auto parsed = parse_uri(uri);
   if (!parsed)
     return std::unexpected(parsed.error());

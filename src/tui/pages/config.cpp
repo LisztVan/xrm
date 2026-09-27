@@ -1,4 +1,6 @@
-// XRM: Renders core, geodata, test, and Manager settings pages.
+// XRM: Provides core registration, geodata, tests, and XRM settings forms.
+// Appearance/editor settings belong to XRM; they must not be serialized into
+// native Xray modules. Registering a core does not make it run.
 
 #include "client/human_message.hpp"
 #include "tui/components/style.hpp"
@@ -262,6 +264,8 @@ void Workspace::bind_geodata() {
 }
 
 void Workspace::settings_form() {
+  // XRM appearance/editor preferences are saved program settings. Their
+  // update has no native module or core lifecycle side effect.
   const auto page = section();
   if (page == "Appearance") {
     const auto value = settings_.value("appearance", Json::object());

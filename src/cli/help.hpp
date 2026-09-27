@@ -1,4 +1,6 @@
-// XRM: Builds context-sensitive help from the registered CLI command tree.
+// XRM: Formats help from CLI11's registered command tree at each level.
+// Descriptions and examples may be editorial; command availability, options,
+// and required arguments must come from registration rather than a shadow list.
 
 #pragma once
 

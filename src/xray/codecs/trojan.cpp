@@ -1,4 +1,6 @@
-// XRM: Encodes Trojan node settings as native Xray outbounds.
+// XRM: Decodes supported Trojan share URIs into typed node settings.
+// URI parsing is separate from native outbound JSON import/generation; do not
+// infer support for every Xray field from this link parser.
 
 #include "xray/codecs/codec.hpp"
 

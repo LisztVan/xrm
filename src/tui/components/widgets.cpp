@@ -1,4 +1,6 @@
-// XRM: Implements shared TUI controls, forms, dialogs, help, and toasts.
+// XRM: Implements shared TUI controls, forms, tables, dialogs, and toasts.
+// Controls own focus/rendering, but edit caller-owned values; page code owns
+// business state and persistence. Keep key handling consistent across pages.
 
 #include "tui/components/widgets.hpp"
 #include "tui/components/style.hpp"
@@ -83,6 +85,8 @@ Component action_button(std::string label, std::function<void()> action,
                enabled);
 }
 class InputControl final : public ComponentBase {
+  // FTXUI Input owns character editing. This wrapper only reserves global
+  // navigation keys and adapts cursor movement/focus for forms.
 public:
   InputControl(std::string *value, bool readonly, bool secret, bool multiline,
                bool disabled)
@@ -167,6 +171,8 @@ private:
   Component input_;
 };
 class SelectControl final : public ComponentBase {
+  // selected_ and *value_ change together on arrows; Enter consumes focus
+  // without a second commit that could accidentally submit the parent form.
 public:
   SelectControl(std::string *value, std::vector<Choice> choices, bool readonly)
       : value_(value), choices_(std::move(choices)), readonly_(readonly) {
@@ -622,6 +628,8 @@ Form::Form(std::string title, std::vector<Field> fields, Submit submit,
     : title_(std::move(title)), fields_(std::move(fields)),
       submit_(std::move(submit)), cancel_(std::move(cancel)),
       readonly_(readonly) {
+  // Field values and presence are the form draft. Baselines are retained only
+  // for dirty checks and updated after a successful submit.
   save_label_ = save_label;
   errors_.resize(fields_.size());
   for (auto &field : fields_) {
@@ -897,6 +905,8 @@ Table::Table(std::vector<Column> columns,
   Add(menu_);
 }
 void Table::set_rows(std::vector<Row> rows, std::string empty) {
+  // Preserve selection by stable object ID across refresh/reordering, not by
+  // a row index that may now name another object.
   const std::string keep = selected_id();
   rows_ = std::move(rows);
   labels_.clear();
@@ -1089,6 +1099,8 @@ Element CollectionEditor::OnRender() {
        text(notice_) | style::ink(style::Role::Muted), controls_->Render()});
 }
 bool CollectionEditor::OnEvent(Event event) {
+  // Moving focus to the action buttons does not change table selection. Their
+  // callbacks use that still-visible selected ID.
   if (event == Event::Tab && table_->Focused() && controls_->ChildCount() > 0) {
     controls_->ChildAt(0)->TakeFocus();
     return true;
@@ -1430,6 +1442,8 @@ Component HelpOverlay(std::vector<HelpEntry> entries,
 
 void ToastHost::push(std::string key, std::string message, Tone tone,
                      Clock::time_point now) {
+  // Toasts are ephemeral overlays. History keeps prior notifications without
+  // forcing them into the page document flow.
   expire(now);
   if (suspended_at_)
     now = *suspended_at_;
@@ -1457,6 +1471,8 @@ void ToastHost::push(std::string key, std::string message, Tone tone,
     history_.pop_front();
 }
 void ToastHost::suspended(bool value, Clock::time_point now) {
+  // Modal dialogs pause the visible lifetime instead of expiring hidden toast
+  // messages while the user cannot see them.
   if (value && !suspended_at_)
     suspended_at_ = now;
   else if (!value && suspended_at_) {

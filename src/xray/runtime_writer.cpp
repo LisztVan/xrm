@@ -1,4 +1,6 @@
-// XRM: Publishes a complete native Xray confdir from a FileSet.
+// XRM: Materializes a complete native Xray confdir from a FileSet.
+// The writer owns paths/permissions/copying; it never parses native semantics
+// or writes generated runtime content back into a Profile's Source files.
 
 #include "xray/runtime_writer.hpp"
 
@@ -112,6 +114,8 @@ Result<PreparedDirectory>
 RuntimeWriter::materialize(const PreparedFiles &files, DirectoryPurpose purpose,
                            const Id &id,
                            std::span<const AssetSnapshot> assets) {
+  // Validate the entire name set before creating output so modules and copied
+  // assets cannot collide inside a candidate/preview directory.
   const auto purpose_text = purpose_name(purpose);
   if (!purpose_text) {
     return std::unexpected(AppError{ErrorCode::invalid_argument,
@@ -413,6 +417,8 @@ RuntimeWriter::export_files(const std::filesystem::path &confdir,
 
 Result<void> RuntimeWriter::discard(const PreparedDirectory &prepared,
                                     std::span<const Id> protected_run_ids) {
+  // Only remove a directory whose identity maps back under this writer's
+  // runtime root, and never one still referenced by a live/previous run.
   const auto purpose_text = purpose_name(prepared.purpose);
   if (!purpose_text || !valid_component(prepared.id)) {
     return std::unexpected(invalid_path(

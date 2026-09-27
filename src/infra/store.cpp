@@ -1,4 +1,6 @@
-// XRM: Persists Profiles, modules, nodes, sources, and Manager settings.
+// XRM: Persists inventory, source state, Profile indexes, and Manager settings.
+// Native module Source lives in Profile files, not in a writable SQLite copy.
+// Multi-row source refreshes are committed transactionally in commit_source().
 
 #include "infra/store.hpp"
 
@@ -452,6 +454,8 @@ Result<std::unique_ptr<Store>> Store::open(std::filesystem::path database) {
   return std::unique_ptr<Store>(new Store(std::move(impl)));
 }
 
+// Nodes are an independent inventory. Subscription refresh updates these rows
+// through commit_source(), not through runtime assembly.
 Result<Page<Node>> Store::list_nodes(const NodeQuery &query,
                                      PageRequest request) const {
   if (request.limit == 0 || request.limit > 1000) {
@@ -647,6 +651,8 @@ Result<void> Store::prune_history(const Id &source_id,
   return {};
 }
 
+// Source settings and last refresh state share a row; their revisions protect
+// against a delayed HTTP result overwriting newer user settings.
 Result<std::vector<Subscription>> Store::list_sources() const {
   Statement statement(impl_->db,
                       "SELECT id,settings_json FROM subscriptions ORDER BY id");
@@ -857,6 +863,8 @@ Result<void> Store::remove_source(const Id &id, bool keep_as_manual) {
 }
 
 Result<void> Store::commit_source(const Id &id, const SourceCommit &commit) {
+  // A successful refresh changes this source's inventory and status together.
+  // The settings revision rejects stale network results before any node write.
   if (auto started = exec(impl_->db, "BEGIN IMMEDIATE",
                           [] { return "开始订阅库存事务失败"; });
       !started)
@@ -967,6 +975,8 @@ Result<void> Store::commit_source(const Id &id, const SourceCommit &commit) {
   return {};
 }
 
+// The table only indexes Profile directories. profile.json and native module
+// files remain the saved Source owned by ProfileService.
 Result<void> Store::register_profile(const Id &id,
                                      const std::filesystem::path &path) {
   if (id.empty() || path.empty())
@@ -1248,6 +1258,7 @@ Result<void> Store::remove_geodata_resource(const Id &id) {
 }
 
 Result<RuntimePersistent> Store::load_runtime() const {
+  // This is daemon recovery intent/record state, not a TUI View or Use choice.
   Statement statement(impl_->db,
                       "SELECT document_json FROM runtime_state WHERE id=1");
   if (!statement.ready())
@@ -1301,6 +1312,7 @@ Result<void> Store::remove_core(const Id &id) {
   return {};
 }
 
+// Appearance/editor settings are Manager preferences, never Xray modules.
 Result<Json> Store::load_program_settings() const {
   Statement statement(impl_->db,
                       "SELECT document_json FROM program_settings WHERE id=1");

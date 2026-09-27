@@ -1,9 +1,13 @@
-// XRM: Renders Profile view, Use, Edit, and metadata operations.
+// XRM: Provides Profile view, session Edit, and saved metadata forms.
+// A table cursor, viewed Profile, Use target, Edit permission, and actual run
+// are distinct. Profile CRUD does not require module Edit.
 
 #include "tui/components/style.hpp"
 #include "tui/shell/workspace.hpp"
 namespace xrm::tui {
 void Workspace::toggle_edit() {
+  // Changing module Edit resolves any draft first, then changes only this
+  // session's write permission and View; it never changes Use or Running.
   auto id = profiles_table_->selected_id();
   if (id.empty())
     return;
@@ -21,6 +25,8 @@ void Workspace::toggle_edit() {
   });
 }
 void Workspace::profile_form(std::string mode) {
+  // Metadata forms use the saved profile Source as a conflict baseline.
+  // New/copy/rename remain available even when module Edit is off.
   auto id = profiles_table_->selected_id();
   Json source = Json::object();
   if (mode != "new") {

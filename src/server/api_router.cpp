@@ -1,4 +1,6 @@
-// XRM: Routes RPC methods to daemon application operations.
+// XRM: Validates wire parameters and dispatches RPC methods to daemon APIs.
+// Keep business decisions in Application/ProfileService; this file converts
+// method-specific request and response shapes without a second state model.
 
 #include "server/api_router.hpp"
 
@@ -334,6 +336,8 @@ void ApiRouter::dispatch(const Id &connection_id, RpcRequest request,
       succeed(std::move(*settings));
     return;
   }
+  // Inventory and explicit node-test methods. Subscription-owned node
+  // connection fields remain read-only through the ordinary node edit path.
   if (method == methods::node_add) {
     std::string name;
     const bool has_uri = params.contains("uri");
@@ -634,6 +638,7 @@ void ApiRouter::dispatch(const Id &connection_id, RpcRequest request,
     succeed(application_->node_test_results());
     return;
   }
+  // Source methods expose refresh results but do not trigger runtime apply.
   if (method == methods::subscription_list) {
     auto sources = application_->store().list_sources();
     if (!sources) {
@@ -1096,6 +1101,8 @@ void ApiRouter::dispatch(const Id &connection_id, RpcRequest request,
         });
     return;
   }
+  // Profile/Source methods. The caller's expected text is the conflict
+  // boundary for edits to individual native files.
   if (method == methods::profile_create) {
     std::string name, core_id;
     if (!read_string(params, "name", name) ||
@@ -1621,6 +1628,7 @@ void ApiRouter::dispatch(const Id &connection_id, RpcRequest request,
       fail(accepted.error());
     return;
   }
+  // Explicit runtime commands are below. Saved edits above are not a run.
   if (method == methods::connection_connect) {
     std::string id;
     if (!read_string(params, "profile_id", id)) {
