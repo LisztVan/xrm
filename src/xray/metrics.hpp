@@ -1,3 +1,5 @@
+// XRM: Declares Xray metrics collection.
+
 #pragma once
 
 #include "infra/http.hpp"
@@ -32,25 +34,27 @@ struct MetricsView {
   std::optional<MetricsSample> sample;
   std::vector<TrafficRate> rates;
 };
-Result<MetricsSample> parse_metrics(const Json&, const Id& run_id, UnixMillis);
-std::vector<TrafficRate> compute_rates(const MetricsSample&, const MetricsSample&,
-                                      std::chrono::duration<double> elapsed);
+Result<MetricsSample> parse_metrics(const Json &, const Id &run_id, UnixMillis);
+std::vector<TrafficRate> compute_rates(const MetricsSample &,
+                                       const MetricsSample &,
+                                       std::chrono::duration<double> elapsed);
 class MetricsClient {
- public:
-  MetricsClient(uv_loop_t&, HttpClient&);
+public:
+  MetricsClient(uv_loop_t &, HttpClient &);
   ~MetricsClient();
-  MetricsClient(const MetricsClient&) = delete;
-  MetricsClient& operator=(const MetricsClient&) = delete;
-  void attach(const RunRecord&, std::optional<std::string> endpoint);
+  MetricsClient(const MetricsClient &) = delete;
+  MetricsClient &operator=(const MetricsClient &) = delete;
+  void attach(const RunRecord &, std::optional<std::string> endpoint);
   void set_viewer_count(std::size_t);
   std::optional<MetricsSample> latest() const;
   MetricsView view() const;
-  void on_sample(std::function<void(const MetricsSample&)>);
+  void on_sample(std::function<void(const MetricsSample &)>);
   void stop();
   void shutdown();
- private:
+
+private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 
-}  // namespace xrm
+} // namespace xrm

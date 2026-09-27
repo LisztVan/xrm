@@ -1,3 +1,5 @@
+// XRM: Defines Profiles, module sources, and saved selection state.
+
 #pragma once
 
 #include "model/node.hpp"
@@ -22,23 +24,28 @@ struct ModuleDescriptor {
 struct ModuleDocument {
   std::string key;
   std::filesystem::path filename;
+  // The user's Source representation; Runtime assembly must not write back.
   std::string source_text;
 };
 
 struct ModuleSetting {
   std::string key;
   std::filesystem::path filename;
+  // Controls runtime inclusion without deleting or rewriting Source.
   bool included = false;
 };
 
-struct ExplicitMembers { std::vector<Id> node_ids; };
+struct ExplicitMembers {
+  std::vector<Id> node_ids;
+};
 struct NodeFilter {
   std::vector<Id> sources;
   std::vector<std::string> protocols;
   std::vector<std::string> name_contains;
   std::vector<std::string> labels;
-  std::vector<Id> explicit_node_ids;  // Union with dynamically matched sources.
-  bool include_local = false;         // Also include manual inventory when sources are specified.
+  std::vector<Id> explicit_node_ids; // Union with dynamically matched sources.
+  bool include_local =
+      false; // Also include manual inventory when sources are specified.
 };
 using NodeSelector = std::variant<ExplicitMembers, NodeFilter>;
 enum class SelectionMode { automatic, manual };
@@ -75,6 +82,7 @@ struct ProfileSettings {
   Id id;
   std::string name;
   Id core_id;
+  // Persisted target for a future connection, independent of TUI Use/Edit.
   std::optional<Target> selected;
   bool append_selected_default = false;
   RunEnvironment environment;
@@ -95,7 +103,10 @@ struct ProfileSnapshot {
 };
 using ModuleSnapshot = ProfileSnapshot;
 
-struct EditBase { std::optional<std::string> expected_text; };
+struct EditBase {
+  // Compare against the current source before a write; null means no source.
+  std::optional<std::string> expected_text;
+};
 struct ModuleEdit {
   std::string key;
   EditBase base;
@@ -109,22 +120,22 @@ struct ModuleView {
 };
 
 std::span<const ModuleDescriptor> module_catalog();
-const ModuleDescriptor* find_module(std::string_view key);
+const ModuleDescriptor *find_module(std::string_view key);
 std::string node_tag(std::string_view node_id);
 
-void to_json(Json& json, const ProfileSettings& value);
-void from_json(const Json& json, ProfileSettings& value);
-void to_json(Json& json, const ExplicitMembers& value);
-void from_json(const Json& json, ExplicitMembers& value);
-void to_json(Json& json, const NodeFilter& value);
-void from_json(const Json& json, NodeFilter& value);
-void to_json(Json& json, const NodeSelector& value);
-void from_json(const Json& json, NodeSelector& value);
-void to_json(Json& json, const GroupBinding& value);
-void from_json(const Json& json, GroupBinding& value);
-void to_json(Json& json, const ObservationBinding& value);
-void from_json(const Json& json, ObservationBinding& value);
-void to_json(Json& json, const ManagerBindings& value);
-void from_json(const Json& json, ManagerBindings& value);
+void to_json(Json &json, const ProfileSettings &value);
+void from_json(const Json &json, ProfileSettings &value);
+void to_json(Json &json, const ExplicitMembers &value);
+void from_json(const Json &json, ExplicitMembers &value);
+void to_json(Json &json, const NodeFilter &value);
+void from_json(const Json &json, NodeFilter &value);
+void to_json(Json &json, const NodeSelector &value);
+void from_json(const Json &json, NodeSelector &value);
+void to_json(Json &json, const GroupBinding &value);
+void from_json(const Json &json, GroupBinding &value);
+void to_json(Json &json, const ObservationBinding &value);
+void from_json(const Json &json, ObservationBinding &value);
+void to_json(Json &json, const ManagerBindings &value);
+void from_json(const Json &json, ManagerBindings &value);
 
-}  // namespace xrm
+} // namespace xrm

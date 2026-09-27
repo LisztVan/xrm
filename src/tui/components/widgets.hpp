@@ -1,3 +1,5 @@
+// XRM: Declares shared TUI controls and their focus and value states.
+
 #pragma once
 
 #include <chrono>
@@ -64,16 +66,21 @@ Component Select(std::string *value, std::vector<Choice> choices,
 Component MultiSelect(std::string *value, std::vector<Choice> choices,
                       bool readonly = false);
 Component Toggle(std::string *value, bool readonly = false);
-Component StringList(std::string *value, bool readonly = false, std::string label = "Entries");
+Component StringList(std::string *value, bool readonly = false,
+                     std::string label = "Entries");
 std::string Clip(const std::string &value, int width);
-std::string Count(std::size_t count, const std::string &singular, const std::string &plural = "");
-Element Navigation(const std::vector<std::string> &labels, int selected, int width, bool focused);
+std::string Count(std::size_t count, const std::string &singular,
+                  const std::string &plural = "");
+Element Navigation(const std::vector<std::string> &labels, int selected,
+                   int width, bool focused);
 Validator Integer(std::optional<long long> min = {},
                   std::optional<long long> max = {}, bool optional = true);
 
 class Form final : public ftxui::ComponentBase,
                    public std::enable_shared_from_this<Form> {
 public:
+  // Controls edit local values. Submit is the only path that asks the caller
+  // to persist them; field validation leaves the draft and focus intact.
   using Submit = std::function<std::optional<std::string>(Form &)>;
   Form(std::string title, std::vector<Field> fields, Submit submit,
        std::function<void()> cancel, bool readonly = false,
@@ -84,12 +91,18 @@ public:
   void set_value(std::size_t index, std::string value);
   const std::vector<Field> &fields() const { return fields_; }
   bool present(std::size_t index) const { return fields_.at(index).present; }
-  void set_present(std::size_t index, bool present) { fields_.at(index).present = present; }
+  void set_present(std::size_t index, bool present) {
+    fields_.at(index).present = present;
+  }
   const std::string &title() const { return title_; }
   const std::string &save_label() const { return save_label_; }
   const std::string &context() const { return context_; }
   void set_context(std::string context) { context_ = std::move(context); }
-  void cancel() { auto keep = weak_from_this().lock(); if (cancel_) cancel_(); }
+  void cancel() {
+    auto keep = weak_from_this().lock();
+    if (cancel_)
+      cancel_();
+  }
   void set_error(std::string error);
   void set_field_error(std::size_t index, std::string error,
                        std::vector<std::size_t> related = {});
@@ -124,6 +137,7 @@ class Table final : public ftxui::ComponentBase {
 public:
   explicit Table(std::vector<Column> columns = {},
                  std::function<void(const std::string &)> activate = {});
+  // Rows may refresh while focus stays here; selection follows a stable ID.
   void set_rows(std::vector<Row> rows, std::string empty = "No entries");
   const std::string &selected_id() const;
   std::string selected_summary() const;
@@ -196,12 +210,14 @@ private:
 };
 
 Component Dialog(std::string title, Component content,
-                 std::function<void()> close, std::vector<HelpEntry> actions = {});
+                 std::function<void()> close,
+                 std::vector<HelpEntry> actions = {});
 Component Confirm(std::string title, std::string message,
                   std::function<void()> accept, std::function<void()> cancel);
 std::vector<HelpEntry> ContextHelp(const Component &component);
 Component HelpOverlay(std::vector<HelpEntry> entries,
-                      std::function<void()> close, std::string context = "", std::string prerequisites = "");
+                      std::function<void()> close, std::string context = "",
+                      std::string prerequisites = "");
 
 enum class Tone { Info, Success, Warning, Error };
 struct Toast {

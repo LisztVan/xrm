@@ -1,3 +1,6 @@
+// XRM: Tests rpc transport in the client, daemon, persistence, and Xray
+// integration suite.
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "client/rpc_client.hpp"
@@ -26,26 +29,36 @@ struct Loop {
   uv_loop_t value{};
   bool closed = false;
   Loop() { REQUIRE(uv_loop_init(&value) == 0); }
-  ~Loop() { if (!closed) uv_loop_close(&value); }
-  int close() { closed = true; return uv_loop_close(&value); }
+  ~Loop() {
+    if (!closed)
+      uv_loop_close(&value);
+  }
+  int close() {
+    closed = true;
+    return uv_loop_close(&value);
+  }
 };
 
 std::filesystem::path socket_path() {
   return std::filesystem::temp_directory_path() /
-         ("xrm-rpc-" + std::to_string(
-             std::chrono::steady_clock::now().time_since_epoch().count()) + ".sock");
+         ("xrm-rpc-" +
+          std::to_string(
+              std::chrono::steady_clock::now().time_since_epoch().count()) +
+          ".sock");
 }
 
 #ifndef _WIN32
-int connect_socket(const std::filesystem::path& path) {
+int connect_socket(const std::filesystem::path &path) {
   const int fd = ::socket(AF_UNIX, SOCK_STREAM, 0);
-  if (fd < 0) return -1;
+  if (fd < 0)
+    return -1;
   sockaddr_un address{};
   address.sun_family = AF_UNIX;
   const auto value = path.string();
   std::copy(value.begin(), value.end(), address.sun_path);
   address.sun_path[value.size()] = '\0';
-  if (::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
+  if (::connect(fd, reinterpret_cast<sockaddr *>(&address), sizeof(address)) !=
+      0) {
     ::close(fd);
     return -1;
   }
@@ -55,13 +68,14 @@ int connect_socket(const std::filesystem::path& path) {
 bool send_all(int fd, std::string_view bytes) {
   while (!bytes.empty()) {
     const auto written = ::send(fd, bytes.data(), bytes.size(), MSG_NOSIGNAL);
-    if (written <= 0) return false;
+    if (written <= 0)
+      return false;
     bytes.remove_prefix(static_cast<std::size_t>(written));
   }
   return true;
 }
 
-bool receive_line(int fd, std::string& pending, std::string& line) {
+bool receive_line(int fd, std::string &pending, std::string &line) {
   while (true) {
     const auto newline = pending.find('\n');
     if (newline != std::string::npos) {
@@ -70,26 +84,30 @@ bool receive_line(int fd, std::string& pending, std::string& line) {
       return true;
     }
     pollfd descriptor{fd, POLLIN, 0};
-    if (::poll(&descriptor, 1, 3000) <= 0) return false;
+    if (::poll(&descriptor, 1, 3000) <= 0)
+      return false;
     char buffer[4096];
     const auto count = ::recv(fd, buffer, sizeof(buffer), 0);
-    if (count <= 0) return false;
+    if (count <= 0)
+      return false;
     pending.append(buffer, static_cast<std::size_t>(count));
   }
 }
 
 struct LoopStopper {
   uv_async_t signal{};
-  xrm::RpcServer* server = nullptr;
+  xrm::RpcServer *server = nullptr;
   bool drained = false;
   bool sent = false;
   std::thread loop_thread;
-  static void request_stop(uv_async_t* handle) {
-    auto* self = static_cast<LoopStopper*>(handle->data);
+  static void request_stop(uv_async_t *handle) {
+    auto *self = static_cast<LoopStopper *>(handle->data);
     self->server->close([self] { self->drained = true; });
-    uv_close(reinterpret_cast<uv_handle_t*>(handle), nullptr);
+    uv_close(reinterpret_cast<uv_handle_t *>(handle), nullptr);
   }
-  void start(uv_loop_t& loop) { loop_thread = std::thread([&loop] { uv_run(&loop, UV_RUN_DEFAULT); }); }
+  void start(uv_loop_t &loop) {
+    loop_thread = std::thread([&loop] { uv_run(&loop, UV_RUN_DEFAULT); });
+  }
   void stop() {
     if (loop_thread.joinable()) {
       if (!sent) {
@@ -103,15 +121,17 @@ struct LoopStopper {
 };
 #endif
 
-}  // namespace
+} // namespace
 
-TEST_CASE("RPC-01 client and server exchange independent correlated replies", "[RPC-01]") {
+TEST_CASE("RPC-01 client and server exchange independent correlated replies",
+          "[RPC-01]") {
   Loop loop;
-  xrm::RpcServer server(loop.value, [](const xrm::Id&, xrm::RpcRequest request,
+  xrm::RpcServer server(loop.value, [](const xrm::Id &, xrm::RpcRequest request,
                                        xrm::RpcReply reply) {
-    reply(xrm::RpcResponse{1, request.id, true,
-                           xrm::Json{{"method", request.method}, {"params", request.params}},
-                           std::nullopt});
+    reply(xrm::RpcResponse{
+        1, request.id, true,
+        xrm::Json{{"method", request.method}, {"params", request.params}},
+        std::nullopt});
   });
   const auto socket = socket_path();
   REQUIRE(server.listen(socket));
@@ -125,25 +145,27 @@ TEST_CASE("RPC-01 client and server exchange independent correlated replies", "[
   REQUIRE(client.open(socket, [&](auto opened) {
     open_done = true;
     open_succeeded = static_cast<bool>(opened);
-    if (!opened) return;
-    auto first = client.call("echo", {{"text", "line one\nline two"}},
-                             [&](auto result) {
-                               if (!result) request_failed = true;
-                               replies.push_back(std::move(result));
-                               if (replies.size() == 2) {
-                                 client.close();
-                                 server.close([&] { drained = true; });
-                               }
-                             });
-    auto second = client.call("node.list", {{"limit", 5}},
-                              [&](auto result) {
-                                if (!result) request_failed = true;
-                                replies.push_back(std::move(result));
-                                if (replies.size() == 2) {
-                                  client.close();
-                                  server.close([&] { drained = true; });
-                                }
-                              });
+    if (!opened)
+      return;
+    auto first =
+        client.call("echo", {{"text", "line one\nline two"}}, [&](auto result) {
+          if (!result)
+            request_failed = true;
+          replies.push_back(std::move(result));
+          if (replies.size() == 2) {
+            client.close();
+            server.close([&] { drained = true; });
+          }
+        });
+    auto second = client.call("node.list", {{"limit", 5}}, [&](auto result) {
+      if (!result)
+        request_failed = true;
+      replies.push_back(std::move(result));
+      if (replies.size() == 2) {
+        client.close();
+        server.close([&] { drained = true; });
+      }
+    });
     request_failed = !first || !second;
   }));
   uv_run(&loop.value, UV_RUN_DEFAULT);
@@ -158,24 +180,28 @@ TEST_CASE("RPC-01 client and server exchange independent correlated replies", "[
   REQUIRE(drained);
 }
 
-TEST_CASE("RPC-02 unsupported wire versions have structured errors", "[RPC-02]") {
+TEST_CASE("RPC-02 unsupported wire versions have structured errors",
+          "[RPC-02]") {
   const auto invalid = xrm::decode_request(
       R"({"v":9,"id":42,"method":"node.list","params":{}})");
   REQUIRE_FALSE(invalid);
   REQUIRE(invalid.error().code == xrm::ErrorCode::unsupported);
 }
 
-TEST_CASE("RPC-02 unavailable UDS is reported through the open callback", "[RPC-02]") {
+TEST_CASE("RPC-02 unavailable UDS is reported through the open callback",
+          "[RPC-02]") {
   Loop loop;
   xrm::RpcClient client(loop.value);
   bool completed = false;
   bool callback_ok = false;
-  xrm::AppError error{xrm::ErrorCode::io_error, "unset", std::nullopt, std::nullopt};
+  xrm::AppError error{xrm::ErrorCode::io_error, "unset", std::nullopt,
+                      std::nullopt};
   const auto socket = socket_path();
   REQUIRE(client.open(socket, [&](auto result) {
     completed = true;
     callback_ok = static_cast<bool>(result);
-    if (!result) error = result.error();
+    if (!result)
+      error = result.error();
   }));
   uv_run(&loop.value, UV_RUN_DEFAULT);
   REQUIRE(completed);
@@ -184,27 +210,35 @@ TEST_CASE("RPC-02 unavailable UDS is reported through the open callback", "[RPC-
 }
 
 #ifndef _WIN32
-TEST_CASE("RPC-01 stream framing accepts fragments and combined frames and bounds size", "[RPC-01]") {
+TEST_CASE("RPC-01 stream framing accepts fragments and combined frames and "
+          "bounds size",
+          "[RPC-01]") {
   Loop loop;
-  xrm::RpcServer server(loop.value, [](const xrm::Id&, xrm::RpcRequest request,
+  xrm::RpcServer server(loop.value, [](const xrm::Id &, xrm::RpcRequest request,
                                        xrm::RpcReply reply) {
-    reply(xrm::RpcResponse{1, request.id, true,
-                           xrm::Json{{"method", request.method}, {"params", request.params}},
-                           std::nullopt});
+    reply(xrm::RpcResponse{
+        1, request.id, true,
+        xrm::Json{{"method", request.method}, {"params", request.params}},
+        std::nullopt});
   });
   const auto socket = socket_path();
   REQUIRE(server.listen(socket));
   LoopStopper stopper;
   stopper.server = &server;
-  REQUIRE(uv_async_init(&loop.value, &stopper.signal, LoopStopper::request_stop) == 0);
+  REQUIRE(uv_async_init(&loop.value, &stopper.signal,
+                        LoopStopper::request_stop) == 0);
   stopper.signal.data = &stopper;
   stopper.start(loop.value);
 
   std::string receive_buffer;
   const int fd = connect_socket(socket);
   REQUIRE(fd >= 0);
-  const std::string first = R"({"v":1,"id":1,"method":"echo","params":{"text":"split"}})" "\n";
-  const std::string second = R"({"v":1,"id":2,"method":"echo","params":{"n":2}})" "\n";
+  const std::string first =
+      R"({"v":1,"id":1,"method":"echo","params":{"text":"split"}})"
+      "\n";
+  const std::string second =
+      R"({"v":1,"id":2,"method":"echo","params":{"n":2}})"
+      "\n";
   REQUIRE(send_all(fd, std::string_view(first).substr(0, 9)));
   REQUIRE(send_all(fd, first.substr(9) + second));
   std::string line;
@@ -221,7 +255,8 @@ TEST_CASE("RPC-01 stream framing accepts fragments and combined frames and bound
   const int unsupported_fd = connect_socket(socket);
   REQUIRE(unsupported_fd >= 0);
   REQUIRE(send_all(unsupported_fd,
-                   R"({"v":9,"id":42,"method":"node.list","params":{}})" "\n"));
+                   R"({"v":9,"id":42,"method":"node.list","params":{}})"
+                   "\n"));
   REQUIRE(receive_line(unsupported_fd, receive_buffer, line));
   const auto unsupported = xrm::Json::parse(line);
   REQUIRE(unsupported.at("id") == 42);
@@ -251,30 +286,38 @@ TEST_CASE("RPC-01 stream framing accepts fragments and combined frames and bound
   REQUIRE(loop.close() == 0);
 }
 
-TEST_CASE("LOG-02 slow UDS client is bounded without delaying other RPC clients", "[LOG-02][RPC-02]") {
+TEST_CASE(
+    "LOG-02 slow UDS client is bounded without delaying other RPC clients",
+    "[LOG-02][RPC-02]") {
   Loop loop;
-  xrm::RpcServer server(loop.value, [](const xrm::Id&, xrm::RpcRequest request,
+  xrm::RpcServer server(loop.value, [](const xrm::Id &, xrm::RpcRequest request,
                                        xrm::RpcReply reply) {
     if (request.method == "logs.read") {
-      reply(xrm::RpcResponse{1, request.id, true,
-                             xrm::Json{{"entries", xrm::Json::array({
-                                 xrm::Json{{"text", std::string(256 * 1024, 'L')}}})},
-                                       {"truncated", true}}, std::nullopt});
+      reply(xrm::RpcResponse{
+          1, request.id, true,
+          xrm::Json{{"entries", xrm::Json::array({xrm::Json{
+                                    {"text", std::string(256 * 1024, 'L')}}})},
+                    {"truncated", true}},
+          std::nullopt});
     } else if (request.method == "status") {
-      reply(xrm::RpcResponse{1, request.id, true, xrm::Json{{"running", true}}, std::nullopt});
+      reply(xrm::RpcResponse{1, request.id, true, xrm::Json{{"running", true}},
+                             std::nullopt});
     } else if (request.method == "stop") {
-      reply(xrm::RpcResponse{1, request.id, true, xrm::Json{{"stopped", true}}, std::nullopt});
+      reply(xrm::RpcResponse{1, request.id, true, xrm::Json{{"stopped", true}},
+                             std::nullopt});
     } else {
-      reply(xrm::RpcResponse{1, request.id, false, std::nullopt,
-                             xrm::AppError{xrm::ErrorCode::unsupported, "unknown", std::nullopt,
-                                           std::nullopt}});
+      reply(
+          xrm::RpcResponse{1, request.id, false, std::nullopt,
+                           xrm::AppError{xrm::ErrorCode::unsupported, "unknown",
+                                         std::nullopt, std::nullopt}});
     }
   });
   const auto socket = socket_path();
   REQUIRE(server.listen(socket));
   LoopStopper stopper;
   stopper.server = &server;
-  REQUIRE(uv_async_init(&loop.value, &stopper.signal, LoopStopper::request_stop) == 0);
+  REQUIRE(uv_async_init(&loop.value, &stopper.signal,
+                        LoopStopper::request_stop) == 0);
   stopper.signal.data = &stopper;
   stopper.start(loop.value);
 
@@ -284,8 +327,9 @@ TEST_CASE("LOG-02 slow UDS client is bounded without delaying other RPC clients"
   REQUIRE(::setsockopt(slow_fd, SOL_SOCKET, SO_RCVBUF, &receive_buffer_size,
                        sizeof(receive_buffer_size)) == 0);
   std::string slow_pending;
-  REQUIRE(send_all(slow_fd,
-                   R"({"v":1,"id":0,"method":"logs.read","params":{"cursor":0}})" "\n"));
+  REQUIRE(send_all(
+      slow_fd, R"({"v":1,"id":0,"method":"logs.read","params":{"cursor":0}})"
+               "\n"));
   std::string first_log_line;
   REQUIRE(receive_line(slow_fd, slow_pending, first_log_line));
   const auto first_log_page = xrm::Json::parse(first_log_line);
@@ -295,7 +339,8 @@ TEST_CASE("LOG-02 slow UDS client is bounded without delaying other RPC clients"
   constexpr int kRequests = 64;
   for (int i = 1; i <= kRequests; ++i) {
     flood += R"({"v":1,"id":)" + std::to_string(i) +
-             R"(,"method":"logs.read","params":{"cursor":0}})" "\n";
+             R"(,"method":"logs.read","params":{"cursor":0}})"
+             "\n";
   }
   REQUIRE(send_all(slow_fd, flood));
 
@@ -304,14 +349,16 @@ TEST_CASE("LOG-02 slow UDS client is bounded without delaying other RPC clients"
   std::string pending;
   std::string line;
   REQUIRE(send_all(responsive_fd,
-                   R"({"v":1,"id":9001,"method":"status","params":{}})" "\n"));
+                   R"({"v":1,"id":9001,"method":"status","params":{}})"
+                   "\n"));
   REQUIRE(receive_line(responsive_fd, pending, line));
   const auto status = xrm::Json::parse(line);
   REQUIRE(status.at("id") == 9001);
   REQUIRE(status.at("result").at("running") == true);
 
   REQUIRE(send_all(responsive_fd,
-                   R"({"v":1,"id":9002,"method":"stop","params":{}})" "\n"));
+                   R"({"v":1,"id":9002,"method":"stop","params":{}})"
+                   "\n"));
   REQUIRE(receive_line(responsive_fd, pending, line));
   const auto stopped = xrm::Json::parse(line);
   REQUIRE(stopped.at("id") == 9002);
@@ -319,14 +366,21 @@ TEST_CASE("LOG-02 slow UDS client is bounded without delaying other RPC clients"
 
   char probe[16384];
   bool disconnected = false;
-  const auto disconnect_deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
-  while (!disconnected && std::chrono::steady_clock::now() < disconnect_deadline) {
+  const auto disconnect_deadline =
+      std::chrono::steady_clock::now() + std::chrono::seconds(5);
+  while (!disconnected &&
+         std::chrono::steady_clock::now() < disconnect_deadline) {
     pollfd slow_descriptor{slow_fd, POLLIN | POLLHUP | POLLERR, 0};
-    if (::poll(&slow_descriptor, 1, 100) <= 0) continue;
+    if (::poll(&slow_descriptor, 1, 100) <= 0)
+      continue;
     for (;;) {
       const auto received = ::recv(slow_fd, probe, sizeof(probe), MSG_DONTWAIT);
-      if (received == 0) { disconnected = true; break; }
-      if (received < 0) break;
+      if (received == 0) {
+        disconnected = true;
+        break;
+      }
+      if (received < 0)
+        break;
     }
   }
   REQUIRE(disconnected);

@@ -1,3 +1,5 @@
+// XRM: Declares the daemon RPC client interface.
+
 #pragma once
 
 #include "contract/wire.hpp"
@@ -11,20 +13,20 @@
 namespace xrm {
 
 class RpcClient {
- public:
-  explicit RpcClient(uv_loop_t& loop);
+public:
+  explicit RpcClient(uv_loop_t &loop);
   ~RpcClient();
-  RpcClient(const RpcClient&) = delete;
-  RpcClient& operator=(const RpcClient&) = delete;
+  RpcClient(const RpcClient &) = delete;
+  RpcClient &operator=(const RpcClient &) = delete;
 
   Result<Id> open(std::filesystem::path socket, Completion<void> completion);
   Result<std::uint64_t> call(std::string method, Json params,
                              Completion<Json> completion);
   void close();
 
- private:
+private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 
-}  // namespace xrm
+} // namespace xrm

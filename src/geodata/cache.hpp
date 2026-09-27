@@ -1,3 +1,5 @@
+// XRM: Declares geodata cache operations.
+
 #pragma once
 
 #include "geodata/resource_record.hpp"
@@ -32,21 +34,22 @@ struct GeodataAcquireRequest {
 // a successful version reference in its existing Store; this class never
 // changes Profile/modules or an active RunSpec.
 class GeodataCache {
- public:
-  GeodataCache(HttpClient&, ProcessService&, uv_loop_s&, std::filesystem::path cache_root);
+public:
+  GeodataCache(HttpClient &, ProcessService &, uv_loop_s &,
+               std::filesystem::path cache_root);
   ~GeodataCache();
-  GeodataCache(const GeodataCache&) = delete;
-  GeodataCache& operator=(const GeodataCache&) = delete;
+  GeodataCache(const GeodataCache &) = delete;
+  GeodataCache &operator=(const GeodataCache &) = delete;
 
   Result<Id> acquire(GeodataAcquireRequest, Completion<GeodataAssetVersion>);
-  Result<void> cancel(const Id& operation_id);
+  Result<void> cancel(const Id &operation_id);
   // Call and drain on the Server loop before destroying HttpClient or
   // ProcessService; outstanding network/check callbacks retain their jobs.
   void shutdown(std::function<void()> drained);
 
- private:
+private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 
-}  // namespace xrm
+} // namespace xrm

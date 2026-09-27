@@ -1,11 +1,35 @@
+# Build trees and generated CMake files
 /build/
 /build-*/
 /out/
+/cmake-build-*/
+/CMakeCache.txt
+/CMakeFiles/
+/CMakeUserPresets.json
+/CTestTestfile.cmake
+/Testing/
+/cmake_install.cmake
+/install_manifest.txt
+/build.ninja
+/.ninja_deps
+/.ninja_log
+/compile_commands.json
+
+# Local dependencies and agent tooling
 /.deps/
 /.codex/
 /.agents/bin/
 /.agents/skills/tui-design/
-/cmake-build-*/
-compile_commands.json
+
+# Test, interpreter, and editor byproducts
+/.idea/
 __pycache__/
 *.pyc
+*.profraw
+*.profdata
+*.gcda
+*.gcno
+*.swp
+*.swo
+*~
+.DS_Store

@@ -1,5 +1,7 @@
-#include "tui/components/style.hpp"
+// XRM: Renders native module Source and Runtime views and editors.
+
 #include "model/module_catalog.hpp"
+#include "tui/components/style.hpp"
 #include "tui/forms/native_form.hpp"
 #include "tui/shell/workspace.hpp"
 #include <fstream>
@@ -172,7 +174,8 @@ void Workspace::switch_module_view() {
     auto j = Json::parse(draft_.text, nullptr, false, true);
     if (j.is_discarded()) {
       try {
-        [[maybe_unused]] const auto validated = Json::parse(draft_.text, nullptr, true, true);
+        [[maybe_unused]] const auto validated =
+            Json::parse(draft_.text, nullptr, true, true);
       } catch (const Json::parse_error &e) {
         draft_.error = json_error(e);
       }
@@ -293,27 +296,28 @@ void Workspace::routing_preset() {
           screen_.Post([this, plan, preset] {
             auto text = std::make_shared<std::string>(plan.dump(2));
             auto view = ui::ReadOnlyText(text.get());
-            auto b = ui::style::button("Save routing source", [this, plan, preset] {
-              if (!writable()) {
-                notify("Edit is off", ui::Tone::Warning);
-                return;
-              }
-              auto r = call("routing.preset.save",
-                            {{"profile_id", draft_.profile},
-                             {"preset", preset},
-                             {"expected_text",
-                              plan.value("expected_text",
-                                         draft_.expected.value_or(""))}});
-              if (!r) {
-                notify(last_error_, ui::Tone::Error);
-                return;
-              }
-              pop();
-              draft_ = {};
-              load_module();
-              notify("Routing preset saved; runtime unchanged",
-                     ui::Tone::Success);
-            });
+            auto b =
+                ui::style::button("Save routing source", [this, plan, preset] {
+                  if (!writable()) {
+                    notify("Edit is off", ui::Tone::Warning);
+                    return;
+                  }
+                  auto r = call("routing.preset.save",
+                                {{"profile_id", draft_.profile},
+                                 {"preset", preset},
+                                 {"expected_text",
+                                  plan.value("expected_text",
+                                             draft_.expected.value_or(""))}});
+                  if (!r) {
+                    notify(last_error_, ui::Tone::Error);
+                    return;
+                  }
+                  pop();
+                  draft_ = {};
+                  load_module();
+                  notify("Routing preset saved; runtime unchanged",
+                         ui::Tone::Success);
+                });
             auto c = Container::Vertical({view, b});
             push(ui::Dialog("Review routing changes",
                             Renderer(c, [c, text] { return c->Render(); }),

@@ -1,3 +1,6 @@
+// XRM: Tests runtime writer in the client, daemon, persistence, and Xray
+// integration suite.
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "xray/runtime_writer.hpp"
@@ -9,27 +12,33 @@
 #include <fstream>
 #include <iterator>
 #include <string>
-#include <vector>
 #include <sys/stat.h>
+#include <vector>
 
 namespace {
 
 struct TempDirectory {
-  std::filesystem::path path = std::filesystem::temp_directory_path() /
-      ("xrm runtime writer " + std::to_string(
-          std::chrono::steady_clock::now().time_since_epoch().count()));
+  std::filesystem::path path =
+      std::filesystem::temp_directory_path() /
+      ("xrm runtime writer " +
+       std::to_string(
+           std::chrono::steady_clock::now().time_since_epoch().count()));
   TempDirectory() { std::filesystem::create_directories(path); }
-  ~TempDirectory() { std::error_code ignored; std::filesystem::remove_all(path, ignored); }
+  ~TempDirectory() {
+    std::error_code ignored;
+    std::filesystem::remove_all(path, ignored);
+  }
 };
 
-std::string read_file(const std::filesystem::path& path) {
+std::string read_file(const std::filesystem::path &path) {
   std::ifstream input(path, std::ios::binary);
-  return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+  return {std::istreambuf_iterator<char>(input),
+          std::istreambuf_iterator<char>()};
 }
 
-std::vector<std::string> filenames(const std::filesystem::path& directory) {
+std::vector<std::string> filenames(const std::filesystem::path &directory) {
   std::vector<std::string> result;
-  for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+  for (const auto &entry : std::filesystem::directory_iterator(directory)) {
     result.push_back(entry.path().filename().string());
   }
   std::sort(result.begin(), result.end());
@@ -42,9 +51,10 @@ xrm::PreparedFiles files(std::initializer_list<xrm::OutputFile> output) {
   return prepared;
 }
 
-}  // namespace
+} // namespace
 
-TEST_CASE("WRITE-01 materializes every FileSet into a fresh directory", "[WRITE-01]") {
+TEST_CASE("WRITE-01 materializes every FileSet into a fresh directory",
+          "[WRITE-01]") {
   TempDirectory temp;
   xrm::RuntimeWriter writer(temp.path);
 
@@ -52,60 +62,66 @@ TEST_CASE("WRITE-01 materializes every FileSet into a fresh directory", "[WRITE-
       files({{"15_burstObservatory.json", "{\"burstObservatory\":{}}"}}),
       xrm::DirectoryPurpose::candidate, "run-a");
   REQUIRE(first);
-  REQUIRE(filenames(first->confdir) == std::vector<std::string>{"15_burstObservatory.json"});
+  REQUIRE(filenames(first->confdir) ==
+          std::vector<std::string>{"15_burstObservatory.json"});
 
-  auto second = writer.materialize(
-      files({{"14_observatory.json", "{\"observatory\":{\"probeURL\":\"x\"}}"}}),
-      xrm::DirectoryPurpose::candidate, "run-b");
+  auto second =
+      writer.materialize(files({{"14_observatory.json",
+                                 "{\"observatory\":{\"probeURL\":\"x\"}}"}}),
+                         xrm::DirectoryPurpose::candidate, "run-b");
   REQUIRE(second);
-  REQUIRE(filenames(second->confdir) == std::vector<std::string>{"14_observatory.json"});
+  REQUIRE(filenames(second->confdir) ==
+          std::vector<std::string>{"14_observatory.json"});
   REQUIRE(read_file(second->confdir / "14_observatory.json") ==
           "{\"observatory\":{\"probeURL\":\"x\"}}");
 }
 
-TEST_CASE("WRITE-02 candidate files are isolated from active files", "[WRITE-02]") {
+TEST_CASE("WRITE-02 candidate files are isolated from active files",
+          "[WRITE-02]") {
   TempDirectory temp;
   xrm::RuntimeWriter writer(temp.path);
-  auto active = writer.materialize(
-      files({{"03_outbounds.json", "active bytes"}}),
-      xrm::DirectoryPurpose::candidate, "active");
+  auto active =
+      writer.materialize(files({{"03_outbounds.json", "active bytes"}}),
+                         xrm::DirectoryPurpose::candidate, "active");
   REQUIRE(active);
   const auto active_path = active->confdir / "03_outbounds.json";
-  struct stat before {};
+  struct stat before{};
   REQUIRE(::stat(active_path.c_str(), &before) == 0);
 
-  auto candidate = writer.materialize(
-      files({{"03_outbounds.json", "candidate bytes"}}),
-      xrm::DirectoryPurpose::candidate, "candidate");
+  auto candidate =
+      writer.materialize(files({{"03_outbounds.json", "candidate bytes"}}),
+                         xrm::DirectoryPurpose::candidate, "candidate");
   REQUIRE(candidate);
   const auto candidate_path = candidate->confdir / "03_outbounds.json";
   REQUIRE(read_file(candidate_path) == "candidate bytes");
-  struct stat candidate_stat {};
+  struct stat candidate_stat{};
   REQUIRE(::stat(candidate_path.c_str(), &candidate_stat) == 0);
-  REQUIRE((candidate_stat.st_dev != before.st_dev || candidate_stat.st_ino != before.st_ino));
+  REQUIRE((candidate_stat.st_dev != before.st_dev ||
+           candidate_stat.st_ino != before.st_ino));
 
   {
     std::ofstream changed(candidate_path, std::ios::binary | std::ios::trunc);
     REQUIRE(changed.good());
     changed << "changed candidate";
   }
-  struct stat after {};
+  struct stat after{};
   REQUIRE(::stat(active_path.c_str(), &after) == 0);
   REQUIRE(after.st_dev == before.st_dev);
   REQUIRE(after.st_ino == before.st_ino);
   REQUIRE(read_file(active_path) == "active bytes");
 }
 
-TEST_CASE("WRITE-03 invalid FileSet leaves active input intact and removes partial output",
+TEST_CASE("WRITE-03 invalid FileSet leaves active input intact and removes "
+          "partial output",
           "[WRITE-03]") {
   TempDirectory temp;
   xrm::RuntimeWriter writer(temp.path);
-  auto active = writer.materialize(
-      files({{"04_routing.json", "active routing"}}),
-      xrm::DirectoryPurpose::candidate, "active");
+  auto active =
+      writer.materialize(files({{"04_routing.json", "active routing"}}),
+                         xrm::DirectoryPurpose::candidate, "active");
   REQUIRE(active);
   const auto active_path = active->confdir / "04_routing.json";
-  struct stat before {};
+  struct stat before{};
   REQUIRE(::stat(active_path.c_str(), &before) == 0);
 
   auto collision = writer.materialize(
@@ -115,20 +131,24 @@ TEST_CASE("WRITE-03 invalid FileSet leaves active input intact and removes parti
   REQUIRE(collision.error().code == xrm::ErrorCode::conflict);
   REQUIRE(read_file(active_path) == "active routing");
 
-  auto invalid = writer.materialize(
-      files({{"03_outbounds.json", "partial candidate"}, {"../escape.json", "escape"}}),
-      xrm::DirectoryPurpose::candidate, "invalid");
+  auto invalid =
+      writer.materialize(files({{"03_outbounds.json", "partial candidate"},
+                                {"../escape.json", "escape"}}),
+                         xrm::DirectoryPurpose::candidate, "invalid");
   REQUIRE_FALSE(invalid);
-  REQUIRE_FALSE(std::filesystem::exists(temp.path / "runtime" / "candidate" / "invalid"));
-  REQUIRE_FALSE(std::filesystem::exists(temp.path / "runtime" / "candidate" / "escape.json"));
-  struct stat after {};
+  REQUIRE_FALSE(
+      std::filesystem::exists(temp.path / "runtime" / "candidate" / "invalid"));
+  REQUIRE_FALSE(std::filesystem::exists(temp.path / "runtime" / "candidate" /
+                                        "escape.json"));
+  struct stat after{};
   REQUIRE(::stat(active_path.c_str(), &after) == 0);
   REQUIRE(after.st_dev == before.st_dev);
   REQUIRE(after.st_ino == before.st_ino);
   REQUIRE(read_file(active_path) == "active routing");
 
-  auto protected_dir = writer.materialize(
-      files({{"stats.json", "{}"}}), xrm::DirectoryPurpose::candidate, "keep-run");
+  auto protected_dir =
+      writer.materialize(files({{"stats.json", "{}"}}),
+                         xrm::DirectoryPurpose::candidate, "keep-run");
   REQUIRE(protected_dir);
   const std::array<xrm::Id, 1> protected_ids{"keep-run"};
   auto protected_result = writer.discard(*protected_dir, protected_ids);
@@ -140,7 +160,8 @@ TEST_CASE("WRITE-03 invalid FileSet leaves active input intact and removes parti
   REQUIRE_FALSE(std::filesystem::exists(protected_dir->confdir));
 }
 
-TEST_CASE("WRITE-04 exports exact multi-file contents without overwriting a destination",
+TEST_CASE("WRITE-04 exports exact multi-file contents without overwriting a "
+          "destination",
           "[WRITE-04]") {
   TempDirectory temp;
   xrm::RuntimeWriter writer(temp.path / "manager-data");

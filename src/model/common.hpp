@@ -1,3 +1,5 @@
+// XRM: Defines shared identifiers, errors, and JSON model helpers.
+
 #pragma once
 
 #include <chrono>
@@ -44,19 +46,16 @@ struct AppError {
   std::optional<std::string> hint;
 };
 
-template <class T>
-using Result = std::expected<T, AppError>;
+template <class T> using Result = std::expected<T, AppError>;
 
-template <class T>
-using Completion = std::function<void(Result<T>)>;
+template <class T> using Completion = std::function<void(Result<T>)>;
 
 struct PageRequest {
   std::size_t offset = 0;
   std::size_t limit = 100;
 };
 
-template <class T>
-struct Page {
+template <class T> struct Page {
   std::vector<T> items;
   std::size_t total = 0;
   std::optional<std::size_t> next_offset;
@@ -70,4 +69,4 @@ struct Notice {
 std::string_view to_string(ErrorCode code);
 Result<ErrorCode> error_code_from_string(std::string_view value);
 
-}  // namespace xrm
+} // namespace xrm

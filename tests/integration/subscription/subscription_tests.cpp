@@ -1,3 +1,6 @@
+// XRM: Tests subscription in the client, daemon, persistence, and Xray
+// integration suite.
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "infra/http.hpp"
@@ -12,10 +15,10 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <atomic>
 #include <algorithm>
-#include <chrono>
+#include <atomic>
 #include <cctype>
+#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <filesystem>
@@ -27,14 +30,20 @@
 namespace {
 using namespace std::chrono_literals;
 
-constexpr std::string_view node_a =
-    "vless://00000000-0000-4000-8000-000000000001@127.0.0.1:443?type=tcp&security=none#A";
-constexpr std::string_view node_b =
-    "vless://00000000-0000-4000-8000-000000000002@127.0.0.1:443?type=tcp&security=none#B";
+constexpr std::string_view node_a = "vless://"
+                                    "00000000-0000-4000-8000-000000000001@127."
+                                    "0.0.1:443?type=tcp&security=none#A";
+constexpr std::string_view node_b = "vless://"
+                                    "00000000-0000-4000-8000-000000000002@127."
+                                    "0.0.1:443?type=tcp&security=none#B";
 
 struct TempDatabase {
-  std::filesystem::path path = std::filesystem::temp_directory_path() /
-      ("xrm-sub-store-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + ".sqlite");
+  std::filesystem::path path =
+      std::filesystem::temp_directory_path() /
+      ("xrm-sub-store-" +
+       std::to_string(
+           std::chrono::steady_clock::now().time_since_epoch().count()) +
+       ".sqlite");
   ~TempDatabase() {
     std::error_code ignored;
     std::filesystem::remove(path, ignored);
@@ -44,18 +53,21 @@ struct TempDatabase {
 };
 
 class LocalHttpFixture {
- public:
+public:
   LocalHttpFixture() {
     listener_ = ::socket(AF_INET, SOCK_STREAM, 0);
     REQUIRE(listener_ >= 0);
     int reuse = 1;
-    REQUIRE(::setsockopt(listener_, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == 0);
+    REQUIRE(::setsockopt(listener_, SOL_SOCKET, SO_REUSEADDR, &reuse,
+                         sizeof(reuse)) == 0);
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    REQUIRE(::bind(listener_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0);
+    REQUIRE(::bind(listener_, reinterpret_cast<sockaddr *>(&address),
+                   sizeof(address)) == 0);
     socklen_t length = sizeof(address);
-    REQUIRE(::getsockname(listener_, reinterpret_cast<sockaddr*>(&address), &length) == 0);
+    REQUIRE(::getsockname(listener_, reinterpret_cast<sockaddr *>(&address),
+                          &length) == 0);
     port_ = ntohs(address.sin_port);
     REQUIRE(::listen(listener_, 16) == 0);
     worker_ = std::thread([this] { serve(); });
@@ -73,10 +85,13 @@ class LocalHttpFixture {
       ::close(listener_);
       listener_ = -1;
     }
-    if (worker_.joinable()) worker_.join();
+    if (worker_.joinable())
+      worker_.join();
   }
 
-  std::string url() const { return "http://127.0.0.1:" + std::to_string(port_) + "/subscription"; }
+  std::string url() const {
+    return "http://127.0.0.1:" + std::to_string(port_) + "/subscription";
+  }
 
   void respond(int status, std::string body, std::string extra_headers = {}) {
     std::lock_guard lock(mutex_);
@@ -87,7 +102,8 @@ class LocalHttpFixture {
     condition_.notify_all();
   }
 
-  void enqueue_response(int status, std::string body, std::string extra_headers = {}) {
+  void enqueue_response(int status, std::string body,
+                        std::string extra_headers = {}) {
     std::lock_guard lock(mutex_);
     responses_.push_back({status, std::move(body), std::move(extra_headers)});
   }
@@ -100,7 +116,9 @@ class LocalHttpFixture {
 
   bool wait_for_request(int expected, std::chrono::milliseconds timeout = 2s) {
     std::unique_lock lock(mutex_);
-    return condition_.wait_for(lock, timeout, [&] { return requests_ >= expected || stopping_; }) && requests_ >= expected;
+    return condition_.wait_for(lock, timeout, [&] {
+      return requests_ >= expected || stopping_;
+    }) && requests_ >= expected;
   }
 
   void release() {
@@ -124,16 +142,19 @@ class LocalHttpFixture {
     return conditional_requests_;
   }
 
- private:
+private:
   void serve() {
     for (;;) {
       int client = ::accept(listener_, nullptr, nullptr);
-      if (client < 0) return;
+      if (client < 0)
+        return;
       std::string request;
       char buffer[1024];
-      while (request.find("\r\n\r\n") == std::string::npos && request.size() < 16384) {
+      while (request.find("\r\n\r\n") == std::string::npos &&
+             request.size() < 16384) {
         const auto got = ::recv(client, buffer, sizeof(buffer), 0);
-        if (got <= 0) break;
+        if (got <= 0)
+          break;
         request.append(buffer, static_cast<std::size_t>(got));
       }
       int status;
@@ -143,7 +164,9 @@ class LocalHttpFixture {
         ++requests_;
         const auto lowered = [&] {
           std::string value = request;
-          for (auto& ch : value) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+          for (auto &ch : value)
+            ch =
+                static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
           return value;
         }();
         if (lowered.find("if-none-match:") != std::string::npos) {
@@ -151,8 +174,12 @@ class LocalHttpFixture {
           ++conditional_requests_;
         }
         condition_.notify_all();
-        condition_.wait(lock, [&] { return !blocked_ || release_blocked_ || stopping_; });
-        if (stopping_) { ::close(client); return; }
+        condition_.wait(
+            lock, [&] { return !blocked_ || release_blocked_ || stopping_; });
+        if (stopping_) {
+          ::close(client);
+          return;
+        }
         if (!responses_.empty()) {
           status = responses_.front().status;
           body = std::move(responses_.front().body);
@@ -166,8 +193,11 @@ class LocalHttpFixture {
         blocked_ = false;
         release_blocked_ = false;
       }
-      const char* phrase = status == 200 ? "OK" : status == 304 ? "Not Modified" : "Service Unavailable";
-      const std::string response = "HTTP/1.1 " + std::to_string(status) + " " + phrase + "\r\n" +
+      const char *phrase = status == 200   ? "OK"
+                           : status == 304 ? "Not Modified"
+                                           : "Service Unavailable";
+      const std::string response =
+          "HTTP/1.1 " + std::to_string(status) + " " + phrase + "\r\n" +
           "Content-Length: " + std::to_string(body.size()) + "\r\n" + headers +
           "Connection: close\r\n\r\n" + body;
       (void)::send(client, response.data(), response.size(), MSG_NOSIGNAL);
@@ -188,7 +218,10 @@ class LocalHttpFixture {
   int status_ = 200;
   std::string body_ = std::string(node_a);
   std::string extra_headers_ = "ETag: \"rev-a\"\r\n";
-  struct Response { int status; std::string body, headers; };
+  struct Response {
+    int status;
+    std::string body, headers;
+  };
   std::deque<Response> responses_;
   int conditional_requests_ = 0;
 };
@@ -203,7 +236,8 @@ struct Loop {
 };
 
 template <class Predicate>
-bool pump_until(uv_loop_t& loop, Predicate done, std::chrono::milliseconds timeout = 3s) {
+bool pump_until(uv_loop_t &loop, Predicate done,
+                std::chrono::milliseconds timeout = 3s) {
   const auto deadline = std::chrono::steady_clock::now() + timeout;
   while (!done() && std::chrono::steady_clock::now() < deadline) {
     uv_run(&loop, UV_RUN_NOWAIT);
@@ -222,23 +256,30 @@ xrm::Subscription source(std::string id, std::string url) {
   return value;
 }
 
-xrm::Result<xrm::BatchRefreshResult> refresh_sync(xrm::SubscriptionService& service,
-    uv_loop_t& loop, std::vector<xrm::Id> ids) {
+xrm::Result<xrm::BatchRefreshResult>
+refresh_sync(xrm::SubscriptionService &service, uv_loop_t &loop,
+             std::vector<xrm::Id> ids) {
   std::optional<xrm::Result<xrm::BatchRefreshResult>> done;
-  auto accepted = service.refresh(std::move(ids), [&](auto result) { done.emplace(std::move(result)); });
-  if (!accepted) return std::unexpected(accepted.error());
+  auto accepted = service.refresh(
+      std::move(ids), [&](auto result) { done.emplace(std::move(result)); });
+  if (!accepted)
+    return std::unexpected(accepted.error());
   if (!pump_until(loop, [&] { return done.has_value(); }))
-    return std::unexpected(xrm::AppError{xrm::ErrorCode::timed_out, "fixture refresh timed out", std::nullopt, std::nullopt});
+    return std::unexpected(xrm::AppError{xrm::ErrorCode::timed_out,
+                                         "fixture refresh timed out",
+                                         std::nullopt, std::nullopt});
   return std::move(*done);
 }
 
-}  // namespace
+} // namespace
 
-TEST_CASE("DB-02 source commits atomically and rejects stale settings revisions", "[DB-02]") {
+TEST_CASE(
+    "DB-02 source commits atomically and rejects stale settings revisions",
+    "[DB-02]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
-  auto& store = **opened;
+  auto &store = **opened;
   auto subscription = source("source-A", "http://127.0.0.1/sub");
   REQUIRE(store.put_source(subscription));
   const auto initial = store.get_source("source-A");
@@ -252,18 +293,21 @@ TEST_CASE("DB-02 source commits atomically and rejects stale settings revisions"
   good.source_id = "source-A";
   good.upstream_id = "provider-line-14";
   good.original_name = "good";
-  good.settings = xrm::RawOutbound{xrm::Json{{"protocol", "freedom"}, {"settings", xrm::Json::object()}}};
+  good.settings = xrm::RawOutbound{
+      xrm::Json{{"protocol", "freedom"}, {"settings", xrm::Json::object()}}};
   xrm::Node rejected = good;
   rejected.id = "reject";
   rejected.original_name = "reject";
   commit.changes.upserts = {good, rejected};
 
-  sqlite3* sabotage = nullptr;
+  sqlite3 *sabotage = nullptr;
   REQUIRE(sqlite3_open(database.path.c_str(), &sabotage) == SQLITE_OK);
-  char* message = nullptr;
-  const auto trigger = "CREATE TRIGGER reject_source_node BEFORE INSERT ON nodes "
+  char *message = nullptr;
+  const auto trigger =
+      "CREATE TRIGGER reject_source_node BEFORE INSERT ON nodes "
       "WHEN NEW.id='reject' BEGIN SELECT RAISE(ABORT,'fixture failure'); END;";
-  const int trigger_status = sqlite3_exec(sabotage, trigger, nullptr, nullptr, &message);
+  const int trigger_status =
+      sqlite3_exec(sabotage, trigger, nullptr, nullptr, &message);
   sqlite3_free(message);
   REQUIRE(trigger_status == SQLITE_OK);
   sqlite3_close(sabotage);
@@ -276,7 +320,8 @@ TEST_CASE("DB-02 source commits atomically and rejects stale settings revisions"
 
   REQUIRE(sqlite3_open(database.path.c_str(), &sabotage) == SQLITE_OK);
   message = nullptr;
-  const int drop_status = sqlite3_exec(sabotage, "DROP TRIGGER reject_source_node", nullptr, nullptr, &message);
+  const int drop_status = sqlite3_exec(
+      sabotage, "DROP TRIGGER reject_source_node", nullptr, nullptr, &message);
   sqlite3_free(message);
   REQUIRE(drop_status == SQLITE_OK);
   sqlite3_close(sabotage);
@@ -314,11 +359,12 @@ TEST_CASE("DB-02 source commits atomically and rejects stale settings revisions"
   CHECK(store.get_node("good"));
 }
 
-TEST_CASE("P2 removing a source erases its inventory unless explicitly detached as Local") {
+TEST_CASE("P2 removing a source erases its inventory unless explicitly "
+          "detached as Local") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
-  auto& store = **opened;
+  auto &store = **opened;
   REQUIRE(store.put_source(source("remove", "http://127.0.0.1/remove")));
   xrm::Node removed;
   removed.id = "removed-id";
@@ -341,7 +387,9 @@ TEST_CASE("P2 removing a source erases its inventory unless explicitly detached 
   CHECK_FALSE(kept->source_missing);
 }
 
-TEST_CASE("SUB-02 refresh updates inventory only and same-source requests coalesce", "[SUB-02][SUB-06]") {
+TEST_CASE(
+    "SUB-02 refresh updates inventory only and same-source requests coalesce",
+    "[SUB-02][SUB-06]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -352,13 +400,21 @@ TEST_CASE("SUB-02 refresh updates inventory only and same-source requests coales
   xrm::SubscriptionService service(**opened, http);
   int first_done = 0, second_done = 0;
   bool callbacks_ok = true;
-  REQUIRE(service.refresh({"source-A"}, [&](auto result) { callbacks_ok = callbacks_ok && result.has_value(); ++first_done; }));
-  REQUIRE(service.refresh({"source-A"}, [&](auto result) { callbacks_ok = callbacks_ok && result.has_value(); ++second_done; }));
+  REQUIRE(service.refresh({"source-A"}, [&](auto result) {
+    callbacks_ok = callbacks_ok && result.has_value();
+    ++first_done;
+  }));
+  REQUIRE(service.refresh({"source-A"}, [&](auto result) {
+    callbacks_ok = callbacks_ok && result.has_value();
+    ++second_done;
+  }));
   REQUIRE(fixture.wait_for_request(1));
-  REQUIRE(pump_until(loop.value, [&] { return first_done == 1 && second_done == 1; }));
+  REQUIRE(pump_until(loop.value,
+                     [&] { return first_done == 1 && second_done == 1; }));
   CHECK(fixture.request_count() == 1);
   CHECK(callbacks_ok);
-  const auto first = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
+  const auto first =
+      (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
   REQUIRE(first);
   REQUIRE(first->items.size() == 1);
   CHECK(first->items.front().original_name == "A");
@@ -371,11 +427,15 @@ TEST_CASE("SUB-02 refresh updates inventory only and same-source requests coales
   http.shutdown([] {});
 }
 
-TEST_CASE("SUB-04 identical HTTP payload is idempotent across ten refreshes and a service restart", "[SUB-04]") {
+TEST_CASE("SUB-04 identical HTTP payload is idempotent across ten refreshes "
+          "and a service restart",
+          "[SUB-04]") {
   TempDatabase database;
   LocalHttpFixture fixture;
-  fixture.respond(200, std::string(node_a) + "\n" + std::string(node_a) + "\n" +
-                       std::string(node_b), "");
+  fixture.respond(200,
+                  std::string(node_a) + "\n" + std::string(node_a) + "\n" +
+                      std::string(node_b),
+                  "");
   {
     auto store = xrm::Store::open(database.path);
     REQUIRE(store);
@@ -394,37 +454,41 @@ TEST_CASE("SUB-04 identical HTTP payload is idempotent across ten refreshes and 
       REQUIRE(refresh);
       REQUIRE(refresh->failed.empty());
       REQUIRE(refresh->completed.size() == 1);
-      const auto& report = refresh->completed.front();
+      const auto &report = refresh->completed.front();
       CHECK(report.added == (attempt == 0 ? 2 : 0));
       CHECK(report.updated == 0);
       CHECK(report.missing == 0);
       CHECK_FALSE(report.partial);
 
       const auto inventory = (*store)->list_nodes(
-          xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+          xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+          {0, 20});
       REQUIRE(inventory);
       REQUIRE(inventory->total == 2);
       REQUIRE(inventory->items.size() == 2);
       std::vector<xrm::Id> ids;
-      for (const auto& node : inventory->items) {
+      for (const auto &node : inventory->items) {
         CHECK_FALSE(node.source_missing);
         ids.push_back(node.id);
       }
       std::sort(ids.begin(), ids.end());
       if (attempt == 0) {
         first_ids = ids;
-        const auto original_a = std::find_if(inventory->items.begin(), inventory->items.end(),
-            [](const auto& node) { return node.original_name == "A"; });
+        const auto original_a = std::find_if(
+            inventory->items.begin(), inventory->items.end(),
+            [](const auto &node) { return node.original_name == "A"; });
         REQUIRE(original_a != inventory->items.end());
         auto user_edited = *original_a;
         user_edited.alias = "My A";
         user_edited.labels = {"favorite"};
         user_edited.enabled = false;
         REQUIRE((*store)->put_node(user_edited));
-        // A historical duplicate removed through the same scoped Store transaction
-        // must not be recreated by later identical refreshes or service restart.
-        const auto original_b = std::find_if(inventory->items.begin(), inventory->items.end(),
-            [](const auto& node) { return node.original_name == "B"; });
+        // A historical duplicate removed through the same scoped Store
+        // transaction must not be recreated by later identical refreshes or
+        // service restart.
+        const auto original_b = std::find_if(
+            inventory->items.begin(), inventory->items.end(),
+            [](const auto &node) { return node.original_name == "B"; });
         REQUIRE(original_b != inventory->items.end());
         auto redundant_history = *original_b;
         redundant_history.id = "old-duplicate-B";
@@ -433,19 +497,23 @@ TEST_CASE("SUB-04 identical HTTP payload is idempotent across ten refreshes and 
         const auto expected_state = (*store)->get_source_state("source-A");
         REQUIRE(expected_state);
         const auto before_cleanup = (*store)->list_nodes(
-            xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+            xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+            {0, 20});
         REQUIRE(before_cleanup);
         REQUIRE(before_cleanup->total == 3);
-        REQUIRE((*store)->prune_history("source-A", *expected_state, before_cleanup->items,
+        REQUIRE((*store)->prune_history("source-A", *expected_state,
+                                        before_cleanup->items,
                                         {redundant_history.id}));
         const auto cleaned = (*store)->list_nodes(
-            xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+            xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+            {0, 20});
         REQUIRE(cleaned);
         CHECK(cleaned->total == 2);
       } else {
         CHECK(ids == first_ids);
-        const auto edited_a = std::find_if(inventory->items.begin(), inventory->items.end(),
-            [](const auto& node) { return node.original_name == "A"; });
+        const auto edited_a = std::find_if(
+            inventory->items.begin(), inventory->items.end(),
+            [](const auto &node) { return node.original_name == "A"; });
         REQUIRE(edited_a != inventory->items.end());
         CHECK(edited_a->alias == "My A");
         CHECK(edited_a->labels == std::vector<std::string>{"favorite"});
@@ -458,7 +526,9 @@ TEST_CASE("SUB-04 identical HTTP payload is idempotent across ten refreshes and 
   CHECK(fixture.request_count() == 10);
 }
 
-TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-only and HTML retain inventory", "[SUB-03]") {
+TEST_CASE("SUB-03 partial input updates valid nodes, while empty, "
+          "unsupported-only and HTML retain inventory",
+          "[SUB-03]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -470,7 +540,9 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   auto first = refresh_sync(service, loop.value, {"source-A"});
   REQUIRE(first);
   REQUIRE(first->completed.size() == 1);
-  const auto old = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+  const auto old = (*opened)->list_nodes(
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+      {0, 20});
   REQUIRE(old);
   REQUIRE(old->items.size() == 1);
   const auto old_id = old->items.front().id;
@@ -481,7 +553,8 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   REQUIRE(partial->completed.size() == 1);
   CHECK(partial->completed.front().partial);
   REQUIRE(partial->completed.front().first_issue);
-  CHECK(partial->completed.front().first_issue->find("item 2") != std::string::npos);
+  CHECK(partial->completed.front().first_issue->find("item 2") !=
+        std::string::npos);
   CHECK(partial->completed.front().malformed == 1);
   CHECK(partial->completed.front().unsupported == 1);
   const auto partial_state = (*opened)->get_source_state("source-A");
@@ -491,12 +564,16 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   CHECK(partial_state->last_error_stage == "parse");
   CHECK(partial_state->last_malformed_count == 1);
   CHECK(partial_state->last_unsupported_count == 1);
-  auto after_partial = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+  auto after_partial = (*opened)->list_nodes(
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+      {0, 20});
   REQUIRE(after_partial);
   CHECK(std::any_of(after_partial->items.begin(), after_partial->items.end(),
-                    [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
+                    [&](const xrm::Node &node) {
+                      return node.id == old_id && !node.source_missing;
+                    }));
 
-  for (const auto& body : {std::string(""), std::string("socks://opaque"),
+  for (const auto &body : {std::string(""), std::string("socks://opaque"),
                            std::string("<!doctype html><html>login</html>")}) {
     fixture.respond(200, body);
     auto rejected = refresh_sync(service, loop.value, {"source-A"});
@@ -508,25 +585,36 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
     CHECK(failed_state->last_result == "failed");
     CHECK(failed_state->last_error == rejected->failed.front().second.message);
     CHECK(failed_state->last_error_stage == "parse");
-    auto retained = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+    auto retained = (*opened)->list_nodes(
+        xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+        {0, 20});
     REQUIRE(retained);
     CHECK(std::any_of(retained->items.begin(), retained->items.end(),
-                      [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
+                      [&](const xrm::Node &node) {
+                        return node.id == old_id && !node.source_missing;
+                      }));
   }
-  fixture.respond(200,
-      "vless://00000000-0000-4000-8000-000000000009@node.example:443?security=tls&insecure=maybe");
+  fixture.respond(200, "vless://"
+                       "00000000-0000-4000-8000-000000000009@node.example:443?"
+                       "security=tls&insecure=maybe");
   auto malformed_vless = refresh_sync(service, loop.value, {"source-A"});
   REQUIRE(malformed_vless);
   REQUIRE(malformed_vless->failed.size() == 1);
-  CHECK(malformed_vless->failed.front().second.message.find("insecure must be true, false, 1 or 0") !=
+  CHECK(malformed_vless->failed.front().second.message.find(
+            "insecure must be true, false, 1 or 0") != std::string::npos);
+  CHECK(malformed_vless->failed.front().second.message.find("node.example") ==
         std::string::npos);
-  CHECK(malformed_vless->failed.front().second.message.find("node.example") == std::string::npos);
-  CHECK(malformed_vless->failed.front().second.message.find("maybe") == std::string::npos);
+  CHECK(malformed_vless->failed.front().second.message.find("maybe") ==
+        std::string::npos);
   const auto retained_after_malformed = (*opened)->list_nodes(
-      xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+      {0, 20});
   REQUIRE(retained_after_malformed);
-  CHECK(std::any_of(retained_after_malformed->items.begin(), retained_after_malformed->items.end(),
-                    [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
+  CHECK(std::any_of(retained_after_malformed->items.begin(),
+                    retained_after_malformed->items.end(),
+                    [&](const xrm::Node &node) {
+                      return node.id == old_id && !node.source_missing;
+                    }));
 
   fixture.respond(503, "upstream unavailable");
   auto unavailable = refresh_sync(service, loop.value, {"source-A"});
@@ -540,10 +628,14 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   CHECK(http_state->last_error->find("HTTP 503") != std::string::npos);
   CHECK(http_state->last_success.has_value());
   auto retained_after_http_failure = (*opened)->list_nodes(
-      xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+      {0, 20});
   REQUIRE(retained_after_http_failure);
-  CHECK(std::any_of(retained_after_http_failure->items.begin(), retained_after_http_failure->items.end(),
-                    [&](const xrm::Node& node) { return node.id == old_id && !node.source_missing; }));
+  CHECK(std::any_of(retained_after_http_failure->items.begin(),
+                    retained_after_http_failure->items.end(),
+                    [&](const xrm::Node &node) {
+                      return node.id == old_id && !node.source_missing;
+                    }));
   fixture.respond(200, std::string(node_b));
   auto complete = refresh_sync(service, loop.value, {"source-A"});
   REQUIRE(complete);
@@ -555,21 +647,24 @@ TEST_CASE("SUB-03 partial input updates valid nodes, while empty, unsupported-on
   CHECK(complete->completed.front().missing == 1);
   CHECK_FALSE((*opened)->get_node(old_id));
   const auto current = (*opened)->list_nodes(
-      xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+      {0, 20});
   REQUIRE(current);
   CHECK(current->total == 1);
   service.stop_schedule();
   http.shutdown([] {});
 }
 
-TEST_CASE("P2 source usage metadata comes from HTTP response header without becoming a node") {
+TEST_CASE("P2 source usage metadata comes from HTTP response header without "
+          "becoming a node") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
   LocalHttpFixture fixture;
   REQUIRE((*opened)->put_source(source("source-A", fixture.url())));
   fixture.respond(200, std::string(node_a),
-      "subscription-userinfo: upload=1024; download=2048; total=4096; expire=2147483647\r\n");
+                  "subscription-userinfo: upload=1024; download=2048; "
+                  "total=4096; expire=2147483647\r\n");
   Loop loop;
   xrm::HttpClient http(loop.value);
   xrm::SubscriptionService service(**opened, http);
@@ -579,15 +674,18 @@ TEST_CASE("P2 source usage metadata comes from HTTP response header without beco
   auto state = (*opened)->get_source_state("source-A");
   REQUIRE(state);
   REQUIRE(state->reported_usage);
-  CHECK(*state->reported_usage == "upload=1024; download=2048; total=4096; expire=2147483647");
-  const auto nodes = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
+  CHECK(*state->reported_usage ==
+        "upload=1024; download=2048; total=4096; expire=2147483647");
+  const auto nodes =
+      (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
   REQUIRE(nodes);
   CHECK(nodes->total == 1);
   service.stop_schedule();
   http.shutdown([] {});
 }
 
-TEST_CASE("P2 inventory removal does not mutate the immutable active run record") {
+TEST_CASE(
+    "P2 inventory removal does not mutate the immutable active run record") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -597,7 +695,8 @@ TEST_CASE("P2 inventory removal does not mutate the immutable active run record"
   xrm::HttpClient http(loop.value);
   xrm::SubscriptionService service(**opened, http);
   REQUIRE(refresh_sync(service, loop.value, {"source-A"}));
-  auto inventory = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
+  auto inventory =
+      (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 20});
   REQUIRE(inventory);
   REQUIRE(inventory->items.size() == 1);
   const auto old_id = inventory->items.front().id;
@@ -629,7 +728,8 @@ TEST_CASE("P2 inventory removal does not mutate the immutable active run record"
   http.shutdown([] {});
 }
 
-TEST_CASE("P2 conservative source information rows are descriptions, not exits") {
+TEST_CASE(
+    "P2 conservative source information rows are descriptions, not exits") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -639,34 +739,42 @@ TEST_CASE("P2 conservative source information rows are descriptions, not exits")
   legacy.id = "legacy-information-node";
   legacy.source_id = "source-A";
   legacy.original_name = "剩余流量: 10 GB";
-  legacy.settings = xrm::RawOutbound{xrm::Json{{"protocol", "freedom"},
-      {"settings", xrm::Json::object()}}};
+  legacy.settings = xrm::RawOutbound{
+      xrm::Json{{"protocol", "freedom"}, {"settings", xrm::Json::object()}}};
   REQUIRE((*opened)->put_node(legacy));
   const std::string information =
-      "vless://00000000-0000-4000-8000-000000000004@127.0.0.1:443?type=tcp&security=none#"
+      "vless://"
+      "00000000-0000-4000-8000-000000000004@127.0.0.1:443?type=tcp&security="
+      "none#"
       "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB";
-  fixture.respond(200, std::string(node_a) + "\n" + information + "\n" +
-      "vless://00000000-0000-4000-8000-000000000003@127.0.0.1:443?type=tcp&security=none#%E5%AE%98%E7%BD%91%E9%A6%99%E6%B8%AF");
+  fixture.respond(200,
+                  std::string(node_a) + "\n" + information + "\n" +
+                      "vless://"
+                      "00000000-0000-4000-8000-000000000003@127.0.0.1:443?type="
+                      "tcp&security=none#%E5%AE%98%E7%BD%91%E9%A6%99%E6%B8%AF");
   Loop loop;
   xrm::HttpClient http(loop.value);
   xrm::SubscriptionService service(**opened, http);
   auto refreshed = refresh_sync(service, loop.value, {"source-A"});
   REQUIRE(refreshed);
   REQUIRE(refreshed->completed.size() == 1);
-  CHECK(refreshed->completed.front().added == 2); // A and a real node named 官网香港.
+  CHECK(refreshed->completed.front().added ==
+        2); // A and a real node named 官网香港.
   CHECK_FALSE((*opened)->get_node(legacy.id));
   auto state = (*opened)->get_source_state("source-A");
   REQUIRE(state);
   REQUIRE(state->reported_notices.size() == 1);
   CHECK(state->reported_notices.front() == "剩余流量: 10 GB");
-  auto current = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 10});
+  auto current =
+      (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A"}, {0, 10});
   REQUIRE(current);
   CHECK(current->total == 2);
   service.stop_schedule();
   http.shutdown([] {});
 }
 
-TEST_CASE("P2 source-level information rules can be disabled or configured explicitly") {
+TEST_CASE("P2 source-level information rules can be disabled or configured "
+          "explicitly") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -675,8 +783,10 @@ TEST_CASE("P2 source-level information rules can be disabled or configured expli
   disabled.info_name_prefixes = std::vector<std::string>{};
   REQUIRE((*opened)->put_source(disabled));
   fixture.respond(200, std::string(node_a) + "\n" +
-      "vless://00000000-0000-4000-8000-000000000004@127.0.0.1:443?type=tcp&security=none#"
-      "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB");
+                           "vless://"
+                           "00000000-0000-4000-8000-000000000004@127.0.0.1:443?"
+                           "type=tcp&security=none#"
+                           "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB");
   Loop loop;
   xrm::HttpClient http(loop.value);
   xrm::SubscriptionService service(**opened, http);
@@ -690,9 +800,13 @@ TEST_CASE("P2 source-level information rules can be disabled or configured expli
   explicit_rule.info_name_prefixes = std::vector<std::string>{"MEMBER:"};
   REQUIRE((*opened)->put_source(explicit_rule));
   fixture.respond(200, std::string(node_a) + "\n" +
-      "vless://00000000-0000-4000-8000-000000000004@127.0.0.1:443?type=tcp&security=none#MEMBER%3A%2010\n" +
-      "vless://00000000-0000-4000-8000-000000000005@127.0.0.1:443?type=tcp&security=none#"
-      "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB");
+                           "vless://"
+                           "00000000-0000-4000-8000-000000000004@127.0.0.1:443?"
+                           "type=tcp&security=none#MEMBER%3A%2010\n" +
+                           "vless://"
+                           "00000000-0000-4000-8000-000000000005@127.0.0.1:443?"
+                           "type=tcp&security=none#"
+                           "%E5%89%A9%E4%BD%99%E6%B5%81%E9%87%8F%3A%2010%20GB");
   auto classified = refresh_sync(service, loop.value, {"explicit"});
   REQUIRE(classified);
   REQUIRE(classified->completed.size() == 1);
@@ -714,8 +828,8 @@ TEST_CASE("P2 partial parse cannot erase old information rows") {
   old.id = "old-info";
   old.source_id = "source-A";
   old.original_name = "剩余流量: old";
-  old.settings = xrm::RawOutbound{xrm::Json{{"protocol", "freedom"},
-      {"settings", xrm::Json::object()}}};
+  old.settings = xrm::RawOutbound{
+      xrm::Json{{"protocol", "freedom"}, {"settings", xrm::Json::object()}}};
   REQUIRE((*opened)->put_node(old));
   fixture.respond(200, std::string(node_a) + "\nnot-a-node");
   Loop loop;
@@ -730,7 +844,9 @@ TEST_CASE("P2 partial parse cannot erase old information rows") {
   http.shutdown([] {});
 }
 
-TEST_CASE("SUB-05 an old response cannot commit after its source changes or is deleted", "[SUB-05]") {
+TEST_CASE("SUB-05 an old response cannot commit after its source changes or is "
+          "deleted",
+          "[SUB-05]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -742,7 +858,10 @@ TEST_CASE("SUB-05 an old response cannot commit after its source changes or is d
   int done = 0;
   std::optional<xrm::Result<xrm::BatchRefreshResult>> result;
   fixture.block_next();
-  REQUIRE(service.refresh({"source-A"}, [&](auto value) { result.emplace(std::move(value)); ++done; }));
+  REQUIRE(service.refresh({"source-A"}, [&](auto value) {
+    result.emplace(std::move(value));
+    ++done;
+  }));
   REQUIRE(fixture.wait_for_request(1));
   auto edited = (*opened)->get_source("source-A");
   REQUIRE(edited);
@@ -754,14 +873,19 @@ TEST_CASE("SUB-05 an old response cannot commit after its source changes or is d
   REQUIRE(*result);
   CHECK((*result)->completed.empty());
   CHECK((*result)->failed.size() == 1);
-  auto no_nodes = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "source-A", .include_missing = true}, {0, 20});
+  auto no_nodes = (*opened)->list_nodes(
+      xrm::NodeQuery{.source_id = "source-A", .include_missing = true},
+      {0, 20});
   REQUIRE(no_nodes);
   CHECK(no_nodes->items.empty());
 
   fixture.block_next();
   result.reset();
   done = 0;
-  REQUIRE(service.refresh({"source-A"}, [&](auto value) { result.emplace(std::move(value)); ++done; }));
+  REQUIRE(service.refresh({"source-A"}, [&](auto value) {
+    result.emplace(std::move(value));
+    ++done;
+  }));
   REQUIRE(fixture.wait_for_request(2));
   REQUIRE((*opened)->remove_source("source-A", false));
   fixture.release();
@@ -774,7 +898,8 @@ TEST_CASE("SUB-05 an old response cannot commit after its source changes or is d
   http.shutdown([] {});
 }
 
-TEST_CASE("SUB-06 timers honor pause and refresh only node inventory", "[SUB-06]") {
+TEST_CASE("SUB-06 timers honor pause and refresh only node inventory",
+          "[SUB-06]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -791,20 +916,28 @@ TEST_CASE("SUB-06 timers honor pause and refresh only node inventory", "[SUB-06]
   xrm::HttpClient http(loop.value);
   xrm::SubscriptionService service(**opened, http);
   service.start_schedule(loop.value);
-  REQUIRE(pump_until(loop.value, [&] { return fixture.request_count() >= 1; }, 3s));
-  REQUIRE(pump_until(loop.value, [&] {
-    auto nodes = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "scheduled"}, {0, 10});
-    return nodes && !nodes->items.empty();
-  }, 3s));
+  REQUIRE(
+      pump_until(loop.value, [&] { return fixture.request_count() >= 1; }, 3s));
+  REQUIRE(pump_until(
+      loop.value,
+      [&] {
+        auto nodes = (*opened)->list_nodes(
+            xrm::NodeQuery{.source_id = "scheduled"}, {0, 10});
+        return nodes && !nodes->items.empty();
+      },
+      3s));
   CHECK(fixture.request_count() == 1);
-  const auto paused_nodes = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "paused"}, {0, 10});
+  const auto paused_nodes =
+      (*opened)->list_nodes(xrm::NodeQuery{.source_id = "paused"}, {0, 10});
   REQUIRE(paused_nodes);
   CHECK(paused_nodes->items.empty());
   service.stop_schedule();
   http.shutdown([] {});
 }
 
-TEST_CASE("SUB-06 a cached 304 is not modified; an uncached 304 gets one unconditional retry", "[SUB-06]") {
+TEST_CASE("SUB-06 a cached 304 is not modified; an uncached 304 gets one "
+          "unconditional retry",
+          "[SUB-06]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -831,7 +964,10 @@ TEST_CASE("SUB-06 a cached 304 is not modified; an uncached 304 gets one uncondi
   // conditional request headers exactly once.
   std::optional<xrm::Result<xrm::BatchRefreshResult>> result;
   int done = 0;
-  REQUIRE(service.refresh({"uncached"}, [&](auto value) { result.emplace(std::move(value)); ++done; }));
+  REQUIRE(service.refresh({"uncached"}, [&](auto value) {
+    result.emplace(std::move(value));
+    ++done;
+  }));
   REQUIRE(fixture.wait_for_request(before + 1));
   REQUIRE(pump_until(loop.value, [&] { return done == 1; }));
   REQUIRE(result);
@@ -843,7 +979,8 @@ TEST_CASE("SUB-06 a cached 304 is not modified; an uncached 304 gets one uncondi
   http.shutdown([] {});
 }
 
-TEST_CASE("SUB-06 batch refresh returns per-source success and failure", "[SUB-06]") {
+TEST_CASE("SUB-06 batch refresh returns per-source success and failure",
+          "[SUB-06]") {
   TempDatabase database;
   auto opened = xrm::Store::open(database.path);
   REQUIRE(opened);
@@ -855,14 +992,17 @@ TEST_CASE("SUB-06 batch refresh returns per-source success and failure", "[SUB-0
   Loop loop;
   xrm::HttpClient http(loop.value);
   xrm::SubscriptionService service(**opened, http);
-  auto result = refresh_sync(service, loop.value, {"good-source", "bad-source"});
+  auto result =
+      refresh_sync(service, loop.value, {"good-source", "bad-source"});
   REQUIRE(result);
   REQUIRE(result->completed.size() == 1);
   CHECK(result->completed.front().source_id == "good-source");
   REQUIRE(result->failed.size() == 1);
   CHECK(result->failed.front().first == "bad-source");
-  const auto good_nodes = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "good-source"}, {0, 10});
-  const auto bad_nodes = (*opened)->list_nodes(xrm::NodeQuery{.source_id = "bad-source"}, {0, 10});
+  const auto good_nodes = (*opened)->list_nodes(
+      xrm::NodeQuery{.source_id = "good-source"}, {0, 10});
+  const auto bad_nodes =
+      (*opened)->list_nodes(xrm::NodeQuery{.source_id = "bad-source"}, {0, 10});
   REQUIRE(good_nodes);
   REQUIRE(bad_nodes);
   CHECK(good_nodes->items.size() == 1);

@@ -1,3 +1,5 @@
+// XRM: Declares node-to-Xray outbound codec operations.
+
 #pragma once
 
 #include "model/node.hpp"
@@ -17,8 +19,8 @@ Result<DecodedNode> parse_vmess_uri(std::string_view uri);
 Result<DecodedNode> parse_trojan_uri(std::string_view uri);
 Result<DecodedNode> parse_shadowsocks_uri(std::string_view uri);
 Result<DecodedNode> parse_hysteria2_uri(std::string_view uri);
-Result<Node> parse_native_outbound(const Json& outbound, Id id,
-                                  std::string display_name = {});
-Result<Json> write_outbound(const Node& node, std::string_view tag);
+Result<Node> parse_native_outbound(const Json &outbound, Id id,
+                                   std::string display_name = {});
+Result<Json> write_outbound(const Node &node, std::string_view tag);
 
-}  // namespace xrm
+} // namespace xrm

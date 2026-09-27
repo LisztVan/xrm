@@ -1,29 +1,37 @@
-#include "tui/components/style.hpp"
-#include "tui/components/log_viewer.hpp"
+// XRM: Coordinates TUI navigation, refresh, drafts, focus, and overlays.
+
+#include "tui/shell/workspace.hpp"
 #include "client/human_message.hpp"
 #include "contract/wire.hpp"
-#include "tui/shell/workspace.hpp"
 #include "model/module_catalog.hpp"
+#include "tui/components/log_viewer.hpp"
+#include "tui/components/style.hpp"
 #include "tui/forms/native_form.hpp"
 #include <algorithm>
 #include <ctime>
-#include <ftxui/screen/terminal.hpp>
 #include <ftxui/screen/string.hpp>
+#include <ftxui/screen/terminal.hpp>
 #include <sstream>
 namespace xrm::tui {
 using namespace ftxui;
 namespace {
 std::string subscription_result(const Json &source) {
   const auto result = source.value("last_result", "");
-  if (result.empty()) return "Not refreshed";
-  if (result == "settings_changed") return "Settings changed";
-  if (result == "not_modified") return "Unchanged";
-  if (result == "success") return "Updated";
-  if (result == "partial") return "Partial: inspect";
-  if (result == "failed") return "Failed: inspect";
+  if (result.empty())
+    return "Not refreshed";
+  if (result == "settings_changed")
+    return "Settings changed";
+  if (result == "not_modified")
+    return "Unchanged";
+  if (result == "success")
+    return "Updated";
+  if (result == "partial")
+    return "Partial: inspect";
+  if (result == "failed")
+    return "Failed: inspect";
   return result;
 }
-}
+} // namespace
 ui::Field text_field(std::string label, std::string value, bool required) {
   ui::Field f{std::move(label), std::move(value)};
   if (required)
@@ -60,12 +68,17 @@ Workspace::Workspace(std::string socket, std::string initial,
                      ScreenInteractive &screen)
     : socket_(std::move(socket)), view_(std::move(initial)), screen_(screen) {
   original_color_ = Terminal::ColorSupport();
-  profiles_table_ = std::make_shared<ui::Table>(
-      std::vector<ui::Column>{{"Profile", 22}, {"Core", 20}, {"Use", 6}, {"Edit", 6}, {"Run", 9}});
+  profiles_table_ = std::make_shared<ui::Table>(std::vector<ui::Column>{
+      {"Profile", 22}, {"Core", 20}, {"Use", 6}, {"Edit", 6}, {"Run", 9}});
   subscriptions_table_ = std::make_shared<ui::Table>(std::vector<ui::Column>{
       {"Source", 24}, {"Nodes", 7}, {"Result", 15}, {"Auto", 7}, {"Bound", 9}});
-  nodes_table_ = std::make_shared<ui::Table>(std::vector<ui::Column>{
-      {"Node", 22}, {"Protocol", 10}, {"Enabled", 8}, {"Support", 10}, {"Saved", 6}, {"Run", 7}});
+  nodes_table_ =
+      std::make_shared<ui::Table>(std::vector<ui::Column>{{"Node", 22},
+                                                          {"Protocol", 10},
+                                                          {"Enabled", 8},
+                                                          {"Support", 10},
+                                                          {"Saved", 6},
+                                                          {"Run", 7}});
   groups_table_ = std::make_shared<ui::Table>(std::vector<ui::Column>{
       {"Group", 26}, {"Mode", 14}, {"Strategy", 15}, {"Members", 12}});
   cores_table_ = std::make_shared<ui::Table>(std::vector<ui::Column>{
@@ -117,7 +130,8 @@ Workspace::~Workspace() {
 }
 Result<Json> Workspace::call(std::string_view method, Json p) {
   auto r = request(socket_, std::string(method), std::move(p));
-  if (r) endpoint_connected_ = true;
+  if (r)
+    endpoint_connected_ = true;
   if (!r) {
     if (r.error().code == ErrorCode::io_error ||
         r.error().code == ErrorCode::result_unknown) {
@@ -126,7 +140,8 @@ Result<Json> Workspace::call(std::string_view method, Json p) {
     }
     const auto message = human::error(r.error(), pages_[page_], name(view_));
     last_diagnostic_ = message.diagnostic;
-    last_error_ = message.title + ": " + message.reason + " " + message.recovery;
+    last_error_ =
+        message.title + ": " + message.reason + " " + message.recovery;
     r.error().message = message.reason + " " + message.recovery;
   }
   return r;
@@ -215,7 +230,9 @@ Workspace::secondary_items() const {
     for (auto &m : module_catalog())
       items.emplace_back(m.key, m.key);
   if (page_ == 4) {
-    items = {{"all", "Scope: All"}, {"local", "Scope: Local"}, {"groups", "Scope: Groups"}};
+    items = {{"all", "Scope: All"},
+             {"local", "Scope: Local"},
+             {"groups", "Scope: Groups"}};
     for (auto &s : subscriptions_)
       items.emplace_back(s.value("id", ""), "Source: " + s.value("name", ""));
   }
@@ -259,7 +276,8 @@ void Workspace::refresh_tables() {
     const auto found = std::ranges::find_if(items, [&](const auto &item) {
       return item.first == selected_section_ids_[page_];
     });
-    secondary_ = found == items.end() ? 0 : static_cast<int>(found - items.begin());
+    secondary_ =
+        found == items.end() ? 0 : static_cast<int>(found - items.begin());
     if (found == items.end() && !items.empty())
       selected_section_ids_[page_] = items.front().first;
   }
@@ -278,11 +296,13 @@ void Workspace::refresh_tables() {
   for (auto &p : profiles_) {
     auto id = p.value("id", "");
     auto core = find_id(cores_, p.value("core_id", ""));
-    const bool running = status_.contains("active") && status_["active"].is_object() &&
-        id == status_["active"].value("profile_id", "");
-    rows.push_back({id, {p.value("name", ""), core.value("name", "Not set"),
-                         id == use_ ? "yes" : "—", id == edit_ ? "yes" : "—",
-                         fresh_ ? (running ? "running" : "—") : "unknown"}});
+    const bool running = status_.contains("active") &&
+                         status_["active"].is_object() &&
+                         id == status_["active"].value("profile_id", "");
+    rows.push_back({id,
+                    {p.value("name", ""), core.value("name", "Not set"),
+                     id == use_ ? "yes" : "—", id == edit_ ? "yes" : "—",
+                     fresh_ ? (running ? "running" : "—") : "unknown"}});
   }
   profiles_table_->set_rows(std::move(rows),
                             loaded_ ? "No Profiles" : "Profiles unavailable");
@@ -296,8 +316,7 @@ void Workspace::refresh_tables() {
     rows.push_back(
         {id,
          {s.value("name", ""), scalar(s.value("node_count", Json(nullptr))),
-          subscription_result(s),
-          s.value("auto_refresh", false) ? "on" : "off",
+          subscription_result(s), s.value("auto_refresh", false) ? "on" : "off",
           view_.empty() ? "—"
           : bound       ? "yes"
                         : "no"}});
@@ -330,18 +349,24 @@ void Workspace::refresh_tables() {
       continue;
     auto id = n.value("id", "");
     if (node_name_counts[label] > 1) {
-      const auto source_label = source.empty()
-          ? std::string("local")
-          : find_id(subscriptions_, source).value("name", source);
-      label += " [" + source_label + ":" + id.substr(0, std::min<std::size_t>(6, id.size())) + "]";
+      const auto source_label =
+          source.empty()
+              ? std::string("local")
+              : find_id(subscriptions_, source).value("name", source);
+      label += " [" + source_label + ":" +
+               id.substr(0, std::min<std::size_t>(6, id.size())) + "]";
     }
-    const bool saved = profile_.contains("selected") && profile_["selected"].is_object() &&
-        profile_["selected"].value("id_or_tag", "") == id;
-    const bool running = status_.contains("actual_target") && status_["actual_target"].is_object() &&
-        status_["actual_target"].value("id_or_tag", "") == id;
-    rows.push_back({id, {label, n.value("protocol", "native"),
-                        n.value("enabled", true) ? "yes" : "no", n.value("support", "unknown"),
-                        saved ? "yes" : "—", fresh_ ? (running ? "yes" : "—") : "unknown"}});
+    const bool saved = profile_.contains("selected") &&
+                       profile_["selected"].is_object() &&
+                       profile_["selected"].value("id_or_tag", "") == id;
+    const bool running = status_.contains("actual_target") &&
+                         status_["actual_target"].is_object() &&
+                         status_["actual_target"].value("id_or_tag", "") == id;
+    rows.push_back({id,
+                    {label, n.value("protocol", "native"),
+                     n.value("enabled", true) ? "yes" : "no",
+                     n.value("support", "unknown"), saved ? "yes" : "—",
+                     fresh_ ? (running ? "yes" : "—") : "unknown"}});
   }
   nodes_table_->set_rows(std::move(rows), loaded_ ? "No nodes in this view"
                                                   : "Nodes unavailable");
@@ -368,21 +393,29 @@ void Workspace::refresh_tables() {
   else
     for (auto &c : cores_)
       rows.push_back({c.value("id", ""),
-                      {c.value("name", ""), [&] {
+                      {c.value("name", ""),
+                       [&] {
                          auto version = c.value("reported_version", "");
-                         if (version.starts_with("Xray ")) version.erase(0, 5);
-                         if (auto end = version.find_first_of(" \n"); end != std::string::npos) version.resize(end);
+                         if (version.starts_with("Xray "))
+                           version.erase(0, 5);
+                         if (auto end = version.find_first_of(" \n");
+                             end != std::string::npos)
+                           version.resize(end);
                          return version;
                        }(),
                        c.value("managed", false) ? "managed" : "registered"}});
-  cores_table_->set_rows(std::move(rows), loaded_ ? "No registered cores" : "Core inventory unavailable");
+  cores_table_->set_rows(std::move(rows), loaded_
+                                              ? "No registered cores"
+                                              : "Core inventory unavailable");
   rows.clear();
   for (auto &g : geodata_)
     rows.push_back({g.value("id", ""),
                     {g.value("name", ""), g.value("kind", ""),
                      g.value("last_result", "never"),
                      g.value("auto_update", false) ? "on" : "off"}});
-  geodata_table_->set_rows(std::move(rows), loaded_ ? "No Geodata resources" : "Geodata inventory unavailable");
+  geodata_table_->set_rows(std::move(rows),
+                           loaded_ ? "No Geodata resources"
+                                   : "Geodata inventory unavailable");
   rows.clear();
   auto sec = section();
   auto object = sec == "Appearance"
@@ -394,26 +427,43 @@ void Workspace::refresh_tables() {
                            {"Configuration", "Native modules are in Modules"},
                            {"Version", "XRM 0.1.0"}};
   if (object.is_object())
-    for (auto it = object.begin(); it != object.end(); ++it)
-      {
-        static const std::map<std::string, std::string> labels{
-          {"theme", "Theme"}, {"color_mode", "Color capability"}, {"density", "Content density"},
-          {"icon_mode", "Symbols"}, {"reduce_motion", "Reduce motion"}, {"cli_color", "CLI color"},
-          {"argv", "External editor"}, {"default_url", "Test URL"}, {"timeout_ms", "Timeout (ms)"},
-          {"concurrency", "Parallel tests"}, {"max_body_bytes", "Response limit (bytes)"}};
-        auto label = labels.contains(it.key()) ? labels.at(it.key()) : it.key();
-        auto value = scalar(it.value());
-        if (it.key() == "theme") value = value == "dark" ? "XRM Slate" : value == "light" ? "XRM Paper" : "Terminal palette";
-        if (it.value().is_boolean()) value = it.value().get<bool>() ? "On" : "Off";
-        if (it.key() == "argv" && it.value().is_array()) {
-          value.clear();
-          for (auto &arg : it.value()) { if (!value.empty()) value += " "; value += scalar(arg); }
-          if (value.empty()) value = "Not configured";
+    for (auto it = object.begin(); it != object.end(); ++it) {
+      static const std::map<std::string, std::string> labels{
+          {"theme", "Theme"},
+          {"color_mode", "Color capability"},
+          {"density", "Content density"},
+          {"icon_mode", "Symbols"},
+          {"reduce_motion", "Reduce motion"},
+          {"cli_color", "CLI color"},
+          {"argv", "External editor"},
+          {"default_url", "Test URL"},
+          {"timeout_ms", "Timeout (ms)"},
+          {"concurrency", "Parallel tests"},
+          {"max_body_bytes", "Response limit (bytes)"}};
+      auto label = labels.contains(it.key()) ? labels.at(it.key()) : it.key();
+      auto value = scalar(it.value());
+      if (it.key() == "theme")
+        value = value == "dark"    ? "XRM Slate"
+                : value == "light" ? "XRM Paper"
+                                   : "Terminal palette";
+      if (it.value().is_boolean())
+        value = it.value().get<bool>() ? "On" : "Off";
+      if (it.key() == "argv" && it.value().is_array()) {
+        value.clear();
+        for (auto &arg : it.value()) {
+          if (!value.empty())
+            value += " ";
+          value += scalar(arg);
         }
-        if (value.empty()) value = "Not configured";
-        rows.push_back({it.key(), {label, value}});
+        if (value.empty())
+          value = "Not configured";
       }
-  settings_table_->set_rows(std::move(rows), loaded_ ? "No settings" : "Settings unavailable");
+      if (value.empty())
+        value = "Not configured";
+      rows.push_back({it.key(), {label, value}});
+    }
+  settings_table_->set_rows(std::move(rows),
+                            loaded_ ? "No settings" : "Settings unavailable");
 }
 void Workspace::background(std::function<Result<Json>()> job,
                            std::function<void(Result<Json>)> done) {
@@ -432,8 +482,11 @@ void Workspace::operation(std::string method, Json params, std::string label) {
         if (!r) {
           const auto message = human::error(r.error(), label, name(view_));
           last_diagnostic_ = message.diagnostic;
-          if (r.error().code == ErrorCode::io_error || r.error().code == ErrorCode::result_unknown) fresh_ = false;
-          notify(message.title + ": " + message.reason + " " + message.recovery, ui::Tone::Error);
+          if (r.error().code == ErrorCode::io_error ||
+              r.error().code == ErrorCode::result_unknown)
+            fresh_ = false;
+          notify(message.title + ": " + message.reason + " " + message.recovery,
+                 ui::Tone::Error);
           return;
         }
         auto id = r->value("operation_id", "");
@@ -458,7 +511,9 @@ bool Workspace::mutate(std::string_view method, Json params,
   return true;
 }
 void Workspace::poll() {
-  toasts_.suspended(!overlays_.empty() || (page_ == 2 && !draft_.visual && writable() && layer_ == Layer::Content));
+  toasts_.suspended(
+      !overlays_.empty() ||
+      (page_ == 2 && !draft_.visual && writable() && layer_ == Layer::Content));
   toasts_.expire();
   if (background_.valid() && background_.wait_for(std::chrono::seconds(0)) ==
                                  std::future_status::ready) {
@@ -474,10 +529,13 @@ void Workspace::poll() {
     auto r = call("operation.get", {{"operation_id", it->first}});
     if (!r) {
       if (was_connected || r.error().code == ErrorCode::not_found)
-        notify(it->second + ": result unconfirmed — " + last_error_, ui::Tone::Error);
+        notify(it->second + ": result unconfirmed — " + last_error_,
+               ui::Tone::Error);
       // Re-query an existing operation after reconnect; never replay its write.
-      if (r.error().code == ErrorCode::not_found) it = operations_.erase(it);
-      else ++it;
+      if (r.error().code == ErrorCode::not_found)
+        it = operations_.erase(it);
+      else
+        ++it;
       continue;
     }
     auto state = r->value("status", "");
@@ -487,9 +545,11 @@ void Workspace::poll() {
     }
     if (state == "failed") {
       const auto parsed = error_from_json(r->value("error", Json::object()));
-      const auto message = human::error(parsed ? *parsed : parsed.error(), it->second, name(view_));
+      const auto message = human::error(parsed ? *parsed : parsed.error(),
+                                        it->second, name(view_));
       last_diagnostic_ = message.diagnostic;
-      notify(message.title + ": " + message.reason + " " + message.recovery, ui::Tone::Error);
+      notify(message.title + ": " + message.reason + " " + message.recovery,
+             ui::Tone::Error);
     } else if (state == "cancelled")
       notify(it->second + ": cancelled", ui::Tone::Warning);
     else {
@@ -501,15 +561,17 @@ void Workspace::poll() {
       if (result.is_object() && result.contains("failed") &&
           result["failed"].is_array()) {
         for (const auto &failed : result["failed"]) {
-          if (!failed.is_object()) continue;
+          if (!failed.is_object())
+            continue;
           auto id = failed.value("source_id", "");
           const auto source = find_id(subscriptions_, id);
           auto parsed = error_from_json(failed.value("error", Json::object()));
-          const auto message = human::error(parsed ? *parsed : parsed.error(),
-                                            "Refresh source", source.value("name", id),
-                                            "subscription.refresh");
+          const auto message =
+              human::error(parsed ? *parsed : parsed.error(), "Refresh source",
+                           source.value("name", id), "subscription.refresh");
           if (first_problem.empty()) {
-            first_problem = message.title + ": " + message.reason + " " + message.recovery;
+            first_problem =
+                message.title + ": " + message.reason + " " + message.recovery;
             last_diagnostic_ = message.diagnostic;
           }
         }
@@ -524,7 +586,8 @@ void Workspace::poll() {
             first_problem = source.value("name", id) + ": partial parse";
             if (c.contains("first_issue") && c["first_issue"].is_string())
               first_problem += " — " + c["first_issue"].get<std::string>();
-            first_problem += "; inspect the source result and retained inventory";
+            first_problem +=
+                "; inspect the source result and retained inventory";
           }
         }
       if (result.is_object() && result.contains("node_id"))
@@ -550,7 +613,11 @@ void Workspace::poll() {
   auto runtime = call("runtime.status");
   if (runtime) {
     status_ = *runtime;
-    if (!fresh_) { refresh(); if (fresh_) notify("Connection restored; cached lists refreshed"); }
+    if (!fresh_) {
+      refresh();
+      if (fresh_)
+        notify("Connection restored; cached lists refreshed");
+    }
   }
   if (page_ == 0) {
     if (!stats_reader_)
@@ -587,7 +654,8 @@ void Workspace::read_logs() {
                       e.value("stream", "core"), e.value("text", "")});
   auto records = ui::ParseLogChunks(chunks);
   log_lines_.clear();
-  for (const auto &record : records) log_lines_.push_back(record.raw);
+  for (const auto &record : records)
+    log_lines_.push_back(record.raw);
   logs_->set_records(std::move(records));
 }
 void Workspace::push(Component c) {
@@ -601,7 +669,8 @@ void Workspace::pop() {
     return;
   overlays_.back()->Detach();
   overlays_.pop_back();
-  if (overlays_.empty()) toasts_.suspended(false);
+  if (overlays_.empty())
+    toasts_.suspended(false);
   if (!overlays_.empty())
     overlays_.back()->TakeFocus();
   else if (auto c = content())
@@ -633,7 +702,8 @@ void Workspace::form(std::string title, std::vector<ui::Field> fields,
         }
       },
       [this, weak] { cancel_form(*weak); }, false, std::move(save));
-  f->set_context("Save this object to its saved settings; runtime remains unchanged.");
+  f->set_context(
+      "Save this object to its saved settings; runtime remains unchanged.");
   *weak = f;
   push(f);
 }
@@ -645,37 +715,67 @@ void Workspace::cancel_form(std::weak_ptr<ui::Form> weak) {
     pop();
     return;
   }
-  auto save = [this, weak] { pop(); if (auto form = weak.lock()) form->submit(); };
-  auto discard = [this] { pop(); pop(); };
+  auto save = [this, weak] {
+    pop();
+    if (auto form = weak.lock())
+      form->submit();
+  };
+  auto discard = [this] {
+    pop();
+    pop();
+  };
   auto resume = [this] { pop(); };
-  auto buttons = Container::Horizontal({ui::style::button("Save", save), ui::style::button("Discard", discard),
-                                        ui::style::button("Continue editing", resume)});
-  const auto message = "Unsaved changes to " + f->title() + ". " + f->context() +
-                       " Discard closes this form and loses these local changes.";
-  auto body = Renderer(buttons, [buttons,message] { return vbox({paragraph(message), text(""), buttons->Render()}); });
-  push(ui::Dialog("Unsaved form", body, resume,
-       {{"Enter on Save", "Save", f->title(), "", save, f->context()},
-        {"Enter on Discard", "Discard", f->title(), "", discard, "Lose this form's local changes."},
-        {"Esc", "Continue editing", f->title(), "", resume, "Keep all local values."}}));
+  auto buttons = Container::Horizontal(
+      {ui::style::button("Save", save), ui::style::button("Discard", discard),
+       ui::style::button("Continue editing", resume)});
+  const auto message =
+      "Unsaved changes to " + f->title() + ". " + f->context() +
+      " Discard closes this form and loses these local changes.";
+  auto body = Renderer(buttons, [buttons, message] {
+    return vbox({paragraph(message), text(""), buttons->Render()});
+  });
+  push(
+      ui::Dialog("Unsaved form", body, resume,
+                 {{"Enter on Save", "Save", f->title(), "", save, f->context()},
+                  {"Enter on Discard", "Discard", f->title(), "", discard,
+                   "Lose this form's local changes."},
+                  {"Esc", "Continue editing", f->title(), "", resume,
+                   "Keep all local values."}}));
 }
 void Workspace::leave_draft(std::function<void()> next) {
   if (!draft_.dirty()) {
     next();
     return;
   }
-  auto save = [this,next] { if (save_module()) { pop(); next(); } };
-  auto discard = [this,next] { draft_.text = draft_.baseline; pop(); next(); };
+  auto save = [this, next] {
+    if (save_module()) {
+      pop();
+      next();
+    }
+  };
+  auto discard = [this, next] {
+    draft_.text = draft_.baseline;
+    pop();
+    next();
+  };
   auto resume = [this] { pop(); };
   const auto target = draft_.module + " — " + name(draft_.profile);
   const auto message = "Unsaved changes to " + target +
-      ". Save writes this module's Source; the running core stays unchanged. Discard loses this module draft.";
-  auto buttons = Container::Horizontal({ui::style::button("Save",save), ui::style::button("Discard",discard),
-                                        ui::style::button("Continue editing",resume)});
-  auto body = Renderer(buttons,[buttons,message] { return vbox({paragraph(message),text(""),buttons->Render()}); });
-  push(ui::Dialog("Unsaved module",body,resume,
-       {{"Enter on Save","Save",target,"",save,"Write Source; runtime unchanged."},
-        {"Enter on Discard","Discard",target,"",discard,"Lose this module draft."},
-        {"Esc","Continue editing",target,"",resume,"Keep all local changes."}}));
+                       ". Save writes this module's Source; the running core "
+                       "stays unchanged. Discard loses this module draft.";
+  auto buttons = Container::Horizontal(
+      {ui::style::button("Save", save), ui::style::button("Discard", discard),
+       ui::style::button("Continue editing", resume)});
+  auto body = Renderer(buttons, [buttons, message] {
+    return vbox({paragraph(message), text(""), buttons->Render()});
+  });
+  push(ui::Dialog("Unsaved module", body, resume,
+                  {{"Enter on Save", "Save", target, "", save,
+                    "Write Source; runtime unchanged."},
+                   {"Enter on Discard", "Discard", target, "", discard,
+                    "Lose this module draft."},
+                   {"Esc", "Continue editing", target, "", resume,
+                    "Keep all local changes."}}));
 }
 void Workspace::help() {
   std::vector<ui::HelpEntry> entries;
@@ -683,82 +783,161 @@ void Workspace::help() {
   std::string prerequisites;
   const auto guide = [this] {
     switch (page_) {
-    case 0: return std::string("Add nodes in Nodes; choose the next Profile in Profiles. Connect publishes saved settings only.");
-    case 1: return std::string("Use chooses the next connection; module Edit grants writes in Modules. Connect and Stop are in Overview.");
-    case 2: return std::string("Read only? In Profiles, View this Profile and allow its module Edit; return here. This does not Use or run it.");
-    case 3: return std::string("Subscription updates change inventory only. Bind sources to a Profile here; select Nodes and Connect separately.");
-    case 4: return std::string("Groups are under Nodes / Scope: Groups. Choose Profile Use in Profiles; Connect in Overview.");
-    case 5: return std::string("Logs cannot stop the core. Go to Overview, then choose Stop core.");
-    default: return std::string("XRM settings and core registration are here. Xray native configuration is in Modules.");
+    case 0:
+      return std::string("Add nodes in Nodes; choose the next Profile in "
+                         "Profiles. Connect publishes saved settings only.");
+    case 1:
+      return std::string(
+          "Use chooses the next connection; module Edit grants writes in "
+          "Modules. Connect and Stop are in Overview.");
+    case 2:
+      return std::string(
+          "Read only? In Profiles, View this Profile and allow its module "
+          "Edit; return here. This does not Use or run it.");
+    case 3:
+      return std::string(
+          "Subscription updates change inventory only. Bind sources to a "
+          "Profile here; select Nodes and Connect separately.");
+    case 4:
+      return std::string("Groups are under Nodes / Scope: Groups. Choose "
+                         "Profile Use in Profiles; Connect in Overview.");
+    case 5:
+      return std::string(
+          "Logs cannot stop the core. Go to Overview, then choose Stop core.");
+    default:
+      return std::string("XRM settings and core registration are here. Xray "
+                         "native configuration is in Modules.");
     }
   };
   if (!overlays_.empty()) {
     const auto owner = overlays_.back();
     entries = ui::ContextHelp(owner);
     if (auto form = std::dynamic_pointer_cast<ui::Form>(owner)) {
-      context = form->title(); prerequisites = form->context();
-      entries.push_back({"", "Editing scope and advanced fields", form->title(), "", [this,form] {
-        detail_title_ = form->title(); detail_ = form->context(); full_detail(); }});
+      context = form->title();
+      prerequisites = form->context();
+      entries.push_back({"", "Editing scope and advanced fields", form->title(),
+                         "", [this, form] {
+                           detail_title_ = form->title();
+                           detail_ = form->context();
+                           full_detail();
+                         }});
     }
     if (page_ == 2 && !writable())
       prerequisites += " Read only for " + name(view_) + ". " + guide();
   } else if (layer_ != Layer::Content) {
-    context += layer_ == Layer::Top ? " · Page navigation"
-                                    : " · " + (page_ == 2 ? std::string("Module selection") : std::string("Section selection"));
-    entries = {{"Enter", "Open " + std::string(pages_[page_]) + (section().empty() ? "" : " / " + section()), "", "",
-                [this] { OnEvent(Event::Return); }},
-               {"Tab / Shift-Tab", layer_ == Layer::Top ? "Choose a page" : "Choose a module or section", "", ""},
-               {"Esc", "Return one level", "", ""}};
+    context += layer_ == Layer::Top
+                   ? " · Page navigation"
+                   : " · " + (page_ == 2 ? std::string("Module selection")
+                                         : std::string("Section selection"));
+    entries = {
+        {"Enter",
+         "Open " + std::string(pages_[page_]) +
+             (section().empty() ? "" : " / " + section()),
+         "", "", [this] { OnEvent(Event::Return); }},
+        {"Tab / Shift-Tab",
+         layer_ == Layer::Top ? "Choose a page" : "Choose a module or section",
+         "", ""},
+        {"Esc", "Return one level", "", ""}};
     int shown = 0;
     for (const auto &task : actions()) {
-      if (task.key == "N" || task.key == "r" || task.key == "F") continue;
+      if (task.key == "N" || task.key == "r" || task.key == "F")
+        continue;
       entries.push_back({"After Enter", task.label,
                          task.target == pages_[page_] ? "" : task.target,
                          task.disabled});
-      if (++shown == 4) break;
+      if (++shown == 4)
+        break;
     }
-    if (layer_ == Layer::Top) entries.push_back({"q", "Exit TUI", "", "", [this] { OnEvent(Event::Character('q')); }, "The running core keeps running."});
+    if (layer_ == Layer::Top)
+      entries.push_back({"q", "Exit TUI", "", "",
+                         [this] { OnEvent(Event::Character('q')); },
+                         "The running core keeps running."});
     prerequisites = guide();
   } else {
     for (auto &a : actions()) {
-      auto duplicate = std::find_if(entries.begin(), entries.end(), [&](const auto &e) { return e.action == a.label && e.target == (a.target == pages_[page_] ? "" : a.target); });
-      if (duplicate != entries.end()) { duplicate->key += " / " + a.key; continue; }
-      entries.push_back({a.key,a.label,a.target == pages_[page_] ? "" : a.target,a.disabled,a.run});
+      auto duplicate =
+          std::find_if(entries.begin(), entries.end(), [&](const auto &e) {
+            return e.action == a.label &&
+                   e.target == (a.target == pages_[page_] ? "" : a.target);
+          });
+      if (duplicate != entries.end()) {
+        duplicate->key += " / " + a.key;
+        continue;
+      }
+      entries.push_back({a.key, a.label,
+                         a.target == pages_[page_] ? "" : a.target, a.disabled,
+                         a.run});
     }
     for (auto entry : ui::ContextHelp(content())) {
-      if (std::none_of(entries.begin(),entries.end(),[&](const auto &e) { return e.key == entry.key; })) entries.push_back(std::move(entry));
+      if (std::none_of(entries.begin(), entries.end(),
+                       [&](const auto &e) { return e.key == entry.key; }))
+        entries.push_back(std::move(entry));
     }
-    if (page_ != 2 && page_ != 5) entries.push_back({"Enter", "View highlighted object", "", "", [this] { view_detail(); }});
+    if (page_ != 2 && page_ != 5)
+      entries.push_back({"Enter", "View highlighted object", "", "",
+                         [this] { view_detail(); }});
     entries.push_back({"Esc", "Return one level", "", ""});
     if (page_ == 0) {
       context += " · Connect uses " + name(use_);
-      prerequisites = use_.empty() ? "Choose Use in Profiles before connecting. " : "Connect publishes saved settings only. ";
+      prerequisites = use_.empty()
+                          ? "Choose Use in Profiles before connecting. "
+                          : "Connect publishes saved settings only. ";
       if (stats_.value("availability", "unavailable") != "available")
-        prerequisites += "Statistics need saved stats, policy and metrics settings plus a running core. Configure in Modules, then explicitly Connect.";
+        prerequisites +=
+            "Statistics need saved stats, policy and metrics settings plus a "
+            "running core. Configure in Modules, then explicitly Connect.";
     }
-    if (page_ == 1) prerequisites = "Use selects the next connection Profile; Cancel Use and module Edit do not change the running core. Metadata is independent of Edit.";
+    if (page_ == 1)
+      prerequisites =
+          "Use selects the next connection Profile; Cancel Use and module Edit "
+          "do not change the running core. Metadata is independent of Edit.";
     if (page_ == 2) {
-      context = name(view_) + " / " + draft_.module + (draft_.runtime_view ? " · Runtime" : " · Source");
-      prerequisites = writable() ? "Child forms change this draft; Save writes Source; Connect publishes saved settings. "
-          : draft_.runtime_view ? "Runtime is always read only. Switch to Source to edit. "
-          : "Read only: in Profiles allow module Edit for " + name(view_) + ". ";
-      prerequisites += "Visual edits listed native fields; other fields/types remain in JSON (F2).";
+      context = name(view_) + " / " + draft_.module +
+                (draft_.runtime_view ? " · Runtime" : " · Source");
+      prerequisites =
+          writable() ? "Child forms change this draft; Save writes Source; "
+                       "Connect publishes saved settings. "
+          : draft_.runtime_view
+              ? "Runtime is always read only. Switch to Source to edit. "
+              : "Read only: in Profiles allow module Edit for " + name(view_) +
+                    ". ";
+      prerequisites += "Visual edits listed native fields; other fields/types "
+                       "remain in JSON (F2).";
     }
-    if (page_ == 5) prerequisites = "Pause keeps the current buffer in place; new text is buffered. Enter shows original text and transport details. No core lifecycle actions here.";
+    if (page_ == 5)
+      prerequisites = "Pause keeps the current buffer in place; new text is "
+                      "buffered. Enter shows original text and transport "
+                      "details. No core lifecycle actions here.";
     prerequisites += " " + guide();
   }
   if (!endpoint_connected_)
     prerequisites += " xrmd is unavailable at " + socket_ +
-        ". Check this endpoint and start the intended test daemon if needed; Refresh after it returns. Cached views and local drafts remain available.";
-  if (page_ == 2 && !draft_.error.empty()) entries.push_back({"", "Module validation detail", draft_.module, "", [this] {
-    detail_title_ = "Module validation"; detail_ = draft_.error; full_detail(); }});
-  if (!last_diagnostic_.empty()) entries.push_back({"", "Last error diagnostic", "", "", [this] {
-    detail_title_ = "Diagnostic (original)"; detail_ = last_diagnostic_; full_detail(); }});
-  for (auto &entry : entries) if (entry.run) {
-    auto run = std::move(entry.run);
-    entry.run = [this,run=std::move(run)] { pop(); run(); };
-  }
-  push(ui::HelpOverlay(std::move(entries), [this] { pop(); }, context, prerequisites));
+                     ". Check this endpoint and start the intended test daemon "
+                     "if needed; Refresh after it returns. Cached views and "
+                     "local drafts remain available.";
+  if (page_ == 2 && !draft_.error.empty())
+    entries.push_back(
+        {"", "Module validation detail", draft_.module, "", [this] {
+           detail_title_ = "Module validation";
+           detail_ = draft_.error;
+           full_detail();
+         }});
+  if (!last_diagnostic_.empty())
+    entries.push_back({"", "Last error diagnostic", "", "", [this] {
+                         detail_title_ = "Diagnostic (original)";
+                         detail_ = last_diagnostic_;
+                         full_detail();
+                       }});
+  for (auto &entry : entries)
+    if (entry.run) {
+      auto run = std::move(entry.run);
+      entry.run = [this, run = std::move(run)] {
+        pop();
+        run();
+      };
+    }
+  push(ui::HelpOverlay(
+      std::move(entries), [this] { pop(); }, context, prerequisites));
 }
 std::string Workspace::target_label(const Json &target) const {
   if (!target.is_object())
@@ -786,26 +965,43 @@ Element Workspace::overview() const {
   const auto state = fresh_ ? status_.value("state", "unknown") : "unknown";
   Elements runtime{
       heading("Runtime", "ACTUAL"),
-      hbox({text(state) | bold | ink(state == "running" ? Role::Running : Role::Warning),
-            text(active.is_object() ? "  " + [&] {
-              auto version = active.value("core_version", "");
-              if (version.starts_with("Xray ")) version.erase(0, 5);
-              if (auto end = version.find_first_of(" \n"); end != std::string::npos) version.resize(end);
-              return "Xray " + version;
-            }() + "  PID " + scalar(status_.value("pid", Json(nullptr))) : "") | ink(Role::Muted)}),
+      hbox(
+          {text(state) | bold |
+               ink(state == "running" ? Role::Running : Role::Warning),
+           text(active.is_object()
+                    ? "  " +
+                          [&] {
+                            auto version = active.value("core_version", "");
+                            if (version.starts_with("Xray "))
+                              version.erase(0, 5);
+                            if (auto end = version.find_first_of(" \n");
+                                end != std::string::npos)
+                              version.resize(end);
+                            return "Xray " + version;
+                          }() +
+                          "  PID " + scalar(status_.value("pid", Json(nullptr)))
+                    : "") |
+               ink(Role::Muted)}),
       key_value("Running Profile", fresh_ ? active_name() : "unavailable"),
-      key_value("Actual target", fresh_ ? target_label(status_.value("actual_target", Json(nullptr))) : "unavailable"),
-      key_value("Health", !fresh_ ? "Unknown" : state == "stopped" ? "Not running"
-          : state != "running" ? "Unconfirmed"
-          : status_.value("health", "unknown") == "process_only"
-          ? "Process alive; traffic unverified" : status_.value("health", "unknown"))};
-  Elements saved{heading("Saved configuration", "VIEW " + name(view_)),
-      key_value("Saved target", target_label(profile_.value("selected", Json(nullptr)))),
+      key_value("Actual target", fresh_ ? target_label(status_.value(
+                                              "actual_target", Json(nullptr)))
+                                        : "unavailable"),
+      key_value("Health", !fresh_              ? "Unknown"
+                          : state == "stopped" ? "Not running"
+                          : state != "running" ? "Unconfirmed"
+                          : status_.value("health", "unknown") == "process_only"
+                              ? "Process alive; traffic unverified"
+                              : status_.value("health", "unknown"))};
+  Elements saved{
+      heading("Saved configuration", "VIEW " + name(view_)),
+      key_value("Saved target",
+                target_label(profile_.value("selected", Json(nullptr)))),
       key_value("Next Connect", use_.empty() ? "No Use Profile" : name(use_)),
       text("Saved settings apply only on Connect / Apply") | ink(Role::Muted)};
   Elements body;
   if (Terminal::Size().dimx >= 120)
-    body.push_back(hbox({vbox(runtime) | xflex, text("    "), vbox(saved) | xflex}));
+    body.push_back(
+        hbox({vbox(runtime) | xflex, text("    "), vbox(saved) | xflex}));
   else {
     body.push_back(vbox(runtime));
     body.push_back(text(""));
@@ -816,13 +1012,18 @@ Element Workspace::overview() const {
       status_.value("override_state", "none") == "none" &&
       profile_.value("selected", Json(nullptr)) !=
           status_.value("actual_target", Json(nullptr)))
-    body.push_back(text("Saved target changed since this run · Connect to apply") |
-                   ink(Role::Muted));
-  if (draft_.dirty()) body.push_back(text("* Unsaved module  " + draft_.module) | ink(Role::Warning));
+    body.push_back(
+        text("Saved target changed since this run · Connect to apply") |
+        ink(Role::Muted));
+  if (draft_.dirty())
+    body.push_back(text("* Unsaved module  " + draft_.module) |
+                   ink(Role::Warning));
   if (status_.value("override_state", "none") != "none")
-    body.push_back(key_value("Runtime override", status_.value("override_state", "unknown")));
+    body.push_back(key_value("Runtime override",
+                             status_.value("override_state", "unknown")));
   if (status_.contains("error") && status_["error"].is_object())
-    body.push_back(paragraph("! " + status_["error"].value("message", "")) | ink(Role::Error));
+    body.push_back(paragraph("! " + status_["error"].value("message", "")) |
+                   ink(Role::Error));
   body.push_back(text(""));
   body.push_back(heading("Statistics", "OBSERVED"));
   auto sample = stats_.value("sample", Json(nullptr));
@@ -843,13 +1044,17 @@ Element Workspace::overview() const {
                         scalar(observation.value("latency_ms", Json(nullptr))) +
                         " ms · alive " +
                         scalar(observation.value("alive", Json(nullptr)))));
-  if (stats_.contains("missing_conditions") && stats_["missing_conditions"].is_array()) {
+  if (stats_.contains("missing_conditions") &&
+      stats_["missing_conditions"].is_array()) {
     std::string missing;
     for (auto &condition : stats_["missing_conditions"]) {
-      if (!missing.empty()) missing += ", ";
+      if (!missing.empty())
+        missing += ", ";
       missing += scalar(condition);
     }
-    if (!missing.empty()) body.push_back(paragraph("Unavailable reason: " + missing) | ink(Role::Muted));
+    if (!missing.empty())
+      body.push_back(paragraph("Unavailable reason: " + missing) |
+                     ink(Role::Muted));
   }
   if (stats_.contains("rates") && stats_["rates"].is_array())
     for (auto &rate : stats_["rates"])
@@ -861,10 +1066,10 @@ Element Workspace::overview() const {
             scalar(rate.value("downlink_bytes_per_second", Json(nullptr))) +
             " B/s"));
   body.push_back(text(""));
-  body.push_back(
-      text("Inventory  " +
-           (loaded_ ? ui::Count(nodes_.size(), "node") + " · " + ui::Count(subscriptions_.size(), "source")
-                    : "unavailable")));
+  body.push_back(text("Inventory  " +
+                      (loaded_ ? ui::Count(nodes_.size(), "node") + " · " +
+                                     ui::Count(subscriptions_.size(), "source")
+                               : "unavailable")));
   if (!operations_.empty())
     body.push_back(text("Pending  " + operations_.begin()->second));
   return vbox(std::move(body)) | focusPosition(0, overview_scroll_) | yframe |
@@ -886,8 +1091,11 @@ Element Workspace::OnRender() {
   if (dimensions.dimx < 80 || dimensions.dimy < 24)
     return vbox({text("XRM · Terminal too small") | bold,
                  text(std::to_string(dimensions.dimx) + "x" +
-                      std::to_string(dimensions.dimy) + " available; 80x24 required"),
-                 text("Your draft and focus are preserved.") | ink(Role::Muted)}) | center | surface();
+                      std::to_string(dimensions.dimy) +
+                      " available; 80x24 required"),
+                 text("Your draft and focus are preserved.") |
+                     ink(Role::Muted)}) |
+           center | surface();
   Elements nav{text("XRM ") | bold | ink(Role::Accent)};
   for (int i = 0; i < 7; i++) {
     auto n = text(std::string(i == page_ ? "[" : " ") + pages_[i] +
@@ -899,64 +1107,122 @@ Element Workspace::OnRender() {
   auto subs = secondary_items();
   if (!subs.empty()) {
     std::vector<std::string> labels;
-    for (const auto &item : subs) labels.push_back(item.second);
-    top.push_back(ui::Navigation(labels, secondary_, dimensions.dimx-2, layer_ == Layer::Secondary));
+    for (const auto &item : subs)
+      labels.push_back(item.second);
+    top.push_back(ui::Navigation(labels, secondary_, dimensions.dimx - 2,
+                                 layer_ == Layer::Secondary));
   }
   std::string title = pages_[page_], subtitle;
   switch (page_) {
-  case 0: subtitle = "Runtime & saved configuration"; break;
-  case 1: subtitle = loaded_ ? ui::Count(profiles_.size(), "Profile") + " / independent runtime contexts" : "Unavailable"; break;
+  case 0:
+    subtitle = "Runtime & saved configuration";
+    break;
+  case 1:
+    subtitle = loaded_ ? ui::Count(profiles_.size(), "Profile") +
+                             " / independent runtime contexts"
+                       : "Unavailable";
+    break;
   case 2:
     title = draft_.module.empty() ? "Modules" : draft_.module;
-    subtitle = std::string(draft_.runtime_view ? "RUNTIME · READ ONLY" : writable() ? "SOURCE · EDIT" : "SOURCE · READ ONLY") +
-               (draft_.visual ? " · Visual" : " · JSON") + (draft_.dirty() ? " · UNSAVED *" : ""); break;
-  case 3: subtitle = loaded_ ? ui::Count(subscriptions_.size(), "source") + " / node inventory" : "Unavailable"; break;
-  case 4: subtitle = section() == "groups" ? "Groups · selection bindings" : "Node inventory";
-          if (!search_.empty()) subtitle += "  /  Search: " + search_; break;
-  case 5: subtitle = "Core output"; break;
-  case 6: title = "Config / " + section();
-          subtitle = section() == "Core" ? "Installed & registered Xray binaries" : section() == "Geodata" ? "Resource cache" : "XRM program settings"; break;
+    subtitle = std::string(draft_.runtime_view ? "RUNTIME · READ ONLY"
+                           : writable()        ? "SOURCE · EDIT"
+                                               : "SOURCE · READ ONLY") +
+               (draft_.visual ? " · Visual" : " · JSON") +
+               (draft_.dirty() ? " · UNSAVED *" : "");
+    break;
+  case 3:
+    subtitle = loaded_ ? ui::Count(subscriptions_.size(), "source") +
+                             " / node inventory"
+                       : "Unavailable";
+    break;
+  case 4:
+    subtitle = section() == "groups" ? "Groups · selection bindings"
+                                     : "Node inventory";
+    if (!search_.empty())
+      subtitle += "  /  Search: " + search_;
+    break;
+  case 5:
+    subtitle = "Core output";
+    break;
+  case 6:
+    title = "Config / " + section();
+    subtitle = section() == "Core"      ? "Installed & registered Xray binaries"
+               : section() == "Geodata" ? "Resource cache"
+                                        : "XRM program settings";
+    break;
+  default:
+    break;
   }
   top.push_back(heading(title, subtitle));
-  Element body = page_ == 0 ? overview() : content() ? content()->Render()
-     : vbox({text(""), text("View a Profile to inspect native modules") | ink(Role::Muted)});
+  Element body =
+      page_ == 0 ? overview()
+      : content()
+          ? content()->Render()
+          : vbox({text(""), text("View a Profile to inspect native modules") |
+                                ink(Role::Muted)});
   if (page_ == 2 && !draft_.error.empty())
-    body = vbox({paragraph("! " + ui::Clip(draft_.error, std::max(40,dimensions.dimx-4)*3)) | ink(Role::Error),
-                 body | flex});
+    body = vbox(
+        {paragraph("! " + ui::Clip(draft_.error,
+                                   std::max(40, dimensions.dimx - 4) * 3)) |
+             ink(Role::Error),
+         body | flex});
   if (page_ == 5 && !fresh_ && raw_logs_.empty())
-    body = text("Log stream unavailable · daemon disconnected") | ink(Role::Warning);
+    body = text("Log stream unavailable · daemon disconnected") |
+           ink(Role::Warning);
   auto context_name = [&](const std::string &value) {
     const int budget = std::max(8, (dimensions.dimx - 30) / 4);
-    if (string_width(value) <= budget) return value;
+    if (string_width(value) <= budget)
+      return value;
     std::string clipped;
     int used = 0;
     for (const auto &glyph : Utf8ToGlyphs(value)) {
-      if (used + string_width(glyph) > budget - 1) break;
-      clipped += glyph; used += string_width(glyph);
+      if (used + string_width(glyph) > budget - 1)
+        break;
+      clipped += glyph;
+      used += string_width(glyph);
     }
     return clipped + "…";
   };
-  std::string context = "Viewing: " + context_name(name(view_)) + " · Next: " + context_name(name(use_)) +
-                        " · Module Edit: " + context_name(name(edit_)) + " · Running: " + context_name(fresh_ ? active_name() : "unknown");
+  std::string context =
+      "Viewing: " + context_name(name(view_)) +
+      " · Next: " + context_name(name(use_)) +
+      " · Module Edit: " + context_name(name(edit_)) +
+      " · Running: " + context_name(fresh_ ? active_name() : "unknown");
   std::string details = context_details();
-  if (auto end = details.find('\n'); end != std::string::npos) details.resize(end);
+  if (auto end = details.find('\n'); end != std::string::npos)
+    details.resize(end);
   if (page_ == 2 && !draft_.module.empty())
     details = draft_.module + " · " +
-              (draft_.runtime_view ? "Runtime read-only" : writable() ? "Source editable" : "Source read-only") +
-              " · " + (draft_.visual ? "Visual" : "JSON") + (draft_.dirty() ? " · Unsaved *" : "") +
-              (draft_.included ? " · included" : " · excluded") + (draft_.expected ? "" : " · no source");
+              (draft_.runtime_view ? "Runtime read-only"
+               : writable()        ? "Source editable"
+                                   : "Source read-only") +
+              " · " + (draft_.visual ? "Visual" : "JSON") +
+              (draft_.dirty() ? " · Unsaved *" : "") +
+              (draft_.included ? " · included" : " · excluded") +
+              (draft_.expected ? "" : " · no source");
   if (page_ == 5) {
-    details = !fresh_ && raw_logs_.empty() ? "Log stream unavailable · disconnected"
-        : std::string(!fresh_ ? "Cached · disconnected" : logs_->following() ? "Following" : "Paused") +
-              " · " + ui::Count(logs_->record_count(), "text line");
-    if (logs_->unseen()) details += " · " + ui::Count(logs_->unseen(), "new text line") + " buffered";
-    if (log_dropped_) details += " · earlier output evicted";
-    if (log_truncated_) details += " · server history incomplete";
+    details = !fresh_ && raw_logs_.empty()
+                  ? "Log stream unavailable · disconnected"
+                  : std::string(!fresh_              ? "Cached · disconnected"
+                                : logs_->following() ? "Following"
+                                                     : "Paused") +
+                        " · " + ui::Count(logs_->record_count(), "text line");
+    if (logs_->unseen())
+      details +=
+          " · " + ui::Count(logs_->unseen(), "new text line") + " buffered";
+    if (log_dropped_)
+      details += " · earlier output evicted";
+    if (log_truncated_)
+      details += " · server history incomplete";
   }
-  std::string state = std::string(fresh_ ? "xrmd ready" : loaded_ ? "xrmd disconnected · cached data" : "xrmd unavailable") +
-                      " · " + (layer_ == Layer::Top ? "Page navigation (TopNav)"
-                            : layer_ == Layer::Secondary ? "Section selection (SecondaryNav)"
-                                                          : "Page content (Content)");
+  std::string state =
+      std::string(fresh_    ? "xrmd ready"
+                  : loaded_ ? "xrmd disconnected · cached data"
+                            : "xrmd unavailable") +
+      " · " +
+      (layer_ == Layer::Top         ? "Page navigation (TopNav)"
+       : layer_ == Layer::Secondary ? "Section selection (SecondaryNav)"
+                                    : "Page content (Content)");
   if (page_ == 2 && !draft_.module.empty())
     state += " · " + (draft_.runtime_view ? draft_.runtime : draft_.source);
 
@@ -964,18 +1230,26 @@ Element Workspace::OnRender() {
   auto area = body | size(HEIGHT, EQUAL, body_height);
   // Notifications are below modal dialogs in the overlay stack. They never
   // consume layout rows, focus, or input, and can't hide a dialog's controls.
-  if (overlays_.empty() && !(page_ == 2 && !draft_.visual && writable() && layer_ == Layer::Content) && !toasts_.visible().empty()) area = dbox({area, toasts_.render()});
-  if (!overlays_.empty()) area = area | dim;
+  if (overlays_.empty() &&
+      !(page_ == 2 && !draft_.visual && writable() &&
+        layer_ == Layer::Content) &&
+      !toasts_.visible().empty())
+    area = dbox({area, toasts_.render()});
+  if (!overlays_.empty())
+    area = area | dim;
   if (!overlays_.empty()) {
-    auto modal = hbox({text(" "), overlays_.back()->Render() | xflex, text(" ")}) |
-                 size(WIDTH, EQUAL, std::min(100, dimensions.dimx - 6)) |
-                 size(HEIGHT, LESS_THAN, body_height - 2) | border | panel();
+    auto modal =
+        hbox({text(" "), overlays_.back()->Render() | xflex, text(" ")}) |
+        size(WIDTH, EQUAL, std::min(100, dimensions.dimx - 6)) |
+        size(HEIGHT, LESS_THAN, body_height - 2) | border | panel();
     area = dbox({area, modal | center});
   }
-  auto root = vbox({vbox(top), separator() | rule(), area | size(HEIGHT, EQUAL, body_height),
-                    separator() | rule(), ui::InfoPane(context, details, state)});
+  auto root = vbox(
+      {vbox(top), separator() | rule(), area | size(HEIGHT, EQUAL, body_height),
+       separator() | rule(), ui::InfoPane(context, details, state)});
   return hbox({text(" "), root | xflex, text(" ")}) | surface() |
-         size(HEIGHT, EQUAL, dimensions.dimy) | size(WIDTH, EQUAL, dimensions.dimx);
+         size(HEIGHT, EQUAL, dimensions.dimy) |
+         size(WIDTH, EQUAL, dimensions.dimx);
 }
 bool Workspace::OnEvent(Event event) {
   if (event == Event::Custom) {
@@ -1008,20 +1282,23 @@ bool Workspace::OnEvent(Event event) {
       int delta = event == Event::Tab ? 1 : -1;
       leave_draft([this, delta] {
         if (layer_ == Layer::Top) {
-          if (!secondary_items().empty()) selected_section_ids_[page_] = section();
+          if (!secondary_items().empty())
+            selected_section_ids_[page_] = section();
           page_ = (page_ + delta + 7) % 7;
           secondary_ = 0;
           const auto items = secondary_items();
           for (std::size_t i = 0; i < items.size(); ++i)
             if (items[i].first == selected_section_ids_[page_])
               secondary_ = static_cast<int>(i);
-          detail_.clear(); detail_title_.clear();
+          detail_.clear();
+          detail_title_.clear();
         } else {
           int n = int(secondary_items().size());
           if (n) {
             secondary_ = (secondary_ + delta + n) % n;
             selected_section_ids_[page_] = section();
-            detail_.clear(); detail_title_.clear();
+            detail_.clear();
+            detail_title_.clear();
           }
         }
         refresh_tables();
@@ -1112,59 +1389,109 @@ bool Workspace::OnEvent(Event event) {
 std::string Workspace::context_details() const {
   if (page_ == 1) {
     const auto core = find_id(cores_, profile_.value("core_id", ""));
-    auto summary = "View " + name(view_) + " · Core " + core.value("name", "not set") +
-        " · Saved " + target_label(profile_.value("selected", Json(nullptr)));
+    auto summary = "View " + name(view_) + " · Core " +
+                   core.value("name", "not set") + " · Saved " +
+                   target_label(profile_.value("selected", Json(nullptr)));
     summary += "\nProfile ID: " + view_ + "\nSources: ";
-    if (!profile_.contains("enabled_source_ids") || !profile_["enabled_source_ids"].is_array()) summary += "All sources (legacy scope)";
-    else for (const auto &id : profile_["enabled_source_ids"])
-      summary += find_id(subscriptions_, id.get<std::string>()).value("name", id.get<std::string>()) + "; ";
+    if (!profile_.contains("enabled_source_ids") ||
+        !profile_["enabled_source_ids"].is_array())
+      summary += "All sources (legacy scope)";
+    else
+      for (const auto &id : profile_["enabled_source_ids"])
+        summary += find_id(subscriptions_, id.get<std::string>())
+                       .value("name", id.get<std::string>()) +
+                   "; ";
     summary += "\nModules: ";
-    for (const auto &module : modules_) summary += module.value("key", module.value("module", "")) +
-        (module.value("included", false) ? " included; " : " excluded; ");
-    if (profiles_table_->selected_id() != view_) summary += "\nHighlighted: " + name(profiles_table_->selected_id()) + " (Enter changes View only)";
+    for (const auto &module : modules_)
+      summary +=
+          module.value("key", module.value("module", "")) +
+          (module.value("included", false) ? " included; " : " excluded; ");
+    if (profiles_table_->selected_id() != view_)
+      summary += "\nHighlighted: " + name(profiles_table_->selected_id()) +
+                 " (Enter changes View only)";
     return summary;
   }
   auto t = table();
-  if (!t || t->selected_id().empty()) return view_.empty() ? "No View Profile · open Help for available tasks" : "View " + name(view_) + (section().empty() ? "" : " · " + section());
-  Json row = page_ == 3 ? find_id(subscriptions_, t->selected_id())
-      : page_ == 4 ? find_id(section() == "groups" ? groups_ : nodes_, t->selected_id())
+  if (!t || t->selected_id().empty())
+    return view_.empty() ? "No View Profile · open Help for available tasks"
+                         : "View " + name(view_) +
+                               (section().empty() ? "" : " · " + section());
+  Json row =
+      page_ == 3 ? find_id(subscriptions_, t->selected_id())
+      : page_ == 4
+          ? find_id(section() == "groups" ? groups_ : nodes_, t->selected_id())
       : page_ == 6 && section() == "Core" ? find_id(cores_, t->selected_id())
-      : page_ == 6 && section() == "Geodata" ? find_id(geodata_, t->selected_id()) : Json::object();
-  if (row.empty()) return "XRM / " + section() + " · preferences do not modify native Xray modules";
+      : page_ == 6 && section() == "Geodata"
+          ? find_id(geodata_, t->selected_id())
+          : Json::object();
+  if (row.empty())
+    return "XRM / " + section() +
+           " · preferences do not modify native Xray modules";
   std::string result = "Highlighted " + row.value("name", "");
-  if (page_ == 4) result += " · Saved " + target_label(profile_.value("selected", Json(nullptr))) +
-      " · Running " + (fresh_ ? target_label(status_.value("actual_target", Json(nullptr))) : "unknown");
-  if (page_ == 6) result += " · " + row.value("path", row.value("file_name", ""));
-  if (page_ == 3) result += " · " + subscription_result(row) + " · " + scalar(row.value("node_count", Json(nullptr))) + " nodes";
+  if (page_ == 4)
+    result +=
+        " · Saved " + target_label(profile_.value("selected", Json(nullptr))) +
+        " · Running " +
+        (fresh_ ? target_label(status_.value("actual_target", Json(nullptr)))
+                : "unknown");
+  if (page_ == 6)
+    result += " · " + row.value("path", row.value("file_name", ""));
+  if (page_ == 3)
+    result += " · " + subscription_result(row) + " · " +
+              scalar(row.value("node_count", Json(nullptr))) + " nodes";
   result += "\nID: " + row.value("id", "");
   if (page_ == 3) {
     auto timestamp = [](const Json &value) {
-      if (!value.is_number_integer()) return std::string("Not yet");
-      const auto seconds = static_cast<std::time_t>(value.get<std::int64_t>() / 1000);
-      std::tm utc{}; char buffer[32]{}; gmtime_r(&seconds, &utc);
-      std::strftime(buffer,sizeof(buffer),"%Y-%m-%d %H:%M:%S UTC",&utc); return std::string(buffer);
+      if (!value.is_number_integer())
+        return std::string("Not yet");
+      const auto seconds =
+          static_cast<std::time_t>(value.get<std::int64_t>() / 1000);
+      std::tm utc{};
+      char buffer[32]{};
+      gmtime_r(&seconds, &utc);
+      std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S UTC", &utc);
+      return std::string(buffer);
     };
-    result += "\nLast attempt: " + timestamp(row.value("last_attempt", Json(nullptr))) +
-              "\nLast success: " + timestamp(row.value("last_success", Json(nullptr)));
+    result += "\nLast attempt: " +
+              timestamp(row.value("last_attempt", Json(nullptr))) +
+              "\nLast success: " +
+              timestamp(row.value("last_success", Json(nullptr)));
     if (row.contains("last_error") && row["last_error"].is_string()) {
       const auto stage = row.value("last_error_stage", "source");
-      result += "\nLast " + stage + " issue: " + row["last_error"].get<std::string>();
+      result +=
+          "\nLast " + stage + " issue: " + row["last_error"].get<std::string>();
       result += "\nExisting inventory is retained after a failed refresh.";
     }
     const auto sources = profile_.value("enabled_source_ids", Json(nullptr));
     result += "\nView Profile binding (" + name(view_) + "): ";
-    if (view_.empty()) result += "No View Profile";
-    else if (!sources.is_array()) result += "Included (legacy all-source scope)";
-    else result += std::ranges::find(sources,Json(t->selected_id())) != sources.end() ? "Included" : "Not included";
-    result += "\nOther Profile bindings: inspect each Profile's source selection.";
+    if (view_.empty())
+      result += "No View Profile";
+    else if (!sources.is_array())
+      result += "Included (legacy all-source scope)";
+    else
+      result +=
+          std::ranges::find(sources, Json(t->selected_id())) != sources.end()
+              ? "Included"
+              : "Not included";
+    result +=
+        "\nOther Profile bindings: inspect each Profile's source selection.";
   }
   if (page_ == 4 && section() != "groups") {
     const auto source = row.value("source_id", Json(nullptr));
-    result += "\nSource: " + (source.is_string() ? find_id(subscriptions_,source.get<std::string>()).value("name", "Unavailable source") : "Local inventory");
-    result += std::string("\nSource present: ") + (row.value("source_missing",false) ? "no" : "yes");
+    result +=
+        "\nSource: " + (source.is_string()
+                            ? find_id(subscriptions_, source.get<std::string>())
+                                  .value("name", "Unavailable source")
+                            : "Local inventory");
+    result += std::string("\nSource present: ") +
+              (row.value("source_missing", false) ? "no" : "yes");
   }
-  for (const auto &key : {"protocol","transport","security","enabled","support","reported_version","path","file_name","last_result","unsupported_count","malformed_count"})
-    if (row.contains(key)) result += "\n" + std::string(key) + ": " + scalar(row[key]);
+  for (const auto &key :
+       {"protocol", "transport", "security", "enabled", "support",
+        "reported_version", "path", "file_name", "last_result",
+        "unsupported_count", "malformed_count"})
+    if (row.contains(key))
+      result += "\n" + std::string(key) + ": " + scalar(row[key]);
   return result;
 }
 void Workspace::full_detail() {
@@ -1198,20 +1525,23 @@ void Workspace::view_detail() {
   } else if (page_ == 3) {
     auto s = find_id(subscriptions_, subscriptions_table_->selected_id());
     detail_title_ = s.value("name", "");
-    detail_ = "Source " + detail_title_ + " · " +
-              subscription_result(s) + " · nodes " +
-              scalar(s.value("node_count", Json(nullptr))) + " · unsupported " +
+    detail_ = "Source " + detail_title_ + " · " + subscription_result(s) +
+              " · nodes " + scalar(s.value("node_count", Json(nullptr))) +
+              " · unsupported " +
               scalar(s.value("unsupported_count", Json(0))) + " · malformed " +
-              scalar(s.value("malformed_count", Json(0))) + " · ID " + s.value("id", "");
+              scalar(s.value("malformed_count", Json(0))) + " · ID " +
+              s.value("id", "");
     if (s.contains("last_error") && s["last_error"].is_string())
-      detail_ += "\nLast " + s.value("last_error_stage", "source") + " issue: " +
-                 s["last_error"].get<std::string>() +
-                 "\nExisting inventory remains available after a failed refresh.";
+      detail_ +=
+          "\nLast " + s.value("last_error_stage", "source") +
+          " issue: " + s["last_error"].get<std::string>() +
+          "\nExisting inventory remains available after a failed refresh.";
   } else if (page_ == 4) {
     auto row = section() == "groups"
                    ? find_id(groups_, groups_table_->selected_id())
                    : find_id(nodes_, nodes_table_->selected_id());
-    if (row.empty()) return;
+    if (row.empty())
+      return;
     detail_title_ = row.value("name", "");
     detail_ = "Cursor " + detail_title_ + " · Saved " +
               target_label(profile_.value("selected", Json(nullptr))) +
@@ -1224,7 +1554,8 @@ void Workspace::view_detail() {
     auto row = section() == "Core"
                    ? find_id(cores_, cores_table_->selected_id())
                    : find_id(geodata_, geodata_table_->selected_id());
-    if (row.empty()) return;
+    if (row.empty())
+      return;
     detail_title_ = row.value("name", section());
     detail_ = "Object " + detail_title_ + " · " +
               row.value("path", row.value("file_name", "")) + " · ID " +
@@ -1236,12 +1567,15 @@ void Workspace::view_detail() {
   } else if (page_ == 5) {
     if (const auto *record = logs_->selected_record()) {
       detail_title_ = "Log text line";
-      detail_ = "Time    " + (record->timestamp.empty() ? "not supplied" : record->timestamp) +
-                "\nTransport chunk  " + std::to_string(record->sequence) +
-                "\nSource  " + record->source +
-                "\nLevel   " + (record->level.empty() ? "not supplied" : record->level) +
-                "\nSubsystem  " + record->subsystem + "\n\n";
-      detail_ += "Line within chunk  " + std::to_string(record->line + 1) + "\n\n";
+      detail_ =
+          "Time    " +
+          (record->timestamp.empty() ? "not supplied" : record->timestamp) +
+          "\nTransport chunk  " + std::to_string(record->sequence) +
+          "\nSource  " + record->source + "\nLevel   " +
+          (record->level.empty() ? "not supplied" : record->level) +
+          "\nSubsystem  " + record->subsystem + "\n\n";
+      detail_ +=
+          "Line within chunk  " + std::to_string(record->line + 1) + "\n\n";
       detail_ += ui::LogTextForDisplay(record->raw, true);
       full_detail();
     }

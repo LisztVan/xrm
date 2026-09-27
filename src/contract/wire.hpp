@@ -1,3 +1,5 @@
+// XRM: Declares the RPC wire format and error envelope.
+
 #pragma once
 
 #include "model/common.hpp"
@@ -25,8 +27,8 @@ struct RpcResponse {
 };
 
 Result<RpcRequest> decode_request(std::string_view line);
-std::string encode_response(const RpcResponse& response);
-Json error_to_json(const AppError& error);
-Result<AppError> error_from_json(const Json& value);
+std::string encode_response(const RpcResponse &response);
+Json error_to_json(const AppError &error);
+Result<AppError> error_from_json(const Json &value);
 
-}  // namespace xrm
+} // namespace xrm

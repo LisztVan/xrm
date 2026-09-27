@@ -1,3 +1,5 @@
+// XRM: Defines runtime file sets, core status, and metrics data.
+
 #pragma once
 
 #include "model/profile.hpp"
@@ -29,7 +31,10 @@ struct ProcessSpec {
   std::map<std::string, std::string> environment;
 };
 using ProcessId = std::uint64_t;
-struct ProcessExit { int exit_code = 0; int term_signal = 0; };
+struct ProcessExit {
+  int exit_code = 0;
+  int term_signal = 0;
+};
 struct ProcessResult {
   ProcessExit exit;
   std::string stdout_text;
@@ -37,7 +42,11 @@ struct ProcessResult {
   bool output_truncated = false;
 };
 
-struct NodeRuntimeEntry { Id id; std::string tag; std::string display_name; };
+struct NodeRuntimeEntry {
+  Id id;
+  std::string tag;
+  std::string display_name;
+};
 struct GroupRuntimeEntry {
   Id id;
   std::string tag;
@@ -51,10 +60,14 @@ struct RuntimeIndex {
   std::vector<std::string> static_balancer_tags;
 };
 struct BuildInput {
+  // A snapshot of saved settings plus inventory, never a live UI draft.
   ProfileSnapshot settings;
   std::vector<Node> nodes;
 };
-struct OutputFile { std::filesystem::path relative_name; std::string bytes; };
+struct OutputFile {
+  std::filesystem::path relative_name;
+  std::string bytes;
+};
 using FileSet = std::vector<OutputFile>;
 struct PreparedFiles {
   FileSet files;
@@ -94,6 +107,7 @@ struct RunRecord {
 };
 struct RuntimePersistent {
   bool desired_running = false;
+  // Persisted run identity is distinct from the live process status.
   std::optional<RunRecord> active;
   std::optional<RunRecord> previous;
 };
@@ -117,11 +131,27 @@ struct BuildRequest {
   CoreInstall core;
   std::vector<RuntimeAssetFile> assets;
 };
-struct ReplayRequest { RunRecord record; CoreInstall core; };
+struct ReplayRequest {
+  RunRecord record;
+  CoreInstall core;
+};
 using ActivationInput = std::variant<BuildRequest, ReplayRequest>;
-enum class ActivationMode { start_or_replace, check_only, preserve_running_state };
-struct ActivationRequest { ActivationInput input; ActivationMode mode; };
-enum class ActivationEffect { checked_only, running_new, restored_old, stopped, unknown };
+enum class ActivationMode {
+  start_or_replace,
+  check_only,
+  preserve_running_state
+};
+struct ActivationRequest {
+  ActivationInput input;
+  ActivationMode mode;
+};
+enum class ActivationEffect {
+  checked_only,
+  running_new,
+  restored_old,
+  stopped,
+  unknown
+};
 struct ActivationResult {
   ActivationEffect effect = ActivationEffect::unknown;
   std::optional<RunRecord> active;
@@ -131,16 +161,24 @@ struct LifecycleOptions {
   Milliseconds check_timeout{30000};
   Milliseconds stop_grace{5000};
   Milliseconds process_observation{2000};
-  std::array<Milliseconds, 3> retry_delay{Milliseconds{1000}, Milliseconds{3000},
-                                         Milliseconds{10000}};
-  enum class Phase { prepare, checking, stopping_old, starting_new, restoring_old, retry_wait };
-  // Deterministic test synchronization; callback code must not block the loop thread.
+  std::array<Milliseconds, 3> retry_delay{
+      Milliseconds{1000}, Milliseconds{3000}, Milliseconds{10000}};
+  enum class Phase {
+    prepare,
+    checking,
+    stopping_old,
+    starting_new,
+    restoring_old,
+    retry_wait
+  };
+  // Deterministic test synchronization; callback code must not block the loop
+  // thread.
   std::function<void(Phase)> phase_observer;
 };
 
-void to_json(Json& json, const CoreInstall& value);
-void from_json(const Json& json, CoreInstall& value);
-void to_json(Json& json, const RuntimePersistent& value);
-void from_json(const Json& json, RuntimePersistent& value);
+void to_json(Json &json, const CoreInstall &value);
+void from_json(const Json &json, CoreInstall &value);
+void to_json(Json &json, const RuntimePersistent &value);
+void from_json(const Json &json, RuntimePersistent &value);
 
-}  // namespace xrm
+} // namespace xrm

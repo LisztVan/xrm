@@ -1,15 +1,17 @@
+// XRM: Tests contract in the compile-time and wire contracts suite.
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "client/rpc_client.hpp"
 #include "contract/dtos.hpp"
+#include "contract/methods.hpp"
 #include "contract/wire.hpp"
 #include "infra/process.hpp"
 #include "infra/store.hpp"
-#include "contract/methods.hpp"
 #include "model/profile.hpp"
+#include "model/subscription.hpp"
 #include "server/rpc_server.hpp"
 #include "xray/runtime_assembler.hpp"
-#include "model/subscription.hpp"
 
 TEST_CASE("C0 headers are independently usable", "[CT-01]") {
   STATIC_REQUIRE(std::is_default_constructible_v<xrm::Node>);
@@ -19,14 +21,16 @@ TEST_CASE("C0 headers are independently usable", "[CT-01]") {
 }
 
 TEST_CASE("C0 DTOs and errors have stable JSON representations", "[CT-02]") {
-  const xrm::NodeSummary summary{"node-1", "example", {"test"}, true, false, "vless"};
+  const xrm::NodeSummary summary{"node-1", "example", {"test"},
+                                 true,     false,     "vless"};
   const auto json = xrm::Json(summary);
   REQUIRE(json.at("id") == "node-1");
   REQUIRE(json.at("name") == "example");
   REQUIRE_FALSE(json.contains("password"));
   REQUIRE(json.get<xrm::NodeSummary>().protocol == "vless");
 
-  const xrm::AppError source{xrm::ErrorCode::conflict, "changed", "policy", "reload"};
+  const xrm::AppError source{xrm::ErrorCode::conflict, "changed", "policy",
+                             "reload"};
   const auto decoded = xrm::error_from_json(xrm::error_to_json(source));
   REQUIRE(decoded);
   REQUIRE(decoded->code == source.code);
@@ -51,8 +55,8 @@ TEST_CASE("C1 freezes current M1 profile and runtime surfaces", "[CT-01]") {
   STATIC_REQUIRE(std::is_default_constructible_v<xrm::OutputFile>);
   STATIC_REQUIRE(std::is_default_constructible_v<xrm::PreparedFiles>);
   STATIC_REQUIRE(std::is_same_v<decltype(xrm::assemble(
-                                   std::declval<const xrm::BuildInput&>())),
-                               xrm::Result<xrm::PreparedFiles>>);
+                                    std::declval<const xrm::BuildInput &>())),
+                                xrm::Result<xrm::PreparedFiles>>);
   REQUIRE(xrm::methods::profile_create == "profile.create");
   REQUIRE(xrm::methods::module_list == "module.list");
   REQUIRE(xrm::methods::connection_connect == "connection.connect");
@@ -64,8 +68,8 @@ TEST_CASE("C1 freezes current M1 profile and runtime surfaces", "[CT-01]") {
 }
 
 TEST_CASE("C2 subscription DTO summary does not disclose its URL", "[CT-02]") {
-  const xrm::SubscriptionSummary summary{"source-1", "example", true,
-      "success", 100, 200, 4, 1, 2};
+  const xrm::SubscriptionSummary summary{
+      "source-1", "example", true, "success", 100, 200, 4, 1, 2};
   const auto encoded = xrm::Json(summary);
   REQUIRE(encoded.at("id") == "source-1");
   REQUIRE(encoded.at("name") == "example");

@@ -1,3 +1,5 @@
+// XRM: Declares the log viewer model and rendering helpers.
+
 #pragma once
 
 #include <string>

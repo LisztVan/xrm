@@ -1,3 +1,5 @@
+// XRM: Declares non-destructive subscription node reconciliation.
+
 #pragma once
 
 #include "model/subscription.hpp"
@@ -17,7 +19,7 @@ struct ReconcileResult {
   RefreshReport report;
 };
 
-Result<ReconcileResult> reconcile(const ReconcileInput& input,
-                                  const std::function<Id()>& make_id);
+Result<ReconcileResult> reconcile(const ReconcileInput &input,
+                                  const std::function<Id()> &make_id);
 
-}  // namespace xrm
+} // namespace xrm

@@ -1,3 +1,5 @@
+// XRM: Defines persisted geodata resource metadata.
+
 #pragma once
 
 #include "geodata/resource_validation.hpp"
@@ -13,7 +15,7 @@ struct GeodataAssetVersion {
   Id resource_id;
   GeoAssetKind kind = GeoAssetKind::geoip;
   std::string file_name;
-  std::string version_id;  // SHA-256 of validated bytes.
+  std::string version_id; // SHA-256 of validated bytes.
   std::filesystem::path asset_dir;
   std::filesystem::path path;
   std::set<std::string> labels;
@@ -38,4 +40,4 @@ struct GeodataResourceRecord {
   std::string last_result;
 };
 
-}  // namespace xrm
+} // namespace xrm

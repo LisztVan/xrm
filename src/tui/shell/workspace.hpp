@@ -1,3 +1,5 @@
+// XRM: Declares persistent workspace state for the TUI session.
+
 #pragma once
 #include "client/rpc_session.hpp"
 #include "tui/adapters/rpc.hpp"
@@ -9,8 +11,11 @@
 #include <map>
 #include <thread>
 namespace xrm::tui {
+// Local editor state for one Profile/module pair. Only save_module() can
+// promote text from this draft into a persisted Source file.
 struct DraftSession {
   std::string profile, module, text, baseline, source, runtime, error;
+  // expected binds Save to the Source version opened by this editor.
   std::optional<std::string> expected;
   bool included = false, visual = true, runtime_view = false;
   bool dirty() const { return text != baseline; }
@@ -31,6 +36,8 @@ public:
 
 private:
   enum class Layer { Top, Secondary, Content };
+  // View, Use, and Edit are independent session choices; table cursors are
+  // stored by the controls and cannot silently change these identities.
   std::string socket_, view_, use_, edit_, detail_title_, detail_, last_error_,
       search_, last_diagnostic_;
   ftxui::ScreenInteractive &screen_;
@@ -44,8 +51,7 @@ private:
        status_ = Json::object(), stats_ = Json::object(),
        releases_ = Json::array();
   bool loaded_ = false, fresh_ = false, endpoint_connected_ = false,
-       show_missing_ = false,
-       releases_view_ = false;
+       show_missing_ = false, releases_view_ = false;
   std::shared_ptr<ui::Table> profiles_table_, subscriptions_table_,
       nodes_table_, groups_table_, cores_table_, geodata_table_,
       settings_table_;

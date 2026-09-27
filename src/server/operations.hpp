@@ -1,3 +1,5 @@
+// XRM: Declares asynchronous operation records and lookup.
+
 #pragma once
 
 #include "model/common.hpp"
@@ -8,13 +10,13 @@
 namespace xrm {
 
 class Operations {
- public:
+public:
   explicit Operations(Id boot_id);
   Id begin();
-  void complete(const Id&, Result<Json> result);
-  Result<Json> get(const Id&) const;
+  void complete(const Id &, Result<Json> result);
+  Result<Json> get(const Id &) const;
 
- private:
+private:
   struct Record {
     std::string status = "running";
     std::optional<Json> result;
@@ -27,4 +29,4 @@ class Operations {
   std::deque<Id> terminal_;
 };
 
-}  // namespace xrm
+} // namespace xrm

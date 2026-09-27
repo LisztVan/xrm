@@ -1,3 +1,5 @@
+// XRM: Tests geodata real in the domain and editor behavior suite.
+
 #include "geodata/resource_validation.hpp"
 
 #include <catch2/catch_test_macros.hpp>
@@ -42,33 +44,39 @@ std::string test_geosite() {
 }
 
 class TemporaryDirectory {
- public:
+public:
   TemporaryDirectory() {
-    const char* root = std::getenv("TMPDIR");
-    auto pattern = (std::filesystem::path(root ? root : "/tmp") / "xrm-geodata-XXXXXX").string();
+    const char *root = std::getenv("TMPDIR");
+    auto pattern =
+        (std::filesystem::path(root ? root : "/tmp") / "xrm-geodata-XXXXXX")
+            .string();
     std::vector<char> writable(pattern.begin(), pattern.end());
     writable.push_back('\0');
-    if (char* created = ::mkdtemp(writable.data())) path = created;
+    if (char *created = ::mkdtemp(writable.data()))
+      path = created;
   }
   ~TemporaryDirectory() {
-    if (!path.empty()) std::filesystem::remove_all(path);
+    if (!path.empty())
+      std::filesystem::remove_all(path);
   }
   std::filesystem::path path;
 };
 
-void write(const std::filesystem::path& path, const std::string& bytes) {
+void write(const std::filesystem::path &path, const std::string &bytes) {
   std::ofstream out(path, std::ios::binary);
   out.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
   REQUIRE(out.good());
 }
 
-int core_test(const std::filesystem::path& xray, const std::filesystem::path& confdir,
-              const std::filesystem::path& asset_dir) {
+int core_test(const std::filesystem::path &xray,
+              const std::filesystem::path &confdir,
+              const std::filesystem::path &asset_dir) {
   const auto pid = ::fork();
   REQUIRE(pid >= 0);
   if (pid == 0) {
     ::setenv("XRAY_LOCATION_ASSET", asset_dir.c_str(), 1);
-    ::execl(xray.c_str(), xray.c_str(), "run", "-test", "-confdir", confdir.c_str(), nullptr);
+    ::execl(xray.c_str(), xray.c_str(), "run", "-test", "-confdir",
+            confdir.c_str(), nullptr);
     ::_exit(127);
   }
   int status = 0;
@@ -76,11 +84,13 @@ int core_test(const std::filesystem::path& xray, const std::filesystem::path& co
   return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
 }
 
-}  // namespace
+} // namespace
 
-TEST_CASE("P5 real Xray validates matching geodata kind and label, rejects missing labels") {
-  const char* binary = std::getenv("XRM_TEST_XRAY");
-  if (!binary || !std::filesystem::exists(binary)) SKIP("XRM_TEST_XRAY is unavailable");
+TEST_CASE("P5 real Xray validates matching geodata kind and label, rejects "
+          "missing labels") {
+  const char *binary = std::getenv("XRM_TEST_XRAY");
+  if (!binary || !std::filesystem::exists(binary))
+    SKIP("XRM_TEST_XRAY is unavailable");
   TemporaryDirectory temp;
   REQUIRE_FALSE(temp.path.empty());
   const auto confdir = temp.path / "conf";
@@ -89,7 +99,8 @@ TEST_CASE("P5 real Xray validates matching geodata kind and label, rejects missi
   std::filesystem::create_directories(assets);
 
   auto ip_inspection = inspect_geodata_bytes(GeoAssetKind::geoip, test_geoip());
-  auto site_inspection = inspect_geodata_bytes(GeoAssetKind::geosite, test_geosite());
+  auto site_inspection =
+      inspect_geodata_bytes(GeoAssetKind::geosite, test_geosite());
   REQUIRE(ip_inspection);
   REQUIRE(site_inspection);
   CHECK(ip_inspection->labels.contains("xrm-test"));

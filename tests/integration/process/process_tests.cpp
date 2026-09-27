@@ -1,3 +1,6 @@
+// XRM: Tests process in the client, daemon, persistence, and Xray integration
+// suite.
+
 #include <catch2/catch_test_macros.hpp>
 #include <csignal>
 
@@ -7,10 +10,10 @@
 
 #include <uv.h>
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <string>
-#include <chrono>
 
 namespace {
 
@@ -20,27 +23,29 @@ struct Loop {
   ~Loop() { uv_loop_close(&value); }
 };
 
-xrm::Result<xrm::ProcessResult> run(xrm::ProcessService& service,
-                                    uv_loop_t& loop,
-                                    xrm::ProcessSpec spec,
-                                    xrm::Milliseconds timeout = std::chrono::seconds(3)) {
+xrm::Result<xrm::ProcessResult>
+run(xrm::ProcessService &service, uv_loop_t &loop, xrm::ProcessSpec spec,
+    xrm::Milliseconds timeout = std::chrono::seconds(3)) {
   std::optional<xrm::Result<xrm::ProcessResult>> result;
-  auto accepted = service.execute(std::move(spec), timeout,
-                                 [&](auto value) { result.emplace(std::move(value)); });
+  auto accepted = service.execute(std::move(spec), timeout, [&](auto value) {
+    result.emplace(std::move(value));
+  });
   REQUIRE(accepted);
   uv_run(&loop, UV_RUN_DEFAULT);
   REQUIRE(result.has_value());
   return std::move(*result);
 }
 
-std::string read_file(const std::filesystem::path& path) {
+std::string read_file(const std::filesystem::path &path) {
   std::ifstream input(path, std::ios::binary);
-  return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+  return {std::istreambuf_iterator<char>(input),
+          std::istreambuf_iterator<char>()};
 }
 
-}  // namespace
+} // namespace
 
-TEST_CASE("output close callbacks follow the final bytes on each real pipe", "[PROC][log-eof]") {
+TEST_CASE("output close callbacks follow the final bytes on each real pipe",
+          "[PROC][log-eof]") {
   Loop loop;
   xrm::ProcessService process(loop.value);
   xrm::LogBuffer logs;
@@ -55,7 +60,8 @@ TEST_CASE("output close callbacks follow the final bytes on each real pipe", "[P
     logs.append(xrm::LogStream::core_stderr, bytes);
   };
   callbacks.output_closed = [&](auto, xrm::LogStream stream) {
-    auto &closed = stream == xrm::LogStream::core_stdout ? stdout_closed : stderr_closed;
+    auto &closed =
+        stream == xrm::LogStream::core_stdout ? stdout_closed : stderr_closed;
     CHECK_FALSE(closed);
     closed = true;
     logs.finish(stream);
@@ -80,10 +86,13 @@ TEST_CASE("output close callbacks follow the final bytes on each real pipe", "[P
   CHECK(err == "err:\\xF0\\x9F");
 }
 
-TEST_CASE("PROC-01 preserves argv, cwd, and the child environment", "[PROC-01]") {
-  const auto temp = std::filesystem::temp_directory_path() /
-                    ("xrm process cwd " + std::to_string(
-                        std::chrono::steady_clock::now().time_since_epoch().count()));
+TEST_CASE("PROC-01 preserves argv, cwd, and the child environment",
+          "[PROC-01]") {
+  const auto temp =
+      std::filesystem::temp_directory_path() /
+      ("xrm process cwd " +
+       std::to_string(
+           std::chrono::steady_clock::now().time_since_epoch().count()));
   std::filesystem::create_directories(temp);
   const auto executable = temp / "fake core executable";
   const auto record = temp / "argv record.txt";
@@ -105,15 +114,17 @@ TEST_CASE("PROC-01 preserves argv, cwd, and the child environment", "[PROC-01]")
   REQUIRE(result->exit.exit_code == 0);
   REQUIRE(result->stdout_text == "stdout-only");
   REQUIRE(result->stderr_text == "stderr-only");
-  REQUIRE(read_file(record) == "0\t" + executable.string() + "\n"
-                               "1\targument with spaces\n"
-                               "2\tquote'\"\n"
-                               "3\tsemi;colon\n");
+  REQUIRE(read_file(record) == "0\t" + executable.string() +
+                                   "\n"
+                                   "1\targument with spaces\n"
+                                   "2\tquote'\"\n"
+                                   "3\tsemi;colon\n");
   REQUIRE(read_file(cwd_record) == temp.string());
   std::filesystem::remove_all(temp);
 }
 
-TEST_CASE("PROC-02 returns nonzero exit and reports execution deadlines", "[PROC-02]") {
+TEST_CASE("PROC-02 returns nonzero exit and reports execution deadlines",
+          "[PROC-02]") {
   Loop loop;
   xrm::ProcessService process(loop.value);
   xrm::ProcessSpec failing;
@@ -133,12 +144,14 @@ TEST_CASE("PROC-02 returns nonzero exit and reports execution deadlines", "[PROC
   xrm::ProcessSpec hanging;
   hanging.executable = XRM_TEST_FAKE_CORE;
   hanging.environment["XRM_FAKE_CORE_HANG"] = "1";
-  auto timed_out = run(process, loop.value, std::move(hanging), std::chrono::milliseconds(60));
+  auto timed_out = run(process, loop.value, std::move(hanging),
+                       std::chrono::milliseconds(60));
   REQUIRE_FALSE(timed_out);
   REQUIRE(timed_out.error().code == xrm::ErrorCode::timed_out);
 }
 
-TEST_CASE("PROC-03 bounds captured output while preserving stream identity", "[PROC-03]") {
+TEST_CASE("PROC-03 bounds captured output while preserving stream identity",
+          "[PROC-03]") {
   Loop loop;
   xrm::ProcessService process(loop.value);
   xrm::ProcessSpec spec;
@@ -152,10 +165,13 @@ TEST_CASE("PROC-03 bounds captured output while preserving stream identity", "[P
   REQUIRE(result->stderr_text.size() == 1024 * 1024);
 }
 
-TEST_CASE("Xray version adapter constructs argv and rejects unsuccessful output", "[PROC-02]") {
+TEST_CASE(
+    "Xray version adapter constructs argv and rejects unsuccessful output",
+    "[PROC-02]") {
   auto command = xrm::version_command("/path with spaces/xray");
   REQUIRE(command.arguments == std::vector<std::string>{"version"});
-  REQUIRE(xrm::read_core_version({{0, 0}, "Xray 26.9.9 (fixture)\n", "", false}) ==
-          "Xray 26.9.9 (fixture)");
+  REQUIRE(
+      xrm::read_core_version({{0, 0}, "Xray 26.9.9 (fixture)\n", "", false}) ==
+      "Xray 26.9.9 (fixture)");
   REQUIRE_FALSE(xrm::read_core_version({{7, 0}, "", "failure", false}));
 }

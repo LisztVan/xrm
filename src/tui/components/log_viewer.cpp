@@ -1,6 +1,8 @@
-#include "tui/components/widgets.hpp"
+// XRM: Renders log records separately from viewer state and controls.
+
 #include "tui/components/log_viewer.hpp"
 #include "tui/components/style.hpp"
+#include "tui/components/widgets.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -36,17 +38,17 @@ std::string LogTextForDisplay(std::string_view value, bool multiline) {
         result += static_cast<char>(ch);
       continue;
     }
-    const std::size_t count = ch >= 0xc2 && ch <= 0xdf ? 2 :
-                              ch >= 0xe0 && ch <= 0xef ? 3 :
-                              ch >= 0xf0 && ch <= 0xf4 ? 4 : 0;
+    const std::size_t count = ch >= 0xc2 && ch <= 0xdf   ? 2
+                              : ch >= 0xe0 && ch <= 0xef ? 3
+                              : ch >= 0xf0 && ch <= 0xf4 ? 4
+                                                         : 0;
     bool valid = count && i + count <= value.size();
     for (std::size_t j = 1; valid && j < count; ++j) {
       const auto next = static_cast<unsigned char>(value[i + j]);
       valid = next >= 0x80 && next <= 0xbf;
       if (j == 1)
         valid = valid && !(ch == 0xe0 && next < 0xa0) &&
-                !(ch == 0xed && next >= 0xa0) &&
-                !(ch == 0xf0 && next < 0x90) &&
+                !(ch == 0xed && next >= 0xa0) && !(ch == 0xf0 && next < 0x90) &&
                 !(ch == 0xf4 && next >= 0x90);
     }
     if (!valid) {
@@ -86,20 +88,21 @@ LogRecord parse_record(std::string raw, std::string source,
   result.raw = raw;
   result.partial = partial;
   std::string_view rest(raw);
-  if (rest.ends_with('\r')) rest.remove_suffix(1);
+  if (rest.ends_with('\r'))
+    rest.remove_suffix(1);
   // Recognize Xray's actual date/time prefix, without assigning arrival time
   // to records that have no native timestamp.
   if (rest.size() >= 19 && digits(rest.substr(0, 4)) &&
       (rest[4] == '/' || rest[4] == '-') && rest[7] == rest[4] &&
       digits(rest.substr(5, 2)) && digits(rest.substr(8, 2)) &&
-      (rest[10] == ' ' || rest[10] == 'T') &&
-      digits(rest.substr(11, 2)) && rest[13] == ':' &&
-      digits(rest.substr(14, 2)) && rest[16] == ':' &&
+      (rest[10] == ' ' || rest[10] == 'T') && digits(rest.substr(11, 2)) &&
+      rest[13] == ':' && digits(rest.substr(14, 2)) && rest[16] == ':' &&
       digits(rest.substr(17, 2))) {
     std::size_t end = 19;
     if (end < rest.size() && rest[end] == '.') {
       ++end;
-      while (end < rest.size() && std::isdigit(static_cast<unsigned char>(rest[end])))
+      while (end < rest.size() &&
+             std::isdigit(static_cast<unsigned char>(rest[end])))
         ++end;
     }
     if (end < rest.size() && rest[end] == 'Z')
@@ -207,8 +210,7 @@ Element column(std::string value, int width, style::Role role) {
     value = std::move(shortened) + "…";
   }
   value.append(std::max(0, width - string_width(value)), ' ');
-  return text(std::move(value)) | style::ink(role) |
-         size(WIDTH, EQUAL, width);
+  return text(std::move(value)) | style::ink(role) | size(WIDTH, EQUAL, width);
 }
 std::string source_label(const std::string &source) {
   if (source == "core_stdout")
@@ -244,7 +246,7 @@ std::vector<LogRecord> ParseLogChunks(const std::vector<LogChunk> &chunks) {
       for (auto &[source, pending] : streams) {
         if (!pending.bytes.empty())
           records.push_back(parse_record(std::move(pending.bytes), source,
-                                        pending.sequence, pending.line, true));
+                                         pending.sequence, pending.line, true));
         pending.bytes.clear();
       }
     }
@@ -262,7 +264,7 @@ std::vector<LogRecord> ParseLogChunks(const std::vector<LogChunk> &chunks) {
       if (end == std::string::npos)
         break;
       records.push_back(parse_record(std::move(pending.bytes), chunk.source,
-                                    pending.sequence, pending.line, false));
+                                     pending.sequence, pending.line, false));
       pending.bytes.clear();
       offset = end + 1;
       ++chunk_line;
@@ -271,11 +273,12 @@ std::vector<LogRecord> ParseLogChunks(const std::vector<LogChunk> &chunks) {
   for (auto &[source, pending] : streams)
     if (!pending.bytes.empty())
       records.push_back(parse_record(std::move(pending.bytes), source,
-                                    pending.sequence, pending.line, true));
-  std::stable_sort(records.begin(), records.end(), [](const auto &a, const auto &b) {
-    return a.sequence < b.sequence ||
-           (a.sequence == b.sequence && a.line < b.line);
-  });
+                                     pending.sequence, pending.line, true));
+  std::stable_sort(records.begin(), records.end(),
+                   [](const auto &a, const auto &b) {
+                     return a.sequence < b.sequence ||
+                            (a.sequence == b.sequence && a.line < b.line);
+                   });
   return records;
 }
 
@@ -290,13 +293,15 @@ void LogViewer::set_records(std::vector<LogRecord> records) {
   if (!follow_) {
     // A paused screen is a frozen bounded snapshot; do not shift its viewport
     // when the daemon ring advances or a partial line finishes.
-    auto last = incoming_.empty()
-                    ? records.end()
-                    : std::find_if(records.begin(), records.end(), [&](const auto &entry) {
-                        return same_identity(entry, incoming_.back());
-                      });
+    auto last =
+        incoming_.empty()
+            ? records.end()
+            : std::find_if(records.begin(), records.end(),
+                           [&](const auto &entry) {
+                             return same_identity(entry, incoming_.back());
+                           });
     unseen_ += last == records.end() ? records.size()
-                                    : std::size_t(records.end() - last - 1);
+                                     : std::size_t(records.end() - last - 1);
     incoming_ = std::move(records);
     return;
   }
@@ -328,9 +333,10 @@ Element LogViewer::OnRender() {
   const bool wide = width >= 110;
   const int metadata_width = 9 + 9 + 8;
   const int subsystem_width = wide ? 22 : 0;
-  const int message_width = std::max(8, width - metadata_width - subsystem_width - 2);
-  auto metadata = [&](std::string time, std::string source,
-                      std::string level, style::Role level_role) {
+  const int message_width =
+      std::max(8, width - metadata_width - subsystem_width - 2);
+  auto metadata = [&](std::string time, std::string source, std::string level,
+                      style::Role level_role) {
     return Elements{column(std::move(time), 9, style::Role::Muted),
                     column(std::move(source), 9, style::Role::Muted),
                     column(std::move(level), 8, level_role)};
@@ -352,9 +358,10 @@ Element LogViewer::OnRender() {
       Elements row;
       if (p == 0) {
         std::string time = record.timestamp.size() >= 19
-                               ? record.timestamp.substr(11, 8) : "-";
-        row = metadata(std::move(time),
-                       source_label(record.source), record.level, severity(record.level));
+                               ? record.timestamp.substr(11, 8)
+                               : "-";
+        row = metadata(std::move(time), source_label(record.source),
+                       record.level, severity(record.level));
       } else
         row.push_back(text("") | size(WIDTH, EQUAL, metadata_width));
       if (wide)
@@ -362,16 +369,20 @@ Element LogViewer::OnRender() {
                              subsystem_width, style::Role::Muted));
       row.push_back(text(p ? "| " : "  ") | style::ink(style::Role::Muted));
       Element message_element;
-      const std::size_t prefix_bytes = !wide && !record.subsystem.empty()
-                                           ? visible_text(record.subsystem).size() + 2 : 0;
+      const std::size_t prefix_bytes =
+          !wide && !record.subsystem.empty()
+              ? visible_text(record.subsystem).size() + 2
+              : 0;
       if (message_offset < prefix_bytes) {
-        const auto muted_bytes = std::min(parts[p].size(), prefix_bytes - message_offset);
+        const auto muted_bytes =
+            std::min(parts[p].size(), prefix_bytes - message_offset);
         message_element = hbox({text(parts[p].substr(0, muted_bytes)) |
                                     style::ink(style::Role::Muted),
                                 text(parts[p].substr(muted_bytes)) |
                                     style::ink(style::Role::Text) | xflex});
       } else
-        message_element = text(parts[p]) | style::ink(style::Role::Text) | xflex;
+        message_element =
+            text(parts[p]) | style::ink(style::Role::Text) | xflex;
       message_offset += parts[p].size();
       // The compact first line contains a nested hbox for the muted subsystem.
       // Give that outer box the same flex as continuation text, otherwise FTXUI

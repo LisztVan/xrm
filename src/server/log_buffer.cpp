@@ -1,3 +1,5 @@
+// XRM: Stores the bounded in-memory daemon and core log stream.
+
 #include "server/log_buffer.hpp"
 
 #include <algorithm>
@@ -11,18 +13,20 @@ struct Unit {
 // A zero length is an unfinished, otherwise valid UTF-8 prefix.
 Unit utf8_unit(std::string_view text) {
   const auto lead = static_cast<unsigned char>(text.front());
-  if (lead < 0x80) return {1, true};
-  const std::size_t size = lead >= 0xc2 && lead <= 0xdf ? 2 :
-                           lead >= 0xe0 && lead <= 0xef ? 3 :
-                           lead >= 0xf0 && lead <= 0xf4 ? 4 : 0;
-  if (!size) return {1, false};
+  if (lead < 0x80)
+    return {1, true};
+  const std::size_t size = lead >= 0xc2 && lead <= 0xdf   ? 2
+                           : lead >= 0xe0 && lead <= 0xef ? 3
+                           : lead >= 0xf0 && lead <= 0xf4 ? 4
+                                                          : 0;
+  if (!size)
+    return {1, false};
   for (std::size_t i = 1; i < std::min(size, text.size()); ++i) {
     const auto ch = static_cast<unsigned char>(text[i]);
     if (ch < 0x80 || ch > 0xbf ||
-        (i == 1 && ((lead == 0xe0 && ch < 0xa0) ||
-                    (lead == 0xed && ch >= 0xa0) ||
-                    (lead == 0xf0 && ch < 0x90) ||
-                    (lead == 0xf4 && ch >= 0x90))))
+        (i == 1 &&
+         ((lead == 0xe0 && ch < 0xa0) || (lead == 0xed && ch >= 0xa0) ||
+          (lead == 0xf0 && ch < 0x90) || (lead == 0xf4 && ch >= 0x90))))
       return {1, false};
   }
   return text.size() < size ? Unit{0, false} : Unit{size, true};
@@ -51,10 +55,12 @@ std::string transport_text(std::string_view raw) {
 }
 } // namespace
 
-LogBuffer::LogBuffer(std::size_t byte_limit) : byte_limit_(std::max<std::size_t>(1, byte_limit)) {}
+LogBuffer::LogBuffer(std::size_t byte_limit)
+    : byte_limit_(std::max<std::size_t>(1, byte_limit)) {}
 
 void LogBuffer::append(LogStream stream, std::string_view bytes) {
-  if (bytes.empty()) return;
+  if (bytes.empty())
+    return;
   auto &pending = pending_utf8_[static_cast<std::size_t>(stream)];
   std::string joined;
   if (!pending.empty()) {
@@ -68,16 +74,20 @@ void LogBuffer::append(LogStream stream, std::string_view bytes) {
     std::size_t count = 0;
     while (count < bytes.size()) {
       const auto unit = utf8_unit(bytes.substr(count));
-      if (!unit.bytes) break;
-      if (count && count + unit.bytes > chunk_limit) break;
+      if (!unit.bytes)
+        break;
+      if (count && count + unit.bytes > chunk_limit)
+        break;
       count += unit.bytes;
-      if (count >= chunk_limit) break;
+      if (count >= chunk_limit)
+        break;
     }
     if (!count) {
       pending = bytes;
       break;
     }
-    entries_.push_back(LogEntry{next_cursor_++, stream, std::string(bytes.substr(0, count))});
+    entries_.push_back(
+        LogEntry{next_cursor_++, stream, std::string(bytes.substr(0, count))});
     bytes_retained_ += count;
     bytes.remove_prefix(count);
     while (bytes_retained_ > byte_limit_ && !entries_.empty()) {
@@ -89,7 +99,8 @@ void LogBuffer::append(LogStream stream, std::string_view bytes) {
 
 void LogBuffer::finish(LogStream stream) {
   auto &pending = pending_utf8_[static_cast<std::size_t>(stream)];
-  if (pending.empty()) return;
+  if (pending.empty())
+    return;
   bytes_retained_ += pending.size();
   entries_.push_back(LogEntry{next_cursor_++, stream, std::move(pending)});
   pending.clear();
@@ -99,22 +110,29 @@ void LogBuffer::finish(LogStream stream) {
   }
 }
 
-LogPage LogBuffer::read_after(std::uint64_t cursor, std::size_t byte_limit) const {
+LogPage LogBuffer::read_after(std::uint64_t cursor,
+                              std::size_t byte_limit) const {
   LogPage page;
   page.next_cursor = cursor;
-  if (!entries_.empty() && cursor + 1 < entries_.front().cursor) page.truncated = true;
+  if (!entries_.empty() && cursor + 1 < entries_.front().cursor)
+    page.truncated = true;
   std::size_t bytes = 0;
-  for (const auto& entry : entries_) {
-    if (entry.cursor <= cursor) continue;
+  for (const auto &entry : entries_) {
+    if (entry.cursor <= cursor)
+      continue;
     auto visible = entry;
     visible.text = transport_text(entry.text);
-    if (!page.entries.empty() && (visible.text.size() > byte_limit - std::min(byte_limit, bytes))) break;
+    if (!page.entries.empty() &&
+        (visible.text.size() > byte_limit - std::min(byte_limit, bytes)))
+      break;
     if (visible.text.size() > byte_limit && page.entries.empty()) {
       auto clipped = std::move(visible);
       std::size_t length = 0;
       while (length < clipped.text.size()) {
-        const auto unit = utf8_unit(std::string_view(clipped.text).substr(length));
-        if (!unit.bytes || length + unit.bytes > byte_limit) break;
+        const auto unit =
+            utf8_unit(std::string_view(clipped.text).substr(length));
+        if (!unit.bytes || length + unit.bytes > byte_limit)
+          break;
         length += unit.bytes;
       }
       clipped.text.resize(length);
@@ -133,4 +151,4 @@ LogPage LogBuffer::read_after(std::uint64_t cursor, std::size_t byte_limit) cons
 std::uint64_t LogBuffer::cursor() const { return next_cursor_ - 1; }
 std::size_t LogBuffer::bytes_retained() const { return bytes_retained_; }
 
-}  // namespace xrm
+} // namespace xrm

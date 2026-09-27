@@ -1,3 +1,5 @@
+// XRM: Declares the TUI-to-daemon RPC adapter.
+
 #pragma once
 #include "model/common.hpp"
 #include <string>

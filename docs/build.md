@@ -64,3 +64,32 @@ names. Existing test case names and executable target names are retained.
 The clean build and test record for this reorganization is in
 [build-reorg evidence](evidence/build-reorg/README.md). Its generated `out/`
 trees were removed after verification; the reusable `.deps/` cache remains.
+
+## C++ formatting and static analysis
+
+Project C++ uses the LLVM style in [`.clang-format`](../.clang-format). The
+commands below assume `clang-format` and `clang-tidy` are on `PATH`; this setup
+was checked with LLVM 21.
+Format only the project's own files, never the fetched dependency sources:
+
+```sh
+rg --files -0 apps src tests -g '*.cpp' -g '*.hpp' |
+  xargs -0 clang-format -i --style=file
+```
+
+Run `clang-tidy` with [`.clang-tidy`](../.clang-tidy) and the generated compile
+commands. With GCC 16, CMake adds GCC-only dependency-scanner flags to the
+database; the helper removes only those flags from a separate analysis copy:
+
+```sh
+cmake --preset dev-offline
+python3 scripts/clang-tidy-compdb.py out/dev/compile_commands.json out/dev/tidy
+clang-tidy -p out/dev/tidy src/profile/module_actions.cpp
+rg --files -0 apps src -g '*.cpp' |
+  xargs -0 -P 4 -n 1 clang-tidy -p out/dev/tidy --quiet
+```
+
+The compile database and analysis copy live under ignored `out/`; they are
+regenerated after a clean build or a changed CMake configuration. Tidy findings
+still need review against XRM's behavior and data boundaries before applying a
+fix.

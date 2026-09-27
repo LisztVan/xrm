@@ -1,3 +1,5 @@
+// XRM: Tests geodata cache in the domain and editor behavior suite.
+
 #include "geodata/cache.hpp"
 #include "infra/http.hpp"
 #include "infra/process.hpp"
@@ -24,7 +26,8 @@ namespace {
 
 std::string field(int number, std::string_view bytes) {
   REQUIRE(bytes.size() < 128);
-  return std::string{static_cast<char>((number << 3) | 2), static_cast<char>(bytes.size())} +
+  return std::string{static_cast<char>((number << 3) | 2),
+                     static_cast<char>(bytes.size())} +
          std::string(bytes);
 }
 
@@ -34,7 +37,7 @@ std::string geoip(std::string_view ip) {
 }
 
 class HttpFixture {
- public:
+public:
   explicit HttpFixture(std::string body) : body_(std::move(body)) {
     listener_ = ::socket(AF_INET, SOCK_STREAM, 0);
     REQUIRE(listener_ >= 0);
@@ -44,15 +47,18 @@ class HttpFixture {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     address.sin_port = 0;
-    REQUIRE(::bind(listener_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0);
+    REQUIRE(::bind(listener_, reinterpret_cast<sockaddr *>(&address),
+                   sizeof(address)) == 0);
     REQUIRE(::listen(listener_, 8) == 0);
     socklen_t length = sizeof(address);
-    REQUIRE(::getsockname(listener_, reinterpret_cast<sockaddr*>(&address), &length) == 0);
+    REQUIRE(::getsockname(listener_, reinterpret_cast<sockaddr *>(&address),
+                          &length) == 0);
     port_ = ntohs(address.sin_port);
     worker_ = std::thread([this] {
       while (!stopped_) {
         const int client = ::accept(listener_, nullptr, nullptr);
-        if (client < 0) break;
+        if (client < 0)
+          break;
         char buffer[1024];
         (void)::recv(client, buffer, sizeof(buffer), 0);
         std::string body;
@@ -63,9 +69,9 @@ class HttpFixture {
           status = status_;
         }
         const auto text = "HTTP/1.1 " + std::to_string(status) +
-            (status == 200 ? " OK\r\n" : " Error\r\n") +
-            "Content-Length: " + std::to_string(body.size()) +
-            "\r\nConnection: close\r\n\r\n" + body;
+                          (status == 200 ? " OK\r\n" : " Error\r\n") +
+                          "Content-Length: " + std::to_string(body.size()) +
+                          "\r\nConnection: close\r\n\r\n" + body;
         (void)::send(client, text.data(), text.size(), MSG_NOSIGNAL);
         ::close(client);
       }
@@ -82,8 +88,11 @@ class HttpFixture {
     status_ = status;
     body_ = std::move(body);
   }
-  std::string url() const { return "http://127.0.0.1:" + std::to_string(port_) + "/asset.dat"; }
- private:
+  std::string url() const {
+    return "http://127.0.0.1:" + std::to_string(port_) + "/asset.dat";
+  }
+
+private:
   int listener_ = -1;
   int port_ = 0;
   std::atomic<bool> stopped_{false};
@@ -94,13 +103,15 @@ class HttpFixture {
 };
 
 class TemporaryDirectory {
- public:
+public:
   TemporaryDirectory() {
-    const auto base = std::filesystem::temp_directory_path() / "xrm-cache-XXXXXX";
+    const auto base =
+        std::filesystem::temp_directory_path() / "xrm-cache-XXXXXX";
     auto text = base.string();
     std::vector<char> writable(text.begin(), text.end());
     writable.push_back('\0');
-    if (char* created = ::mkdtemp(writable.data())) path = created;
+    if (char *created = ::mkdtemp(writable.data()))
+      path = created;
   }
   ~TemporaryDirectory() {
     std::error_code ignored;
@@ -110,10 +121,13 @@ class TemporaryDirectory {
 };
 
 template <typename T>
-Result<T> wait_for(uv_loop_t& loop, const std::function<Result<Id>(Completion<T>)>& start) {
+Result<T> wait_for(uv_loop_t &loop,
+                   const std::function<Result<Id>(Completion<T>)> &start) {
   std::optional<Result<T>> result;
-  auto started = start([&](Result<T> response) { result = std::move(response); });
-  if (!started) return std::unexpected(started.error());
+  auto started =
+      start([&](Result<T> response) { result = std::move(response); });
+  if (!started)
+    return std::unexpected(started.error());
   const auto until = std::chrono::steady_clock::now() + 8s;
   while (!result && std::chrono::steady_clock::now() < until) {
     uv_run(&loop, UV_RUN_NOWAIT);
@@ -123,11 +137,13 @@ Result<T> wait_for(uv_loop_t& loop, const std::function<Result<Id>(Completion<T>
   return std::move(*result);
 }
 
-}  // namespace
+} // namespace
 
-TEST_CASE("P5 shared cache keeps immutable last-good on bad content and HTTP failure") {
-  const char* core = std::getenv("XRM_TEST_XRAY");
-  if (!core || !std::filesystem::exists(core)) SKIP("XRM_TEST_XRAY is unavailable");
+TEST_CASE("P5 shared cache keeps immutable last-good on bad content and HTTP "
+          "failure") {
+  const char *core = std::getenv("XRM_TEST_XRAY");
+  if (!core || !std::filesystem::exists(core))
+    SKIP("XRM_TEST_XRAY is unavailable");
   TemporaryDirectory temp;
   REQUIRE_FALSE(temp.path.empty());
   HttpFixture fixture(geoip(std::string{"\x7f\0\0\0", 4}));
@@ -145,9 +161,11 @@ TEST_CASE("P5 shared cache keeps immutable last-good on bad content and HTTP fai
     request.required_labels = {"xrm-test"};
     request.validator_binary = core;
 
-    auto fetch = [&] { return wait_for<GeodataAssetVersion>(loop, [&](auto completion) {
-      return cache.acquire(request, std::move(completion));
-    }); };
+    auto fetch = [&] {
+      return wait_for<GeodataAssetVersion>(loop, [&](auto completion) {
+        return cache.acquire(request, std::move(completion));
+      });
+    };
     auto first = fetch();
     REQUIRE(first);
     CHECK(std::filesystem::exists(first->path));
@@ -173,16 +191,19 @@ TEST_CASE("P5 shared cache keeps immutable last-good on bad content and HTTP fai
     auto repeated = fetch();
     REQUIRE(repeated);
     CHECK(repeated->path == second->path);
-    for (const auto& file : std::filesystem::directory_iterator(temp.path / "cache"))
+    for (const auto &file :
+         std::filesystem::directory_iterator(temp.path / "cache"))
       CHECK_FALSE(file.path().filename().string().starts_with(".staging-"));
   }
   uv_run(&loop, UV_RUN_DEFAULT);
   CHECK(uv_loop_close(&loop) == 0);
 }
 
-TEST_CASE("P5 geodata cache cancellation and body limit never publish a version") {
-  const char* core = std::getenv("XRM_TEST_XRAY");
-  if (!core || !std::filesystem::exists(core)) SKIP("XRM_TEST_XRAY is unavailable");
+TEST_CASE(
+    "P5 geodata cache cancellation and body limit never publish a version") {
+  const char *core = std::getenv("XRM_TEST_XRAY");
+  if (!core || !std::filesystem::exists(core))
+    SKIP("XRM_TEST_XRAY is unavailable");
   TemporaryDirectory temp;
   REQUIRE_FALSE(temp.path.empty());
   HttpFixture fixture(geoip(std::string{"\x7f\0\0\0", 4}));
@@ -199,9 +220,11 @@ TEST_CASE("P5 geodata cache cancellation and body limit never publish a version"
     request.url = fixture.url();
     request.validator_binary = core;
     std::optional<Result<GeodataAssetVersion>> result;
-    auto operation = cache.acquire(request, [&](auto value) { result = std::move(value); });
+    auto operation =
+        cache.acquire(request, [&](auto value) { result = std::move(value); });
     REQUIRE(operation);
-    CHECK_FALSE(cache.acquire(request, [](auto) {}));  // one request per resource
+    CHECK_FALSE(
+        cache.acquire(request, [](auto) {})); // one request per resource
     REQUIRE(cache.cancel(*operation));
     const auto deadline = std::chrono::steady_clock::now() + 4s;
     while (!result && std::chrono::steady_clock::now() < deadline) {
@@ -226,8 +249,9 @@ TEST_CASE("P5 geodata cache cancellation and body limit never publish a version"
 }
 
 TEST_CASE("P5 geodata cache bounds concurrent queued acquisitions") {
-  const char* core = std::getenv("XRM_TEST_XRAY");
-  if (!core || !std::filesystem::exists(core)) SKIP("XRM_TEST_XRAY is unavailable");
+  const char *core = std::getenv("XRM_TEST_XRAY");
+  if (!core || !std::filesystem::exists(core))
+    SKIP("XRM_TEST_XRAY is unavailable");
   TemporaryDirectory temp;
   REQUIRE_FALSE(temp.path.empty());
   HttpFixture fixture(geoip(std::string{"\x7f\0\0\0", 4}));
@@ -254,7 +278,8 @@ TEST_CASE("P5 geodata cache bounds concurrent queued acquisitions") {
     auto fourth = cache.acquire(request, [&](auto) { ++completed; });
     REQUIRE_FALSE(fourth);
     CHECK(fourth.error().code == ErrorCode::busy);
-    for (const auto& id : started) REQUIRE(cache.cancel(id));
+    for (const auto &id : started)
+      REQUIRE(cache.cancel(id));
     const auto deadline = std::chrono::steady_clock::now() + 4s;
     while (completed != 3 && std::chrono::steady_clock::now() < deadline) {
       uv_run(&loop, UV_RUN_NOWAIT);

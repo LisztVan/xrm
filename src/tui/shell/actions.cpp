@@ -1,3 +1,5 @@
+// XRM: Builds executable contextual TUI Help actions.
+
 #include "tui/shell/workspace.hpp"
 namespace xrm::tui {
 std::vector<Action> Workspace::actions() {
@@ -18,30 +20,41 @@ std::vector<Action> Workspace::actions() {
         use_.empty() ? "Use is empty" : "", name(use_));
     add("d", "Stop core", [this] {
       auto status = call("runtime.status");
-      if (!status) { notify(last_error_, ui::Tone::Error); return; }
+      if (!status) {
+        notify(last_error_, ui::Tone::Error);
+        return;
+      }
       const auto active = status->value("active", Json(nullptr));
       const auto state = status->value("state", "unknown");
       if (state == "starting" && !active.is_object()) {
-        confirm("Cancel core start", "Cancel the current start attempt? Saved settings and module drafts remain.",
+        confirm("Cancel core start",
+                "Cancel the current start attempt? Saved settings and module "
+                "drafts remain.",
                 [this] {
-                  operation("connection.disconnect", {{"expected_run_id", nullptr}},
+                  operation("connection.disconnect",
+                            {{"expected_run_id", nullptr}},
                             "Cancel core start");
                 });
         return;
       }
       if (!active.is_object() || !active.contains("run_id") ||
-          !active["run_id"].is_string() || active["run_id"].get<std::string>().empty()) {
+          !active["run_id"].is_string() ||
+          active["run_id"].get<std::string>().empty()) {
         notify(state == "stopped" ? "Core is already stopped"
-                                   : "No confirmed running instance to stop; refresh runtime status",
+                                  : "No confirmed running instance to stop; "
+                                    "refresh runtime status",
                ui::Tone::Info);
         return;
       }
       const auto run_id = active["run_id"].get<std::string>();
       const auto profile = active.value("profile_id", "");
-      confirm("Stop core", "Stop " + name(profile) + " (run " + run_id +
-              ")? Current connections will close. Saved settings and module drafts remain.",
+      confirm("Stop core",
+              "Stop " + name(profile) + " (run " + run_id +
+                  ")? Current connections will close. Saved settings and "
+                  "module drafts remain.",
               [this, run_id, profile] {
-                operation("connection.disconnect", {{"expected_run_id", run_id}},
+                operation("connection.disconnect",
+                          {{"expected_run_id", run_id}},
                           "Stop " + name(profile));
               });
     });
@@ -52,8 +65,7 @@ std::vector<Action> Workspace::actions() {
                     : "No running confdir";
       full_detail();
     });
-    add(
-        "i", "Inspect local entry", [this] { local_entry(); }, need_view);
+    add("i", "Inspect local entry", [this] { local_entry(); }, need_view);
   }
   if (page_ == 1) {
     add(
@@ -61,19 +73,17 @@ std::vector<Action> Workspace::actions() {
         [this, id] {
           use_ = use_ == id ? "" : id;
           refresh_tables();
-          notify((use_.empty() ? "Cancelled Use for " : "Use set to ") + name(id) + "; runtime unchanged");
+          notify((use_.empty() ? "Cancelled Use for " : "Use set to ") +
+                 name(id) + "; runtime unchanged");
         },
         need, name(id));
     add(
         "e", id == edit_ ? "End module Edit" : "Allow module Edit",
         [this] { toggle_edit(); }, need, name(id));
     add("n", "New Profile", [this] { profile_form("new"); });
-    add(
-        "R", "Rename Profile", [this] { profile_form("rename"); }, need);
-    add(
-        "m", "Profile metadata", [this] { profile_form("metadata"); }, need);
-    add(
-        "c", "Copy Profile", [this] { profile_form("copy"); }, need);
+    add("R", "Rename Profile", [this] { profile_form("rename"); }, need);
+    add("m", "Profile metadata", [this] { profile_form("metadata"); }, need);
+    add("c", "Copy Profile", [this] { profile_form("copy"); }, need);
     add(
         "D", "Delete Profile",
         [this, id] {
@@ -96,7 +106,8 @@ std::vector<Action> Workspace::actions() {
         need);
   }
   if (page_ == 2) {
-    add("F2", draft_.visual ? "Open JSON" : "Open Visual", [this] { switch_module_view(); });
+    add("F2", draft_.visual ? "Open JSON" : "Open Visual",
+        [this] { switch_module_view(); });
     add(
         "Ctrl-S", "Save module source", [this] { save_module(); },
         writable() ? "" : "Module is read-only");
@@ -107,7 +118,8 @@ std::vector<Action> Workspace::actions() {
               : draft_.runtime_view ? "Runtime is always read-only"
                                     : "Enable module Edit for " + name(view_);
     add(
-        "I", draft_.included ? "Exclude module" : "Include module", [this] { include_module(); }, ro);
+        "I", draft_.included ? "Exclude module" : "Include module",
+        [this] { include_module(); }, ro);
     add("i", "Source / runtime paths", [this] {
       detail_title_ = draft_.module;
       auto active = status_.value("active", Json(nullptr));
@@ -156,15 +168,12 @@ std::vector<Action> Workspace::actions() {
       });
     });
     if (draft_.module == "routing")
-      add(
-          "p", "Routing preset", [this] { routing_preset(); }, ro);
-    add(
-        "s", "Save module source", [this] { save_module(); }, ro);
+      add("p", "Routing preset", [this] { routing_preset(); }, ro);
+    add("s", "Save module source", [this] { save_module(); }, ro);
   }
   if (page_ == 3) {
     add("a", "Add subscription", [this] { subscription_form(false); });
-    add(
-        "e", "Edit subscription", [this] { subscription_form(true); }, need);
+    add("e", "Edit subscription", [this] { subscription_form(true); }, need);
     add(
         "u", "Update subscription",
         [this, id] {
@@ -185,21 +194,15 @@ std::vector<Action> Workspace::actions() {
                  "Auto refresh");
         },
         need);
-    add(
-        "b", "Bind sources", [this] { bind_sources(); }, need_view);
-    add(
-        "D", "Remove subscription", [this] { remove_subscription(); }, need);
-    add(
-        "h", "History cleanup", [this] { history(); }, need);
+    add("b", "Bind sources", [this] { bind_sources(); }, need_view);
+    add("D", "Remove subscription", [this] { remove_subscription(); }, need);
+    add("h", "History cleanup", [this] { history(); }, need);
   }
   if (page_ == 4) {
     if (section() == "groups") {
-      add(
-          "a", "Add Group", [this] { group_form(false); }, need_view);
-      add(
-          "e", "Edit Group", [this] { group_form(true); }, need);
-      add(
-          "m", "Select manual member", [this] { group_member(); }, need);
+      add("a", "Add Group", [this] { group_form(false); }, need_view);
+      add("e", "Edit Group", [this] { group_form(true); }, need);
+      add("m", "Select manual member", [this] { group_member(); }, need);
       add(
           "D", "Remove Group",
           [this, id] {
@@ -213,15 +216,11 @@ std::vector<Action> Workspace::actions() {
           need);
     } else {
       add("a", "Add node", [this] { node_form(false); });
-      add(
-          "e", "Edit node", [this] { node_form(true); }, need);
-      add(
-          "J", "Advanced node editor", [this] { node_advanced(); }, need);
+      add("e", "Edit node", [this] { node_form(true); }, need);
+      add("J", "Advanced node editor", [this] { node_advanced(); }, need);
       add("i", "Import share URI / native outbound", [this] { node_import(); });
-      add(
-          "C", "Copy as local node", [this] { node_copy(); }, need);
-      add(
-          "l", "Alias and labels", [this] { node_labels(); }, need);
+      add("C", "Copy as local node", [this] { node_copy(); }, need);
+      add("l", "Alias and labels", [this] { node_labels(); }, need);
       add(
           "D", "Remove local node",
           [this, id] {
@@ -240,10 +239,8 @@ std::vector<Action> Workspace::actions() {
                    "Node availability");
           },
           need);
-      add(
-          "t", "Test node", [this] { node_test(); }, need);
-      add(
-          "T", "Node test results", [this] { node_results(); }, need);
+      add("t", "Test node", [this] { node_test(); }, need);
+      add("T", "Node test results", [this] { node_results(); }, need);
       add("k", "Cancel active node tests", [this] { cancel_node_tests(); });
       add("/", "Filter nodes", [this] {
         form(
@@ -273,9 +270,7 @@ std::vector<Action> Workspace::actions() {
   if (page_ == 5) {
     add("p", logs_->following() ? "Pause reading" : "Resume following",
         [this] { logs_->set_follow(!logs_->following()); });
-    add("i", "Raw log details", [this] {
-      view_detail();
-    });
+    add("i", "Raw log details", [this] { view_detail(); });
   }
   if (page_ == 6) {
     if (section() == "Core") {
@@ -308,8 +303,7 @@ std::vector<Action> Workspace::actions() {
       });
     } else if (section() == "Geodata") {
       add("a", "Add resource", [this] { geodata_form(false); });
-      add(
-          "e", "Edit resource", [this] { geodata_form(true); }, need);
+      add("e", "Edit resource", [this] { geodata_form(true); }, need);
       add(
           "u", "Update resource",
           [this, id] {
@@ -326,8 +320,7 @@ std::vector<Action> Workspace::actions() {
                       "Update resource");
           },
           need);
-      add(
-          "b", "Bind resources", [this] { bind_geodata(); }, need_view);
+      add("b", "Bind resources", [this] { bind_geodata(); }, need_view);
       add(
           "D", "Remove resource",
           [this, id] {
@@ -343,7 +336,12 @@ std::vector<Action> Workspace::actions() {
     detail_title_ = "Notifications";
     detail_.clear();
     for (auto &toast : toasts_.history())
-      detail_ += toast.message + (toast.repeats > 1 ? " · repeated " + std::to_string(toast.repeats) + " times" : "") + "\n";
+      detail_ +=
+          toast.message +
+          (toast.repeats > 1
+               ? " · repeated " + std::to_string(toast.repeats) + " times"
+               : "") +
+          "\n";
     if (detail_.empty())
       detail_ = "No notifications";
     full_detail();
@@ -354,27 +352,40 @@ std::vector<Action> Workspace::actions() {
     if (page_ == 5)
       read_logs();
     notify(fresh_ ? "Refreshed " + std::string(pages_[page_])
-                  : "Refresh incomplete; cached data retained. Check the connection in Help.",
+                  : "Refresh incomplete; cached data retained. Check the "
+                    "connection in Help.",
            fresh_ ? ui::Tone::Info : ui::Tone::Warning);
   });
   if (page_ != 2)
-    add("F", "Full object details", [this] { detail_title_ = pages_[page_]; detail_ = context_details(); full_detail(); });
+    add("F", "Full object details", [this] {
+      detail_title_ = pages_[page_];
+      detail_ = context_details();
+      full_detail();
+    });
   if (!endpoint_connected_) {
     const auto needs_service = [this](const Action &a) {
       const auto &k = a.key;
-      if (page_ == 0) return k == "c" || k == "d";
-      if (page_ == 1) return k == "D";
-      if (page_ == 2) return k == "s" || k == "Ctrl-S" || k == "I" || k == "p";
-      if (page_ == 3) return k == "u" || k == "U" || k == "t" || k == "D" || k == "h";
-      if (page_ == 4) return k == "D" || k == "x" || k == "t" || k == "k" || k == "s" || k == "c" || k == "m";
-      if (page_ == 6) return k == "u" || k == "D" || k == "i" ||
-                             (section() == "Geodata" && k == "u");
+      if (page_ == 0)
+        return k == "c" || k == "d";
+      if (page_ == 1)
+        return k == "D";
+      if (page_ == 2)
+        return k == "s" || k == "Ctrl-S" || k == "I" || k == "p";
+      if (page_ == 3)
+        return k == "u" || k == "U" || k == "t" || k == "D" || k == "h";
+      if (page_ == 4)
+        return k == "D" || k == "x" || k == "t" || k == "k" || k == "s" ||
+               k == "c" || k == "m";
+      if (page_ == 6)
+        return k == "u" || k == "D" || k == "i" ||
+               (section() == "Geodata" && k == "u");
       return false;
     };
     for (auto &action : out)
       if (needs_service(action))
-        action.disabled = "xrmd is unavailable at " + socket_ +
-                          "; keep local drafts, then Refresh after the endpoint returns";
+        action.disabled =
+            "xrmd is unavailable at " + socket_ +
+            "; keep local drafts, then Refresh after the endpoint returns";
   }
   return out;
 }

@@ -1,10 +1,12 @@
+// XRM: Defines RPC data transfer objects shared by client and server.
+
 #pragma once
 
 #include "model/node.hpp"
 #include "model/runtime.hpp"
 #include "model/subscription.hpp"
-#include "xray/metrics.hpp"
 #include "xray/installer.hpp"
+#include "xray/metrics.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -24,29 +26,38 @@ struct SubscriptionSummary {
   std::optional<std::string> last_error_stage;
 };
 
-inline void to_json(Json& json, const SubscriptionSummary& value) {
-  json = Json{{"id", value.id}, {"name", value.name}, {"enabled", value.enabled},
-              {"last_result", value.last_result}, {"last_attempt", value.last_attempt},
-              {"last_success", value.last_success}, {"node_count", value.node_count},
+inline void to_json(Json &json, const SubscriptionSummary &value) {
+  json = Json{{"id", value.id},
+              {"name", value.name},
+              {"enabled", value.enabled},
+              {"last_result", value.last_result},
+              {"last_attempt", value.last_attempt},
+              {"last_success", value.last_success},
+              {"node_count", value.node_count},
               {"unsupported_count", value.unsupported_count},
               {"malformed_count", value.malformed_count}};
-  if (value.last_error) json["last_error"] = *value.last_error;
-  if (value.last_error_stage) json["last_error_stage"] = *value.last_error_stage;
+  if (value.last_error)
+    json["last_error"] = *value.last_error;
+  if (value.last_error_stage)
+    json["last_error_stage"] = *value.last_error_stage;
 }
 
-inline void from_json(const Json& json, SubscriptionSummary& value) {
+inline void from_json(const Json &json, SubscriptionSummary &value) {
   value.id = json.at("id").get<Id>();
   value.name = json.at("name").get<std::string>();
   value.enabled = json.at("enabled").get<bool>();
   value.last_result = json.at("last_result").get<std::string>();
-  if (!json.at("last_attempt").is_null()) value.last_attempt = json.at("last_attempt").get<UnixMillis>();
-  if (!json.at("last_success").is_null()) value.last_success = json.at("last_success").get<UnixMillis>();
+  if (!json.at("last_attempt").is_null())
+    value.last_attempt = json.at("last_attempt").get<UnixMillis>();
+  if (!json.at("last_success").is_null())
+    value.last_success = json.at("last_success").get<UnixMillis>();
   value.node_count = json.at("node_count").get<std::size_t>();
   value.unsupported_count = json.at("unsupported_count").get<std::size_t>();
   value.malformed_count = json.at("malformed_count").get<std::size_t>();
   if (json.contains("last_error") && !json.at("last_error").is_null())
     value.last_error = json.at("last_error").get<std::string>();
-  if (json.contains("last_error_stage") && !json.at("last_error_stage").is_null())
+  if (json.contains("last_error_stage") &&
+      !json.at("last_error_stage").is_null())
     value.last_error_stage = json.at("last_error_stage").get<std::string>();
 }
 
@@ -63,17 +74,21 @@ struct NodeSummary {
   std::string security;
 };
 
-struct NodeFormEditDto { Id id; std::string field; Json value; };
-inline void to_json(Json& json, const NodeFormEditDto& value) {
+struct NodeFormEditDto {
+  Id id;
+  std::string field;
+  Json value;
+};
+inline void to_json(Json &json, const NodeFormEditDto &value) {
   json = Json{{"id", value.id}, {"field", value.field}, {"value", value.value}};
 }
-inline void from_json(const Json& json, NodeFormEditDto& value) {
+inline void from_json(const Json &json, NodeFormEditDto &value) {
   value.id = json.at("id").get<Id>();
   value.field = json.at("field").get<std::string>();
   value.value = json.at("value");
 }
 
-inline void to_json(Json& json, const NodeSummary& value) {
+inline void to_json(Json &json, const NodeSummary &value) {
   json = Json{{"id", value.id},
               {"name", value.name},
               {"labels", value.labels},
@@ -86,7 +101,7 @@ inline void to_json(Json& json, const NodeSummary& value) {
               {"security", value.security}};
 }
 
-inline void from_json(const Json& json, NodeSummary& value) {
+inline void from_json(const Json &json, NodeSummary &value) {
   value.id = json.at("id").get<std::string>();
   value.name = json.at("name").get<std::string>();
   value.labels = json.at("labels").get<std::vector<std::string>>();
@@ -96,46 +111,65 @@ inline void from_json(const Json& json, NodeSummary& value) {
   value.support = json.value("support", "raw-only");
   if (json.contains("source_id") && json.at("source_id").is_string())
     value.source_id = json.at("source_id").get<Id>();
-  else value.source_id.reset();
+  else
+    value.source_id.reset();
   value.transport = json.value("transport", "");
   value.security = json.value("security", "");
 }
 
-inline NodeSummary summarize_node(const Node& node) {
+inline NodeSummary summarize_node(const Node &node) {
   const auto name = node.alias.value_or(node.original_name);
   std::string protocol = "unknown";
   std::string support = "raw-only";
   std::string transport = "—";
   std::string security = "—";
-  if (const auto* raw = std::get_if<RawOutbound>(&node.settings)) {
+  if (const auto *raw = std::get_if<RawOutbound>(&node.settings)) {
     if (raw->value.is_object() && raw->value.contains("protocol") &&
         raw->value.at("protocol").is_string()) {
       protocol = raw->value.at("protocol").get<std::string>();
     }
-  } else if (const auto* stream = std::get_if<StreamNode>(&node.settings)) {
-    transport = std::visit([](const auto& value) -> std::string {
-      using T = std::decay_t<decltype(value)>;
-      if constexpr (std::is_same_v<T, RawTransport>) return "RAW";
-      if constexpr (std::is_same_v<T, XHttpTransport>) return "XHTTP";
-      if constexpr (std::is_same_v<T, WebSocketTransport>) return "WS";
-      if constexpr (std::is_same_v<T, GrpcTransport>) return "gRPC";
-      if constexpr (std::is_same_v<T, HttpUpgradeTransport>) return "HTTPUpgrade";
-      return "Hysteria";
-    }, stream->transport);
-    security = std::visit([](const auto& value) -> std::string {
-      using T = std::decay_t<decltype(value)>;
-      if constexpr (std::is_same_v<T, TlsSecurity>) return "TLS";
-      if constexpr (std::is_same_v<T, RealitySecurity>) return "REALITY";
-      return "none";
-    }, stream->security);
-    protocol = std::visit([](const auto& value) -> std::string {
-      using T = std::decay_t<decltype(value)>;
-      if constexpr (std::is_same_v<T, VlessSettings>) return "vless";
-      if constexpr (std::is_same_v<T, VmessSettings>) return "vmess";
-      if constexpr (std::is_same_v<T, TrojanSettings>) return "trojan";
-      if constexpr (std::is_same_v<T, ShadowsocksSettings>) return "shadowsocks";
-      if constexpr (std::is_same_v<T, Hysteria2Settings>) return "hysteria2";
-    }, stream->protocol);
+  } else if (const auto *stream = std::get_if<StreamNode>(&node.settings)) {
+    transport = std::visit(
+        [](const auto &value) -> std::string {
+          using T = std::decay_t<decltype(value)>;
+          if constexpr (std::is_same_v<T, RawTransport>)
+            return "RAW";
+          if constexpr (std::is_same_v<T, XHttpTransport>)
+            return "XHTTP";
+          if constexpr (std::is_same_v<T, WebSocketTransport>)
+            return "WS";
+          if constexpr (std::is_same_v<T, GrpcTransport>)
+            return "gRPC";
+          if constexpr (std::is_same_v<T, HttpUpgradeTransport>)
+            return "HTTPUpgrade";
+          return "Hysteria";
+        },
+        stream->transport);
+    security = std::visit(
+        [](const auto &value) -> std::string {
+          using T = std::decay_t<decltype(value)>;
+          if constexpr (std::is_same_v<T, TlsSecurity>)
+            return "TLS";
+          if constexpr (std::is_same_v<T, RealitySecurity>)
+            return "REALITY";
+          return "none";
+        },
+        stream->security);
+    protocol = std::visit(
+        [](const auto &value) -> std::string {
+          using T = std::decay_t<decltype(value)>;
+          if constexpr (std::is_same_v<T, VlessSettings>)
+            return "vless";
+          if constexpr (std::is_same_v<T, VmessSettings>)
+            return "vmess";
+          if constexpr (std::is_same_v<T, TrojanSettings>)
+            return "trojan";
+          if constexpr (std::is_same_v<T, ShadowsocksSettings>)
+            return "shadowsocks";
+          if constexpr (std::is_same_v<T, Hysteria2Settings>)
+            return "hysteria2";
+        },
+        stream->protocol);
     if (protocol == "vless") {
       support = "typed-uri; Xray v26.9.9 loopback-verified";
     } else if (protocol == "vmess" || protocol == "trojan" ||
@@ -145,14 +179,26 @@ inline NodeSummary summarize_node(const Node& node) {
       support = "typed; URI-unverified; Xray-unverified";
     }
   }
-  return {node.id, name, node.labels, node.enabled, node.source_missing,
-          std::move(protocol), std::move(support), node.source_id,
-          std::move(transport), std::move(security)};
+  return {node.id,
+          name,
+          node.labels,
+          node.enabled,
+          node.source_missing,
+          std::move(protocol),
+          std::move(support),
+          node.source_id,
+          std::move(transport),
+          std::move(security)};
 }
 
-struct ProfileDto { Id id; std::string name; Id core_id; };
-inline void to_json(Json& json, const ProfileDto& value) {
-  json = Json{{"id", value.id}, {"name", value.name}, {"core_id", value.core_id}};
+struct ProfileDto {
+  Id id;
+  std::string name;
+  Id core_id;
+};
+inline void to_json(Json &json, const ProfileDto &value) {
+  json =
+      Json{{"id", value.id}, {"name", value.name}, {"core_id", value.core_id}};
 }
 
 struct ModuleDto {
@@ -161,13 +207,18 @@ struct ModuleDto {
   bool included = false;
   std::optional<std::string> text;
 };
-inline void to_json(Json& json, const ModuleDto& value) {
-  json = Json{{"module", value.key}, {"filename", value.filename},
-              {"included", value.included}, {"text", value.text}};
+inline void to_json(Json &json, const ModuleDto &value) {
+  json = Json{{"module", value.key},
+              {"filename", value.filename},
+              {"included", value.included},
+              {"text", value.text}};
 }
 
-struct OperationDto { std::string status; std::optional<std::string> operation_id; };
-inline void to_json(Json& json, const OperationDto& value) {
+struct OperationDto {
+  std::string status;
+  std::optional<std::string> operation_id;
+};
+inline void to_json(Json &json, const OperationDto &value) {
   json = Json{{"status", value.status}, {"operation_id", value.operation_id}};
 }
 
@@ -175,7 +226,7 @@ struct GroupDto {
   GroupBinding binding;
   std::vector<NodeSummary> candidates;
 };
-inline void to_json(Json& json, const GroupDto& value) {
+inline void to_json(Json &json, const GroupDto &value) {
   json = Json{{"binding", value.binding}, {"candidates", value.candidates}};
 }
 struct RuntimeMetricsDto {
@@ -183,66 +234,100 @@ struct RuntimeMetricsDto {
   std::optional<MetricsSample> sample;
   std::vector<TrafficRate> rates;
 };
-inline void to_json(Json& json, const RuntimeMetricsDto& value) {
+inline void to_json(Json &json, const RuntimeMetricsDto &value) {
   const auto availability = [](MetricAvailability state) {
     switch (state) {
-      case MetricAvailability::available: return "available";
-      case MetricAvailability::unavailable: return "unavailable";
-      case MetricAvailability::stale: return "stale";
-      case MetricAvailability::unknown: return "unknown";
+    case MetricAvailability::available:
+      return "available";
+    case MetricAvailability::unavailable:
+      return "unavailable";
+    case MetricAvailability::stale:
+      return "stale";
+    case MetricAvailability::unknown:
+      return "unknown";
     }
     return "unknown";
   };
-  json = Json{{"availability", availability(value.availability)},
-              {"run_id", value.sample ? Json(value.sample->run_id) : Json(nullptr)},
-              {"received_at", value.sample ? Json(value.sample->received_at) : Json(nullptr)},
-              {"rates", Json::array()}};
-  for (const auto& rate : value.rates)
-    json["rates"].push_back(Json{{"scope", rate.scope}, {"tag", rate.tag},
-        {"uplink_bytes_per_second", rate.uplink_bytes_per_second ? Json(*rate.uplink_bytes_per_second) : Json(nullptr)},
-        {"downlink_bytes_per_second", rate.downlink_bytes_per_second ? Json(*rate.downlink_bytes_per_second) : Json(nullptr)}});
+  json = Json{
+      {"availability", availability(value.availability)},
+      {"run_id", value.sample ? Json(value.sample->run_id) : Json(nullptr)},
+      {"received_at",
+       value.sample ? Json(value.sample->received_at) : Json(nullptr)},
+      {"rates", Json::array()}};
+  for (const auto &rate : value.rates)
+    json["rates"].push_back(Json{
+        {"scope", rate.scope},
+        {"tag", rate.tag},
+        {"uplink_bytes_per_second", rate.uplink_bytes_per_second
+                                        ? Json(*rate.uplink_bytes_per_second)
+                                        : Json(nullptr)},
+        {"downlink_bytes_per_second",
+         rate.downlink_bytes_per_second ? Json(*rate.downlink_bytes_per_second)
+                                        : Json(nullptr)}});
 }
-struct GroupOverrideDto { std::string group_tag; std::optional<std::string> outbound_tag; bool clear = false; };
-inline void to_json(Json& json, const GroupOverrideDto& value) {
-  json = Json{{"group_tag", value.group_tag}, {"outbound_tag", value.outbound_tag}, {"clear", value.clear}};
+struct GroupOverrideDto {
+  std::string group_tag;
+  std::optional<std::string> outbound_tag;
+  bool clear = false;
+};
+inline void to_json(Json &json, const GroupOverrideDto &value) {
+  json = Json{{"group_tag", value.group_tag},
+              {"outbound_tag", value.outbound_tag},
+              {"clear", value.clear}};
 }
-struct GroupOverrideResultDto { std::string status; std::optional<std::string> actual_outbound; };
-inline void to_json(Json& json, const GroupOverrideResultDto& value) {
-  json = Json{{"status", value.status}, {"actual_outbound", value.actual_outbound}};
+struct GroupOverrideResultDto {
+  std::string status;
+  std::optional<std::string> actual_outbound;
+};
+inline void to_json(Json &json, const GroupOverrideResultDto &value) {
+  json = Json{{"status", value.status},
+              {"actual_outbound", value.actual_outbound}};
 }
 
-struct CoreReleasesRequestDto { bool include_prerelease = false; };
-inline void to_json(Json& json, const CoreReleasesRequestDto& value) {
+struct CoreReleasesRequestDto {
+  bool include_prerelease = false;
+};
+inline void to_json(Json &json, const CoreReleasesRequestDto &value) {
   json = Json{{"include_prerelease", value.include_prerelease}};
 }
-inline void from_json(const Json& json, CoreReleasesRequestDto& value) {
+inline void from_json(const Json &json, CoreReleasesRequestDto &value) {
   value.include_prerelease = json.value("include_prerelease", false);
 }
-struct CoreReleaseListDto { std::vector<CoreRelease> items; };
-inline void to_json(Json& json, const CoreReleaseListDto& value) {
+struct CoreReleaseListDto {
+  std::vector<CoreRelease> items;
+};
+inline void to_json(Json &json, const CoreReleaseListDto &value) {
   json = Json{{"items", value.items}};
 }
-struct CoreInstallRequestDto { InstallRequest request; };
-inline void to_json(Json& json, const CoreInstallRequestDto& value) {
+struct CoreInstallRequestDto {
+  InstallRequest request;
+};
+inline void to_json(Json &json, const CoreInstallRequestDto &value) {
   json = Json{{"request", value.request}};
 }
-inline void from_json(const Json& json, CoreInstallRequestDto& value) {
+inline void from_json(const Json &json, CoreInstallRequestDto &value) {
   value.request = json.at("request").get<InstallRequest>();
 }
-struct CoreInstallResultDto { CoreInstall install; std::string status; };
-inline void to_json(Json& json, const CoreInstallResultDto& value) {
+struct CoreInstallResultDto {
+  CoreInstall install;
+  std::string status;
+};
+inline void to_json(Json &json, const CoreInstallResultDto &value) {
   json = Json{{"install", value.install}, {"status", value.status}};
 }
-struct CoreUseRequestDto { Id profile_id; Id core_id; };
-inline void to_json(Json& json, const CoreUseRequestDto& value) {
+struct CoreUseRequestDto {
+  Id profile_id;
+  Id core_id;
+};
+inline void to_json(Json &json, const CoreUseRequestDto &value) {
   json = Json{{"profile_id", value.profile_id}, {"core_id", value.core_id}};
 }
-inline void from_json(const Json& json, CoreUseRequestDto& value) {
+inline void from_json(const Json &json, CoreUseRequestDto &value) {
   value.profile_id = json.at("profile_id").get<Id>();
   value.core_id = json.at("core_id").get<Id>();
 }
 
-inline void to_json(Json& json, const CoreInstall& value) {
+inline void to_json(Json &json, const CoreInstall &value) {
   json = Json{{"id", value.id},
               {"name", value.name},
               {"path", value.path.string()},
@@ -250,7 +335,7 @@ inline void to_json(Json& json, const CoreInstall& value) {
               {"managed", value.managed}};
 }
 
-inline void from_json(const Json& json, CoreInstall& value) {
+inline void from_json(const Json &json, CoreInstall &value) {
   value.id = json.at("id").get<std::string>();
   value.name = json.at("name").get<std::string>();
   value.path = json.at("path").get<std::string>();
@@ -258,4 +343,4 @@ inline void from_json(const Json& json, CoreInstall& value) {
   value.managed = json.at("managed").get<bool>();
 }
 
-}  // namespace xrm
+} // namespace xrm

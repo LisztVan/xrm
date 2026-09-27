@@ -1,5 +1,7 @@
-#include "tui/components/style.hpp"
+// XRM: Renders core, geodata, test, and Manager settings pages.
+
 #include "client/human_message.hpp"
+#include "tui/components/style.hpp"
 #include "tui/shell/workspace.hpp"
 
 #include <algorithm>
@@ -51,8 +53,9 @@ void Workspace::core_form() {
         auto registered =
             call("core.register", {{"name", f.value(0)}, {"path", f.value(1)}});
         if (!registered) {
-          const auto message = human::error(registered.error(), "Register Xray core",
-                                            f.value(0), "core.register");
+          const auto message =
+              human::error(registered.error(), "Register Xray core", f.value(0),
+                           "core.register");
           f.set_field_error(1, message.reason + " " + message.recovery);
           return message.reason + " " + message.recovery;
         }
@@ -173,7 +176,8 @@ void Workspace::geodata_form(bool editing) {
          const bool automatic = f.value(5) == "true";
          const auto interval = std::stoll(f.value(6));
          if (automatic && interval > 0 && f.value(7).empty()) {
-           f.set_field_error(7, "Choose a validator core for scheduled updates");
+           f.set_field_error(7,
+                             "Choose a validator core for scheduled updates");
            return "Choose the Xray core used to validate automatic resource "
                   "updates";
          }

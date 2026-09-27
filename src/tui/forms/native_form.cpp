@@ -1,3 +1,5 @@
+// XRM: Builds structured editors for native Xray module fields.
+
 #include "tui/forms/native_form.hpp"
 #include "tui/components/style.hpp"
 
@@ -18,21 +20,33 @@ std::string escape_token(std::string key);
 
 std::string object_title(const std::string &kind) {
   static const std::vector<std::pair<std::string, std::string>> titles{
-      {"dns", "DNS query and cache"}, {"dns-server", "DNS server"},
-      {"routing", "Routing strategy"}, {"routing-rule", "Routing rule"},
-      {"balancer", "Native balancer"}, {"log", "Xray logging"},
-      {"api", "Xray API"}, {"policy-system", "System traffic counters"},
-      {"policy-level", "User level policy"}, {"metrics", "Metrics endpoint"},
+      {"dns", "DNS query and cache"},
+      {"dns-server", "DNS server"},
+      {"routing", "Routing strategy"},
+      {"routing-rule", "Routing rule"},
+      {"balancer", "Native balancer"},
+      {"log", "Xray logging"},
+      {"api", "Xray API"},
+      {"policy-system", "System traffic counters"},
+      {"policy-level", "User level policy"},
+      {"metrics", "Metrics endpoint"},
       {"observatory", "Connection observatory"},
-      {"burstObservatory", "Burst observatory"}, {"fakedns", "Fake DNS pool"},
-      {"geodata", "Geodata reload"}, {"asset", "Geodata asset"},
-      {"version", "Xray version constraint"}, {"inbound", "Inbound listener"},
-      {"outbound", "Static outbound"}, {"sniffing", "Inbound sniffing"},
-      {"mux", "Multiplexing and XUDP"}, {"stream", "Transport"},
-      {"tls", "TLS security"}, {"reality", "REALITY security"},
+      {"burstObservatory", "Burst observatory"},
+      {"fakedns", "Fake DNS pool"},
+      {"geodata", "Geodata reload"},
+      {"asset", "Geodata asset"},
+      {"version", "Xray version constraint"},
+      {"inbound", "Inbound listener"},
+      {"outbound", "Static outbound"},
+      {"sniffing", "Inbound sniffing"},
+      {"mux", "Multiplexing and XUDP"},
+      {"stream", "Transport"},
+      {"tls", "TLS security"},
+      {"reality", "REALITY security"},
       {"sockopt", "Socket options"}};
-  const auto found = std::find_if(titles.begin(), titles.end(),
-      [&](const auto &entry) { return entry.first == kind; });
+  const auto found =
+      std::find_if(titles.begin(), titles.end(),
+                   [&](const auto &entry) { return entry.first == kind; });
   return found == titles.end() ? kind : found->second;
 }
 
@@ -427,12 +441,13 @@ std::vector<Field> make_fields(const Json &value,
     const auto *current = at(value, spec.path);
     Field field{spec.label, value_text(current, spec.kind)};
     field.hint = spec.hint;
-    field.optional = spec.kind != ValueKind::Choice &&
-                     spec.kind != ValueKind::Boolean;
+    field.optional =
+        spec.kind != ValueKind::Choice && spec.kind != ValueKind::Boolean;
     field.present = current != nullptr;
     if (!compatible(current, spec.kind)) {
       field.readonly = true;
-      field.hint = "Existing native type/range preserved; use module JSON to edit";
+      field.hint =
+          "Existing native type/range preserved; use module JSON to edit";
     }
     switch (spec.kind) {
     case ValueKind::Text:
@@ -557,25 +572,26 @@ std::optional<std::string> update_object(Json &output,
   return {};
 }
 
-std::string native_context(const std::string &module,
-                           const Json &object,
+std::string native_context(const std::string &module, const Json &object,
                            const std::vector<NativeField> &specs) {
   std::string result = "Add to draft: " + module +
-      " draft. Module Save: Source. Connect / Apply: runtime. "
-      "Cancel: discard this object's unsubmitted changes.";
+                       " draft. Module Save: Source. Connect / Apply: runtime. "
+                       "Cancel: discard this object's unsubmitted changes.";
   std::vector<std::string> extra;
   const auto visit = [&](auto &&self, const Json &value,
                          const std::string &path) -> void {
-    const auto exact = std::find_if(specs.begin(), specs.end(),
-        [&](const NativeField &spec) { return spec.path == path; });
+    const auto exact =
+        std::find_if(specs.begin(), specs.end(), [&](const NativeField &spec) {
+          return spec.path == path;
+        });
     if (exact != specs.end()) {
       if (exact->kind == ValueKind::Advanced ||
           !compatible(&value, exact->kind))
         extra.push_back(path);
       return;
     }
-    const bool parent = std::any_of(specs.begin(), specs.end(),
-        [&](const NativeField &spec) {
+    const bool parent =
+        std::any_of(specs.begin(), specs.end(), [&](const NativeField &spec) {
           return spec.path.starts_with(path + "/");
         });
     if (parent && value.is_object()) {
@@ -681,10 +697,14 @@ MakeObjectForm(const std::string &kind, const Json &input,
   auto fields = make_fields(original, specs);
   if (kind == "dns-server") {
     for (std::size_t i = 0; i < specs.size(); ++i) {
-      if (i == 0) fields[i].section = "Server address";
-      else if (specs[i].path == "/domains") fields[i].section = "Matching and response filters";
-      else if (specs[i].path == "/skipFallback") fields[i].section = "Fallback and cache";
-      else if (specs[i].path == "/clientIp") fields[i].section = "Advanced native fields";
+      if (i == 0)
+        fields[i].section = "Server address";
+      else if (specs[i].path == "/domains")
+        fields[i].section = "Matching and response filters";
+      else if (specs[i].path == "/skipFallback")
+        fields[i].section = "Fallback and cache";
+      else if (specs[i].path == "/clientIp")
+        fields[i].section = "Advanced native fields";
     }
   }
   if (kind == "routing-rule") {
@@ -730,12 +750,15 @@ MakeObjectForm(const std::string &kind, const Json &input,
           if (kind == "routing-rule") {
             const auto outbound = output.value("outboundTag", std::string{});
             const auto balancer = output.value("balancerTag", std::string{});
-            if (outbound.empty() && balancer.empty())
-            {
-              form.set_field_error(4,
-                  form.fields()[4].choices.empty() && form.fields()[5].choices.empty()
-                    ? "No outbound or balancer exists. Add an outbound in Modules or a Group in Nodes, then choose it here."
-                    : "Choose an outbound or balancer", {5});
+            if (outbound.empty() && balancer.empty()) {
+              form.set_field_error(
+                  4,
+                  form.fields()[4].choices.empty() &&
+                          form.fields()[5].choices.empty()
+                      ? "No outbound or balancer exists. Add an outbound in "
+                        "Modules or a Group in Nodes, then choose it here."
+                      : "Choose an outbound or balancer",
+                  {5});
               return "Target: select an outbound or balancer";
             }
             const bool target_changed =
@@ -743,9 +766,9 @@ MakeObjectForm(const std::string &kind, const Json &input,
                     original.value("outboundTag", Json{}) ||
                 output.value("balancerTag", Json{}) !=
                     original.value("balancerTag", Json{});
-            if (target_changed && !outbound.empty() && !balancer.empty())
-            {
-              form.set_field_error(4, "Choose only one target: outbound or balancer", {5});
+            if (target_changed && !outbound.empty() && !balancer.empty()) {
+              form.set_field_error(
+                  4, "Choose only one target: outbound or balancer", {5});
               return "Target: choose outboundTag or balancerTag, not both";
             }
           }
@@ -770,10 +793,11 @@ MakeObjectForm(const std::string &kind, const Json &input,
       options.readonly || view_only, "Add to draft");
   *weak = result;
   result->set_context(native_context(options.module, original, specs) +
-      (kind == "routing-rule"
-      ? " Matches combine with AND. Tab to Target: outboundTag / balancerTag. "
-        "ruleTag is optional."
-      : ""));
+                      (kind == "routing-rule"
+                           ? " Matches combine with AND. Tab to Target: "
+                             "outboundTag / balancerTag. "
+                             "ruleTag is optional."
+                           : ""));
   return result;
 }
 
@@ -832,10 +856,10 @@ std::string native_value(const Json &value, const std::string &path,
 }
 std::string rule_match(const Json &value) {
   std::string result;
-  for (const auto *key : {"domain", "ip", "port", "network", "sourceIP",
-                         "source", "inboundTag", "protocol", "process",
-                         "user", "localIP", "sourcePort", "localPort",
-                         "vlessRoute", "attrs"}) {
+  for (const auto *key :
+       {"domain", "ip", "port", "network", "sourceIP", "source", "inboundTag",
+        "protocol", "process", "user", "localIP", "sourcePort", "localPort",
+        "vlessRoute", "attrs"}) {
     const auto *field = at(value, std::string("/") + key);
     if (!field)
       continue;
@@ -853,24 +877,29 @@ std::vector<ui::Column> collection_columns(const Section &section) {
   if (section.kind == "balancer")
     return {{"#", 3}, {"Tag", 18}, {"Strategy", 14}, {"Selector", 22}};
   if (section.kind == "inbound" || section.kind == "outbound")
-    return {{"#", 3}, {"Tag", 22}, {"Protocol", 15},
-            {section.kind == "inbound" ? "Listen / port" : "Target strategy", 22}};
+    return {
+        {"#", 3},
+        {"Tag", 22},
+        {"Protocol", 15},
+        {section.kind == "inbound" ? "Listen / port" : "Target strategy", 22}};
   if (section.kind == "host")
     return {{"Domain match", 31}, {"Addresses", 31}};
   if (section.kind == "environment")
     return {{"Variable", 36}, {"Value", 24}};
   if (section.kind == "policy-level")
-    return {{"Level", 8}, {"Handshake", 13}, {"Idle timeout", 15}, {"Buffer", 18}};
+    return {
+        {"Level", 8}, {"Handshake", 13}, {"Idle timeout", 15}, {"Buffer", 18}};
   if (section.kind == "asset")
     return {{"#", 3}, {"File", 22}, {"URL", 36}};
   return {{"#", 3}, {"IP pool", 35}, {"Pool size", 18}};
 }
 std::vector<std::string> collection_cells(const Section &section,
-                                        const std::string &key,
-                                        const Json &value) {
+                                          const std::string &key,
+                                          const Json &value) {
   if (section.kind == "dns-server")
-    return {key, value.is_string() ? preview_value(&value)
-                                  : native_value(value, "/address"),
+    return {key,
+            value.is_string() ? preview_value(&value)
+                              : native_value(value, "/address"),
             native_value(value, "/port", "Default"),
             native_value(value, "/queryStrategy", "Inherit")};
   if (section.kind == "routing-rule")
@@ -897,7 +926,8 @@ std::vector<std::string> collection_cells(const Section &section,
             native_value(value, "/bufferSize", "Default")};
   if (section.kind == "asset")
     return {key, native_value(value, "/file"), native_value(value, "/url")};
-  return {key, native_value(value, "/ipPool"), native_value(value, "/poolSize")};
+  return {key, native_value(value, "/ipPool"),
+          native_value(value, "/poolSize")};
 }
 class NativeEditor final : public ComponentBase,
                            public std::enable_shared_from_this<NativeEditor> {
@@ -939,8 +969,8 @@ public:
         [&](const Section &candidate) { return candidate.id == selected; });
     Elements detail;
     if (section != sections_.end()) {
-      detail.push_back(heading(section->label,
-                               options_.readonly ? "Read only" : "Draft"));
+      detail.push_back(
+          heading(section->label, options_.readonly ? "Read only" : "Draft"));
       std::string path = section->path.substr(1);
       std::replace(path.begin(), path.end(), '/', '.');
       detail.push_back(text(path) | ink(Role::Muted));
@@ -948,17 +978,18 @@ public:
       append_preview(detail, *section);
     } else {
       detail.push_back(heading("Dynamic groups", "Bindings"));
-      detail.push_back(paragraph("Managed in Nodes / Groups. These bindings "
-                                 "generate native routing.balancers when applied.") |
-                       ink(Role::Muted));
+      detail.push_back(
+          paragraph("Managed in Nodes / Groups. These bindings "
+                    "generate native routing.balancers when applied.") |
+          ink(Role::Muted));
       for (const auto &group : options_.bound_groups)
         detail.push_back(key_value(group.label, group.value));
     }
     auto preview = vbox(std::move(detail)) | flex;
     Element layout;
     if (box_.x_max - box_.x_min + 1 >= 110) {
-      layout = hbox({tree_->Render() | size(WIDTH, EQUAL, 31),
-                     text("  "), preview});
+      layout =
+          hbox({tree_->Render() | size(WIDTH, EQUAL, 31), text("  "), preview});
     } else {
       const auto navigation_rows = static_cast<int>(sections_.size()) +
                                    (options_.bound_groups.empty() ? 0 : 1);
@@ -977,13 +1008,15 @@ private:
     if (!value) {
       detail.push_back(text("Not configured") | bold | ink(Role::Muted));
       detail.push_back(paragraph("No fields are present in this section of "
-                                 "the current draft.") | ink(Role::Muted));
+                                 "the current draft.") |
+                       ink(Role::Muted));
       return;
     }
     if (section.mode == Section::Mode::EmptyObject && value->is_object()) {
       detail.push_back(text("Stats object present") | bold);
       detail.push_back(paragraph("No native parameters. Source inclusion is "
-                                 "managed independently.") | ink(Role::Muted));
+                                 "managed independently.") |
+                       ink(Role::Muted));
       return;
     }
     if ((section.mode == Section::Mode::Array && value->is_array()) ||
@@ -993,29 +1026,33 @@ private:
         return;
       }
       const int available = std::max(3, box_.y_max - box_.y_min - 8);
-      const auto count = std::min(value->size(), static_cast<std::size_t>(
-          section.kind == "dns-server" || section.kind == "routing-rule"
-              ? std::max(1, available / 3) : std::max(1, available)));
+      const auto count = std::min(
+          value->size(),
+          static_cast<std::size_t>(section.kind == "dns-server" ||
+                                           section.kind == "routing-rule"
+                                       ? std::max(1, available / 3)
+                                       : std::max(1, available)));
       std::size_t index = 0;
       for (auto it = value->begin(); it != value->end() && index < count;
            ++it, ++index) {
         const auto label = section.mode == Section::Mode::Map
-                               ? it.key() : std::to_string(index + 1);
+                               ? it.key()
+                               : std::to_string(index + 1);
         const auto cells = collection_cells(section, label, it.value());
         if (section.kind == "dns-server") {
-          detail.push_back(hbox({text(label + "  ") | ink(Role::Muted),
-                                 text(cells[1]) | bold}));
-          detail.push_back(hbox({text("   port ") | ink(Role::Muted),
-                                 text(cells[2]),
-                                 text("    strategy ") | ink(Role::Muted),
-                                 text(cells[3])}));
+          detail.push_back(hbox(
+              {text(label + "  ") | ink(Role::Muted), text(cells[1]) | bold}));
+          detail.push_back(
+              hbox({text("   port ") | ink(Role::Muted), text(cells[2]),
+                    text("    strategy ") | ink(Role::Muted), text(cells[3])}));
           detail.push_back(text(""));
         } else if (section.kind == "routing-rule") {
-          detail.push_back(hbox({text(label + "  ") | ink(Role::Muted),
-                                 text(native_value(it.value(), "/ruleTag",
-                                                   "Routing rule")) | bold,
-                                 text("   to ") | ink(Role::Muted),
-                                 text(cells[2]) | ink(Role::Accent)}));
+          detail.push_back(
+              hbox({text(label + "  ") | ink(Role::Muted),
+                    text(native_value(it.value(), "/ruleTag", "Routing rule")) |
+                        bold,
+                    text("   to ") | ink(Role::Muted),
+                    text(cells[2]) | ink(Role::Accent)}));
           detail.push_back(hbox({text("   match ") | ink(Role::Muted),
                                  text(rule_match(it.value()))}));
           detail.push_back(text(""));
@@ -1031,7 +1068,8 @@ private:
       }
       if (count < value->size())
         detail.push_back(text("+ " + std::to_string(value->size() - count) +
-                              " more in collection") | ink(Role::Muted));
+                              " more in collection") |
+                         ink(Role::Muted));
       return;
     }
     if (!value->is_object()) {
@@ -1046,14 +1084,16 @@ private:
       const auto *field = at(*value, spec.path);
       if (!field)
         continue;
-      detail.push_back(key_value(spec.label,
+      detail.push_back(key_value(
+          spec.label,
           spec.kind == ValueKind::Secret ? "Configured" : preview_value(field),
           24));
       ++shown;
     }
     if (!shown)
-      detail.push_back(text(value->empty() ? "No explicit settings"
-                                           : "Advanced native fields configured") |
+      detail.push_back(text(value->empty()
+                                ? "No explicit settings"
+                                : "Advanced native fields configured") |
                        ink(Role::Muted));
   }
   Json read() const {
@@ -1147,16 +1187,17 @@ private:
     const auto root = read();
     const auto *current = at(root, section.path);
     if (section.mode == Section::Mode::EmptyObject) {
-      auto button = ui::style::button("Keep empty stats object in draft", [this, section] {
-        if (auto error = modify([&](Json &document) {
-              if (!at(document, section.path))
-                document[Json::json_pointer(section.path)] = Json::object();
-            })) {
-          show_error(*error);
-          return;
-        }
-        options_.close_dialog();
-      });
+      auto button = ui::style::button(
+          "Keep empty stats object in draft", [this, section] {
+            if (auto error = modify([&](Json &document) {
+                  if (!at(document, section.path))
+                    document[Json::json_pointer(section.path)] = Json::object();
+                })) {
+              show_error(*error);
+              return;
+            }
+            options_.close_dialog();
+          });
       auto close = ui::style::button("Close", options_.close_dialog);
       auto controls = options_.readonly ? Container::Vertical({close})
                                         : Container::Vertical({button, close});
@@ -1248,8 +1289,8 @@ private:
       if (value) {
         if (section.mode == Section::Mode::Map && value->is_object()) {
           for (auto it = value->begin(); it != value->end(); ++it)
-            rows.push_back({it.key(), collection_cells(section, it.key(),
-                                                       it.value())});
+            rows.push_back(
+                {it.key(), collection_cells(section, it.key(), it.value())});
         } else if (value->is_array()) {
           for (std::size_t i = 0; i < value->size(); ++i)
             rows.push_back({std::to_string(i),
@@ -1288,17 +1329,21 @@ private:
     actions.remove = [self, section, refresh](const std::string &id) {
       const auto current = self->read();
       const auto *container = at(current, section.path);
-      std::string identity = section.mode == Section::Mode::Map
-                                 ? id : "entry " + std::to_string(std::stoul(id) + 1);
+      std::string identity =
+          section.mode == Section::Mode::Map
+              ? id
+              : "entry " + std::to_string(std::stoul(id) + 1);
       if (container) {
         const auto &entry = section.mode == Section::Mode::Map
-                                ? container->at(id) : container->at(std::stoul(id));
+                                ? container->at(id)
+                                : container->at(std::stoul(id));
         const auto cells = collection_cells(section, id, entry);
         if (!cells.empty())
           identity += " · " + ui::Clip(cells.front(), 72);
       }
       self->options_.open_dialog(ui::Confirm(
-          "Remove native entry", section.label + ": " + identity +
+          "Remove native entry",
+          section.label + ": " + identity +
               ". Removes this entry from the module draft only. "
               "Source and runtime files remain unchanged.",
           [self, section, refresh, id] {
@@ -1341,9 +1386,8 @@ private:
           collection->table()->select_id(std::to_string(next));
       };
     auto collection = std::make_shared<ui::CollectionEditor>(
-        section.label,
-        collection_columns(section),
-        std::move(actions), options_.readonly);
+        section.label, collection_columns(section), std::move(actions),
+        options_.readonly);
     *holder = collection;
     refresh();
     auto close = ui::style::button("Done", options_.close_dialog);

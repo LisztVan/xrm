@@ -1,3 +1,5 @@
+// XRM: Defines subscription sources and refresh results.
+
 #pragma once
 
 #include "model/node.hpp"
@@ -89,9 +91,9 @@ struct SourceCommit {
   RefreshReport report;
 };
 
-void to_json(Json& json, const Subscription& value);
-void from_json(const Json& json, Subscription& value);
-void to_json(Json& json, const SubscriptionState& value);
-void from_json(const Json& json, SubscriptionState& value);
+void to_json(Json &json, const Subscription &value);
+void from_json(const Json &json, Subscription &value);
+void to_json(Json &json, const SubscriptionState &value);
+void from_json(const Json &json, SubscriptionState &value);
 
-}  // namespace xrm
+} // namespace xrm

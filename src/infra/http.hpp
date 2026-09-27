@@ -1,3 +1,5 @@
+// XRM: Declares the HTTP download interface.
+
 #pragma once
 
 #include "model/subscription.hpp"
@@ -26,20 +28,20 @@ struct HttpResponse {
 };
 
 class HttpClient {
- public:
+public:
   static constexpr std::size_t max_concurrent_requests = 3;
-  explicit HttpClient(uv_loop_s& loop);
+  explicit HttpClient(uv_loop_s &loop);
   ~HttpClient();
-  HttpClient(const HttpClient&) = delete;
-  HttpClient& operator=(const HttpClient&) = delete;
+  HttpClient(const HttpClient &) = delete;
+  HttpClient &operator=(const HttpClient &) = delete;
 
   Result<Id> fetch(HttpRequest request, Completion<HttpResponse> completion);
-  Result<void> cancel(const Id& request_id);
+  Result<void> cancel(const Id &request_id);
   void shutdown(std::function<void()> drained);
 
- private:
+private:
   struct Impl;
-  Impl* impl_ = nullptr;
+  Impl *impl_ = nullptr;
 };
 
-}  // namespace xrm
+} // namespace xrm

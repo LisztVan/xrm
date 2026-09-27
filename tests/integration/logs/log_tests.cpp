@@ -1,5 +1,8 @@
-#include "server/log_buffer.hpp"
+// XRM: Tests log in the client, daemon, persistence, and Xray integration
+// suite.
+
 #include "contract/wire.hpp"
+#include "server/log_buffer.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -27,7 +30,8 @@ TEST_CASE("log chunks are bounded and old cursors are explicitly truncated",
 TEST_CASE("an old log cursor does not block another bounded buffer read",
           "[integration][log-buffer]") {
   LogBuffer logs(1024);
-  for (int i = 0; i < 1000; ++i) logs.append(LogStream::core_stderr, "event\n");
+  for (int i = 0; i < 1000; ++i)
+    logs.append(LogStream::core_stderr, "event\n");
   CHECK(logs.cursor() == 1000);
   CHECK(logs.read_after(0, 1024).truncated);
   const auto recent = logs.read_after(990, 1024);
@@ -49,9 +53,12 @@ TEST_CASE("split UTF8 logs remain valid through the JSON response boundary",
   Json entries = Json::array();
   for (const auto &entry : page.entries)
     entries.push_back(Json{{"cursor", entry.cursor}, {"text", entry.text}});
-  const auto encoded = encode_response(RpcResponse{1, 42, true,
-      Json{{"entries", entries}, {"next_cursor", page.next_cursor}}, std::nullopt});
-  CHECK(Json::parse(encoded).at("result").at("entries").at(1).at("text") == chinese + "\r\n");
+  const auto encoded = encode_response(
+      RpcResponse{1, 42, true,
+                  Json{{"entries", entries}, {"next_cursor", page.next_cursor}},
+                  std::nullopt});
+  CHECK(Json::parse(encoded).at("result").at("entries").at(1).at("text") ==
+        chinese + "\r\n");
 }
 
 TEST_CASE("log chunk and read limits never split a UTF8 codepoint",
@@ -72,8 +79,9 @@ TEST_CASE("log chunk and read limits never split a UTF8 codepoint",
   CHECK_NOTHROW(Json(clipped.entries[0].text).dump());
 }
 
-TEST_CASE("malformed log bytes have visible transport spelling without crashing JSON",
-          "[integration][log-buffer][utf8]") {
+TEST_CASE(
+    "malformed log bytes have visible transport spelling without crashing JSON",
+    "[integration][log-buffer][utf8]") {
   LogBuffer logs(1024);
   logs.append(LogStream::core_stdout, "bad:\xff\xc0\xaf\n");
   const auto page = logs.read_after(0, 1024);
@@ -87,7 +95,8 @@ TEST_CASE("malformed log bytes have visible transport spelling without crashing 
   CHECK(limited.truncated);
 }
 
-TEST_CASE("stream EOF exposes incomplete UTF8 bytes once without joining the next run",
+TEST_CASE("stream EOF exposes incomplete UTF8 bytes once without joining the "
+          "next run",
           "[integration][log-buffer][utf8]") {
   LogBuffer logs(1024);
   logs.append(LogStream::core_stdout, "tail:\xe4\xb8");

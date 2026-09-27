@@ -1,3 +1,5 @@
+// XRM: Renders node inventory, source scopes, and group operations.
+
 #include "tui/components/style.hpp"
 #include "tui/shell/workspace.hpp"
 #include <algorithm>

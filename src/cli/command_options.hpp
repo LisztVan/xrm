@@ -1,3 +1,5 @@
+// XRM: Declares shared CLI command options and registration helpers.
+
 #pragma once
 
 #include "model/common.hpp"
@@ -83,19 +85,19 @@ struct Request {
   bool included = true;
 };
 
-void add_node_commands(CLI::App& app, Request& request);
-void add_subscription_commands(CLI::App& app, Request& request);
-void add_core_commands(CLI::App& app, Request& request);
-void add_profile_commands(CLI::App& app, Request& request);
-void add_runtime_commands(CLI::App& app, Request& request);
-void add_geodata_commands(CLI::App& app, Request& request);
-void add_routing_preset_commands(CLI::App& app, Request& request);
-std::optional<int> execute_geodata_cli(const Request& request);
-std::optional<int> execute_routing_preset_cli(const Request& request);
-int execute_request(const Request& request);
+void add_node_commands(CLI::App &app, Request &request);
+void add_subscription_commands(CLI::App &app, Request &request);
+void add_core_commands(CLI::App &app, Request &request);
+void add_profile_commands(CLI::App &app, Request &request);
+void add_runtime_commands(CLI::App &app, Request &request);
+void add_geodata_commands(CLI::App &app, Request &request);
+void add_routing_preset_commands(CLI::App &app, Request &request);
+std::optional<int> execute_geodata_cli(const Request &request);
+std::optional<int> execute_routing_preset_cli(const Request &request);
+int execute_request(const Request &request);
 inline constexpr int watch_consumer_closed = -1;
-int print_watch_result(const Request& request, const Result<Json>& result);
-int print_result(const Request& request, const Result<Json>& result);
+int print_watch_result(const Request &request, const Result<Json> &result);
+int print_result(const Request &request, const Result<Json> &result);
 std::string default_socket_path();
 
-}  // namespace xrm::cli
+} // namespace xrm::cli

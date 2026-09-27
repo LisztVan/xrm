@@ -1,3 +1,5 @@
+// XRM: Tracks asynchronous daemon operations and their results.
+
 #include "server/operations.hpp"
 
 #include "contract/wire.hpp"
@@ -12,9 +14,10 @@ Id Operations::begin() {
   return id;
 }
 
-void Operations::complete(const Id& id, Result<Json> result) {
+void Operations::complete(const Id &id, Result<Json> result) {
   const auto found = records_.find(id);
-  if (found == records_.end() || found->second.status != "running") return;
+  if (found == records_.end() || found->second.status != "running")
+    return;
   if (result) {
     found->second.status = "succeeded";
     found->second.result = std::move(*result);
@@ -26,15 +29,20 @@ void Operations::complete(const Id& id, Result<Json> result) {
   prune();
 }
 
-Result<Json> Operations::get(const Id& id) const {
+Result<Json> Operations::get(const Id &id) const {
   const auto found = records_.find(id);
   if (found == records_.end())
-    return std::unexpected(AppError{ErrorCode::not_found, "operation未知或属于此前Server进程", id, std::nullopt});
+    return std::unexpected(AppError{ErrorCode::not_found,
+                                    "operation未知或属于此前Server进程", id,
+                                    std::nullopt});
   Json error = nullptr;
-  if (found->second.error) error = error_to_json(*found->second.error);
-  return Json{{"operation_id", id}, {"status", found->second.status},
-              {"result", found->second.result ? *found->second.result : Json(nullptr)},
-              {"error", std::move(error)}};
+  if (found->second.error)
+    error = error_to_json(*found->second.error);
+  return Json{
+      {"operation_id", id},
+      {"status", found->second.status},
+      {"result", found->second.result ? *found->second.result : Json(nullptr)},
+      {"error", std::move(error)}};
 }
 
 void Operations::prune() {
@@ -44,4 +52,4 @@ void Operations::prune() {
   }
 }
 
-}  // namespace xrm
+} // namespace xrm

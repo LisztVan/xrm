@@ -1,3 +1,5 @@
+// XRM: Tests routing preset in the domain and editor behavior suite.
+
 #include "geodata/resource_validation.hpp"
 #include "profile/routing_presets.hpp"
 
@@ -8,8 +10,9 @@ using namespace xrm;
 namespace {
 
 ModuleDocument existing_routing() {
-  return {"routing", "04_routing.json",
-          R"({"routing":{"domainStrategy":"IPIfNonMatch","vendor":{"keep":7},"balancers":[{"tag":"static","selector":["some-tag"]}],"rules":[{"type":"field","inboundTag":["api"],"outboundTag":"api"},{"type":"field","domain":["domain:old.example"],"outboundTag":"direct"}]}})"};
+  return {
+      "routing", "04_routing.json",
+      R"({"routing":{"domainStrategy":"IPIfNonMatch","vendor":{"keep":7},"balancers":[{"tag":"static","selector":["some-tag"]}],"rules":[{"type":"field","inboundTag":["api"],"outboundTag":"api"},{"type":"field","domain":["domain:old.example"],"outboundTag":"direct"}]}})"};
 }
 
 RoutingPresetRequest request(RoutingPreset preset) {
@@ -20,14 +23,16 @@ RoutingPresetRequest request(RoutingPreset preset) {
   result.outbound_tags = {"direct", "block", "api"};
   result.balancer_tags = {"chosen-group", "static"};
   result.protected_inbound_tags = {"api"};
-  result.geoip_labels = {"private", "cn", "facebook", "fastly", "google", "netflix", "telegram", "twitter"};
+  result.geoip_labels = {"private", "cn",      "facebook", "fastly",
+                         "google",  "netflix", "telegram", "twitter"};
   result.geosite_labels = {"private", "cn", "google", "gfw", "greatfire"};
   return result;
 }
 
-}  // namespace
+} // namespace
 
-TEST_CASE("P5 preset plan replaces rules but preserves API route, balancers and unknown fields") {
+TEST_CASE("P5 preset plan replaces rules but preserves API route, balancers "
+          "and unknown fields") {
   auto planned = plan_routing_preset(request(RoutingPreset::bypass_mainland));
   REQUIRE(planned);
   REQUIRE(planned->changed);
@@ -62,7 +67,8 @@ TEST_CASE("P5 preset plan refuses missing proxy and geodata dependencies") {
   REQUIRE_FALSE(plan_routing_preset(missing_balancer));
 }
 
-TEST_CASE("P5 direct preset needs no proxy or geodata and custom leaves source untouched") {
+TEST_CASE("P5 direct preset needs no proxy or geodata and custom leaves source "
+          "untouched") {
   auto direct = request(RoutingPreset::direct_only);
   direct.proxy.reset();
   direct.geoip_labels.clear();
@@ -71,7 +77,8 @@ TEST_CASE("P5 direct preset needs no proxy or geodata and custom leaves source u
   REQUIRE(result);
   CHECK(result->required_geoip_labels.empty());
   CHECK(result->required_geosite_labels.empty());
-  CHECK(Json::parse(result->edit.text)["routing"]["rules"].back()["outboundTag"] == "direct");
+  CHECK(Json::parse(result->edit.text)["routing"]["rules"]
+            .back()["outboundTag"] == "direct");
 
   auto custom = request(RoutingPreset::custom_native);
   auto unchanged = plan_routing_preset(custom);
@@ -99,29 +106,38 @@ TEST_CASE("P5 blacklist and global keep their first-match policy explicit") {
   CHECK_FALSE(global->required_geoip_labels.contains("cn"));
 }
 
-TEST_CASE("P5 geodata validation fixture is type-specific and rejects traversal") {
-  REQUIRE_FALSE(geodata_validation_files(GeoAssetKind::geoip, "../geoip.dat", {"cn"}));
-  REQUIRE_FALSE(geodata_validation_files(GeoAssetKind::geosite, "/tmp/geosite.dat", {"cn"}));
-  REQUIRE_FALSE(geodata_validation_files(GeoAssetKind::geoip, "geosite.dat", {}));
+TEST_CASE(
+    "P5 geodata validation fixture is type-specific and rejects traversal") {
+  REQUIRE_FALSE(
+      geodata_validation_files(GeoAssetKind::geoip, "../geoip.dat", {"cn"}));
+  REQUIRE_FALSE(geodata_validation_files(GeoAssetKind::geosite,
+                                         "/tmp/geosite.dat", {"cn"}));
+  REQUIRE_FALSE(
+      geodata_validation_files(GeoAssetKind::geoip, "geosite.dat", {}));
 
   auto ip = geodata_validation_files(GeoAssetKind::geoip, "geoip.dat", {"cn"});
   REQUIRE(ip);
   REQUIRE(ip->size() == 1);
   const Json ip_config = Json::parse(ip->front().bytes);
-  CHECK(ip_config["routing"]["rules"][0]["ip"] == Json::array({"ext:geoip.dat:cn"}));
+  CHECK(ip_config["routing"]["rules"][0]["ip"] ==
+        Json::array({"ext:geoip.dat:cn"}));
 
-  auto site = geodata_validation_files(GeoAssetKind::geosite, "geosite.dat", {"cn"});
+  auto site =
+      geodata_validation_files(GeoAssetKind::geosite, "geosite.dat", {"cn"});
   REQUIRE(site);
   const Json site_config = Json::parse(site->front().bytes);
-  CHECK(site_config["routing"]["rules"][0]["domain"] == Json::array({"ext:geosite.dat:cn"}));
+  CHECK(site_config["routing"]["rules"][0]["domain"] ==
+        Json::array({"ext:geosite.dat:cn"}));
   CHECK(geodata_validation_files(GeoAssetKind::geosite, "geosite.dat",
-                                  {"category-scholar-!cn"}));
+                                 {"category-scholar-!cn"}));
 }
 
 TEST_CASE("P5 geodata inspection rejects empty and wrong-type bytes") {
   CHECK_FALSE(inspect_geodata_bytes(GeoAssetKind::geoip, ""));
-  CHECK_FALSE(inspect_geodata_bytes(GeoAssetKind::geosite, std::string{"\x0a\x01\x00", 3}));
+  CHECK_FALSE(inspect_geodata_bytes(GeoAssetKind::geosite,
+                                    std::string{"\x0a\x01\x00", 3}));
   // A valid protobuf envelope with a code but a Domain payload is not GeoIP.
-  const std::string site_bytes = "\x0a\x11\x0a\x08XRM-TEST\x12\x05\x08\x03\x12\x01x";
+  const std::string site_bytes =
+      "\x0a\x11\x0a\x08XRM-TEST\x12\x05\x08\x03\x12\x01x";
   CHECK_FALSE(inspect_geodata_bytes(GeoAssetKind::geoip, site_bytes));
 }

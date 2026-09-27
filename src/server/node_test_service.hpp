@@ -1,3 +1,5 @@
+// XRM: Declares the node test service.
+
 #pragma once
 
 #include "infra/process.hpp"
@@ -41,20 +43,20 @@ struct NodeTestResult {
 // production CoreManager, selection, RunRecord, Store, or runtime directory.
 // Callbacks are delivered on the supplied uv loop.
 class NodeTestService {
- public:
-  NodeTestService(uv_loop_t&, ProcessService&, HttpClient&,
+public:
+  NodeTestService(uv_loop_t &, ProcessService &, HttpClient &,
                   std::filesystem::path ping_binary = "/usr/bin/ping");
   ~NodeTestService();
-  NodeTestService(const NodeTestService&) = delete;
-  NodeTestService& operator=(const NodeTestService&) = delete;
+  NodeTestService(const NodeTestService &) = delete;
+  NodeTestService &operator=(const NodeTestService &) = delete;
 
   Result<Id> start(NodeTestRequest, Completion<NodeTestResult>);
-  Result<void> cancel(const Id&);
+  Result<void> cancel(const Id &);
   void shutdown(std::function<void()> drained);
 
- private:
+private:
   struct Impl;
   std::shared_ptr<Impl> impl_;
 };
 
-}  // namespace xrm
+} // namespace xrm

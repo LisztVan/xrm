@@ -1,9 +1,11 @@
+// XRM: Declares the SQLite-backed XRM store and transaction operations.
+
 #pragma once
 
+#include "geodata/resource_record.hpp"
 #include "model/node.hpp"
 #include "model/runtime.hpp"
 #include "model/subscription.hpp"
-#include "geodata/resource_record.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -12,56 +14,59 @@
 namespace xrm {
 
 class Store {
- public:
+public:
   static Result<std::unique_ptr<Store>> open(std::filesystem::path database);
   ~Store();
-  Store(const Store&) = delete;
-  Store& operator=(const Store&) = delete;
+  Store(const Store &) = delete;
+  Store &operator=(const Store &) = delete;
 
-  Result<Page<Node>> list_nodes(const NodeQuery&, PageRequest) const;
-  Result<Node> get_node(const Id&) const;
+  Result<Page<Node>> list_nodes(const NodeQuery &, PageRequest) const;
+  Result<Node> get_node(const Id &) const;
   Result<std::vector<Node>> all_nodes() const;
-  Result<void> put_node(const Node&);
-  Result<void> erase_node(const Id&);
-  Result<void> prune_history(const Id& source_id, const SubscriptionState& expected_state,
-                             const std::vector<Node>& expected_nodes,
-                             const std::vector<Id>& selected_ids);
+  Result<void> put_node(const Node &);
+  Result<void> erase_node(const Id &);
+  Result<void> prune_history(const Id &source_id,
+                             const SubscriptionState &expected_state,
+                             const std::vector<Node> &expected_nodes,
+                             const std::vector<Id> &selected_ids);
 
   Result<std::vector<Subscription>> list_sources() const;
-  Result<Subscription> get_source(const Id&) const;
-  Result<SubscriptionState> get_source_state(const Id&) const;
-  Result<void> put_source(const Subscription&);
-  Result<void> remove_source(const Id&, bool keep_as_manual);
-  Result<void> commit_source(const Id&, const SourceCommit&);
+  Result<Subscription> get_source(const Id &) const;
+  Result<SubscriptionState> get_source_state(const Id &) const;
+  Result<void> put_source(const Subscription &);
+  Result<void> remove_source(const Id &, bool keep_as_manual);
+  Result<void> commit_source(const Id &, const SourceCommit &);
 
-  Result<void> register_profile(const Id&, const std::filesystem::path&);
-  Result<std::filesystem::path> profile_path(const Id&) const;
+  Result<void> register_profile(const Id &, const std::filesystem::path &);
+  Result<std::filesystem::path> profile_path(const Id &) const;
   Result<std::vector<Id>> profile_ids() const;
-  Result<void> unregister_profile(const Id&);
+  Result<void> unregister_profile(const Id &);
 
   Result<RuntimePersistent> load_runtime() const;
-  Result<void> save_runtime(const RuntimePersistent&);
+  Result<void> save_runtime(const RuntimePersistent &);
 
   Result<std::vector<CoreInstall>> cores() const;
-  Result<CoreInstall> get_core(const Id&) const;
-  Result<void> put_core(const CoreInstall&);
-  Result<void> remove_core(const Id&);
+  Result<CoreInstall> get_core(const Id &) const;
+  Result<void> put_core(const CoreInstall &);
+  Result<void> remove_core(const Id &);
 
   Result<std::vector<GeodataResourceRecord>> geodata_resources() const;
-  Result<GeodataResourceRecord> get_geodata_resource(const Id&) const;
-  Result<GeodataResourceRecord> put_geodata_resource(const GeodataResourceRecord&);
-  Result<void> commit_geodata_resource_result(const Id&, std::uint64_t expected_revision,
-                                               std::optional<GeodataAssetVersion> version,
-                                               UnixMillis attempted_at, std::string result);
-  Result<void> remove_geodata_resource(const Id&);
+  Result<GeodataResourceRecord> get_geodata_resource(const Id &) const;
+  Result<GeodataResourceRecord>
+  put_geodata_resource(const GeodataResourceRecord &);
+  Result<void>
+  commit_geodata_resource_result(const Id &, std::uint64_t expected_revision,
+                                 std::optional<GeodataAssetVersion> version,
+                                 UnixMillis attempted_at, std::string result);
+  Result<void> remove_geodata_resource(const Id &);
 
   Result<Json> load_program_settings() const;
-  Result<Json> update_program_settings(const Json& patch);
+  Result<Json> update_program_settings(const Json &patch);
 
- private:
+private:
   struct Impl;
   explicit Store(std::unique_ptr<Impl> impl);
   std::unique_ptr<Impl> impl_;
 };
 
-}  // namespace xrm
+} // namespace xrm

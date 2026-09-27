@@ -1,3 +1,5 @@
+// XRM: Manages a reusable RPC session and its connection lifetime.
+
 #pragma once
 
 #include "client/rpc_client.hpp"

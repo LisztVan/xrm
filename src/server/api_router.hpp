@@ -1,3 +1,5 @@
+// XRM: Declares the daemon RPC method router.
+
 #pragma once
 
 #include "server/application.hpp"
@@ -6,12 +8,12 @@
 namespace xrm {
 
 class ApiRouter {
- public:
-  explicit ApiRouter(Application& application);
-  void dispatch(const Id& connection_id, RpcRequest request, RpcReply reply);
+public:
+  explicit ApiRouter(Application &application);
+  void dispatch(const Id &connection_id, RpcRequest request, RpcReply reply);
 
- private:
-  Application* application_;
+private:
+  Application *application_;
 };
 
-}  // namespace xrm
+} // namespace xrm

@@ -1,3 +1,5 @@
+// XRM: Declares routing preset operations.
+
 #pragma once
 
 #include "profile/profile_service.hpp"
@@ -14,8 +16,13 @@ namespace xrm {
 // public DNS exception lists are omitted, while UDP 443 block, private
 // bypass, Google exception, mainland bypass, and final actions are explicit.
 // "global" therefore still bypasses private destinations and blocks UDP 443.
-enum class RoutingPreset { bypass_mainland, blacklist_proxy, global_proxy,
-                           direct_only, custom_native };
+enum class RoutingPreset {
+  bypass_mainland,
+  blacklist_proxy,
+  global_proxy,
+  direct_only,
+  custom_native
+};
 
 struct RoutingProxyTarget {
   // "outboundTag" for a node/native outbound, "balancerTag" for a group.
@@ -48,6 +55,6 @@ struct RoutingPresetPlan {
 // Pure plan. The caller displays the before/after JSON and saves edit through
 // ProfileService only after explicit confirmation. This never edits a module,
 // changes a selection, or applies a runtime config itself.
-Result<RoutingPresetPlan> plan_routing_preset(const RoutingPresetRequest&);
+Result<RoutingPresetPlan> plan_routing_preset(const RoutingPresetRequest &);
 
-}  // namespace xrm
+} // namespace xrm

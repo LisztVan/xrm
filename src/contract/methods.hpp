@@ -1,3 +1,5 @@
+// XRM: Names the versioned RPC methods exposed by the daemon.
+
 #pragma once
 
 #include <string_view>
@@ -52,7 +54,8 @@ inline constexpr std::string_view module_change_plan = "module.change_plan";
 inline constexpr std::string_view module_save_changes = "module.save_changes";
 inline constexpr std::string_view connection_select = "connection.select";
 inline constexpr std::string_view connection_connect = "connection.connect";
-inline constexpr std::string_view connection_disconnect = "connection.disconnect";
+inline constexpr std::string_view connection_disconnect =
+    "connection.disconnect";
 inline constexpr std::string_view config_render = "config.render";
 inline constexpr std::string_view config_check = "config.check";
 inline constexpr std::string_view config_apply = "config.apply";
@@ -84,4 +87,4 @@ inline constexpr std::string_view geodata_update = "geodata.update";
 inline constexpr std::string_view routing_preset_plan = "routing.preset.plan";
 inline constexpr std::string_view routing_preset_save = "routing.preset.save";
 
-}  // namespace xrm::methods
+} // namespace xrm::methods

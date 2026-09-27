@@ -1,3 +1,5 @@
+// XRM: Renders Profile view, Use, Edit, and metadata operations.
+
 #include "tui/components/style.hpp"
 #include "tui/shell/workspace.hpp"
 namespace xrm::tui {
@@ -13,7 +15,9 @@ void Workspace::toggle_edit() {
     }
     draft_ = {};
     refresh_tables();
-    notify((edit_.empty() ? "Module Edit ended for " : "Module Edit enabled for ") + name(id) + "; runtime unchanged");
+    notify((edit_.empty() ? "Module Edit ended for "
+                          : "Module Edit enabled for ") +
+           name(id) + "; runtime unchanged");
   });
 }
 void Workspace::profile_form(std::string mode) {
@@ -54,39 +58,39 @@ void Workspace::profile_form(std::string mode) {
         bool_field("Append selected default",
                    source.value("append_selected_default", false)));
   }
-  form(
-      mode + " Profile", std::move(fields),
-      [this, mode, id, source,
-       original](ui::Form &f) mutable -> std::optional<std::string> {
-        Result<Json> r;
-        if (mode == "new")
-          r = call("profile.create", {{"name", f.value(0)},
-                                      {"core_id", f.value(1)},
-                                      {"preset", f.value(2)}});
-        else if (mode == "copy")
-          r = call("profile.clone", {{"profile_id", id}, {"name", f.value(0)}});
-        else if (mode == "rename")
-          r = call("profile.rename",
-                   {{"profile_id", id}, {"name", f.value(0)}});
-        else {
-          source["name"] = f.value(0);
-          source["core_id"] = f.value(1);
-          source["append_selected_default"] = f.value(2) == "true";
-          r = call("profile.save", {{"profile_id", id},
-                                    {"settings", source},
-                                    {"expected_text", original}});
-        }
-        if (!r)
-          return r.error().message;
-        notify("Profile " + f.value(0) + " saved; runtime unchanged",
-               ui::Tone::Success);
-        refresh();
-        if (mode == "new" && view_.empty()) {
-          view_ = r->value("id", "");
-          refresh_profile();
-        }
-        return {};
-      });
+  form(mode + " Profile", std::move(fields),
+       [this, mode, id, source,
+        original](ui::Form &f) mutable -> std::optional<std::string> {
+         Result<Json> r;
+         if (mode == "new")
+           r = call("profile.create", {{"name", f.value(0)},
+                                       {"core_id", f.value(1)},
+                                       {"preset", f.value(2)}});
+         else if (mode == "copy")
+           r = call("profile.clone",
+                    {{"profile_id", id}, {"name", f.value(0)}});
+         else if (mode == "rename")
+           r = call("profile.rename",
+                    {{"profile_id", id}, {"name", f.value(0)}});
+         else {
+           source["name"] = f.value(0);
+           source["core_id"] = f.value(1);
+           source["append_selected_default"] = f.value(2) == "true";
+           r = call("profile.save", {{"profile_id", id},
+                                     {"settings", source},
+                                     {"expected_text", original}});
+         }
+         if (!r)
+           return r.error().message;
+         notify("Profile " + f.value(0) + " saved; runtime unchanged",
+                ui::Tone::Success);
+         refresh();
+         if (mode == "new" && view_.empty()) {
+           view_ = r->value("id", "");
+           refresh_profile();
+         }
+         return {};
+       });
 }
 void Workspace::subscription_form(bool editing) {
   auto id = subscriptions_table_->selected_id();
@@ -128,7 +132,8 @@ void Workspace::subscription_form(bool editing) {
          }
          auto headers = Json::parse(f.value(6), nullptr, false);
          if (!headers.is_object()) {
-           f.set_field_error(6, "Enter a JSON object of header names and values");
+           f.set_field_error(6,
+                             "Enter a JSON object of header names and values");
            return "Headers must be an object";
          }
          Json p{{"name", f.value(0)},

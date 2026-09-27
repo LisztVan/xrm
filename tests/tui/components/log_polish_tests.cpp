@@ -1,5 +1,7 @@
-#include "tui/components/widgets.hpp"
+// XRM: Tests log polish in the terminal components and user interactions suite.
+
 #include "tui/components/log_viewer.hpp"
+#include "tui/components/widgets.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 #include <ftxui/screen/screen.hpp>
@@ -13,17 +15,19 @@ std::string log_screen(const std::shared_ptr<LogViewer> &logs, int width,
                        int height) {
   ftxui::Terminal::SetFallbackSize({width, height});
   auto screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(width),
-                                     ftxui::Dimension::Fixed(height));
+                                      ftxui::Dimension::Fixed(height));
   ftxui::Render(screen, logs->Render());
   return screen.ToString();
 }
-}
+} // namespace
 
-TEST_CASE("log chunks preserve stream boundaries and native facts", "[tui][logs]") {
+TEST_CASE("log chunks preserve stream boundaries and native facts",
+          "[tui][logs]") {
   const auto records = ParseLogChunks({
       {10, "stdout", "2026/09/26 16:02:03.123 [Warn"},
       {11, "stderr", "unstructured warning word\n"},
-      {12, "stdout", "ing] [1234] app/dns: failed to lookup example.test\nnext"},
+      {12, "stdout",
+       "ing] [1234] app/dns: failed to lookup example.test\nnext"},
       {13, "stdout", " line\n"},
   });
   REQUIRE(records.size() == 3);
@@ -32,7 +36,8 @@ TEST_CASE("log chunks preserve stream boundaries and native facts", "[tui][logs]
   CHECK(records[0].level == "Warning");
   CHECK(records[0].subsystem == "app/dns");
   CHECK(records[0].message == "[1234] failed to lookup example.test");
-  CHECK(records[0].raw == "2026/09/26 16:02:03.123 [Warning] [1234] app/dns: failed to lookup example.test");
+  CHECK(records[0].raw == "2026/09/26 16:02:03.123 [Warning] [1234] app/dns: "
+                          "failed to lookup example.test");
   CHECK(records[1].source == "stderr");
   CHECK(records[1].timestamp.empty());
   CHECK(records[1].level.empty());
@@ -41,7 +46,8 @@ TEST_CASE("log chunks preserve stream boundaries and native facts", "[tui][logs]
   CHECK_FALSE(records[2].partial);
 }
 
-TEST_CASE("logs keep partial lines and unknown prefixes literal", "[tui][logs]") {
+TEST_CASE("logs keep partial lines and unknown prefixes literal",
+          "[tui][logs]") {
   const auto records = ParseLogChunks({
       {1, "stdout", "[something] api/server: retained\n[Error] incomplete"},
       {2, "stderr", "plain text"},
@@ -55,12 +61,14 @@ TEST_CASE("logs keep partial lines and unknown prefixes literal", "[tui][logs]")
   CHECK(records[2].partial);
 }
 
-TEST_CASE("paused log records remain stable across completion and ring rotation", "[tui][logs]") {
+TEST_CASE(
+    "paused log records remain stable across completion and ring rotation",
+    "[tui][logs]") {
   auto logs = std::make_shared<LogViewer>();
   logs->set_records(ParseLogChunks({{1, "stdout", "first\npartial"}}));
   logs->set_follow(false);
-  logs->set_records(ParseLogChunks({{1, "stdout", "first\npartial"},
-                                     {2, "stdout", " complete\nnew\n"}}));
+  logs->set_records(ParseLogChunks(
+      {{1, "stdout", "first\npartial"}, {2, "stdout", " complete\nnew\n"}}));
   REQUIRE(logs->selected_record());
   CHECK(logs->selected_record()->message == "partial");
   CHECK(logs->unseen() == 1);
@@ -73,10 +81,13 @@ TEST_CASE("paused log records remain stable across completion and ring rotation"
   CHECK(logs->selected_record()->message == "rotated");
 }
 
-TEST_CASE("logs align wrapped messages at compact and wide sizes", "[tui][logs]") {
+TEST_CASE("logs align wrapped messages at compact and wide sizes",
+          "[tui][logs]") {
   auto logs = std::make_shared<LogViewer>();
-  logs->set_records(ParseLogChunks({{7, "stderr", "2026/09/26 16:02:03 [Error] app/dns: " +
-      std::string(160, 'x') + " END-OF-MESSAGE\n"}}));
+  logs->set_records(ParseLogChunks(
+      {{7, "stderr",
+        "2026/09/26 16:02:03 [Error] app/dns: " + std::string(160, 'x') +
+            " END-OF-MESSAGE\n"}}));
   for (auto [width, height] : {std::pair{80, 24}, {120, 40}, {180, 45}}) {
     const auto rendered = log_screen(logs, width, height);
     CHECK(rendered.find("TIME") != std::string::npos);
@@ -92,7 +103,8 @@ TEST_CASE("logs align wrapped messages at compact and wide sizes", "[tui][logs]"
   ftxui::Terminal::SetFallbackSize({80, 24});
 }
 
-TEST_CASE("logs display controls without executing terminal sequences", "[tui][logs]") {
+TEST_CASE("logs display controls without executing terminal sequences",
+          "[tui][logs]") {
   auto logs = std::make_shared<LogViewer>();
   logs->set_lines({"\x1b]52;clipboard\a\t中文 é"});
   const auto rendered = log_screen(logs, 80, 24);
@@ -101,13 +113,17 @@ TEST_CASE("logs display controls without executing terminal sequences", "[tui][l
   CHECK(rendered.find("中文 é") != std::string::npos);
 }
 
-TEST_CASE("log metadata has gutters and compact wrapped rows align", "[tui][logs]") {
+TEST_CASE("log metadata has gutters and compact wrapped rows align",
+          "[tui][logs]") {
   auto logs = std::make_shared<LogViewer>();
-  logs->set_records(ParseLogChunks({{123456789, "core_stderr",
-      "2026/09/26 16:02:03 [Error] proxy/vless: START continuation continuation continuation continuation continuation continuation continuation continuation\n"}}));
+  logs->set_records(ParseLogChunks(
+      {{123456789, "core_stderr",
+        "2026/09/26 16:02:03 [Error] proxy/vless: START continuation "
+        "continuation continuation continuation continuation continuation "
+        "continuation continuation\n"}}));
   ftxui::Terminal::SetFallbackSize({80, 24});
   auto screen = ftxui::Screen::Create(ftxui::Dimension::Fixed(80),
-                                     ftxui::Dimension::Fixed(24));
+                                      ftxui::Dimension::Fixed(24));
   ftxui::Render(screen, logs->Render());
   std::vector<std::string> rows;
   for (int y = 0; y < 24; ++y) {
@@ -130,11 +146,13 @@ TEST_CASE("log metadata has gutters and compact wrapped rows align", "[tui][logs
   CHECK(logs->selected_record()->sequence == 123456789);
 }
 
-TEST_CASE("log UTF8 and CRLF survive chunk boundaries with exact raw text", "[tui][logs]") {
+TEST_CASE("log UTF8 and CRLF survive chunk boundaries with exact raw text",
+          "[tui][logs]") {
   const std::string chinese = "中文";
   const auto records = ParseLogChunks({{1, "stdout", chinese.substr(0, 2)},
-      {2, "stderr", "other\n"}, {3, "stdout", chinese.substr(2) + "\r"},
-      {4, "stdout", "\nnext\n"}});
+                                       {2, "stderr", "other\n"},
+                                       {3, "stdout", chinese.substr(2) + "\r"},
+                                       {4, "stdout", "\nnext\n"}});
   REQUIRE(records.size() == 3);
   CHECK(records[0].message == chinese);
   CHECK(records[0].raw == chinese + "\r");
@@ -143,16 +161,18 @@ TEST_CASE("log UTF8 and CRLF survive chunk boundaries with exact raw text", "[tu
   CHECK_FALSE(records[0].partial);
 }
 
-TEST_CASE("lost log transport spans do not invent joined records", "[tui][logs]") {
-  const auto records = ParseLogChunks({{1, "stdout", "before-gap"},
-      {4, "stdout", "after-gap\n"}});
+TEST_CASE("lost log transport spans do not invent joined records",
+          "[tui][logs]") {
+  const auto records = ParseLogChunks(
+      {{1, "stdout", "before-gap"}, {4, "stdout", "after-gap\n"}});
   REQUIRE(records.size() == 2);
   CHECK(records[0].message == "before-gap");
   CHECK(records[0].partial);
   CHECK(records[1].message == "after-gap");
 }
 
-TEST_CASE("log display escapes ANSI OSC C1 and malformed byte tails", "[tui][logs]") {
+TEST_CASE("log display escapes ANSI OSC C1 and malformed byte tails",
+          "[tui][logs]") {
   const std::string raw = "\x1b[31mred\x1b[0m\x1b]52;c;DATA\a\xc2\x9b";
   const auto visible = LogTextForDisplay(raw);
   CHECK(visible == "^[[31mred^[[0m^[]52;c;DATA^G\\u009B");
@@ -162,10 +182,13 @@ TEST_CASE("log display escapes ANSI OSC C1 and malformed byte tails", "[tui][log
   CHECK(LogTextForDisplay("中文 é") == "中文 é");
 }
 
-TEST_CASE("wide log subsystem truncation is explicit and raw detail remains complete", "[tui][logs]") {
+TEST_CASE(
+    "wide log subsystem truncation is explicit and raw detail remains complete",
+    "[tui][logs]") {
   auto logs = std::make_shared<LogViewer>();
   const std::string subsystem = "transport/internet/tcp/long-subsystem-name";
-  logs->set_records(ParseLogChunks({{1, "core_stdout", "[Warning] " + subsystem + ": message\n"}}));
+  logs->set_records(ParseLogChunks(
+      {{1, "core_stdout", "[Warning] " + subsystem + ": message\n"}}));
   const auto rendered = log_screen(logs, 120, 40);
   CHECK(rendered.find("…") != std::string::npos);
   CHECK(rendered.find("Warning") != std::string::npos);

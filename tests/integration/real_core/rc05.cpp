@@ -1,3 +1,6 @@
+// XRM: Tests rc05 in the client, daemon, persistence, and Xray integration
+// suite.
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "infra/store.hpp"
@@ -31,14 +34,15 @@
 #include <thread>
 #include <vector>
 
-extern char** environ;
+extern char **environ;
 
 namespace {
 using namespace std::chrono_literals;
 using namespace xrm;
 
 std::filesystem::path real_xray() {
-  if (const char* path = std::getenv("XRM_TEST_XRAY"); path && *path) return path;
+  if (const char *path = std::getenv("XRM_TEST_XRAY"); path && *path)
+    return path;
 #ifdef XRM_TEST_XRAY_CONFIGURED
   return XRM_TEST_XRAY_CONFIGURED;
 #else
@@ -47,40 +51,58 @@ std::filesystem::path real_xray() {
 }
 
 struct TempDirectory {
-  std::filesystem::path path = std::filesystem::temp_directory_path() /
-      ("xrm-rc05-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+  std::filesystem::path path =
+      std::filesystem::temp_directory_path() /
+      ("xrm-rc05-" +
+       std::to_string(
+           std::chrono::steady_clock::now().time_since_epoch().count()));
   TempDirectory() { std::filesystem::create_directories(path); }
-  ~TempDirectory() { std::error_code ignored; std::filesystem::remove_all(path, ignored); }
+  ~TempDirectory() {
+    std::error_code ignored;
+    std::filesystem::remove_all(path, ignored);
+  }
 };
 
-std::string read_file(const std::filesystem::path& path) {
+std::string read_file(const std::filesystem::path &path) {
   std::ifstream input(path, std::ios::binary);
-  return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+  return {std::istreambuf_iterator<char>(input),
+          std::istreambuf_iterator<char>()};
 }
 
-struct CommandResult { int code = -1; std::string out; std::string err; };
+struct CommandResult {
+  int code = -1;
+  std::string out;
+  std::string err;
+};
 
-CommandResult run_command(const std::filesystem::path& executable,
-                          const std::vector<std::string>& arguments,
-                          const std::filesystem::path& root,
+CommandResult run_command(const std::filesystem::path &executable,
+                          const std::vector<std::string> &arguments,
+                          const std::filesystem::path &root,
                           std::chrono::seconds timeout = 15s) {
   static std::atomic<unsigned> sequence{0};
   const auto number = sequence.fetch_add(1);
-  const auto stdout_path = root / ("command-" + std::to_string(number) + ".out");
-  const auto stderr_path = root / ("command-" + std::to_string(number) + ".err");
+  const auto stdout_path =
+      root / ("command-" + std::to_string(number) + ".out");
+  const auto stderr_path =
+      root / ("command-" + std::to_string(number) + ".err");
   std::vector<std::string> values{executable.string()};
   values.insert(values.end(), arguments.begin(), arguments.end());
-  std::vector<char*> argv;
-  for (auto& value : values) argv.push_back(value.data());
+  std::vector<char *> argv;
+  for (auto &value : values)
+    argv.push_back(value.data());
   argv.push_back(nullptr);
   posix_spawn_file_actions_t actions;
   posix_spawn_file_actions_init(&actions);
-  posix_spawn_file_actions_addopen(&actions, STDOUT_FILENO, stdout_path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0600);
-  posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, stderr_path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0600);
+  posix_spawn_file_actions_addopen(&actions, STDOUT_FILENO, stdout_path.c_str(),
+                                   O_CREAT | O_TRUNC | O_WRONLY, 0600);
+  posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, stderr_path.c_str(),
+                                   O_CREAT | O_TRUNC | O_WRONLY, 0600);
   pid_t pid = -1;
-  const int spawned = posix_spawn(&pid, executable.c_str(), &actions, nullptr, argv.data(), environ);
+  const int spawned = posix_spawn(&pid, executable.c_str(), &actions, nullptr,
+                                  argv.data(), environ);
   posix_spawn_file_actions_destroy(&actions);
-  if (spawned != 0) return {};
+  if (spawned != 0)
+    return {};
   const auto deadline = std::chrono::steady_clock::now() + timeout;
   int status = 0;
   while (std::chrono::steady_clock::now() < deadline) {
@@ -96,16 +118,18 @@ CommandResult run_command(const std::filesystem::path& executable,
 
 std::optional<std::uint16_t> free_loopback_port() {
   const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-  if (fd < 0) return std::nullopt;
+  if (fd < 0)
+    return std::nullopt;
   sockaddr_in address{};
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-  if (::bind(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
+  if (::bind(fd, reinterpret_cast<sockaddr *>(&address), sizeof(address)) !=
+      0) {
     ::close(fd);
     return std::nullopt;
   }
   socklen_t size = sizeof(address);
-  if (::getsockname(fd, reinterpret_cast<sockaddr*>(&address), &size) != 0) {
+  if (::getsockname(fd, reinterpret_cast<sockaddr *>(&address), &size) != 0) {
     ::close(fd);
     return std::nullopt;
   }
@@ -118,14 +142,17 @@ bool wait_for_port(std::uint16_t port, std::chrono::seconds timeout = 5s) {
   const auto deadline = std::chrono::steady_clock::now() + timeout;
   while (std::chrono::steady_clock::now() < deadline) {
     const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-    if (fd < 0) return false;
+    if (fd < 0)
+      return false;
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     address.sin_port = htons(port);
-    const bool connected = ::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0;
+    const bool connected = ::connect(fd, reinterpret_cast<sockaddr *>(&address),
+                                     sizeof(address)) == 0;
     ::close(fd);
-    if (connected) return true;
+    if (connected)
+      return true;
     ::poll(nullptr, 0, 20);
   }
   return false;
@@ -133,16 +160,19 @@ bool wait_for_port(std::uint16_t port, std::chrono::seconds timeout = 5s) {
 
 std::string get_debug_vars(std::uint16_t port) {
   const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-  if (fd < 0) return {};
+  if (fd < 0)
+    return {};
   sockaddr_in address{};
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   address.sin_port = htons(port);
-  if (::connect(fd, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
+  if (::connect(fd, reinterpret_cast<sockaddr *>(&address), sizeof(address)) !=
+      0) {
     ::close(fd);
     return {};
   }
-  const std::string request = "GET /debug/vars HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+  const std::string request = "GET /debug/vars HTTP/1.1\r\nHost: "
+                              "127.0.0.1\r\nConnection: close\r\n\r\n";
   if (::send(fd, request.data(), request.size(), MSG_NOSIGNAL) < 0) {
     ::close(fd);
     return {};
@@ -151,27 +181,38 @@ std::string get_debug_vars(std::uint16_t port) {
   std::array<char, 4096> buffer{};
   for (;;) {
     const auto count = ::recv(fd, buffer.data(), buffer.size(), 0);
-    if (count <= 0) break;
+    if (count <= 0)
+      break;
     response.append(buffer.data(), static_cast<std::size_t>(count));
   }
   ::close(fd);
   const auto separator = response.find("\r\n\r\n");
-  if (separator == std::string::npos) return response;
+  if (separator == std::string::npos)
+    return response;
   auto body = response.substr(separator + 4);
-  if (response.substr(0, separator).find("Transfer-Encoding: chunked") == std::string::npos &&
-      response.substr(0, separator).find("transfer-encoding: chunked") == std::string::npos)
+  if (response.substr(0, separator).find("Transfer-Encoding: chunked") ==
+          std::string::npos &&
+      response.substr(0, separator).find("transfer-encoding: chunked") ==
+          std::string::npos)
     return body;
   std::string decoded;
   std::size_t cursor = 0;
   while (cursor < body.size()) {
     const auto line_end = body.find("\r\n", cursor);
-    if (line_end == std::string::npos) return {};
+    if (line_end == std::string::npos)
+      return {};
     std::size_t chunk_size = 0;
-    try { chunk_size = std::stoul(body.substr(cursor, line_end - cursor), nullptr, 16); }
-    catch (...) { return {}; }
+    try {
+      chunk_size =
+          std::stoul(body.substr(cursor, line_end - cursor), nullptr, 16);
+    } catch (...) {
+      return {};
+    }
     cursor = line_end + 2;
-    if (chunk_size == 0) return decoded;
-    if (cursor + chunk_size + 2 > body.size()) return {};
+    if (chunk_size == 0)
+      return decoded;
+    if (cursor + chunk_size + 2 > body.size())
+      return {};
     decoded.append(body, cursor, chunk_size);
     cursor += chunk_size + 2;
   }
@@ -179,19 +220,25 @@ std::string get_debug_vars(std::uint16_t port) {
 }
 
 class ControlledProbe {
- public:
+public:
   bool start() {
     listener_ = ::socket(AF_INET, SOCK_STREAM, 0);
-    if (listener_ < 0) return false;
+    if (listener_ < 0)
+      return false;
     int enabled = 1;
-    ::setsockopt(listener_, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(enabled));
+    ::setsockopt(listener_, SOL_SOCKET, SO_REUSEADDR, &enabled,
+                 sizeof(enabled));
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    if (::bind(listener_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0 ||
-        ::listen(listener_, 16) != 0) return false;
+    if (::bind(listener_, reinterpret_cast<sockaddr *>(&address),
+               sizeof(address)) != 0 ||
+        ::listen(listener_, 16) != 0)
+      return false;
     socklen_t size = sizeof(address);
-    if (::getsockname(listener_, reinterpret_cast<sockaddr*>(&address), &size) != 0) return false;
+    if (::getsockname(listener_, reinterpret_cast<sockaddr *>(&address),
+                      &size) != 0)
+      return false;
     port_ = ntohs(address.sin_port);
     worker_ = std::thread([this] { serve(); });
     return true;
@@ -207,26 +254,32 @@ class ControlledProbe {
       ::close(listener_);
       listener_ = -1;
     }
-    if (worker_.joinable()) worker_.join();
+    if (worker_.joinable())
+      worker_.join();
   }
 
- private:
+private:
   void serve() {
     while (!stopping_.load()) {
       pollfd descriptor{listener_, POLLIN, 0};
-      if (::poll(&descriptor, 1, 100) <= 0) continue;
+      if (::poll(&descriptor, 1, 100) <= 0)
+        continue;
       const int client = ::accept(listener_, nullptr, nullptr);
-      if (client < 0) continue;
+      if (client < 0)
+        continue;
       timeval timeout{2, 0};
       ::setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
       char request[2048]{};
       (void)::recv(client, request, sizeof(request), 0);
       constexpr std::string_view response =
-          "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+          "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: "
+          "close\r\n\r\n";
       std::size_t sent = 0;
       while (sent < response.size()) {
-        const auto count = ::send(client, response.data() + sent, response.size() - sent, MSG_NOSIGNAL);
-        if (count <= 0) break;
+        const auto count = ::send(client, response.data() + sent,
+                                  response.size() - sent, MSG_NOSIGNAL);
+        if (count <= 0)
+          break;
         sent += static_cast<std::size_t>(count);
       }
       requests_.fetch_add(1);
@@ -242,11 +295,12 @@ class ControlledProbe {
   std::thread worker_;
 };
 
-bool receive_exact(int fd, char* bytes, std::size_t count) {
+bool receive_exact(int fd, char *bytes, std::size_t count) {
   std::size_t received = 0;
   while (received < count) {
     const auto size = ::recv(fd, bytes + received, count - received, 0);
-    if (size <= 0) return false;
+    if (size <= 0)
+      return false;
     received += static_cast<std::size_t>(size);
   }
   return true;
@@ -255,8 +309,10 @@ bool receive_exact(int fd, char* bytes, std::size_t count) {
 bool send_bytes(int fd, std::string_view bytes) {
   std::size_t sent = 0;
   while (sent < bytes.size()) {
-    const auto size = ::send(fd, bytes.data() + sent, bytes.size() - sent, MSG_NOSIGNAL);
-    if (size <= 0) return false;
+    const auto size =
+        ::send(fd, bytes.data() + sent, bytes.size() - sent, MSG_NOSIGNAL);
+    if (size <= 0)
+      return false;
     sent += static_cast<std::size_t>(size);
   }
   return true;
@@ -267,7 +323,7 @@ bool send_bytes(int fd, std::string_view bytes) {
 // other target ports to its marker.  response_delay creates a stable, fully
 // loopback leastPing ordering without relying on the host network.
 class ControlledSocksNode {
- public:
+public:
   bool start(std::uint16_t probe_port, std::uint16_t marker_port,
              std::string marker, std::chrono::milliseconds response_delay) {
     probe_port_ = probe_port;
@@ -275,16 +331,21 @@ class ControlledSocksNode {
     marker_ = std::move(marker);
     response_delay_ = response_delay;
     listener_ = ::socket(AF_INET, SOCK_STREAM, 0);
-    if (listener_ < 0) return false;
+    if (listener_ < 0)
+      return false;
     int reuse = 1;
     ::setsockopt(listener_, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    if (::bind(listener_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0 ||
-        ::listen(listener_, 16) != 0) return false;
+    if (::bind(listener_, reinterpret_cast<sockaddr *>(&address),
+               sizeof(address)) != 0 ||
+        ::listen(listener_, 16) != 0)
+      return false;
     socklen_t size = sizeof(address);
-    if (::getsockname(listener_, reinterpret_cast<sockaddr*>(&address), &size) != 0) return false;
+    if (::getsockname(listener_, reinterpret_cast<sockaddr *>(&address),
+                      &size) != 0)
+      return false;
     port_ = ntohs(address.sin_port);
     worker_ = std::thread([this] { serve(); });
     return true;
@@ -300,47 +361,64 @@ class ControlledSocksNode {
       ::close(listener_);
       listener_ = -1;
     }
-    if (worker_.joinable()) worker_.join();
+    if (worker_.joinable())
+      worker_.join();
   }
 
- private:
+private:
   void handle(int client) {
     timeval timeout{3, 0};
     ::setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     unsigned char greeting[2]{};
-    if (!receive_exact(client, reinterpret_cast<char*>(greeting), sizeof(greeting)) || greeting[0] != 5) return;
+    if (!receive_exact(client, reinterpret_cast<char *>(greeting),
+                       sizeof(greeting)) ||
+        greeting[0] != 5)
+      return;
     std::vector<char> methods(greeting[1]);
     if (!receive_exact(client, methods.data(), methods.size()) ||
         std::find(methods.begin(), methods.end(), 0) == methods.end() ||
-        !send_bytes(client, std::string_view{"\x05\x00", 2})) return;
+        !send_bytes(client, std::string_view{"\x05\x00", 2}))
+      return;
 
     unsigned char request[4]{};
-    if (!receive_exact(client, reinterpret_cast<char*>(request), sizeof(request)) || request[0] != 5) return;
+    if (!receive_exact(client, reinterpret_cast<char *>(request),
+                       sizeof(request)) ||
+        request[0] != 5)
+      return;
     std::size_t address_bytes = request[3] == 1 ? 4 : request[3] == 4 ? 16 : 0;
     if (request[3] == 3) {
       unsigned char length = 0;
-      if (!receive_exact(client, reinterpret_cast<char*>(&length), 1)) return;
+      if (!receive_exact(client, reinterpret_cast<char *>(&length), 1))
+        return;
       address_bytes = length;
     }
     std::vector<char> address(address_bytes + 2);
-    if (!receive_exact(client, address.data(), address.size())) return;
+    if (!receive_exact(client, address.data(), address.size()))
+      return;
     const auto requested_port = static_cast<std::uint16_t>(
         (static_cast<unsigned char>(address[address_bytes]) << 8) |
         static_cast<unsigned char>(address[address_bytes + 1]));
-    if (requested_port == probe_port_) ::poll(nullptr, 0, static_cast<int>(response_delay_.count()));
-    constexpr std::string_view success{"\x05\x00\x00\x01\x7f\x00\x00\x01\x00\x00", 10};
-    if (!send_bytes(client, success)) return;
+    if (requested_port == probe_port_)
+      ::poll(nullptr, 0, static_cast<int>(response_delay_.count()));
+    constexpr std::string_view success{
+        "\x05\x00\x00\x01\x7f\x00\x00\x01\x00\x00", 10};
+    if (!send_bytes(client, success))
+      return;
     char http_request[4096]{};
-    const auto request_size = ::recv(client, http_request, sizeof(http_request), 0);
-    if (request_size <= 0) return;
+    const auto request_size =
+        ::recv(client, http_request, sizeof(http_request), 0);
+    if (request_size <= 0)
+      return;
     if (requested_port == probe_port_) {
       probe_requests_.fetch_add(1);
       constexpr std::string_view response =
-          "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+          "HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: "
+          "close\r\n\r\n";
       (void)send_bytes(client, response);
     } else if (requested_port == marker_port_) {
       const auto response = "HTTP/1.1 200 OK\r\nContent-Length: " +
-          std::to_string(marker_.size()) + "\r\nConnection: close\r\n\r\n" + marker_;
+                            std::to_string(marker_.size()) +
+                            "\r\nConnection: close\r\n\r\n" + marker_;
       (void)send_bytes(client, response);
     }
   }
@@ -348,9 +426,11 @@ class ControlledSocksNode {
   void serve() {
     while (!stopping_.load()) {
       pollfd descriptor{listener_, POLLIN, 0};
-      if (::poll(&descriptor, 1, 100) <= 0) continue;
+      if (::poll(&descriptor, 1, 100) <= 0)
+        continue;
       const int client = ::accept(listener_, nullptr, nullptr);
-      if (client < 0) continue;
+      if (client < 0)
+        continue;
       handle(client);
       ::shutdown(client, SHUT_RDWR);
       ::close(client);
@@ -368,39 +448,54 @@ class ControlledSocksNode {
   std::thread worker_;
 };
 
-std::string socks_http_request(std::uint16_t proxy_port, std::uint16_t destination_port) {
+std::string socks_http_request(std::uint16_t proxy_port,
+                               std::uint16_t destination_port) {
   const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
-  if (fd < 0) return {};
+  if (fd < 0)
+    return {};
   timeval timeout{4, 0};
   ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
   sockaddr_in proxy{};
   proxy.sin_family = AF_INET;
   proxy.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   proxy.sin_port = htons(proxy_port);
-  if (::connect(fd, reinterpret_cast<sockaddr*>(&proxy), sizeof(proxy)) != 0) {
+  if (::connect(fd, reinterpret_cast<sockaddr *>(&proxy), sizeof(proxy)) != 0) {
     ::close(fd);
     return {};
   }
   constexpr std::string_view greeting{"\x05\x01\x00", 3};
   char selected[2]{};
-  if (!send_bytes(fd, greeting) || !receive_exact(fd, selected, sizeof(selected)) ||
-      selected[0] != 5 || selected[1] != 0) {
+  if (!send_bytes(fd, greeting) ||
+      !receive_exact(fd, selected, sizeof(selected)) || selected[0] != 5 ||
+      selected[1] != 0) {
     ::close(fd);
     return {};
   }
   const std::array<unsigned char, 10> request{
-      5, 1, 0, 1, 127, 0, 0, 1,
-      static_cast<unsigned char>(destination_port >> 8), static_cast<unsigned char>(destination_port & 0xff)};
-  if (!send_bytes(fd, std::string_view(reinterpret_cast<const char*>(request.data()), request.size()))) {
+      5,
+      1,
+      0,
+      1,
+      127,
+      0,
+      0,
+      1,
+      static_cast<unsigned char>(destination_port >> 8),
+      static_cast<unsigned char>(destination_port & 0xff)};
+  if (!send_bytes(
+          fd, std::string_view(reinterpret_cast<const char *>(request.data()),
+                               request.size()))) {
     ::close(fd);
     return {};
   }
   char reply[10]{};
-  if (!receive_exact(fd, reply, sizeof(reply)) || reply[0] != 5 || reply[1] != 0) {
+  if (!receive_exact(fd, reply, sizeof(reply)) || reply[0] != 5 ||
+      reply[1] != 0) {
     ::close(fd);
     return {};
   }
-  if (!send_bytes(fd, "GET /marker HTTP/1.1\r\nHost: loopback\r\nConnection: close\r\n\r\n")) {
+  if (!send_bytes(fd, "GET /marker HTTP/1.1\r\nHost: loopback\r\nConnection: "
+                      "close\r\n\r\n")) {
     ::close(fd);
     return {};
   }
@@ -408,24 +503,27 @@ std::string socks_http_request(std::uint16_t proxy_port, std::uint16_t destinati
   std::array<char, 1024> buffer{};
   for (;;) {
     const auto count = ::recv(fd, buffer.data(), buffer.size(), 0);
-    if (count <= 0) break;
+    if (count <= 0)
+      break;
     response.append(buffer.data(), static_cast<std::size_t>(count));
   }
   ::close(fd);
   return response;
 }
 
-Json wait_for_observatory_tag(std::uint16_t port, const std::string& tag,
+Json wait_for_observatory_tag(std::uint16_t port, const std::string &tag,
                               std::chrono::seconds timeout = 20s) {
   const auto deadline = std::chrono::steady_clock::now() + timeout;
   Json latest = Json::object();
   do {
     try {
       const auto response = get_debug_vars(port);
-      if (!response.empty()) latest = Json::parse(response);
-    } catch (const Json::exception&) {
+      if (!response.empty())
+        latest = Json::parse(response);
+    } catch (const Json::exception &) {
     }
-    if (latest.contains("observatory") && latest.at("observatory").is_object() &&
+    if (latest.contains("observatory") &&
+        latest.at("observatory").is_object() &&
         latest.at("observatory").contains(tag))
       return latest;
     std::this_thread::sleep_for(50ms);
@@ -434,28 +532,37 @@ Json wait_for_observatory_tag(std::uint16_t port, const std::string& tag,
 }
 
 class XrayProcess {
- public:
-  bool start(const std::filesystem::path& xray, const std::filesystem::path& confdir,
-             const std::filesystem::path& root) {
+public:
+  bool start(const std::filesystem::path &xray,
+             const std::filesystem::path &confdir,
+             const std::filesystem::path &root) {
     static std::atomic<unsigned> sequence{0};
     const auto number = sequence.fetch_add(1);
     stdout_path_ = root / ("xray-" + std::to_string(number) + ".out");
     stderr_path_ = root / ("xray-" + std::to_string(number) + ".err");
-    std::vector<std::string> values{xray.string(), "run", "-confdir", confdir.string()};
-    std::vector<char*> argv;
-    for (auto& value : values) argv.push_back(value.data());
+    std::vector<std::string> values{xray.string(), "run", "-confdir",
+                                    confdir.string()};
+    std::vector<char *> argv;
+    for (auto &value : values)
+      argv.push_back(value.data());
     argv.push_back(nullptr);
     posix_spawn_file_actions_t actions;
     posix_spawn_file_actions_init(&actions);
-    posix_spawn_file_actions_addopen(&actions, STDOUT_FILENO, stdout_path_.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0600);
-    posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, stderr_path_.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0600);
-    const int status = posix_spawn(&pid_, xray.c_str(), &actions, nullptr, argv.data(), environ);
+    posix_spawn_file_actions_addopen(&actions, STDOUT_FILENO,
+                                     stdout_path_.c_str(),
+                                     O_CREAT | O_TRUNC | O_WRONLY, 0600);
+    posix_spawn_file_actions_addopen(&actions, STDERR_FILENO,
+                                     stderr_path_.c_str(),
+                                     O_CREAT | O_TRUNC | O_WRONLY, 0600);
+    const int status = posix_spawn(&pid_, xray.c_str(), &actions, nullptr,
+                                   argv.data(), environ);
     posix_spawn_file_actions_destroy(&actions);
     return status == 0;
   }
 
   bool stop() {
-    if (pid_ < 0) return true;
+    if (pid_ < 0)
+      return true;
     ::kill(pid_, SIGTERM);
     const auto deadline = std::chrono::steady_clock::now() + 5s;
     int status = 0;
@@ -475,47 +582,59 @@ class XrayProcess {
   std::string stderr_text() const { return read_file(stderr_path_); }
   ~XrayProcess() { (void)stop(); }
 
- private:
+private:
   pid_t pid_ = -1;
   std::filesystem::path stdout_path_;
   std::filesystem::path stderr_path_;
 };
 
-bool save_module(ProfileService& profiles, const Id& profile, std::string key, Json document) {
+bool save_module(ProfileService &profiles, const Id &profile, std::string key,
+                 Json document) {
   auto previous = profiles.module(profile, key);
-  if (!previous) return false;
-  const auto base = previous->document
-      ? std::optional<std::string>(previous->document->source_text) : std::nullopt;
-  if (!profiles.save_module(profile, {key, {base}, document.dump(2) + "\n"})) return false;
+  if (!previous)
+    return false;
+  const auto base =
+      previous->document
+          ? std::optional<std::string>(previous->document->source_text)
+          : std::nullopt;
+  if (!profiles.save_module(profile, {key, {base}, document.dump(2) + "\n"}))
+    return false;
   return static_cast<bool>(profiles.include_module(profile, key, true));
 }
 
-Result<PreparedDirectory> assemble_profile(ProfileService& profiles, Store& store,
-                                           RuntimeWriter& writer, const Id& profile,
-                                           const Id& directory_id) {
+Result<PreparedDirectory> assemble_profile(ProfileService &profiles,
+                                           Store &store, RuntimeWriter &writer,
+                                           const Id &profile,
+                                           const Id &directory_id) {
   auto snapshot = profiles.snapshot(profile);
-  if (!snapshot) return std::unexpected(snapshot.error());
+  if (!snapshot)
+    return std::unexpected(snapshot.error());
   auto groups = profiles.groups(profile);
   auto observation = profiles.observation(profile);
   auto nodes = store.all_nodes();
-  if (!groups) return std::unexpected(groups.error());
-  if (!observation) return std::unexpected(observation.error());
-  if (!nodes) return std::unexpected(nodes.error());
+  if (!groups)
+    return std::unexpected(groups.error());
+  if (!observation)
+    return std::unexpected(observation.error());
+  if (!nodes)
+    return std::unexpected(nodes.error());
   snapshot->bindings.groups = std::move(*groups);
   snapshot->bindings.observation = std::move(*observation);
   auto files = assemble(BuildInput{std::move(*snapshot), std::move(*nodes)});
-  if (!files) return std::unexpected(files.error());
+  if (!files)
+    return std::unexpected(files.error());
   return writer.materialize(*files, DirectoryPurpose::candidate, directory_id);
 }
 
-void describe_handle(uv_handle_t* handle, void* opaque) {
-  auto* output = static_cast<std::string*>(opaque);
+void describe_handle(uv_handle_t *handle, void *opaque) {
+  auto *output = static_cast<std::string *>(opaque);
   *output += std::string(uv_handle_type_name(uv_handle_get_type(handle))) +
-      " active=" + (uv_is_active(handle) ? "yes" : "no") +
-      " closing=" + (uv_is_closing(handle) ? "yes" : "no") + "; ";
+             " active=" + (uv_is_active(handle) ? "yes" : "no") +
+             " closing=" + (uv_is_closing(handle) ? "yes" : "no") + "; ";
 }
 
-bool run_observation_case(const std::filesystem::path& xray, std::string_view module_key) {
+bool run_observation_case(const std::filesystem::path &xray,
+                          std::string_view module_key) {
   TempDirectory temp;
   ControlledProbe probe;
   REQUIRE(probe.start());
@@ -525,37 +644,59 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
   auto store = Store::open(temp.path / "state.sqlite");
   REQUIRE(store);
   ProfileService profiles(**store, temp.path / "profiles");
-  auto profile = profiles.create({"RC-05 controlled " + std::string(module_key), "test-core", "local", {}});
+  auto profile = profiles.create({"RC-05 controlled " + std::string(module_key),
+                                  "test-core",
+                                  "local",
+                                  {}});
   REQUIRE(profile);
 
   constexpr std::string_view managed_id = "rc05-probe-node";
-  auto raw_node = parse_native_outbound(Json{{"protocol", "freedom"}, {"settings", Json::object()}},
-                                        std::string(managed_id), "RC-05 local freedom");
+  auto raw_node = parse_native_outbound(
+      Json{{"protocol", "freedom"}, {"settings", Json::object()}},
+      std::string(managed_id), "RC-05 local freedom");
   REQUIRE(raw_node);
   REQUIRE((*store)->put_node(*raw_node));
   auto profile_settings = profiles.get(profile->id);
   REQUIRE(profile_settings);
-  profile_settings->selected = Target{TargetKind::node, std::string(managed_id)};
-  const auto profile_path = temp.path / "profiles" / profile->id / "profile.json";
-  REQUIRE(profiles.save(profile->id, {{read_file(profile_path)}, *profile_settings}));
+  profile_settings->selected =
+      Target{TargetKind::node, std::string(managed_id)};
+  const auto profile_path =
+      temp.path / "profiles" / profile->id / "profile.json";
+  REQUIRE(profiles.save(profile->id,
+                        {{read_file(profile_path)}, *profile_settings}));
 
-  REQUIRE(save_module(profiles, profile->id, "outbounds", Json{{"outbounds", Json::array()}}));
-  REQUIRE(save_module(profiles, profile->id, "metrics",
-      Json{{"metrics", Json{{"listen", "127.0.0.1:" + std::to_string(*metrics_port)}}}}));
-  const auto probe_url = "http://127.0.0.1:" + std::to_string(probe.port()) + "/controlled-probe";
-  REQUIRE(save_module(profiles, profile->id, "observatory", Json{{"observatory", Json{
-      {"subjectSelector", Json::array()}, {"probeUrl", probe_url},
-      {"probeInterval", "250ms"}, {"rc05NativeField", "keep-observatory"}}}}));
-  REQUIRE(save_module(profiles, profile->id, "burstObservatory", Json{{"burstObservatory", Json{
-      {"subjectSelector", Json::array()},
-      {"pingConfig", Json{{"destination", probe_url}, {"connectivity", probe_url},
-          {"interval", "250ms"}, {"sampling", 2}, {"timeout", "1s"}, {"httpMethod", "GET"},
-          {"rc05NativeField", "keep-burst"}}}}}}));
+  REQUIRE(save_module(profiles, profile->id, "outbounds",
+                      Json{{"outbounds", Json::array()}}));
+  REQUIRE(save_module(
+      profiles, profile->id, "metrics",
+      Json{{"metrics",
+            Json{{"listen", "127.0.0.1:" + std::to_string(*metrics_port)}}}}));
+  const auto probe_url =
+      "http://127.0.0.1:" + std::to_string(probe.port()) + "/controlled-probe";
+  REQUIRE(save_module(
+      profiles, profile->id, "observatory",
+      Json{{"observatory", Json{{"subjectSelector", Json::array()},
+                                {"probeUrl", probe_url},
+                                {"probeInterval", "250ms"},
+                                {"rc05NativeField", "keep-observatory"}}}}));
+  REQUIRE(save_module(
+      profiles, profile->id, "burstObservatory",
+      Json{{"burstObservatory",
+            Json{{"subjectSelector", Json::array()},
+                 {"pingConfig", Json{{"destination", probe_url},
+                                     {"connectivity", probe_url},
+                                     {"interval", "250ms"},
+                                     {"sampling", 2},
+                                     {"timeout", "1s"},
+                                     {"httpMethod", "GET"},
+                                     {"rc05NativeField", "keep-burst"}}}}}}));
 
-  REQUIRE(profiles.save_observation(profile->id, {std::nullopt},
+  REQUIRE(profiles.save_observation(
+      profile->id, {std::nullopt},
       ObservationBinding{false, {std::string(managed_id)}}));
   REQUIRE(profiles.choose_observer(profile->id, std::string(module_key)));
-  const auto opposite = module_key == "observatory" ? "burstObservatory" : "observatory";
+  const auto opposite =
+      module_key == "observatory" ? "burstObservatory" : "observatory";
   const auto selected = profiles.module(profile->id, module_key);
   const auto inactive = profiles.module(profile->id, opposite);
   REQUIRE(selected);
@@ -567,51 +708,78 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
 
   RuntimeWriter writer(temp.path / "manager-runtime");
   auto runtime = assemble_profile(profiles, **store, writer, profile->id,
-      "rc05-" + std::string(module_key));
+                                  "rc05-" + std::string(module_key));
   INFO("assemble failed: " << (runtime ? "none" : runtime.error().message));
   REQUIRE(runtime);
   const auto confdir = runtime->confdir;
-  const auto active_filename = module_key == "observatory" ? "05_observatory.json" : "14_burstObservatory.json";
-  const auto opposite_filename = module_key == "observatory" ? "14_burstObservatory.json" : "05_observatory.json";
+  const auto active_filename = module_key == "observatory"
+                                   ? "05_observatory.json"
+                                   : "14_burstObservatory.json";
+  const auto opposite_filename = module_key == "observatory"
+                                     ? "14_burstObservatory.json"
+                                     : "05_observatory.json";
   REQUIRE(std::filesystem::exists(confdir / active_filename));
   CHECK_FALSE(std::filesystem::exists(confdir / opposite_filename));
 
   const auto active_root = Json::parse(read_file(confdir / active_filename));
   REQUIRE(active_root.contains(module_key));
   CHECK(std::find(active_root.at(module_key).at("subjectSelector").begin(),
-                  active_root.at(module_key).at("subjectSelector").end(), node_tag(managed_id)) !=
+                  active_root.at(module_key).at("subjectSelector").end(),
+                  node_tag(managed_id)) !=
         active_root.at(module_key).at("subjectSelector").end());
   if (module_key == "observatory") {
     CHECK(active_root.at("observatory").at("probeUrl") == probe_url);
     CHECK(active_root.at("observatory").at("probeInterval") == "250ms");
-    CHECK(active_root.at("observatory").at("rc05NativeField") == "keep-observatory");
+    CHECK(active_root.at("observatory").at("rc05NativeField") ==
+          "keep-observatory");
   } else {
-    CHECK(active_root.at("burstObservatory").at("pingConfig").at("destination") == probe_url);
-    CHECK(active_root.at("burstObservatory").at("pingConfig").at("interval") == "250ms");
-    CHECK(active_root.at("burstObservatory").at("pingConfig").at("sampling") == 2);
-    CHECK(active_root.at("burstObservatory").at("pingConfig").at("rc05NativeField") == "keep-burst");
+    CHECK(
+        active_root.at("burstObservatory").at("pingConfig").at("destination") ==
+        probe_url);
+    CHECK(active_root.at("burstObservatory").at("pingConfig").at("interval") ==
+          "250ms");
+    CHECK(active_root.at("burstObservatory").at("pingConfig").at("sampling") ==
+          2);
+    CHECK(active_root.at("burstObservatory")
+              .at("pingConfig")
+              .at("rc05NativeField") == "keep-burst");
   }
-  const auto outbounds = Json::parse(read_file(confdir / "90_nodes_tail.json")).at("outbounds");
+  const auto outbounds =
+      Json::parse(read_file(confdir / "90_nodes_tail.json")).at("outbounds");
   REQUIRE(outbounds.size() == 1);
   CHECK(outbounds.front().at("tag") == node_tag(managed_id));
 
-  auto checked = run_command(xray, {"run", "-test", "-confdir", confdir.string()}, temp.path);
+  auto checked = run_command(
+      xray, {"run", "-test", "-confdir", confdir.string()}, temp.path);
   INFO("real Xray check stdout: " << checked.out << " stderr: " << checked.err);
   REQUIRE(checked.code == 0);
   XrayProcess core;
   REQUIRE(core.start(xray, confdir, temp.path));
   REQUIRE(wait_for_port(*metrics_port));
-  const auto real_vars = wait_for_observatory_tag(*metrics_port, node_tag(managed_id));
+  const auto real_vars =
+      wait_for_observatory_tag(*metrics_port, node_tag(managed_id));
   REQUIRE(real_vars.contains("observatory"));
   REQUIRE(real_vars.at("observatory").contains(node_tag(managed_id)));
-  INFO("real Xray observatory expvar: " << real_vars.at("observatory").at(node_tag(managed_id)).dump());
-  CHECK(real_vars.at("observatory").at(node_tag(managed_id)).at("alive") == true);
+  INFO("real Xray observatory expvar: "
+       << real_vars.at("observatory").at(node_tag(managed_id)).dump());
+  CHECK(real_vars.at("observatory").at(node_tag(managed_id)).at("alive") ==
+        true);
   if (module_key == "burstObservatory") {
-    REQUIRE(real_vars.at("observatory").at(node_tag(managed_id)).contains("health_ping"));
-    CHECK(real_vars.at("observatory").at(node_tag(managed_id)).at("health_ping").at("all").get<std::uint64_t>() > 0);
+    REQUIRE(real_vars.at("observatory")
+                .at(node_tag(managed_id))
+                .contains("health_ping"));
+    CHECK(real_vars.at("observatory")
+              .at(node_tag(managed_id))
+              .at("health_ping")
+              .at("all")
+              .get<std::uint64_t>() > 0);
   } else {
-    CHECK(real_vars.at("observatory").at(node_tag(managed_id)).contains("last_try_time"));
-    CHECK(real_vars.at("observatory").at(node_tag(managed_id)).contains("last_seen_time"));
+    CHECK(real_vars.at("observatory")
+              .at(node_tag(managed_id))
+              .contains("last_try_time"));
+    CHECK(real_vars.at("observatory")
+              .at(node_tag(managed_id))
+              .contains("last_seen_time"));
   }
 
   uv_loop_t loop{};
@@ -624,7 +792,8 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
       RunRecord record;
       record.run_id = "rc05-" + std::string(module_key);
       record.profile_id = profile->id;
-      const auto endpoint = "http://127.0.0.1:" + std::to_string(*metrics_port) + "/debug/vars";
+      const auto endpoint =
+          "http://127.0.0.1:" + std::to_string(*metrics_port) + "/debug/vars";
       record.metrics_endpoint = endpoint;
       metrics.attach(record, endpoint);
       metrics.set_viewer_count(1);
@@ -632,10 +801,13 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
       while (std::chrono::steady_clock::now() < deadline) {
         uv_run(&loop, UV_RUN_NOWAIT);
         const auto view = metrics.view();
-        if (view.sample && std::any_of(view.sample->observations.begin(), view.sample->observations.end(),
-            [&](const NodeObservation& observation) {
-              return observation.tag == node_tag(managed_id) && observation.alive.value_or(false);
-            })) {
+        if (view.sample &&
+            std::any_of(view.sample->observations.begin(),
+                        view.sample->observations.end(),
+                        [&](const NodeObservation &observation) {
+                          return observation.tag == node_tag(managed_id) &&
+                                 observation.alive.value_or(false);
+                        })) {
           got_managed_observation = true;
           break;
         }
@@ -650,7 +822,8 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
     }
     bool drained = false;
     http.shutdown([&] { drained = true; });
-    while (!drained) uv_run(&loop, UV_RUN_DEFAULT);
+    while (!drained)
+      uv_run(&loop, UV_RUN_DEFAULT);
   }
   std::string open_handles;
   uv_walk(&loop, describe_handle, &open_handles);
@@ -665,7 +838,7 @@ bool run_observation_case(const std::filesystem::path& xray, std::string_view mo
   return true;
 }
 
-bool run_least_ping_case(const std::filesystem::path& xray) {
+bool run_least_ping_case(const std::filesystem::path &xray) {
   TempDirectory temp;
   const auto probe_port = free_loopback_port();
   const auto marker_port = free_loopback_port();
@@ -677,8 +850,10 @@ bool run_least_ping_case(const std::filesystem::path& xray) {
   REQUIRE(metrics_port);
   ControlledSocksNode fast;
   ControlledSocksNode slow;
-  REQUIRE(fast.start(*probe_port, *marker_port, "XRM-RC05-LEASTPING-FAST", 35ms));
-  REQUIRE(slow.start(*probe_port, *marker_port, "XRM-RC05-LEASTPING-SLOW", 500ms));
+  REQUIRE(
+      fast.start(*probe_port, *marker_port, "XRM-RC05-LEASTPING-FAST", 35ms));
+  REQUIRE(
+      slow.start(*probe_port, *marker_port, "XRM-RC05-LEASTPING-SLOW", 500ms));
 
   auto opened = Store::open(temp.path / "leastping.sqlite");
   REQUIRE(opened);
@@ -687,10 +862,13 @@ bool run_least_ping_case(const std::filesystem::path& xray) {
   auto profile = profiles.create({"RC-05 leastPing", "test-core", "local", {}});
   REQUIRE(profile);
   const auto add_node = [&](std::string id, std::uint16_t port) {
-    Json outbound{{"protocol", "socks"}, {"settings", {{"servers", Json::array({
-      Json{{"address", "127.0.0.1"}, {"port", port}}})}}}};
+    Json outbound{{"protocol", "socks"},
+                  {"settings",
+                   {{"servers", Json::array({Json{{"address", "127.0.0.1"},
+                                                  {"port", port}}})}}}};
     auto node = parse_native_outbound(outbound, id, id);
-    if (!node) return false;
+    if (!node)
+      return false;
     return static_cast<bool>(store->put_node(*node));
   };
   REQUIRE(add_node("rc05-fast", fast.port()));
@@ -700,42 +878,68 @@ bool run_least_ping_case(const std::filesystem::path& xray) {
   REQUIRE(settings);
   settings->selected = Target{TargetKind::group, "rc05-leastping"};
   settings->append_selected_default = true;
-  const auto profile_path = temp.path / "profiles" / profile->id / "profile.json";
+  const auto profile_path =
+      temp.path / "profiles" / profile->id / "profile.json";
   REQUIRE(profiles.save(profile->id, {{read_file(profile_path)}, *settings}));
-  const auto groups_path = temp.path / "profiles" / profile->id / "bindings" / "groups.json";
+  const auto groups_path =
+      temp.path / "profiles" / profile->id / "bindings" / "groups.json";
   std::optional<std::string> groups_base;
-  if (std::filesystem::exists(groups_path)) groups_base = read_file(groups_path);
+  if (std::filesystem::exists(groups_path))
+    groups_base = read_file(groups_path);
   GroupBinding group;
   group.id = "rc05-leastping";
   group.name = "controlled leastPing";
   group.members = ExplicitMembers{{"rc05-fast", "rc05-slow"}};
   group.selection_mode = SelectionMode::automatic;
-  group.balancer = Json{{"tag", "rc05-leastping"}, {"strategy", {{"type", "leastPing"}}}};
+  group.balancer =
+      Json{{"tag", "rc05-leastping"}, {"strategy", {{"type", "leastPing"}}}};
   REQUIRE(profiles.save_groups(profile->id, {EditBase{groups_base}, {group}}));
-  REQUIRE(profiles.save_observation(profile->id, {std::nullopt}, ObservationBinding{true, {}}));
+  REQUIRE(profiles.save_observation(profile->id, {std::nullopt},
+                                    ObservationBinding{true, {}}));
   REQUIRE(profiles.choose_observer(profile->id, std::string("observatory")));
 
-  REQUIRE(save_module(profiles, profile->id, "outbounds", Json{{"outbounds", Json::array()}}));
-  REQUIRE(save_module(profiles, profile->id, "inbounds", Json{{"inbounds", Json::array({Json{
-      {"tag", "rc05-leastping-in"}, {"listen", "127.0.0.1"}, {"port", *inbound_port},
-      {"protocol", "socks"}, {"settings", {{"auth", "noauth"}, {"udp", false}}}}})}}));
-  REQUIRE(save_module(profiles, profile->id, "metrics",
-      Json{{"metrics", Json{{"listen", "127.0.0.1:" + std::to_string(*metrics_port)}}}}));
-  REQUIRE(save_module(profiles, profile->id, "observatory", Json{{"observatory", Json{
-      {"subjectSelector", Json::array()}, {"probeUrl", "http://127.0.0.1:" + std::to_string(*probe_port) + "/probe"},
-      {"probeInterval", "500ms"}}}}));
+  REQUIRE(save_module(profiles, profile->id, "outbounds",
+                      Json{{"outbounds", Json::array()}}));
+  REQUIRE(save_module(
+      profiles, profile->id, "inbounds",
+      Json{{"inbounds",
+            Json::array(
+                {Json{{"tag", "rc05-leastping-in"},
+                      {"listen", "127.0.0.1"},
+                      {"port", *inbound_port},
+                      {"protocol", "socks"},
+                      {"settings", {{"auth", "noauth"}, {"udp", false}}}}})}}));
+  REQUIRE(save_module(
+      profiles, profile->id, "metrics",
+      Json{{"metrics",
+            Json{{"listen", "127.0.0.1:" + std::to_string(*metrics_port)}}}}));
+  REQUIRE(save_module(
+      profiles, profile->id, "observatory",
+      Json{{"observatory",
+            Json{{"subjectSelector", Json::array()},
+                 {"probeUrl",
+                  "http://127.0.0.1:" + std::to_string(*probe_port) + "/probe"},
+                 {"probeInterval", "500ms"}}}}));
 
   RuntimeWriter writer(temp.path / "runtime");
-  auto runtime = assemble_profile(profiles, *store, writer, profile->id, "rc05-leastping");
-  INFO("leastPing assemble failed: " << (runtime ? "none" : runtime.error().message));
+  auto runtime =
+      assemble_profile(profiles, *store, writer, profile->id, "rc05-leastping");
+  INFO("leastPing assemble failed: " << (runtime ? "none"
+                                                 : runtime.error().message));
   REQUIRE(runtime);
   const auto confdir = runtime->confdir;
-  const auto checked = run_command(xray, {"run", "-test", "-confdir", confdir.string()}, temp.path);
-  INFO("leastPing real check stdout=" << checked.out << " stderr=" << checked.err);
+  const auto checked = run_command(
+      xray, {"run", "-test", "-confdir", confdir.string()}, temp.path);
+  INFO("leastPing real check stdout=" << checked.out
+                                      << " stderr=" << checked.err);
   REQUIRE(checked.code == 0);
-  const auto routing = Json::parse(read_file(confdir / "04_routing.json")).at("routing");
-  const auto balancer = std::find_if(routing.at("balancers").begin(), routing.at("balancers").end(),
-      [](const Json& value) { return value.value("tag", "") == "rc05-leastping"; });
+  const auto routing =
+      Json::parse(read_file(confdir / "04_routing.json")).at("routing");
+  const auto balancer =
+      std::find_if(routing.at("balancers").begin(),
+                   routing.at("balancers").end(), [](const Json &value) {
+                     return value.value("tag", "") == "rc05-leastping";
+                   });
   REQUIRE(balancer != routing.at("balancers").end());
   CHECK(balancer->at("strategy").at("type") == "leastPing");
   CHECK(balancer->at("selector").size() == 2);
@@ -751,32 +955,42 @@ bool run_least_ping_case(const std::filesystem::path& xray) {
   while (std::chrono::steady_clock::now() < deadline) {
     try {
       latest_vars = Json::parse(get_debug_vars(*metrics_port));
-      const auto observations = latest_vars->value("observatory", Json::object());
+      const auto observations =
+          latest_vars->value("observatory", Json::object());
       const auto fast_tag = node_tag("rc05-fast");
       const auto slow_tag = node_tag("rc05-slow");
       if (observations.contains(fast_tag) && observations.contains(slow_tag)) {
-        const auto& fast_observation = observations.at(fast_tag);
-        const auto& slow_observation = observations.at(slow_tag);
-        const auto delay = [](const Json& value) -> std::optional<double> {
-          if (value.contains("delay") && value.at("delay").is_number()) return value.at("delay").get<double>();
-          if (value.contains("health_ping") && value.at("health_ping").contains("average") &&
+        const auto &fast_observation = observations.at(fast_tag);
+        const auto &slow_observation = observations.at(slow_tag);
+        const auto delay = [](const Json &value) -> std::optional<double> {
+          if (value.contains("delay") && value.at("delay").is_number())
+            return value.at("delay").get<double>();
+          if (value.contains("health_ping") &&
+              value.at("health_ping").contains("average") &&
               value.at("health_ping").at("average").is_number())
             return value.at("health_ping").at("average").get<double>();
           return std::nullopt;
         };
-        if (fast_observation.value("alive", false) && slow_observation.value("alive", false)) {
+        if (fast_observation.value("alive", false) &&
+            slow_observation.value("alive", false)) {
           fast_delay = delay(fast_observation);
           slow_delay = delay(slow_observation);
-          if (fast_delay && slow_delay && *fast_delay < *slow_delay) break;
+          if (fast_delay && slow_delay && *fast_delay < *slow_delay)
+            break;
         }
       }
-    } catch (const Json::exception&) {
+    } catch (const Json::exception &) {
     }
     ::poll(nullptr, 0, 100);
   }
-  INFO("leastPing real expvar=" << (latest_vars ? latest_vars->value("observatory", Json::object()).dump() : "unavailable")
-       << " fast delay=" << (fast_delay ? std::to_string(*fast_delay) : "unavailable")
-       << " slow delay=" << (slow_delay ? std::to_string(*slow_delay) : "unavailable"));
+  INFO("leastPing real expvar="
+       << (latest_vars
+               ? latest_vars->value("observatory", Json::object()).dump()
+               : "unavailable")
+       << " fast delay="
+       << (fast_delay ? std::to_string(*fast_delay) : "unavailable")
+       << " slow delay="
+       << (slow_delay ? std::to_string(*slow_delay) : "unavailable"));
   REQUIRE(fast_delay);
   REQUIRE(slow_delay);
   CHECK(*fast_delay < *slow_delay);
@@ -790,14 +1004,16 @@ bool run_least_ping_case(const std::filesystem::path& xray) {
   return true;
 }
 
-}  // namespace
+} // namespace
 
-TEST_CASE("RC-05 fixed Xray probes managed tags through both native observatories",
-          "[real_core][RC-05]") {
+TEST_CASE(
+    "RC-05 fixed Xray probes managed tags through both native observatories",
+    "[real_core][RC-05]") {
   const auto xray = real_xray();
   if (xray.empty() || !std::filesystem::exists(xray))
     SKIP("set XRM_TEST_XRAY to the fixed real Xray binary");
-  const auto version = run_command(xray, {"version"}, std::filesystem::temp_directory_path());
+  const auto version =
+      run_command(xray, {"version"}, std::filesystem::temp_directory_path());
   INFO("Xray version output: " << version.out);
   REQUIRE(version.code == 0);
   REQUIRE(version.out.find("26.9.9") != std::string::npos);

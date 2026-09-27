@@ -1,3 +1,5 @@
+// XRM: Tests catalog in the domain and editor behavior suite.
+
 #include <catch2/catch_test_macros.hpp>
 
 #include "model/module_catalog.hpp"
@@ -5,8 +7,12 @@
 #include <array>
 #include <string_view>
 
-TEST_CASE("MOD-01 native catalog has all fixed keys and filenames", "[MOD-01]") {
-  struct Expected { std::string_view key; std::string_view filename; };
+TEST_CASE("MOD-01 native catalog has all fixed keys and filenames",
+          "[MOD-01]") {
+  struct Expected {
+    std::string_view key;
+    std::string_view filename;
+  };
   constexpr std::array expected{
       Expected{"log", "00_log.json"},
       Expected{"dns", "01_dns.json"},

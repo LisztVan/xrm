@@ -1,4 +1,6 @@
 add_executable(xrm_module_actions_tests module_actions_tests.cpp)
 target_link_libraries(xrm_module_actions_tests PRIVATE xrm_server_lib Catch2::Catch2WithMain)
+target_compile_definitions(xrm_module_actions_tests PRIVATE XRM_TEST_FAKE_CORE="$<TARGET_FILE:xrm_fake_core>")
+add_dependencies(xrm_module_actions_tests xrm_fake_core)
 include(Catch)
 catch_discover_tests(xrm_module_actions_tests)

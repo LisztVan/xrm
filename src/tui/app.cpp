@@ -1,3 +1,5 @@
+// XRM: Creates the seven-page terminal application and its event loop.
+
 #include "cli/commands.hpp"
 #include "tui/shell/workspace.hpp"
 #include <termios.h>

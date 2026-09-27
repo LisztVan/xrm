@@ -1,3 +1,5 @@
+// XRM: Declares Xray core installation and registration.
+
 #pragma once
 
 #include "model/runtime.hpp"
@@ -32,30 +34,31 @@ struct InstallRequest {
   bool allow_unverified_checksum = false;
 };
 
-void to_json(Json&, const ReleaseAsset&);
-void from_json(const Json&, ReleaseAsset&);
-void to_json(Json&, const CoreRelease&);
-void from_json(const Json&, CoreRelease&);
-void to_json(Json&, const InstallRequest&);
-void from_json(const Json&, InstallRequest&);
+void to_json(Json &, const ReleaseAsset &);
+void from_json(const Json &, ReleaseAsset &);
+void to_json(Json &, const CoreRelease &);
+void from_json(const Json &, CoreRelease &);
+void to_json(Json &, const InstallRequest &);
+void from_json(const Json &, InstallRequest &);
 
 class CoreInstaller {
- public:
-  CoreInstaller(HttpClient&, ProcessService&, std::filesystem::path cores_root,
+public:
+  CoreInstaller(HttpClient &, ProcessService &,
+                std::filesystem::path cores_root,
                 std::string releases_api_url =
                     "https://api.github.com/repos/XTLS/Xray-core/releases");
   ~CoreInstaller();
-  CoreInstaller(const CoreInstaller&) = delete;
-  CoreInstaller& operator=(const CoreInstaller&) = delete;
+  CoreInstaller(const CoreInstaller &) = delete;
+  CoreInstaller &operator=(const CoreInstaller &) = delete;
 
   Result<Id> releases(bool include_prerelease,
                       Completion<std::vector<CoreRelease>> completion);
   Result<Id> install(InstallRequest request,
                      Completion<CoreInstall> completion);
 
- private:
+private:
   struct Impl;
   std::unique_ptr<Impl> impl_;
 };
 
-}  // namespace xrm
+} // namespace xrm

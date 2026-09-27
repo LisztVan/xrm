@@ -1,3 +1,5 @@
+// XRM: Declares native-module form descriptors and draft binding.
+
 #pragma once
 
 #include "tui/components/widgets.hpp"

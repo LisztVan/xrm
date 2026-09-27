@@ -1,0 +1,15 @@
+# A focused correctness baseline for production code. Broader performance and
+# optional-flow checks are reviewed separately because they also flag deliberate
+# API layouts, Catch2 REQUIRE guards, and bounded constant expressions.
+Checks: >-
+  -*,
+  clang-analyzer-core.*,
+  bugprone-branch-clone,
+  bugprone-narrowing-conversions,
+  bugprone-optional-value-conversion,
+  bugprone-switch-missing-default-case,
+  bugprone-use-after-move,
+  bugprone-unused-local-non-trivial-variable
+HeaderFilterRegex: '(^|/)(apps|src|tests)/'
+ExcludeHeaderFilterRegex: '/(\.deps|out)/'
+FormatStyle: file

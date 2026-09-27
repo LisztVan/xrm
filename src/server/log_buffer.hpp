@@ -1,13 +1,16 @@
+// XRM: Declares bounded log buffering and cursor reads.
+
 #pragma once
 
 #include "model/runtime.hpp"
 
-#include <deque>
 #include <array>
+#include <deque>
 
 namespace xrm {
 
 struct LogEntry {
+  // Transport cursor for buffered chunks, not a user-visible log record ID.
   std::uint64_t cursor = 0;
   LogStream stream = LogStream::server;
   std::string text;
@@ -20,15 +23,17 @@ struct LogPage {
 };
 
 class LogBuffer {
- public:
+public:
   explicit LogBuffer(std::size_t byte_limit = 4 * 1024 * 1024);
+  // Append may split or merge visible lines; readers must treat cursors as
+  // opaque resume points rather than line or message sequence numbers.
   void append(LogStream stream, std::string_view bytes);
   void finish(LogStream stream);
   LogPage read_after(std::uint64_t cursor, std::size_t byte_limit) const;
   std::uint64_t cursor() const;
   std::size_t bytes_retained() const;
 
- private:
+private:
   std::size_t byte_limit_;
   std::size_t bytes_retained_ = 0;
   std::uint64_t next_cursor_ = 1;
@@ -37,4 +42,4 @@ class LogBuffer {
   std::array<std::string, 3> pending_utf8_;
 };
 
-}  // namespace xrm
+} // namespace xrm

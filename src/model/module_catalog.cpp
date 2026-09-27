@@ -1,3 +1,5 @@
+// XRM: Defines the supported native Xray module catalog.
+
 #include "model/module_catalog.hpp"
 
 #include <array>
@@ -20,20 +22,24 @@ const std::array<ModuleDescriptor, 15> catalog{{
     {"geodata", "Geodata", "11_geodata.json", false},
     {"env", "Environment", "12_env.json", false},
     {"version", "Version", "13_version.json", false},
-    {"burstObservatory", "Burst Observatory", "14_burstObservatory.json", false},
+    {"burstObservatory", "Burst Observatory", "14_burstObservatory.json",
+     false},
 }};
 
-}  // namespace
+} // namespace
 
 std::span<const ModuleDescriptor> module_catalog() { return catalog; }
 
-const ModuleDescriptor* find_module(std::string_view key) {
-  for (const auto& descriptor : catalog) {
-    if (descriptor.key == key) return &descriptor;
+const ModuleDescriptor *find_module(std::string_view key) {
+  for (const auto &descriptor : catalog) {
+    if (descriptor.key == key)
+      return &descriptor;
   }
   return nullptr;
 }
 
-std::string node_tag(std::string_view node_id) { return "xrm.node." + std::string(node_id); }
+std::string node_tag(std::string_view node_id) {
+  return "xrm.node." + std::string(node_id);
+}
 
-}  // namespace xrm
+} // namespace xrm

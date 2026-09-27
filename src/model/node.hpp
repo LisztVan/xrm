@@ -1,3 +1,5 @@
+// XRM: Defines independent node inventory and protocol data.
+
 #pragma once
 
 #include "model/common.hpp"
@@ -26,12 +28,19 @@ struct VmessSettings {
   std::optional<std::string> security;
   std::optional<std::uint32_t> level;
 };
-struct TrojanSettings { std::string password; };
-struct ShadowsocksSettings { std::string method; std::string password; };
-struct Hysteria2Settings { std::string auth; };
-using ProtocolSettings = std::variant<VlessSettings, VmessSettings,
-                                     TrojanSettings, ShadowsocksSettings,
-                                     Hysteria2Settings>;
+struct TrojanSettings {
+  std::string password;
+};
+struct ShadowsocksSettings {
+  std::string method;
+  std::string password;
+};
+struct Hysteria2Settings {
+  std::string auth;
+};
+using ProtocolSettings =
+    std::variant<VlessSettings, VmessSettings, TrojanSettings,
+                 ShadowsocksSettings, Hysteria2Settings>;
 
 struct RawTransport {};
 struct XHttpTransport {
@@ -53,9 +62,12 @@ struct HttpUpgradeTransport {
   std::optional<std::string> host;
   std::optional<std::string> path;
 };
-struct HysteriaTransport { Json options = Json::object(); };
-using Transport = std::variant<RawTransport, XHttpTransport, WebSocketTransport,
-                               GrpcTransport, HttpUpgradeTransport, HysteriaTransport>;
+struct HysteriaTransport {
+  Json options = Json::object();
+};
+using Transport =
+    std::variant<RawTransport, XHttpTransport, WebSocketTransport,
+                 GrpcTransport, HttpUpgradeTransport, HysteriaTransport>;
 
 struct NoSecurity {};
 struct TlsSecurity {
@@ -84,7 +96,9 @@ struct StreamNode {
   std::optional<Json> finalmask;
   std::optional<Json> mux;
 };
-struct RawOutbound { Json value; };
+struct RawOutbound {
+  Json value;
+};
 using NodeSettings = std::variant<StreamNode, RawOutbound>;
 
 struct Node {
@@ -111,7 +125,7 @@ struct NodeQuery {
   bool include_missing = false;
 };
 
-void to_json(Json& json, const Node& value);
-void from_json(const Json& json, Node& value);
+void to_json(Json &json, const Node &value);
+void from_json(const Json &json, Node &value);
 
-}  // namespace xrm
+} // namespace xrm
