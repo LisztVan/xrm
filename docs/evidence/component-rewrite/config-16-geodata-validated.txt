@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Resource                   Kind         Result             Auto                    ╭Done─────────────────────────────╮
+─────────────────────────────────────────────────────────────────────────────────────┤Geodata Geo Fixture edited saved;│
+▸ Geo Fixture edited         geoip        success            off                     │runtime unchanged                │
+                                                                                     ╰─────────────────────────────────╯
+                                                                                     ╭Info─────────────────────────────╮
+                                                                                     │Update resource started          │
+                                                                                     ╰─────────────────────────────────╯
+                                                                                     ╭Done─────────────────────────────╮
+                                                                                     │Update resource: completed       │
+                                                                                     ╰─────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

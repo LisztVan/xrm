@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m
+ [1mLogs[0;2m  Core output                                                             [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mTIME     CURSOR SOURCE   LEVEL   MESSAGE                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;2;7m         #1     stdout   Info    [0;1;7mUI process fixture                          [0m┃
+ [2m         #1     stdout           [0mcontinued line                              ┃
+ [2m         #2     stdout   Info    [0mUI process fixture                          ┃
+ [2m         #2     stdout           [0mcontinued line                              ┃
+ [2m         #2     stdout           [0mXRM_FAKE_CORE_LOG_0000                      ╹
+ [2m         #3     stdout           [0mXRM_FAKE_CORE_LOG_0001
+ [2m         #4     stdout           [0mXRM_FAKE_CORE_LOG_0002
+ [2m         #5     stdout           [0mXRM_FAKE_CORE_LOG_0003
+ [2m         #6     stdout           [0mXRM_FAKE_CORE_LOG_0004
+ [2m         #7     stdout           [0mXRM_FAKE_CORE_LOG_0005
+ [2m         #8     stdout           [0mXRM_FAKE_CORE_LOG_0006
+ [2m         #9     stdout           [0mXRM_FAKE_CORE_LOG_0007
+ [2m         #10    stdout           [0mXRM_FAKE_CORE_LOG_0008
+ [2m         #11    stdout           [0mXRM_FAKE_CORE_LOG_0009
+ [2m         #12    stdout           [0mXRM_FAKE_CORE_LOG_0010
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Alpha · Use none · Edit Alpha · Run Alpha                                [0m
+ PAUSED · 42 lines · new 0 · dropped no · truncated no
+ [2mxrmd ready · Content · cursor 33                                   [0m? / F1 Help

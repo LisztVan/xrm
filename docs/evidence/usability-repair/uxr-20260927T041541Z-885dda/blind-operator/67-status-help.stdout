@@ -1,0 +1,14 @@
+Show expected/actual core runtime state
+
+Usage: xrm status [OPTIONS]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm status

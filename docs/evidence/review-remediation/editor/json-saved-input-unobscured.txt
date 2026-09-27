@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · JSON                                                      
+ ────────────────────────────────────────────────────────────────────────────── 
+ [ {                                                                          ] 
+     "dns": {                                                                   
+       "futureNative": {                                                        
+         "preserved": true                                                      
+       },                                                                       
+       "servers": [                                                             
+         "1.1.1.1"                                                              
+       ]                                                                        
+     }                                                                          
+   }                                                                            
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit Alpha · Run Alpha                                
+ dns · Source editable · JSON · included                                        
+ xrmd ready · Content · modules/01_dns.json                   F1 Help & actions 

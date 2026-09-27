@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 8/15 
+ metrics  SOURCE · READ ONLY · Visual                                                                                   
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Metrics endpoint             Metrics endpoint  Read only                                                           
+                                  metrics                                                                               
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  Listen address:port     127.0.0.1:11111                                               
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                         
+ metrics · Source read-only · Visual · excluded                                                                         
+ xrmd ready · SecondaryNav · modules/07_metrics.json                                                  F1 Help & actions 

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config           
+    Scope: All  Scope: Local  Scope: Groups                                 1/3 
+ Nodes  Node inventory                                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+   Node                   Protocol   Enabled  Support    Saved  Run             
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸ G5 loopback inventory  freedom    yes      raw-only   —      —               
+                                                                                
+                                                                                
+                                                                                
+                                        
+                                        
+                                                                                
+
+                                                                                
+                                                                                
+
+                                        
+
+
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: G5 Nodes En… · Next: G5 Nodes En… · Module Edit: none · Running: none 
+ Highlighted G5 loopback inventory · Saved none · Running none                  
+ xrmd ready · Page content (Content)                          F1 Help & actions 

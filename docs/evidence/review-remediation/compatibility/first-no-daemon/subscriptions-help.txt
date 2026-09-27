@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  Unavailable                                                     
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ S│ Subscriptions · View none                                                │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > a               Add subscription                                     ┃ │  
+  │   U               Update all subscriptions                             ┃ │  
+  │   N               Notification history                                 ┃ │  
+  │   r               Refresh                                              ┃ │  
+  │   F               Full object details                                  ┃ │  
+  │   Enter           View highlighted object                              ╹ │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                     │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View none · Use none · Edit none · Run unknown                                 
+ No View Profile · open Help for available tasks                                
+ xrmd unavailable · Content                                   F1 Help & actions 

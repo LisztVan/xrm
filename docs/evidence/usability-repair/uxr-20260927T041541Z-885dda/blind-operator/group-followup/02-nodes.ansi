@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions [0;1;7m[Nodes][0;2m Logs  Config [0m
+   [1m Scope: All [0;2m Scope: Local  Scope: Groups  Source: Local fixture [0m                                                 [2m1/4[0m
+ [1mNodes[0;2m  Node inventory                                                                                                 [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+   [1mNode                  [0m [1mProtocol  [0m [1mEnabled [0m [1mSupport   [0m [1mSaved [0m [1mRun    [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1m▸ Loopback direct        freedom    yes      raw-only   yes    —                                                     [0m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none                                                [0m
+ Highlighted Loopback direct · Saved Node · Loopback direct · Running none
+ [2mxrmd ready · Page navigation (TopNav)                                                                [0mF1 Help & actions

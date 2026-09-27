@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log  dns [0;1m inbounds [0;2m outbounds  routing  observatory  api [0m            › [2m3/15[0m 
+ [1minbounds[0;2m  SOURCE · READ ONLY · Visual                                         [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;7m>   Inbound listeners                                                        [0m  
+                                                                                
+ [1mInbound listeners[0;2m  Read only                                                  [0m 
+ [2minbounds                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m1               [0mlocal-socks · socks · 127.0.0.1:19091                          
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m 
+ inbounds · Source read-only · Visual · excluded                                
+ [2mxrmd ready · Content · modules/02_inbounds.json              [0mF1 Help & actions 

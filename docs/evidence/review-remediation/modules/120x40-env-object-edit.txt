@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env     › 13/15 
+ env  SOURCE · EDIT · Visual                                                                                            
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Xray process environment     Xray process environment  Draft                                                       
+                                  env                                                                                   
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  XRAY_LOCATION_ASConfigured                                                            
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Xray process environment  EDIT · field 1/2                                                         │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ > Environment name        [ XRAY_LOCATION_ASSET                                                 ]  │         
+         │                                                                                                    │         
+         │   Value                   [ /tmp/xrm-review-fixture-assets                                      ]  │         
+         │                                                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Add to draft ]  [ Cancel ]                                                                      │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ env · Source editable · Visual · excluded                  
+ xrmd ready · Content · modules/12_env.json                                                           F1 Help & actions 

@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+   Beta                   Process fixture      —      —      —                  
+ ▸ Alph?a                 Process fixture      yes    —      running            
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+  │ rename Profile  UNSAVED * · field 1/1                                    │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name *                  [ Alph?a unsaved                            ]  │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alph?a · Next: Alph?a · Module Edit: none · Running: Alph?a           
+ View Alph?a · Core Process fixture · Saved Node · Loopback inventory           
+ xrmd ready · Page content (Content)                          F1 Help & actions 

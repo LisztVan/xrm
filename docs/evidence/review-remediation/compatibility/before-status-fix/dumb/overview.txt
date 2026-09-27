@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ Runtime  ACTUAL                                                                
+ stopped            
+ Running Profile   none                 
+ Actual target     none                 
+ Health            Process alive; traffic unverified                            
+
+ Saved configuration  VIEW Compatibility                                        
+ Saved target      none                 
+ Next Connect      Compatibility        
+ Saved settings apply only on Connect / Apply                                   
+
+ Statistics  OBSERVED                                                           
+ Traffic: unavailable · latency: unmeasured                                     
+
+ Inventory  0 nodes · 0 sources         
+
+
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Compatibili… · Use Compatibili… · Edit none · Run none                    
+ View Compatibility 
+ xrmd ready · Content                                         F1 Help & actions 

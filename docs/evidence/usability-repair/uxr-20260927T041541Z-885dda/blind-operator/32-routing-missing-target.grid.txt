@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 5/15
+ routing  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   Rout╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+     Nati│ Routing rule  UNSAVED * · field 5/18                                                               │
+     Doma│ ────────────────────────────────────────────────────────────────────────────────────────────────── ├────────
+         │    [ Add ]                                                                                         │
+         │                                                                                                    │
+         │   Match: domains (any entry)                                                                       │
+         │                                                                                                  ╻ │
+         │   ip                                                                                             ┃ │
+         │   [ ] Set value  Not set · field omitted                                                         ┃ │
+         │     Enable Set value to edit; draft value retained                                               ┃ │
+         │   Match: destination IPs (any entry)                                                             ┃ │
+         │                                                                                                  ┃ │
+         │   network                 ‹ Unset / use core default ›                                           ┃ │
+         │                                                                                                  ┃ │
+         │ Target - choose outbound or balancer                                                             ╹ │
+         │ > outboundTag             ‹ Unset / use core default ›                                             │
+         │   ! outboundTag: Choose an outbound or balancer                                                    │
+         │                                                                                                    │
+         │   balancerTag               Unset / use core default (only option)                                 │
+         │   Alternative target; leave outboundTag unset                                                      │
+         │                                                                                                    │
+         │ Additional match conditions (AND)                                                                  │
+         │   port                    [ ] Set value  Not set · field omitted                                   │
+         │                             Enable Set value to edit; draft value retained                         │
+         │   Native number, port/range string or env:NAME; existing type preserved                            │
+         │                                                                                                    │
+         │   sourceIP                                                                                         │
+         │   [ ] Set value  Not set · field omitted                                                           │
+         │     Enable Set value to edit; draft value retained                                                 │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Add to draft ]  [ Cancel ]                                                                      │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ routing · Source editable · Visual · included
+ xrmd ready · Page content (Content) · modules/04_routing.json                                        F1 Help & actions

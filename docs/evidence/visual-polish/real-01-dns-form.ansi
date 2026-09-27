@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+ [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api  metrics  stats  pol[0m
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                   [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ [1mDNS server[0;2m  UNSAVED *                                                   [0m │
+  │ [2m────────────────────────────────────────────────────────────────────────[0m │
+  │ [1m> Address *               [0mlocalhost                                    ┃ │
+  │ [2m  IP, DNS URL, localhost or fakedns                                    [0m┃ │
+  │ [2m  port                    [0m                                             ┃ │
+  │ [2m  domains                 No entries                                   [0m┃ │
+  │ [2m  expectedIPs             No entries                                   [0m┃ │
+  │ [2m  unexpectedIPs           No entries                                   [0m┃ │
+  │ [2m  queryStrategy           (o) Unset / use core default                 [0m╹ │
+  │ [2m  skipFallback            [0m[ ] Explicit [ Use default ] [2m  [not set][0m       │
+  │ [2m  finalQuery              [0m[ ] Explicit [ Use default ] [2m  [not set][0m       │
+  │ [2m  timeoutMs               [0m                                               │
+  │ [2m────────────────────────────────────────────────────────────────────────[0m │
+  │  [ Add to draft ]  [ Cancel ]                                            │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Real Loopback · Use Real Loopback · Edit Real Loopback · Run none        [0m
+ dns · Source editable · Visual · included
+ [2mxrmd ready · Content · modules/01_dns.json                         [0m? / F1 Help

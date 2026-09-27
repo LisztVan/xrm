@@ -1,0 +1,40 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burst
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+>   Inbound listeners                                                                 ╭Done────────────────────────────╮
+                                                                                      │Geodata bindings saved for Home;│
+                                                                                      │runtime unchanged (2)           │
+                                                                                      ╰────────────────────────────────╯
+                                                                                      ╭Error───────────────────────────╮
+                                                                                      │Resource removal:               │
+                                                                                      │Geodata资源仍被Profile使用      │
+                                                                                      ╰────────────────────────────────╯
+                                                                                      ╭Done────────────────────────────╮
+                                                                                      │Resource removal saved; runtime │
+                                                                                      │unchanged                       │
+                                                                                      ╰────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+inbounds · Source read-only · Visual · included · modules/02_inbounds.json
+xrmd ready · Content                                                                                             F1 Help

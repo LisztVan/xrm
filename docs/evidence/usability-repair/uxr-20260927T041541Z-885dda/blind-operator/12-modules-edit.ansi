@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1;7m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [1m log [0;2m dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m1/15[0m
+ [1mlog[0;2m  SOURCE · EDIT · Visual                                                                                           [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1m>   Xray logging              [0m   [1mXray logging[0;2m  Draft                                                                  [0m
+                                  [2mlog                                                                                  [0m
+                                  [2m─────────────────────────────────────────────────────────────────────────────────────[0m
+                                  [2mloglevel                [0mwarning
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ log · Source editable · Visual · included
+ [2mxrmd ready · Page navigation (TopNav) · modules/00_log.json                                          [0mF1 Help & actions

@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api [0m            › [2m2/15[0m 
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                   [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mDNS server[0;2m  UNSAVED * · field 2/15                                      [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│   Address *               [ 9.9.9.9                                    ┃ │[2m [0m 
+ [1;2mD[0m│ [2m  IP, DNS URL, localhost or fakedns                                    ┃[0m │[2m [0m 
+ [2md[0m│                                                                          │[2m [0m 
+ [2m─[0m┤ [1m> port *                  [0m[x] Set value  [2mExplicit value[0m                  ├[2m─[0m 
+ [2m1[0m│ [1m                          [0m[ oops                                         │[2m [0m 
+ [2m [0m│   ! port: Enter a whole number                                           │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ [1mMatching and response filters                                           [0m │[2m [0m 
+ [2m [0m│   domains                                                                │[2m [0m 
+ [2m [0m│   [ ] Set value  [2mNot set · field omitted[0m                                 │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Add to draft ]  [ Cancel ]                                            │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha            [0m 
+ dns · Source editable · Visual · included                                      
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json    [0mF1 Help & actions 

@@ -1,0 +1,40 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config
+ Profiles  1 Profile / independent runtime contexts
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Profile                Core                 Use    Edit   Run
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Lab Home               Lab Xray             yes    —      —
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ View Lab Home · Core Lab Xray · Saved Node · Loopback direct
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

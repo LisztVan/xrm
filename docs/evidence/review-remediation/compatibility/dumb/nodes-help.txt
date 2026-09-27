@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config           
+    Scope: All  Scope: Local  Scope: Groups                                 1/3 
+ Nodes  Node inventory                                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ N│ Nodes · View Compatibility                                               │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > a               Add node                                             ┃ │  
+  │   i               Import share URI / native outbound                   ┃ │  
+  │   k               Cancel active node tests                             ┃ │  
+  │   /               Filter nodes                                           │  
+  │   f               Show / hide missing nodes                              │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                     │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Compatibili… · Use Compatibili… · Edit none · Run none                    
+ View Compatibility · all                                                       
+ xrmd ready · Content                                         F1 Help & actions 

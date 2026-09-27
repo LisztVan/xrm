@@ -1,0 +1,40 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview [1m[38;2;115;194;230m[Profiles][0m[38;2;146;163;183m Modules  Subscriptions  Nodes  Logs  Config [39m                                                  
+ [1mProfiles[0m[38;2;146;163;183m  18 Profiles / independent runtime contexts                                                                  [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+   [1mProfile               [0m [1mCore                [0m [1mUse   [0m [1mEdit  [0m [1mRun      [0m                                                  
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+   Lab region 14 / long … Process fixture      —      —      —                                                          
+   Lab region 02 / long … Process fixture      —      —      —                                                          
+   Lab region 10 / long … Process fixture      —      —      —                                                          
+   Lab region 00 / long … Process fixture      —      —      —                                                          
+   Lab region 03 / long … Process fixture      —      —      —                                                          
+   Beta                   Process fixture      —      —      —                                                          
+   Lab region 15 / long … Process fixture      —      —      —                                                          
+   Lab region 12 / long … Process fixture      —      —      —                                                          
+   Lab region 08 / long … Process fixture      —      —      —                                                          
+ [1;7m▸ Alpha                  Process fixture      yes    —      running                                                  [0m  
+   Lab region 11 / long … Process fixture      —      —      —                                                          
+   Lab region 09 / long … Process fixture      —      —      —                                                          
+   Lab region 06 / long … Process fixture      —      —      —                                                          
+   Lab region 04 / long … Process fixture      —      —      —                                                          
+   Lab region 05 / long … Process fixture      —      —      —                                                          
+   Lab region 01 / long … Process fixture      —      —      —                                                          
+   Lab region 13 / long … Process fixture      —      —      —                                                          
+   Lab region 07 / long … Process fixture      —      —      —                                                          
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Alpha · Edit none · Run Alpha                                                                        [39m 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory                                                    
+ [38;2;146;163;183mxrmd ready · Content                                                                                 [38;2;115;194;230mF1 Help & actions[39m 

@@ -1,0 +1,12 @@
+{
+  "dumb": {
+    "status": "PASS",
+    "all_ansi_screens": 16,
+    "nondefault_colour_sgr": 0
+  },
+  "no-color": {
+    "status": "PASS",
+    "all_ansi_screens": 16,
+    "nondefault_colour_sgr": 0
+  }
+}

@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               2/6
+ Config / Geodata  Resource cache
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Resource                   Kind         Result             Auto                ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ i Info                           ├─
+ ▸ Geo Fixture edited         geoip        success            off                 │ Update resource started          │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ + Success                        │
+                                                                                  │ Update resource: completed       │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ + Success                        │
+                                                                                  │ Geodata bindings saved for Home; │
+                                                                                  │ runtime unchanged · repeated 2   │
+                                                                                  │ times                            │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ Highlighted Geo Fixture edited · geoip.dat
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

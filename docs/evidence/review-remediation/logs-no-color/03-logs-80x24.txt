@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL     MESSAGE                                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ -        stdout             Xray 26.9.9 (Xray, Penetrates Everything.)       ┃ 
+                           | 52a412d (go1.27.1 linux/amd64)                   ┃ 
+ -        stdout             A unified platform for anti-censorship.            
+ 01:15:47 stdout   Info      infra/conf/serial: Reading config:                 
+                           | &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/can    
+                           | didate/run-1790442947012-1/00_log.json             
+                           | Format:json}                                       
+ 01:15:47 stdout   Info      infra/conf/serial: Reading config:                 
+                           | &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/can    
+                           | didate/run-1790442947012-1/01_dns.json             
+                           | Format:json}                                       
+ 01:15:47 stdout   Info      infra/conf/serial: Reading config:                 
+                           | &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/can    
+                           | didate/run-1790442947012-1/02_inbounds.json        
+                           | Format:json}                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Real log re… · Use Real log re… · Edit none · Run Real log re…            
+ Paused · 45 text lines                                                         
+ xrmd ready · Content                                         F1 Help & actions 

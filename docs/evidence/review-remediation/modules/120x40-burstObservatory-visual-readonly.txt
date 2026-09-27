@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+ ‹  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory           15/15 
+ burstObservatory  SOURCE · READ ONLY · Visual                                                                          
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Burst observatory            Burst observatory  Read only                                                          
+                                  burstObservatory                                                                      
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  subjectSelector         direct                                                        
+                                  Probe URL               https://example.invalid/probe                                 
+                                  Mean interval           1m                                                            
+                                  pingConfig/sampling     0                                                             
+                                  Timeout                 5s                                                            
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit none · Run none                                                          
+ burstObservatory · Source read-only · Visual · excluded    
+ xrmd ready · Content · modules/14_burstObservatory.json                                              F1 Help & actions 

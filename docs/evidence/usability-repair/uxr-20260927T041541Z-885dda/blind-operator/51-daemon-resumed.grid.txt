@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+ Subscriptions  1 source / node inventory
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Source                   Nodes   Result          Auto    Bound
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Local fixture            1       Updated         on      yes
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Subscriptions · View Lab Home                                                                      │
+         │  Subscription updates change inventory only. Bind sources to a Profile here; select Nodes and      │
+         │ Connect separately. xrmd is unavailable at /tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock. Check    │
+         │ this endpoint and start t…                                                                         │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > a               Add subscription                                                                 │
+         │   e               Edit subscription                                                                │
+         │   u               Update subscription                                                              │
+         │   U               Update all subscriptions                                                         │
+         │   t               Pause / resume auto refresh                                                      │
+         │   b               Bind sources                                                                     │
+         │   D               Remove subscription                                                              │
+         │   h               History cleanup                                                                  │
+         │   N               Notification history                                                             │
+         │   r               Refresh                                                                          │
+         │   F               Full object details                                                              │
+         │   Enter           View highlighted object                                                          │
+         │                   Last error diagnostic                                                            │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                                               │
+         │ Esc                     Return one level                                                           │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: unknown
+ Highlighted Local fixture · Updated · 1 nodes
+ xrmd disconnected · cached data · Page content (Content)                                             F1 Help & actions

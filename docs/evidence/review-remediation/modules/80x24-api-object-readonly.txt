@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 7/15 
+ api  SOURCE · READ ONLY · Visual                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Xray API  READ ONLY · field 1/3                                          │  
+ X│ ──────────────────────────────────────────────────────────────────────── │  
+ a│ > tag                     Explicit value                               ┃ │  
+ ─┤                             control                                    ┃ ├─ 
+ t│                                                                        ┃ │  
+ s│   Listen address:port     Not set · field omitted                      ┃ │  
+  │                             Not set (read only)                        ┃ │  
+  │                                                                        ┃ │  
+  │   services                                                             ┃ │  
+  │   Explicit value                                                         │  
+  │   [ ] HandlerService                                                  ┃  │  
+  │   [ ] LoggerService                                                      │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Close ]                                                               │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit none · Run none                    
+ api · Source read-only · Visual · excluded                                     
+ xrmd ready · Content · modules/06_api.json                   F1 Help & actions 

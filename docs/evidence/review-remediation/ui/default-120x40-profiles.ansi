@@ -1,0 +1,40 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview [1m[38;2;115;194;230m[Profiles][0m[38;2;146;163;183m Modules  Subscriptions  Nodes  Logs  Config [39m                                                  
+ [1mProfiles[0m[38;2;146;163;183m  2 Profiles / independent runtime contexts                                                                   [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+   [1mProfile               [0m [1mCore                [0m [1mUse   [0m [1mEdit  [0m [1mRun      [0m                                                  
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+ [1;7m▸ Beta                   Process fixture      yes    —      —                                                        [0m  
+   Alpha                  Process fixture      —      yes    running                                                    
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Beta · Edit Alpha · Run Alpha                                                                        [39m 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory                                                    
+ [38;2;146;163;183mxrmd ready · Content                                                                                 [38;2;115;194;230mF1 Help & actions[39m 

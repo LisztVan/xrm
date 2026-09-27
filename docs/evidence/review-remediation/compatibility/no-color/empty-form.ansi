@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview [0;1m[Profiles][0;2m Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mProfiles[0;2m  1 Profile / independent runtime contexts                            [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m  [1mProfile               [0;2m [1mCore                [0;2m [1mUse   [0;2m [1mEdit  [0;2m [1mRun      [0;2m         [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m▸[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mnew Profile[0;2m  EDIT · field 1/3                                           [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1m> Name                    [0m[ Enter value                               ]  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│   Core                    ‹ No core yet ›                                │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│   Preset                  ‹ Local SOCKS proxy ›                          │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Save ]  [ Cancel ]                                                    │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Compatibili… · Use Compatibili… · Edit none · Run none                   [0m 
+ View Compatibility · Core not set · Saved none                                 
+ [2mxrmd ready · Content                                         [0mF1 Help & actions 

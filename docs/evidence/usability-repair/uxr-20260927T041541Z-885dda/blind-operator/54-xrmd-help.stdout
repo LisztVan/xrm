@@ -1,0 +1,12 @@
+xrmd: XRM local manager server 
+
+
+/home/lisztzy/Projects/xrm/build/component-rewrite/xrmd [OPTIONS]
+
+
+OPTIONS:
+  -h,     --help              Print this help message and exit 
+          --foreground REQUIRED 
+                              Run attached to this terminal 
+          --socket TEXT       Unix domain socket path 
+          --database TEXT     SQLite database path 

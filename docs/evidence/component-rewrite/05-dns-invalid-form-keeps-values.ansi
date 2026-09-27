@@ -1,0 +1,24 @@
+ Overview  Profiles [1m[Modules][0m Subscriptions  Nodes  Logs  Config
+ log [1;7m dns [0m inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+[1m> dns-server [unsaved]                           [0m╭[1mInfo[0m─────────────────────────╮
+  ───────────────────────────────────────────────┤Module Edit enabled for Alpha│
+  [1mAddress                [0m9.9.9.9                 ╰─────────────────────────────╯
+  [2m  IP, DNS URL, localhost or fakedns | Unset                                [0m┃
+  [1mport                   [0;7moops                                                [0m
+    ! Enter a whole number
+  [1mdomains                                                                    [0m
+    [1mEntries                                     [0m
+  ───────────────────────────────────────────────────────────────────────────
+  [2mNo entries                                                                 [0m
+
+  Value: [2m                                                                    [0m
+  ────────────────────────────────────────────────────────────────────────────
+  ┌────────────┐┌──────┐
+  │Add to draft││Cancel│
+  └────────────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+[1mView Alpha · Use Alpha · Edit Alpha · Run Alpha
+[0mdns · Source editable · Visual · included · modules/01_dns.json
+[2mxrmd ready · Content                                                     [0mF1 Help

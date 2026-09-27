@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                                                                               
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                        12/15 
+ geodata  SOURCE · READ ONLY · Visual                                                                                                                                               
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Core reload schedule         Core reload schedule  Read only                                                                                                                   
+     Core download assets         geodata                                                                                                                                           
+                                  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                  No explicit settings                                                                                                                              
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha                                                                                                                  
+ geodata · Source read-only · Visual · excluded                                                                                                                                     
+ xrmd ready · Section selection (SecondaryNav) · modules/11_geodata.json                                                                                          F1 Help & actions 

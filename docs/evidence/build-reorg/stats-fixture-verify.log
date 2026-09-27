@@ -1,0 +1,2 @@
+G5 isolated Stats lab: /tmp/xrm-g5-stats-qjf32r00
+Real Xray counters: [{'downlink': 12, 'scope': 'inbound', 'tag': 'g5-socks', 'uplink': 98}, {'downlink': 0, 'scope': 'outbound', 'tag': 'block', 'uplink': 0}, {'downlink': 0, 'scope': 'outbound', 'tag': 'direct', 'uplink': 0}, {'downlink': 0, 'scope': 'outbound', 'tag': 'xrm.node.b4ed17a5-d768-4d08-a7b6-4b6e087c4906', 'uplink': 84}]

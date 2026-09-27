@@ -1,0 +1,48 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                    
+   [2m log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats [0;1m policy [0;2m fakedns  geodata  env  version  burstObservatory [0m                                       [2m10/15[0m 
+ [1mpolicy[0;2m  SOURCE · EDIT · Visual                                                                                                                                                    [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   User levels               [0;2m   [1mUser levels[0;2m  Draft                                                                                                                               [0m 
+ [2m    System traffic counters      policy.levels                                                                                                                                    [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 0    [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m                                      [0m 
+ [2m                                      [0m│ [1mUser levels[0;2m  EDIT · field 1/9                                                                     [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│ [1m> User level              [0m[ 0                                                                   ]  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   handshake               [x] Set value  [2mExplicit value[0m                                            │[2m                                      [0m 
+ [2m                                      [0m│                           [ 0                                                                   ]  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Seconds; default 60                                                                            [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   connIdle                [ ] Set value  [2mNot set · field omitted[0m                                   │[2m                                      [0m 
+ [2m                                      [0m│                           [2m[ Enter value                                                         ][0m  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Seconds; default 300                                                                           [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   uplinkOnly              [ ] Set value  [2mNot set · field omitted[0m                                   │[2m                                      [0m 
+ [2m                                      [0m│                           [2m[ Enter value                                                         ][0m  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Seconds; default 1                                                                             [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   downlinkOnly            [ ] Set value  [2mNot set · field omitted[0m                                   │[2m                                      [0m 
+ [2m                                      [0m│                           [2m[ Enter value                                                         ][0m  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Seconds; default 1                                                                             [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   bufferSize              [ ] Set value  [2mNot set · field omitted[0m                                   │[2m                                      [0m 
+ [2m                                      [0m│                           [2m[ Enter value                                                         ][0m  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  KB; default depends on architecture                                                            [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   statsUserUplink         ‹ False ›                                                                │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   statsUserDownlink       ‹ Not set · field omitted ›                                              │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   statsUserOnline         ‹ Not set · field omitted ›                                              │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m                                      [0m 
+ [2m                                      [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m                                      [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                                                                            [0m 
+ policy · Source editable · Visual · excluded                                             
+ [2mxrmd ready · Content · modules/09_policy.json                                                                                                                    [0mF1 Help & actions 

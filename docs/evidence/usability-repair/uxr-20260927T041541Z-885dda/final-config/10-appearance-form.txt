@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               4/6
+ Config / Appearance  XRM program settings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Setting                  Value
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ CLI color                auto
+   Color capability         auto
+   Content density          comfortable
+   Symbols                  unicode
+   Reduce motion            Off
+   Theme ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ XRM appearance  FORM · field 1/6                                                                   │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ > Theme                   ‹ XRM Slate (dark) ›                                                     │
+         │                                                                                                    │
+         │   Color mode              ‹ Automatic ›                                                            │
+         │                                                                                                    │
+         │   Density                 ‹ Comfortable ›                                                          │
+         │                                                                                                    │
+         │   Icons                   ‹ Unicode ›                                                              │
+         │                                                                                                    │
+         │   Reduce motion           [ ] Enabled                                                              │
+         │                                                                                                    │
+         │   CLI colors              ‹ Automatic ›                                                            │
+         │                                                                                                    │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Save ]  [ Cancel ]                                                                              │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ XRM / Appearance · preferences do not modify native Xray modules
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

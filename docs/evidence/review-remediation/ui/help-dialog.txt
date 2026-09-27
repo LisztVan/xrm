@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  3 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ─╭──────────────────────────────────────────────────────────────────────────╮─ 
+ ▸│ Help & actions                                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Profiles · View Review 中文 é qeeu renamed                               │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > Enter on ConfirmConfirm · Delete Profile                               │  
+  │   Esc             Cancel · Delete Profile                                │  
+  │ Review 中文 é qeeu renamed                                               │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Tab / Shift-Tab         Choose a control                                 │  
+  │ Enter                   Activate selected control                        │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Review 中文… · Use none · Edit none · Run Alpha                           
+ View Review 中文 é qeeu renamed · Core not set · Saved none                    
+ xrmd ready · Content                                         F1 Help & actions 

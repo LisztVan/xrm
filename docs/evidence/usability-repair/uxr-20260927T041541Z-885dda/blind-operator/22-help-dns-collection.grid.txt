@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15
+ dns  SOURCE · EDIT · Visual · UNSAVED *
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   DNS servers                  DNS servers  Draft
+     DNS query and cache setting  dns.servers
+     DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────
+                                  1  localhost
+                                     port Default    strategy Inherit
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Modules · View Lab Home                                                                            │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > Enter           View entry · DNS servers                                                         │
+         │   a               Add entry · DNS servers                                                          │
+         │   e               Edit entry · DNS servers                                                         │
+         │   c               Copy entry · DNS servers                                                         │
+         │   D               Delete entry · DNS servers                                                       │
+         │   +               Move entry up · DNS servers                                                      │
+         │   -               Move entry down · DNS servers                                                    │
+         │ Changes stay in the parent draft until its Save action.                                            │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Tab / Shift-Tab         Move between collection and buttons                                        │
+         │ Up / Down               Choose entry                                                               │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ dns · Source editable · Visual · Unsaved * · included
+ xrmd ready · Page content (Content) · modules/01_dns.json                                            F1 Help & actions

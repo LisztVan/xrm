@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Setting                      Value                                                  ╭Done────────────────────────────╮
+──────────────────────────────────────────────────────────────────────────────────────┤Registered Fixture Xray; no core│
+▸ concurrency                  3                                                      │started                         │
+  default_url                                                                         ╰────────────────────────────────╯
+  max_body_bytes               8388608                                                ╭Info────────────────────────────╮
+  timeout_ms                   5000                                                   │Use core started                │
+                                                                                      ╰────────────────────────────────╯
+                                                                                      ╭Done────────────────────────────╮
+                                                                                      │Use core: completed             │
+                                                                                      ╰────────────────────────────────╯
+
+          Node test defaults [unsaved]
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          Default test URL       http://127.0.0.1/fixture?quep
+          Timeout (ms)           4500
+          Concurrent tests       9
+            ! Maximum: 3
+          Download cap (bytes)   8388608
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          ┌────┐┌──────┐
+          │Save││Cancel│
+          └────┘└──────┘
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                        15/15 
+ burstObservatory  SOURCE · EDIT · Visual                                                                                                                                           
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Burst observatory            Burst observatory  Draft                                                                                                                          
+                                  burst╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+                                  ─────┤ Burst observatory  EDIT · field 1/7                                                                ├────────────────────────────────────── 
+                                  subje│ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                  Probe│ > subjectSelector                                                                                  │                                       
+                                  Mean │   [x] Set value  Explicit value                                                                    │                                       
+                                  pingC│     subjectSelector                                                                                │                                       
+                                  Timeo│   ───────────────────────────────────────────────────────────────────────────────────────────────  │                                       
+                                       │   > direct                                                                                         │                                       
+                                       │                                                                                                    │                                       
+                                       │   New subjectSelector: [ Enter value                                                            ]  │                                       
+                                       │    [ Add ]  [ Delete ]                                                                             │                                       
+                                       │   Outbound tag prefixes                                                                            │                                       
+                                       │                                                                                                    │                                       
+                                       │   Probe URL               [x] Set value  Explicit value                                            │                                       
+                                       │                           [ https://example.invalid/probe                                       ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   Local connectivity URL  [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   Mean interval           [x] Set value  Explicit value                                            │                                       
+                                       │                           [ 1m                                                                  ]  │                                       
+                                       │   Duration; core minimum 10s, default 1m                                                           │                                       
+                                       │                                                                                                    │                                       
+                                       │   pingConfig/sampling     [x] Set value  Explicit value                                            │                                       
+                                       │                           [ 0                                                                   ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   Timeout                 [x] Set value  Explicit value                                            │                                       
+                                       │                           [ 5s                                                                  ]  │                                       
+                                       │   Duration; default 5s                                                                             │                                       
+                                       │                                                                                                    │                                       
+                                       │   HTTP method             [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │   Default HEAD; extension methods allowed                                                          │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Add to draft ]  [ Cancel ]                                                                      │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                                                                             
+ burstObservatory · Source editable · Visual · excluded                                   
+ xrmd ready · Content · modules/14_burstObservatory.json                                                                                                          F1 Help & actions 

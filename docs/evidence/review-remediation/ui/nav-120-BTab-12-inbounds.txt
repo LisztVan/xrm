@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 3/15 
+ inbounds  SOURCE · READ ONLY · Visual                                                                                  
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Inbound listeners            Inbound listeners  Read only                                                          
+                                  inbounds                                                                              
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  1               local-socks · socks · 127.0.0.1:10808                                 
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                         
+ inbounds · Source read-only · Visual · excluded                                                                        
+ xrmd ready · SecondaryNav · modules/02_inbounds.json                                                 F1 Help & actions 

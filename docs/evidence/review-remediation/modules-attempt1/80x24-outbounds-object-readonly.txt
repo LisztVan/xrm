@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api             › 4/15
+ outbounds  SOURCE · READ ONLY · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+ >╭──────────────────────────────────────────────────────────────────────────╮
+  │ Static outbound  READ ONLY                                               │
+ S│ ──────────────────────────────────────────────────────────────────────── │
+ o│ > tag [read only]         [x] Set value  Explicit value                ┃ │
+ ─┤                             direct                                     ┃ ├─
+ 1│                                                                        ┃ │
+  │   protocol [read only]    (o) freedom                                  ┃ │
+  │                                                                        ┃ │
+  │   sendThrough [read only] [ ] Set value  Not set · field omitted       ┃ │
+  │                             Not set (read only)                        ┃ │
+  │                                                                        ┃ │
+  │   targetStrategy [read onl(o) Unset / use core default                 ┃ │
+  │   Not used by freedom; freedom uses sockopt.domainStrategy             ╹ │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │  [ Close ]                                                               │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Module revi… · Use Module revi… · Edit none · Run none
+ outbounds · Source read-only · Visual · excluded
+ xrmd ready · Content · modules/03_outbounds.json             F1 Help & actions

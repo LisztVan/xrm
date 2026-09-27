@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Resource                   Kind         Result             Auto                   ╭Done──────────────────────────────╮
+────────────────────────────────────────────────────────────────────────────────────┤Geodata Geo Fixture saved; runtime│
+▸ Geo Fixture edited         geoip                           off                    │unchanged                         │
+                                                                                    ╰──────────────────────────────────╯
+                                                                                    ╭Done──────────────────────────────╮
+                                                                                    │Geodata Geo Fixture edited saved; │
+                                                                                    │runtime unchanged                 │
+                                                                                    ╰──────────────────────────────────╯
+
+
+
+
+          Geodata for Home [unsaved]
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          Resources              ▣ Geo Fixture edited · geoip.dat (not validated)
+            One validated resource per filename. Uncheck a resource to remove its binding.
+          ! Update and validate Geo Fixture edited before binding it
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          ┌────┐┌──────┐
+          │Save││Cancel│
+          └────┘└──────┘
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

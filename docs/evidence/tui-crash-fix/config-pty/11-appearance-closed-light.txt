@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               4/6
+ Config / Appearance  XRM program settings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Setting                  Value                                                 ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ + Success                        ├─
+ ▸ CLI color                auto                                                  │ Node test defaults saved; no     │
+   Color capability         auto                                                  │ test started                     │
+   Content density          comfortable                                           ╰──────────────────────────────────╯
+   Symbols                  unicode                                               ╭──────────────────────────────────╮
+   Reduce motion            Off                                                   │ + Success                        │
+   Theme                    XRM Paper                                             │ External editor saved            │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ + Success                        │
+                                                                                  │ XRM appearance saved             │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ XRM / Appearance · preferences do not modify native Xray modules
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

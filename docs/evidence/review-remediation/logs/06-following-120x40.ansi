@@ -1,0 +1,40 @@
+[38;2;220;227;235m[48;2;19;26;35m [1m[38;2;115;194;230m[48;2;27;38;51mXRM [0m[38;2;146;163;183m[48;2;27;38;51m Overview  Profiles  Modules  Subscriptions  Nodes [1m[38;2;115;194;230m[Logs][0m[38;2;146;163;183m[48;2;27;38;51m Config [38;2;220;227;235m                                                 [48;2;19;26;35m 
+ [1mLogs[0m[38;2;146;163;183m[48;2;19;26;35m  Core output                                                                                                     [38;2;220;227;235m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [38;2;146;163;183mTIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                             [38;2;220;227;235m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [38;2;146;163;183m01:21:28 stdout   Debug   transport/internet      [38;2;220;227;235m[4185443301] dialing to tcp:127.0.0.1:42961                          
+ [38;2;146;163;183m01:21:28 stdout   Info    proxy/freedom           [38;2;220;227;235m[4185443301] connection opened to tcp:127.0.0.1:42961, local         
+                           [38;2;146;163;183m                      | [38;2;220;227;235mendpoint 127.0.0.1:50730, remote endpoint 127.0.0.1:42961            
+ [38;2;146;163;183m01:21:28 stdout   Debug                           [38;2;220;227;235m[4185443301] proxy: CopyRawConn splice                               
+ [38;2;146;163;183m01:21:28 stdout                                   [38;2;220;227;235mfrom tcp:127.0.0.1:51162 accepted tcp:127.0.0.1:42961                
+                           [38;2;146;163;183m                      | [38;2;220;227;235m[review-socks -> review-direct]                                      
+ [38;2;146;163;183m01:21:28 stdout   Debug   proxy/socks             [38;2;220;227;235m[3221330419] Not Socks request, try to parse as HTTP request         
+ [38;2;146;163;183m01:21:28 stdout   Info    proxy/http              [38;2;220;227;235m[3221330419] request to Method [GET] Host [] with URL                
+                           [38;2;146;163;183m                      | [38;2;220;227;235m[/invalid-socks]                                                     
+ [38;2;146;163;183m01:21:28 stdout   Info    app/proxyman/inbound    [38;2;220;227;235m[3221330419] connection ends > write tcp                             
+                           [38;2;146;163;183m                      | [38;2;220;227;235m127.0.0.1:53999->127.0.0.1:51166: write: broken pipe                 
+ [38;2;146;163;183m01:21:28 stdout   Info    proxy/socks             [38;2;220;227;235m[3771957840] TCP Connect request to tcp:127.0.0.1:42961              
+ [38;2;146;163;183m01:21:28 stdout   Info    app/dispatcher          [38;2;220;227;235m[3771957840] taking detour [review-direct] for                       
+                           [38;2;146;163;183m                      | [38;2;220;227;235m[tcp:127.0.0.1:42961]                                                
+ [38;2;146;163;183m01:21:28 stdout   Info    transport/internet/t…   [38;2;220;227;235m[3771957840] dialing TCP to tcp:127.0.0.1:42961                      
+ [38;2;146;163;183m01:21:28 stdout   Debug   transport/internet      [38;2;220;227;235m[3771957840] dialing to tcp:127.0.0.1:42961                          
+ [38;2;146;163;183m01:21:28 stdout                                   [38;2;220;227;235mfrom tcp:127.0.0.1:51176 accepted tcp:127.0.0.1:42961                
+                           [38;2;146;163;183m                      | [38;2;220;227;235m[review-socks -> review-direct]                                      
+ [38;2;146;163;183m01:21:28 stdout   Info    proxy/freedom           [38;2;220;227;235m[3771957840] connection opened to tcp:127.0.0.1:42961, local         
+                           [38;2;146;163;183m                      | [38;2;220;227;235mendpoint 127.0.0.1:50734, remote endpoint 127.0.0.1:42961          ┃ 
+ [38;2;146;163;183m01:21:28 stdout   Debug                           [38;2;220;227;235m[3771957840] proxy: CopyRawConn splice                             ┃ 
+ [38;2;146;163;183m01:21:31 stdout   Info    proxy/socks             [38;2;220;227;235m[4032299004] TCP Connect request to tcp:127.0.0.1:42961            ┃ 
+ [38;2;146;163;183m01:21:31 stdout   Info    app/dispatcher          [38;2;220;227;235m[4032299004] taking detour [review-direct] for                     ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235m[tcp:127.0.0.1:42961]                                              ┃ 
+ [38;2;146;163;183m01:21:31 stdout   Info    transport/internet/t…   [38;2;220;227;235m[4032299004] dialing TCP to tcp:127.0.0.1:42961                    ┃ 
+ [38;2;146;163;183m01:21:31 stdout   Debug   transport/internet      [38;2;220;227;235m[4032299004] dialing to tcp:127.0.0.1:42961                        ┃ 
+ [38;2;146;163;183m01:21:31 stdout                                   [38;2;220;227;235mfrom tcp:127.0.0.1:54240 accepted tcp:127.0.0.1:42961              ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235m[review-socks -> review-direct]                                    ┃ 
+ [38;2;146;163;183m01:21:31 stdout   Info    proxy/freedom           [38;2;220;227;235m[4032299004] connection opened to tcp:127.0.0.1:42961, local       ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235mendpoint 127.0.0.1:54804, remote endpoint 127.0.0.1:42961          ┃ 
+ [38;2;146;163;183m01:21:31 stdout   Debug                           [38;2;220;227;235m[4032299004] proxy: CopyRawConn splice                             ┃ 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [38;2;146;163;183mView Real log review · Use Real log review · Edit none · Run Real log review                                          [38;2;220;227;235m 
+ Following · 52 text lines                                                                                              
+ [38;2;146;163;183mxrmd ready · Content                                                                                 [38;2;115;194;230mF1 Help & actions[38;2;220;227;235m 

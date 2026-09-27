@@ -1,0 +1,24 @@
+[1;7m[Overview][0m Profiles  Modules  Subscriptions  Nodes  Logs  Config
+────────────────────────────────────────────────────────────────────────────────
+[1mCORE  stopped
+[0mRunning Profile  none
+Actual target    none
+────────────────────────────────────────────────────────────────────────────────
+Saved (Lab Home)  Node · Loopback direct
+[2mHealth  process_only · process state; remote traffic unverified
+[0;1mSaved target differs from the running target
+[0m────────────────────────────────────────────────────────────────────────────────
+[1mStatistics
+[0mTraffic: unavailable · latency: unmeasured
+[2m  core not running
+[0m────────────────────────────────────────────────────────────────────────────────
+Inventory  1 nodes · 1 sources
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+[1mView Lab Home · Use Lab Home · Edit none · Run none
+
+[0;2mxrmd ready · TopNav                                                      [0mF1 Help

@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [0m[37m[40m Overview  Profiles [1m[96m[Modules][0m[37m[40m Subscriptions  Nodes  Logs  Config [97m          
+ [96m  [1m log [0m[37m[40m dns  inbounds  outbounds  routing  observatory  api [97m           [96m › [37m1/15[97m 
+ [1mlog[0m[37m[40m  SOURCE · READ ONLY · Visual                                              [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [1;2m[96m>[0m[97m[40m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1mHelp & actions[0m[37m[40m                                                          [97m │[2m [0m[97m[40m 
+ [1;2mX[0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m[37m [0m[97m[40m 
+ [2m[37ml[0m[97m[40m│ [1mCompatibility / log · Source                                            [0m[97m[40m │[2m[37m [0m[97m[40m 
+ [2m[90m─[0m[97m[40m┤ [37mRead only: in Profiles allow module Edit for Compatibility. Visual edits[97m ├[2m[90m─[0m[97m[40m 
+ [2m[37ml[0m[97m[40m│ [37mlisted native fields; other fields/types remain in JSON (F2).           [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mActions · choose with arrows, Enter to execute                          [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1m[96m> F2              Open JSON                                            [0m[97m[40m┃ │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mi               [97mSource / runtime paths                                 │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1mNavigation and input                                                    [0m[97m[40m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mUp / Down               [97mChoose section                                   │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mLeft / Right            [97mCollapse / expand                                │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mEsc                     [97mReturn one level                                 │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mEsc closes Help and restores your place                                 [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m[97m[40m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ log · Source read-only · Visual · excluded                                     
+ [37mxrmd ready · Content · modules/00_log.json                   [96mF1 Help & actions[97m 

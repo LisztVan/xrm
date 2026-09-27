@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Setting                      Value                                                 ╭Done─────────────────────────────╮
+─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│
+▸ cli_color                    auto                                                  │started                          │
+  color_mode                   auto                                                  ╰─────────────────────────────────╯
+  density                      comfortable                                           ╭Done─────────────────────────────╮
+  icon_mode                    unicode                                               │External editor saved            │
+  reduce_mXRM appearance                                                             ╰─────────────────────────────────╯
+  theme   ────────────────────────────────────────────────────────────────────────────────────────────────────
+          Theme                  ◉ Terminal default
+                                 ○ Dark
+                                 ○ Light
+          Color mode             ◉ Automatic
+                                 ○ True color
+                                 ○ 256 colors
+                                 ○ No color
+          Density                ◉ Comfortable
+                                 ○ Compact
+          Icons                  ◉ Unicode
+                                 ○ ASCII
+          Reduce motion          ☐
+          CLI colors             ◉ Automatic
+                                 ○ On in terminals
+                                 ○ Never
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          ┌────┐┌──────┐
+          │Save││Cancel│
+          └────┘└──────┘
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

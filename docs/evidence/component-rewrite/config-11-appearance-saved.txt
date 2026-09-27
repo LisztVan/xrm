@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Setting                      Value                                                 ╭Done─────────────────────────────╮
+─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│
+▸ cli_color                    auto                                                  │started                          │
+  color_mode                   auto                                                  ╰─────────────────────────────────╯
+  density                      comfortable                                           ╭Done─────────────────────────────╮
+  icon_mode                    unicode                                               │External editor saved            │
+  reduce_motion                false                                                 ╰─────────────────────────────────╯
+  theme                        dark                                                  ╭Done─────────────────────────────╮
+                                                                                     │XRM appearance saved             │
+                                                                                     ╰─────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules [0;1m[Subscriptions][0;2m Nodes  Logs  Config [0m
+ [1mSubscriptions[0;2m  1 source / node inventory                                                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m  [1mSource                  [0;2m [1mNodes  [0;2m [1mResult         [0;2m [1mAuto   [0;2m [1mBound    [0;2m                                                  [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m▸ Local fixture            1       Updated         on      yes                                                       [0;2m [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mEdit subscription[0;2m  FORM · field 1/7                                                               [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1m> Name                    [0m[ Local fixture                                                       ]  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   URL                     [ ••••••••••••••••••••••••••••                                        ]  │[2m        [0m
+ [2m        [0m│ [2m   Hidden · Ctrl-R reveals/hides the real value without changing it.                             [0m  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   User-Agent              [ Xray                                                                ]  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   Auto refresh            [x] Enabled                                                              │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   Interval seconds        [ 21600                                                               ]  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   Proxy URL               [ Enter value                                                         ]  │[2m        [0m
+ [2m        [0m│ [2m   Hidden · Ctrl-R reveals/hides the real value without changing it.                             [0m  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   Headers (advanced JSON)                                                                          │[2m        [0m
+ [2m        [0m│   [ {}                                                                                          ]  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│  [ Save ]  [ Cancel ]                                                                              │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ Highlighted Local fixture · Updated · 1 nodes
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

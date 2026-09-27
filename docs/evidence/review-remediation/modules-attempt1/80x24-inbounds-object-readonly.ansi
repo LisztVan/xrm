@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log  dns [0;1m inbounds [0;2m outbounds  routing  observatory  api [0m            › [2m3/15[0m
+ [1minbounds[0;2m  SOURCE · READ ONLY · Visual                                         [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m
+ [2m [0m│ [1mInbound listener[0;2m  READ ONLY                                             [0m │[2m [0m
+ [1;2mI[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2mi[0m│ [1m> tag [read only]         [7m[x] Set value[0m  [2mExplicit value[0m                ┃ │[2m [0m
+ [2m─[0m┤ [1m                          [0m  [2mlocal-socks                               [0m ┃ ├[2m─[0m
+ [2m1[0m│                                                                        ┃ │[2m [0m
+ [2m [0m│   protocol [read only]    (o) socks                                    ┃ │[2m [0m
+ [2m [0m│                                                                        ┃ │[2m [0m
+ [2m [0m│   listen [read only]      [x] Set value  [2mExplicit value[0m                ┃ │[2m [0m
+ [2m [0m│                             [2m127.0.0.1                                 [0m ┃ │[2m [0m
+ [2m [0m│                                                                        ┃ │[2m [0m
+ [2m [0m│   port [read only]        [x] Set value  [2mExplicit value[0m                ╹ │[2m [0m
+ [2m [0m│                             [2m19091                                     [0m   │[2m [0m
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2m [0m│  [ Close ]                                                               │[2m [0m
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m
+ inbounds · Source read-only · Visual · excluded
+ [2mxrmd ready · Content · modules/02_inbounds.json              [0mF1 Help & actions

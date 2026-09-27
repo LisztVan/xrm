@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions [0;1m[Nodes][0;2m Logs  Config [0m
+   [2m Scope: All  Scope: Local [0;1m Scope: Groups [0;2m Source: Local fixture [0m                                                 [2m3/4[0m
+ [1mNodes[0;2m  Groups · selection bindings                                                                                    [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m  [1mGroup                     [0;2m [1mMode          [0;2m [1mStrategy       [0;2m [1mMembers     [0;2m                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m                                                                                                                      [0m
+ [2mNo Groups                                                                                                             [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mNodes · View Lab Home                                                                             [0m │[2m        [0m
+ [2m        [0m│ [2m Groups are under Nodes / Scope: Groups. Choose Profile Use in Profiles; Connect in Overview.     [0m │[2m        [0m
+ [2m        [0m│ [2mTasks · arrows choose; Enter executes available task                                              [0m │[2m        [0m
+ [2m        [0m│ [1;7m> a               Add Group                                                                      [0m  │[2m        [0m
+ [2m        [0m│ [2m  e               Edit Group                                                                     [0m  │[2m        [0m
+ [2m        [0m│ [2m  m               Select manual member                                                           [0m  │[2m        [0m
+ [2m        [0m│ [2m  D               Remove Group                                                                   [0m  │[2m        [0m
+ [2m        [0m│ [2m  s               Save target · Lab Home                                                         [0m  │[2m        [0m
+ [2m        [0m│ [2m  c               Save & Connect highlighted node · Lab Home                                     [0m  │[2m        [0m
+ [2m        [0m│   N               Notification history                                                             │[2m        [0m
+ [2m        [0m│   r               Refresh                                                                          │[2m        [0m
+ [2m        [0m│   F               Full object details                                                              │[2m        [0m
+ [2m        [0m│   Enter           View highlighted object                                                          │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mNavigation and input                                                                              [0m │[2m        [0m
+ [2m        [0m│ Arrows / PgUp / PgDn    Browse rows; Home / End jump                                               │[2m        [0m
+ [2m        [0m│ Esc                     Return one level                                                           │[2m        [0m
+ [2m        [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none                                                [0m
+ View Lab Home · groups
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

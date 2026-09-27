@@ -1,0 +1,24 @@
+ [1mXRM [Overview][0;2m Profiles  Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mOverview[0;2m  Runtime & saved configuration                                       [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1mRuntime[0;2m  ACTUAL                          [0m╭──────────────────────────────────╮[2m [0m 
+ [1mrunning[0;2m  Xray 26.9.9  PID 1191498[0m        │ [1m+ Success · history in Help     [0m │  
+ [2mRunning Profile   [0mReal Loopback          │ Connect Real Loopback: completed │  
+ [2mActual target     [0mnone                   ╰──────────────────────────────────╯  
+ [2mHealth            [0mProcess alive; traffic unverified                            
+                                                                                
+ [1mSaved configuration[0;2m  VIEW Real Loopback                                       [0m 
+ [2mSaved target      [0mnone                                                         
+ [2mNext Connect      [0mReal Loopback                                                
+ [2mSaved settings apply only on Connect / Apply                                  [0m 
+                                                                                
+ [1mStatistics[0;2m  OBSERVED                                                          [0m 
+ Traffic: unavailable · latency: unmeasured                                     
+ [2mUnavailable reason: stats, policy, metrics                                    [0m 
+                                                                                
+ Inventory  0 nodes · 0 sources                                                 
+                                                                                
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn…[0m 
+ View Real Loopback                                                             
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

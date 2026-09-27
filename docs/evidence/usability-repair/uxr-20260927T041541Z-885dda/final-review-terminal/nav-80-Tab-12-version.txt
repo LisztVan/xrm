@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  api  metrics  stats  policy  fakedns  geodata  env  version         › 14/15 
+ version  SOURCE · READ ONLY · Visual                                           
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Xray version constraint              ╭──────────────────────────────────╮  
+                                          │ i Info · history in Help         │  
+ Xray version constraint  Read only       │ Refreshed Subscriptions          │  
+ version                                  ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ No explicit settings                                                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ version · Source read-only · Visual · excluded                                 
+ xrmd ready · Section selection (SecondaryNav) · modules/1…   F1 Help & actions 

@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ R╭──────────────────────────────────────────────────────────────────────────╮  
+ s│ Help & actions                                                           │  
+ R│ ──────────────────────────────────────────────────────────────────────── │  
+ A│ Overview · View Real log review · Connect uses Real log review           │  
+ H│ Connect publishes saved settings only. Statistics need saved stats,      │  
+  │ policy and metrics settings plus a running core. Configure in Modul…     │  
+ S│ Actions · choose with arrows, Enter to execute                           │  
+ S│ > c               Connect saved · Real log review                      ┃ │  
+ N│   d               Stop core                                            ┃ │  
+ S│   f               Runtime paths                                        ┃ │  
+  │   i               Inspect local entry                                  ╹ │  
+ S│   N               Notification history                                   │  
+ T│ ──────────────────────────────────────────────────────────────────────── │  
+ R│ Navigation and input                                                     │  
+  │ Esc                     Return one level                                 │  
+ I│ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Real log re… · Use Real log re… · Edit none · Run none                    
+ View Real log review ·                 
+ xrmd ready · Content                                         F1 Help & actions 

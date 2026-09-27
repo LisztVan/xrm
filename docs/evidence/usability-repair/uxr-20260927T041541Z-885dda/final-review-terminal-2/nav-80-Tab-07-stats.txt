@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  inbounds  outbounds  routing  observatory  api  metrics  stats       › 9/15 
+ stats  SOURCE · READ ONLY · Visual                                             
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Stats object (no native parameters)  ╭──────────────────────────────────╮  
+                                          │ i Info · history in Help         │  
+ Stats object (no native parameters)  Read│ Refreshed Subscriptions          │  
+ stats                                    ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Stats object present                                                           
+ No native parameters. Source inclusion is managed independently.               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ stats · Source read-only · Visual · excluded                                   
+ xrmd ready · Section selection (SecondaryNav) · modules/0…   F1 Help & actions 

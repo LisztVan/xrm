@@ -1,0 +1,40 @@
+[38;2;220;227;235m[48;2;19;26;35m [1m[38;2;115;194;230m[48;2;27;38;51mXRM [0m[38;2;146;163;183m[48;2;27;38;51m Overview  Profiles  Modules  Subscriptions  Nodes [1m[38;2;115;194;230m[Logs][0m[38;2;146;163;183m[48;2;27;38;51m Config [38;2;220;227;235m                                                 [48;2;19;26;35m 
+ [1mLogs[0m[38;2;146;163;183m[48;2;19;26;35m  Core output                                                                                                     [38;2;220;227;235m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [38;2;146;163;183mTIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                             [38;2;220;227;235m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [1m[38;2;146;163;183m[48;2;35;55;73m-        stdout                                   [38;2;220;227;235mXray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1       [0m[38;2;220;227;235m[48;2;19;26;35m┃ 
+ [1m[38;2;115;194;230m[48;2;35;55;73m                          [38;2;146;163;183m                      | [38;2;220;227;235mlinux/amd64)                                                       [0m[38;2;220;227;235m[48;2;19;26;35m┃ 
+ [38;2;146;163;183m-        stdout                                   [38;2;220;227;235mA unified platform for anti-censorship.                            ┃ 
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf/serial       [38;2;220;227;235mReading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi  ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235mdate/run-1790443286055-1/00_log.json Format:json}                  ┃ 
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf/serial       [38;2;220;227;235mReading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi  ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235mdate/run-1790443286055-1/01_dns.json Format:json}                  ┃ 
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf/serial       [38;2;220;227;235mReading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi  ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235mdate/run-1790443286055-1/02_inbounds.json Format:json}             ┃ 
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf              [38;2;220;227;235m[/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055  ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235m-1/02_inbounds.json] appended inbound with tag: review-socks       ┃ 
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf/serial       [38;2;220;227;235mReading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi  ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235mdate/run-1790443286055-1/03_outbounds.json Format:json}            ┃ 
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf              [38;2;220;227;235m[/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055  ┃ 
+                           [38;2;146;163;183m                      | [38;2;220;227;235m-1/03_outbounds.json] prepend outbound with tag: review-direct       
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf/serial       [38;2;220;227;235mReading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi    
+                           [38;2;146;163;183m                      | [38;2;220;227;235mdate/run-1790443286055-1/04_routing.json Format:json}                
+ [38;2;146;163;183m01:21:26 stdout   Debug   app/log                 [38;2;220;227;235mLogger started                                                       
+ [38;2;146;163;183m01:21:26 stdout   Info    app/dns                 [38;2;220;227;235mDNS: created localhost client                                        
+ [38;2;146;163;183m-        stdout                                   [38;2;220;227;235mConfiguration OK.                                                    
+ [38;2;146;163;183m01:21:26 stderr                                   [38;2;220;227;235mUsing confdir from arg: /tmp/xrm-rewrite-ui-dmf5gpzp/runtime/cand    
+                           [38;2;146;163;183m                      | [38;2;220;227;235midate/run-1790443286055-1                                            
+ [38;2;146;163;183m-        stdout                                   [38;2;220;227;235mXray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1         
+                           [38;2;146;163;183m                      | [38;2;220;227;235mlinux/amd64)                                                         
+ [38;2;146;163;183m-        stdout                                   [38;2;220;227;235mA unified platform for anti-censorship.                              
+ [38;2;146;163;183m01:21:26 stderr                                   [38;2;220;227;235mUsing confdir from arg: /tmp/xrm-rewrite-ui-dmf5gpzp/runtime/cand    
+                           [38;2;146;163;183m                      | [38;2;220;227;235midate/run-1790443286055-1                                            
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf/serial       [38;2;220;227;235mReading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi    
+                           [38;2;146;163;183m                      | [38;2;220;227;235mdate/run-1790443286055-1/00_log.json Format:json}                    
+ [38;2;146;163;183m01:21:26 stdout   Info    infra/conf/serial       [38;2;220;227;235mReading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi    
+                           [38;2;146;163;183m                      | [38;2;220;227;235mdate/run-1790443286055-1/01_dns.json Format:json}                    
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [38;2;146;163;183mView Real log review · Use Real log review · Edit none · Run Real log review                                          [38;2;220;227;235m 
+ Paused · 45 text lines                                                                                                 
+ [38;2;146;163;183mxrmd ready · Content                                                                                 [38;2;115;194;230mF1 Help & actions[38;2;220;227;235m 

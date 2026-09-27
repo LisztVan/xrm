@@ -1,0 +1,24 @@
+[38;2;220;227;235m[48;2;19;26;35m [1m[38;2;115;194;230m[48;2;27;38;51mXRM [0m[38;2;146;163;183m[48;2;27;38;51m Overview [1m[38;2;115;194;230m[Profiles][0m[38;2;146;163;183m[48;2;27;38;51m Modules  Subscriptions  Nodes  Logs  Config [38;2;220;227;235m         [48;2;19;26;35m 
+ [1mProfiles[0m[38;2;146;163;183m[48;2;19;26;35m  18 Profiles / independent runtime contexts                          [38;2;220;227;235m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+   [1mProfile                      [0m[38;2;220;227;235m[48;2;19;26;35m [1mCore                [0m[38;2;220;227;235m[48;2;19;26;35m [1mUse   [0m[38;2;220;227;235m[48;2;19;26;35m [1mEdit  [0m[38;2;220;227;235m[48;2;19;26;35m [1mRun      [0m[38;2;220;227;235m[48;2;19;26;35m   
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+   Lab region 08 / long descrip… Process fixture      —      —      —           
+   Lab region 15 / long descrip… Process fixture      —      —      —         ╻ 
+   Lab region 09 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 10 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 01 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 14 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 07 / long descrip… Process fixture      —      —      —         ┃ 
+ [1m[38;2;115;194;230m▸ Alpha                         Process fixture      yes    —      running   ┃[0m[38;2;220;227;235m[48;2;19;26;35m 
+   Lab region 06 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 13 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 03 / long descrip… Process fixture      —      —      —         ┃ 
+   Beta                          Process fixture      —      —      —         ┃ 
+   Lab region 02 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 00 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 12 / long descrip… Process fixture      —      —      —         ╹ 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [38;2;146;163;183mView Alpha · Use Alpha · Edit none · Run Alpha                                [38;2;220;227;235m 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ [38;2;146;163;183mxrmd ready · Content                                         [38;2;115;194;230mF1 Help & actions[38;2;220;227;235m 

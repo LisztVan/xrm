@@ -1,0 +1,24 @@
+ [1mXRM [Overview][0;2m Profiles  Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mOverview[0;2m  Runtime & saved configuration                                       [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2mR[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [1;2ms[0m│ [1mHelp & actions[0;2m                                                          [0m │[2m [0m 
+ [2mR[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2mA[0m│ [1mOverview · View Compatibility · Connect uses Compatibility              [0m │[2m [0m 
+ [2mH[0m│ [2mConnect publishes saved settings only. Statistics need saved stats,     [0m │[2m [0m 
+ [2m [0m│ [2mpolicy and metrics settings plus a running core. Configure in Modul…    [0m │[2m [0m 
+ [1;2mS[0m│ [2mActions · choose with arrows, Enter to execute                          [0m │[2m [0m 
+ [2mS[0m│ [1;7m> c               Connect saved · Compatibility                        [0m┃ │[2m [0m 
+ [2mN[0m│   d               Stop core                                            ┃ │[2m [0m 
+ [2mS[0m│   f               Runtime paths                                        ┃ │[2m [0m 
+ [2m [0m│   i               Inspect local entry                                  ╹ │[2m [0m 
+ [1;2mS[0m│   N               Notification history                                   │[2m [0m 
+ [2mT[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2mR[0m│ [1mNavigation and input                                                    [0m │[2m [0m 
+ [2m [0m│ Esc                     Return one level                                 │[2m [0m 
+ [2mI[0m│ [2mEsc closes Help and restores your place                                 [0m │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Compatibili… · Use Compatibili… · Edit none · Run none                   [0m 
+ View Compatibility 
+ [2mxrmd ready · Content                                         [0mF1 Help & actions 

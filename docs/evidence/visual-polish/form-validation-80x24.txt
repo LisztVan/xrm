@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+  log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  pol
+ dns  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ DNS server  UNSAVED *                                                    │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │   Address *               9.9.9.9                                      ┃ │
+  │ > port *                  bad                                          ┃ │
+  │   ! Enter a whole number                                               ┃ │
+  │   domains                 No entries                                   ┃ │
+  │   expectedIPs             No entries                                   ┃ │
+  │   unexpectedIPs           No entries                                   ┃ │
+  │   queryStrategy           (o) Unset / use core default                 ╹ │
+  │   skipFallback            [ ] Explicit [ Use default ]   [not set]       │
+  │   finalQuery              [ ] Explicit [ Use default ]   [not set]       │
+  │   timeoutMs                                                              │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │  [ Add to draft ]  [ Cancel ]                                            │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit Alpha · Run Alpha
+ dns · Source editable · Visual · included
+ xrmd ready · Content · modules/01_dns.json                         ? / F1 Help

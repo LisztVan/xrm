@@ -1,0 +1,48 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                    
+   [2m log  dns  inbounds  outbounds  routing  observatory [0;1m api [0;2m metrics  stats  policy  fakedns  geodata  env  version  burstObservatory [0m                                        [2m7/15[0m 
+ [1mapi[0;2m  SOURCE · READ ONLY · Visual                                                                                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;7m>   Xray API                  [0m   [1mXray API[0;2m  Read only                                                                                                                              [0m 
+                                  [2mapi                                                                                                                                              [0m 
+                                  [2m─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+                                  [2mtag                     [0mcontrol                                                                                                                   
+                                  [2mservices                [0mStatsService                                                                                                              
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit none · Run none                                                                                                                     [0m 
+ api · Source read-only · Visual · excluded                                               
+ [2mxrmd ready · Content · modules/06_api.json                                                                                                                       [0mF1 Help & actions 

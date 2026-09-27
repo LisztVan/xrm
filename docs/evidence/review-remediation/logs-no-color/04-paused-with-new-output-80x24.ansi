@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m          
+ [1mLogs[0;2m  Core output                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL     MESSAGE                                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2;7m-        stdout             [0;1;7mXray 26.9.9 (Xray, Penetrates Everything.)       [0m┃ 
+ [1;7m                          [2m| [0;1;7m52a412d (go1.27.1 linux/amd64)                   [0m┃ 
+ [2m-        stdout             [0mA unified platform for anti-censorship.            
+ [2m01:15:47 stdout   Info      infra/conf/serial: [0mReading config:                 
+                           [2m| [0m&{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/can    
+                           [2m| [0mdidate/run-1790442947012-1/00_log.json             
+                           [2m| [0mFormat:json}                                       
+ [2m01:15:47 stdout   Info      infra/conf/serial: [0mReading config:                 
+                           [2m| [0m&{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/can    
+                           [2m| [0mdidate/run-1790442947012-1/01_dns.json             
+                           [2m| [0mFormat:json}                                       
+ [2m01:15:47 stdout   Info      infra/conf/serial: [0mReading config:                 
+                           [2m| [0m&{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/can    
+                           [2m| [0mdidate/run-1790442947012-1/02_inbounds.json        
+                           [2m| [0mFormat:json}                                       
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Real log re… · Use Real log re… · Edit none · Run Real log re…           [0m 
+ Paused · 45 text lines · 7 new text lines buffered                             
+ [2mxrmd ready · Content                                         [0mF1 Help & actions 

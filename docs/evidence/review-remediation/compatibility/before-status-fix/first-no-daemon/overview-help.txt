@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ R╭──────────────────────────────────────────────────────────────────────────╮  
+ u│ Help & actions                                                           │  
+ R│ ──────────────────────────────────────────────────────────────────────── │  
+ A│ Overview · View none · Connect uses none                                 │  
+ H│ Choose Use in Profiles before connecting. Statistics need saved stats,   │  
+  │ policy and metrics settings plus a running core. Configure in Mo…        │  
+ S│ Actions · choose with arrows, Enter to execute                           │  
+ S│ > d               Stop core                                            ┃ │  
+ N│   f               Runtime paths                                        ┃ │  
+ S│   N               Notification history                                 ┃ │  
+  │   r               Refresh                                              ┃ │  
+ S│   F               Full object details                                    │  
+ T│ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+ I│ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View none · Use none · Edit none · Run unknown                                 
+ No View Profile · open Help for available tasks                                
+ xrmd unavailable · Content                                   F1 Help & actions 

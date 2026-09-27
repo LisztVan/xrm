@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · Visual                                                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ DNS server  UNSAVED * · field 2/15                                       │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Server address                                                         ┃ │  
+ D│   Address *               [ 9.9.9.9                                    ┃ │  
+ d│   IP, DNS URL, localhost or fakedns                                      │  
+ ─┤                                                                          ├─ 
+ 1│ > port *                  [x] Set value  Explicit value                  │  
+  │                           [ Enter value                                  │  
+  │   ! port: Enter a whole number                                           │  
+  │                                                                          │  
+  │ Matching and response filters                                            │  
+  │   domains                                                                │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Add to draft ]  [ Cancel ]                                            │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ dns · Source editable · Visual · included                                      
+ xrmd ready · Page content (Content) · modules/01_dns.json    F1 Help & actions 

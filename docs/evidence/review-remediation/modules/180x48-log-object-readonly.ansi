@@ -1,0 +1,48 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                    
+   [1m log [0;2m dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory [0m                                        [2m1/15[0m 
+ [1mlog[0;2m  SOURCE · READ ONLY · Visual                                                                                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Xray logging              [0;2m   [1mXray logging[0;2m  Read only                                                                                                                          [0m 
+ [2m                                 log                                                                                                                                              [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 Access destination      none                                                                                                                     [0m 
+ [2m                                 Error destination       none                                                                                                                     [0m 
+ [2m                                 loglevel                warning                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                      [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m                                      [0m 
+ [2m                                      [0m│ [1mXray logging[0;2m  READ ONLY · field 1/5                                                               [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│ [1m> Access destination      [0;2mExplicit value                                                         [0m  │[2m                                      [0m 
+ [2m                                      [0m│ [1m                          [0m  [2mnone                                                               [0m    │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Path; empty = stdout; none disables                                                            [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   Error destination       [2mExplicit value                                                         [0m  │[2m                                      [0m 
+ [2m                                      [0m│                             [2mnone                                                               [0m    │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   loglevel                (o) warning                                                              │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Unset: warning                                                                                 [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   dnsLog                  (o) Not set · field omitted                                              │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   IP masking              [2mNot set · field omitted                                                [0m  │[2m                                      [0m 
+ [2m                                      [0m│                           [2m  Not set (read only)                                                  [0m  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  quarter, half, full, or native custom mask                                                     [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│  [ Close ]                                                                                         │[2m                                      [0m 
+ [2m                                      [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m                                      [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit none · Run none                                                                                                                     [0m 
+ log · Source read-only · Visual · excluded                                               
+ [2mxrmd ready · Content · modules/00_log.json                                                                                                                       [0mF1 Help & actions 

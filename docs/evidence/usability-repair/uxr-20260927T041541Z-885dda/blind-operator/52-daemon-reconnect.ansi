@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules [0;1m[Subscriptions][0;2m Nodes  Logs  Config [0m
+ [1mSubscriptions[0;2m  1 source / node inventory                                                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+   [1mSource                  [0m [1mNodes  [0m [1mResult         [0m [1mAuto   [0m [1mBound    [0m             ╭──────────────────────────────────╮
+ [2m─────────────────────────────────────────────────────────────────────────────────[0m┤ [1mi Info                          [0m ├[2m─[0m
+ [1;7m▸ Local fixture            1       Updated         on      yes                   [0m│ Refreshing Subscriptions…        │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ [1m! Warning                       [0m │
+                                                                                  │ Refresh incomplete; cached data  │
+                                                                                  │ retained. Check the connection   │
+                                                                                  │ in Help.                         │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: unknown                                         [0m
+ Highlighted Local fixture · Updated · 1 nodes
+ [2mxrmd disconnected · cached data · Page content (Content)                                             [0mF1 Help & actions

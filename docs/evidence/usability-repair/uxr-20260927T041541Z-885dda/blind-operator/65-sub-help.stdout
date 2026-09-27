@@ -1,0 +1,28 @@
+Manage subscription sources and refresh node inventory
+
+Usage: xrm sub [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+SUBCOMMANDS:
+  add                     Add a subscription source 
+  list                    List sources without URL credentials 
+  show                    Show a source summary; --json includes its editable 
+                          URL 
+  edit                    Edit source name and/or URL 
+  update                  Refresh one source or all sources; never applies 
+                          runtime files 
+  remove                  Remove a source while preserving its nodes 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm sub list
+  xrm sub show Local
+  xrm sub add --name Local --url http://127.0.0.1:8080/sub --paused
+
+Next: xrm sub <command> --help

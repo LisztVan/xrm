@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env     › 11/15 
+ fakedns  SOURCE · READ ONLY · Visual                                                                                   
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Fake DNS pools               Fake DNS pools  Read only                                                             
+                                  fakedns                                                                               
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  1               198.18.0.0/15 · 65535                                                 
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                         
+ fakedns · Source read-only · Visual · excluded                                                                         
+ xrmd ready · SecondaryNav · modules/10_fakedns.json                                                  F1 Help & actions 

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log  dns  inbounds [0;1m outbounds [0;2m routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m4/15[0m 
+ [1moutbounds[0;2m  SOURCE · EDIT · Visual                                                                                     [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Static outbounds (ordered) [0;2m  [1mStatic outbounds (ordered)[0;2m  Draft                                                    [0m 
+ [2m                                 outbounds                                                                            [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 1               direct · freedom · Default                                           [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2m        [0m│ [1mStatic outbound[0;2m  EDIT · field 1/4                                                                 [0m │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1m> tag                     [7m[x] Set value[0m  [2mExplicit value[0m                                            │[2m        [0m 
+ [2m        [0m│ [1m                          [0m[ direct                                                              ]  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   protocol                ‹ freedom ›                                                              │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   sendThrough             [ ] Set value  [2mNot set · field omitted[0m                                   │[2m        [0m 
+ [2m        [0m│                           [2m[ Enter value                                                         ][0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   targetStrategy          ‹ Unset / use core default ›                                             │[2m        [0m 
+ [2m        [0m│ [2m  Not used by freedom; freedom uses sockopt.domainStrategy                                       [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                [0m 
+ outbounds · Source editable · Visual · excluded            
+ [2mxrmd ready · Content · modules/03_outbounds.json                                                     [0mF1 Help & actions 

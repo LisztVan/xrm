@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log  dns  inbounds  outbounds  routing [0;1m observatory [0;2m api [0m            › [2m6/15[0m
+ [1mobservatory[0;2m  SOURCE · READ ONLY · Visual                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m
+ [2m [0m│ [1mConnection observatory[0;2m  READ ONLY                                       [0m │[2m [0m
+ [1;2mC[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2mo[0m│ [1m> subjectSelector [read only]                                          [0m┃ │[2m [0m
+ [2m─[0m┤   [1;7m[x] Set value[0m  [2mExplicit value[0m                                        ┃ ├[2m─[0m
+ [2ms[0m│     [2msubjectSelector                             [0m                       ┃ │[2m [0m
+ [2mP[0m│   [2m─────────────────────────────────────────────────────────────────────[0m┃ │[2m [0m
+ [2me[0m│   [1m> direct                                                            [0m ┃ │[2m [0m
+ [2m [0m│ [2m  Outbound tag prefixes                                                [0m┃ │[2m [0m
+ [2m [0m│                                                                        ╹ │[2m [0m
+ [2m [0m│   Probe URL [read only]   [ ] Set value  [2mNot set · field omitted[0m         │[2m [0m
+ [2m [0m│                           [2m  Not set (read only)                        [0m  │[2m [0m
+ [2m [0m│                                                                          │[2m [0m
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2m [0m│  [ Close ]                                                               │[2m [0m
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m
+ observatory · Source read-only · Visual · excluded
+ [2mxrmd ready · Content · modules/05_observatory.json           [0mF1 Help & actions

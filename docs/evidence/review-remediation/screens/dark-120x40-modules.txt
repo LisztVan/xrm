@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15 
+ dns  SOURCE · READ ONLY · Visual                                                                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   DNS servers                  DNS servers  Read only                                                                
+     DNS query and cache setting  dns.servers                                                                           
+     DNS hosts                    ───────────────────────────────────────────────────────────────────────────────────── 
+                                  1  1.1.1.1                                                                            
+                                     port Default    strategy Inherit                                                   
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                         
+ dns · Source read-only · Visual · included                                                                             
+ xrmd ready · Content · modules/01_dns.json                                                           F1 Help & actions 

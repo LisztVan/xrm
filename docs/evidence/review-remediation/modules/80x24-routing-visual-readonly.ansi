@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api [0m            › [2m5/15[0m 
+ [1mrouting[0;2m  SOURCE · READ ONLY · Visual                                          [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;7m>   Routing rules (ordered)                                                  [0m  
+     Native balancers                                                           
+     Domain strategy                                                            
+                                                                                
+ [1mRouting rules (ordered)[0;2m  Read only                                            [0m 
+ [2mrouting.rules                                                                 [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m1  [0;1mRouting rule[0;2m   to [0mdirect                                                    
+ [2m   match [0mdomain domain:example.test                                            
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m 
+ routing · Source read-only · Visual · excluded                                 
+ [2mxrmd ready · Content · modules/04_routing.json               [0mF1 Help & actions 

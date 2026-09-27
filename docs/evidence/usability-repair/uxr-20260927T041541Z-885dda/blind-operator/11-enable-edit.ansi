@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview [0;1m[Profiles][0;2m Modules  Subscriptions  Nodes  Logs  Config [0m
+ [1mProfiles[0;2m  1 Profile / independent runtime contexts                                                                    [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+   [1mProfile               [0m [1mCore                [0m [1mUse   [0m [1mEdit  [0m [1mRun      [0m            ╭──────────────────────────────────╮
+ [2m─────────────────────────────────────────────────────────────────────────────────[0m┤ [1mi Info                          [0m ├[2m─[0m
+ [1;7m▸ Lab Home               Lab Xray             yes    yes    —                    [0m│ Module Edit enabled for Lab      │
+                                                                                  │ Home; runtime unchanged          │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ View Lab Home · Core Lab Xray · Saved Node · Loopback direct
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

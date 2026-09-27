@@ -1,0 +1,40 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+ Overview  Runtime & saved configuration
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Runtime  ACTUAL                                      Saved configuration  VIEW Home
+ stopped                                              Saved target      none
+ Running Profile   none                               Next Connect      Home
+ Actual target     none                               Saved settings apply only on Connect / Apply
+ Health            Not running
+
+ Statistics  OBSERVED
+ Traffic: unavailable · latency: unmeasured
+ Unavailable reason: core not running
+
+ Inventory  0 nodes · 0 sources
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ View Home
+ xrmd ready · Page navigation (TopNav)                                                                F1 Help & actions

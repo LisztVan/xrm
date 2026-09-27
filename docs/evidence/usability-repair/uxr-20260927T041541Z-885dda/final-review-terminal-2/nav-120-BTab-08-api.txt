@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 7/15 
+ api  SOURCE · READ ONLY · Visual                                                                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Xray API                     Xray API  Read only                                                                   
+                                  api                                                                                   
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  tag                     api                                                           
+                                  services                HandlerService, StatsService                                  
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha                                                      
+ api · Source read-only · Visual · excluded                                                                             
+ xrmd ready · Section selection (SecondaryNav) · modules/06_api.json                                  F1 Help & actions 

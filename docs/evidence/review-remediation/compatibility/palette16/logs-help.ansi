@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [0m[37m[40m Overview  Profiles  Modules  Subscriptions  Nodes [1m[96m[Logs][0m[37m[40m Config [97m          
+ [1mLogs[0m[37m[40m  Core output                                                             [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [2m[37mN[0m[97m[40m╭──────────────────────────────────────────────────────────────────────────╮[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [1mHelp & actions[0m[37m[40m                                                          [97m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [1mLogs · View Compatibility                                               [0m[97m[40m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [37mPause keeps the current buffer in place; new text is buffered. Enter    [97m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [37mshows original text and transport details. No core lifecycle actio…     [97m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [37mActions · choose with arrows, Enter to execute                          [97m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [1m[96m> p               Pause reading                                        [0m[97m[40m┃ │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│   [96mi               [97mRaw log details                                        │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [1mNavigation and input                                                    [0m[97m[40m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [96mUp / Down / PageUp /    [97mBrowse history                                   │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [96mPageDown                [97m                                                 │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [96mEnd                     [97mResume follow                                    │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [96mEsc                     [97mReturn one level                                 │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m│ [37mEsc closes Help and restores your place                                 [97m │[2m[37m [0m[97m[40m 
+ [2m[37m [0m[97m[40m╰──────────────────────────────────────────────────────────────────────────╯[2m[37m [0m[97m[40m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ Following · 0 text lines                                                       
+ [37mxrmd ready · Content                                         [96mF1 Help & actions[97m 

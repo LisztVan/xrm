@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]          
+    Core  Geodata  Tests  Appearance  Editor  General                       1/6 
+ Config / Core  Installed & registered Xray binaries                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Core / release                 Version              State                    
+ ────────────────────────────────────────────────────────────────────────────── 
+                                                                                
+ Core inventory unavailable                                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View none · Use none · Edit none · Run unknown                                 
+ No View Profile · open Help for available tasks                                
+ xrmd unavailable · Content                                   F1 Help & actions 

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  1 source / node inventory                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+ ▸│ ──────────────────────────────────────────────────────────────────────── │  
+  │ Subscriptions · View Alpha                                               │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > a               Add subscription                                     ┃ │  
+  │   e               Edit subscription                                    ┃ │  
+  │   u               Update subscription                                  ┃ │  
+  │   U               Update all subscriptions                             ╹ │  
+  │   t               Pause / resume auto refresh                            │  
+  │   b               Bind sources                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                     │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                 
+ Highlighted Local ·  · 0 nodes                                                 
+ xrmd ready · Content                                         F1 Help & actions 

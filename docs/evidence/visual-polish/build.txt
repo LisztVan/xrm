@@ -1,0 +1,10 @@
+[1/29] Scanning /home/lisztzy/Projects/xrm/src/tui/components/widgets.cpp for CXX dependencies
+[2/29] Generating CXX dyndep file CMakeFiles/xrm_tui_components.dir/CXX.dd
+[3/28] Scanning /home/lisztzy/Projects/xrm/src/tui/shell/workspace.cpp for CXX dependencies
+[4/28] Generating CXX dyndep file CMakeFiles/xrm.dir/CXX.dd
+[5/10] Building CXX object CMakeFiles/xrm_tui_components.dir/src/tui/components/widgets.cpp.o
+[6/10] Linking CXX static library libxrm_tui_components.a
+[7/10] Linking CXX executable tests/tui/components/xrm_tui_components_tests
+[8/10] Linking CXX executable tests/tui/forms/xrm_tui_forms_tests
+[9/10] Building CXX object CMakeFiles/xrm.dir/src/tui/shell/workspace.cpp.o
+[10/10] Linking CXX executable xrm

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]          
+    Core  Geodata  Tests  Appearance  Editor  General                       6/6 
+ Config / General  XRM program settings                                         
+ ────────────────────────────────────────────────────────────────────────────── 
+   Setting                  Value         ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ + Success · history in Help      ├─ 
+ ▸ Configuration            Native modules│ Saved Alpha / dns; runtime       │  
+   Socket                   /tmp/xrm-rewri│ unchanged                        │  
+   Version                  XRM 0.1.0     ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ XRM / General · preferences do not modify native Xray modules                  
+ xrmd ready · Page content (Content)                          F1 Help & actions 

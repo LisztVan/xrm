@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Setting                      Value                                                 ╭Done─────────────────────────────╮
+─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│
+▸ concurrency                  2                                                     │started                          │
+  default_url                  http://127.0.0.1/fixture?quep                         ╰─────────────────────────────────╯
+  max_body_bytes               8388608
+  timeout_ms                   4500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

@@ -1,0 +1,2277 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 195: E2E-07
+1/1 Test #195: E2E-07 ...........................***Failed   85.97 sec
+Real-core binary: "/tmp/xrm-g1-xray-v26.9.9/xray"
+Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)
+A unified platform for anti-censorship.
+Filters: [E2E-07]
+Randomness seeded to: 3085922584
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_real_core_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+E2E-07 cold-start human flow begins in TUI and carries real VLESS traffic
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/integration/gates/m1.cpp:1198
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/integration/gates/m1.cpp:634: FAILED:
+  REQUIRE( screen.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with messages:
+  saved selection after TUI node action: {"id_or_tag":"6e95a87e-6998-4f0b-9c0e-
+  370fd8f88b00","kind":"node"}
+  running status: {"active":{"confdir":"/tmp/xrm-real-core-268498357679831/
+  runtime/candidate/run-1790488210931-1","core_id":"257983fb-ea9f-4a00-8b28-
+  fd822fdf853a","core_version":"Xray 26.9.9 (Xray, Penetrates Everything.)
+  52a412d (go1.27.1 linux/amd64)","profile_id":"6692e80c-c022-4688-946a-
+  f1ac95909d86","run_id":"run-1790488210931-1","selection":{"id_or_tag":
+  "6e95a87e-6998-4f0b-9c0e-370fd8f88b00","kind":"node"},
+  "selection_display_name":"Cold-start-VLESS","selection_in_inventory":true},
+  "actual_target":{"id_or_tag":"6e95a87e-6998-4f0b-9c0e-370fd8f88b00","kind":
+  "node"},"desired_running":true,"error":null,"health":"process_only",
+  "override_state":"none","pid":1295036,"runtime_override":null,"saved_target":
+  {"id_or_tag":"6e95a87e-6998-4f0b-9c0e-370fd8f88b00","kind":"node"},"state":
+  "running"}
+  loopback VLESS response: HTTP/1.1 200 OK
+  Content-Length: 37
+  Connection: close
+  
+  XRM-E2E-07-TUI-COLD-START-MARKER-61f2
+  Local node connection status: {"active":{"confdir":"/tmp/xrm-real-core-
+  268498357679831/runtime/candidate/run-1790488221768-2","core_id":"257983fb-
+  ea9f-4a00-8b28-fd822fdf853a","core_version":"Xray 26.9.9 (Xray, Penetrates
+  Everything.) 52a412d (go1.27.1 linux/amd64)","profile_id":"6692e80c-c022-
+  4688-946a-f1ac95909d86","run_id":"run-1790488221768-2","selection":
+  {"id_or_tag":"60a9b511-827e-4eac-be71-8dcc8ce2d831","kind":"node"},
+  "selection_display_name":"Local VLESS","selection_in_inventory":true},
+  "actual_target":{"id_or_tag":"60a9b511-827e-4eac-be71-8dcc8ce2d831","kind":
+  "node"},"desired_running":true,"error":null,"health":"process_only",
+  "override_state":"none","pid":1295169,"runtime_override":null,"saved_target":
+  {"id_or_tag":"60a9b511-827e-4eac-be71-8dcc8ce2d831","kind":"node"},"state":
+  "running"}
+  Local typed node loopback response: HTTP/1.1 200 OK
+  Content-Length: 37
+  Connection: close
+  
+  XRM-E2E-07-TUI-COLD-START-MARKER-61f2
+  Group connection status: {"active":{"confdir":"/tmp/xrm-real-core-
+  268498357679831/runtime/candidate/run-1790488228668-3","core_id":"257983fb-
+  ea9f-4a00-8b28-fd822fdf853a","core_version":"Xray 26.9.9 (Xray, Penetrates
+  Everything.) 52a412d (go1.27.1 linux/amd64)","profile_id":"6692e80c-c022-
+  4688-946a-f1ac95909d86","run_id":"run-1790488228668-3","selection":
+  {"id_or_tag":"9c7eea11-2480-4e76-baac-d16c9c789645","kind":"group"}},
+  "actual_target":{"id_or_tag":"9c7eea11-2480-4e76-baac-d16c9c789645","kind":
+  "group"},"desired_running":true,"error":null,"health":"process_only",
+  "override_state":"none","pid":1295551,"runtime_override":null,"saved_target":
+  {"id_or_tag":"9c7eea11-2480-4e76-baac-d16c9c789645","kind":"group"},"state":
+  "running"}
+  Local Group loopback response: HTTP/1.1 200 OK
+  Content-Length: 37
+  Connection: close
+  
+  XRM-E2E-07-TUI-COLD-START-MARKER-61f2
+  native statistics action: {"changed_modules":["stats","policy","metrics"],
+  "failure":null,"notices":[{"code":"native_module_plan","message":
+  "将分别保存 stats、policy 与 metrics 原生模块；API
+  模块不会自动修改。"}],"planned_modules":["stats","policy","metrics"]
+  ,"saved":["stats","policy","metrics"]}
+  statistics connect: {"active":{"confdir":"/tmp/xrm-real-core-268498357679831/
+  runtime/candidate/run-1790488232736-4","profile_id":"6692e80c-c022-4688-946a-
+  f1ac95909d86","run_id":"run-1790488232736-4"},"attempt_error":null,"effect":
+  "running_new"}
+  statistics modules: [{"editor_support":"native","included":true,"key":"log",
+  "label":"Log","runtime_file":"00_log.json","source_file":"modules/00_log.
+  json","text":"{\n  \"log\": {\n    \"loglevel\": \"warning\"\n  }\n}\n"},
+  {"editor_support":"native","included":true,"key":"dns","label":"DNS",
+  "runtime_file":"01_dns.json","source_file":"modules/01_dns.json","text":"{\n
+  \"dns\": {\n    \"servers\": [\"localhost\"]\n  }\n}\n"},{"editor_support":
+  "native","included":true,"key":"inbounds","label":"Inbounds","runtime_file":
+  "02_inbounds.json","source_file":"modules/02_inbounds.json","text":"{\
+  "inbounds\":[{\"listen\":\"127.0.0.1\",\"port\":35511,\"protocol\":\"socks\",
+  \"tag\":\"e2e07-socks\",\"settings\":{\"auth\":\"noauth\",\"udp\":false}}]}"}
+  ,{"editor_support":"native","included":true,"key":"outbounds","label":
+  "Outbounds","runtime_file":"03_outbounds.json","source_file":"modules/
+  03_outbounds.json","text":"{\n  \"outbounds\": [\n    {\n      \"protocol\":
+  \"freedom\",\n      \"tag\": \"direct\"\n    },\n    {\n      \"protocol\": \
+  "blackhole\",\n      \"tag\": \"block\"\n    }\n  ]\n}\n"},{"editor_support":
+  "native","included":true,"key":"routing","label":"Routing","runtime_file":
+  "04_routing.json","source_file":"modules/04_routing.json","text":"{\n  \
+  "routing\": {\n    \"domainStrategy\": \"AsIs\",\n    \"rules\": []\n  }\n}\
+  n"},{"editor_support":"native","included":false,"key":"observatory","label":
+  "Observatory","runtime_file":"05_observatory.json","source_file":"modules/
+  05_observatory.json","text":"{\n  \"observatory\": {\n    \"subjectSelector\
+  ": [],\n    \"probeUrl\": \"http://127.0.0.1/\",\n    \"probeInterval\": \
+  "10s\"\n  }\n}\n"},{"editor_support":"native","included":false,"key":"api",
+  "label":"API","runtime_file":"06_api.json","source_file":"modules/06_api.
+  json","text":"{\n  \"api\": {\n    \"tag\": \"api\",\n    \"services\": [\
+  "HandlerService\", \"StatsService\"]\n  }\n}\n"},{"editor_support":"native",
+  "included":true,"key":"metrics","label":"Metrics","runtime_file":"07_metrics.
+  json","source_file":"modules/07_metrics.json","text":"{\n  \"metrics\": {\n
+  \"listen\": \"127.0.0.1:47873\"\n  }\n}\n"},{"editor_support":"native",
+  "included":true,"key":"stats","label":"Stats","runtime_file":"08_stats.json",
+  "source_file":"modules/08_stats.json","text":"{\n  \"stats\": {}\n}\n"},
+  {"editor_support":"native","included":true,"key":"policy","label":"Policy",
+  "runtime_file":"09_policy.json","source_file":"modules/09_policy.json",
+  "text":"{\n  \"policy\": {\n    \"levels\": {},\n    \"system\": {\n      \
+  "statsInboundDownlink\": true,\n      \"statsInboundUplink\": true,\n      \
+  "statsOutboundDownlink\": true,\n      \"statsOutboundUplink\": true\n    }\n
+  }\n}\n"},{"editor_support":"native","included":false,"key":"fakedns","label":
+  "FakeDNS","runtime_file":"10_fakedns.json","source_file":"modules/10_fakedns.
+  json","text":"{\n  \"fakedns\": [\n    {\n      \"ipPool\": \"198.18.0.0/15\
+  ",\n      \"poolSize\": 65535\n    }\n  ]\n}\n"},{"editor_support":"native",
+  "included":false,"key":"geodata","label":"Geodata","runtime_file":
+  "11_geodata.json","source_file":"modules/11_geodata.json","text":"{\n  \
+  "geodata\": {}\n}\n"},{"editor_support":"native","included":false,"key":
+  "env","label":"Environment","runtime_file":"12_env.json","source_file":
+  "modules/12_env.json","text":"{\n  \"env\": {}\n}\n"},{"editor_support":
+  "native","included":false,"key":"version","label":"Version","runtime_file":
+  "13_version.json","source_file":"modules/13_version.json","text":"{\n  \
+  "version\": {}\n}\n"},{"editor_support":"native","included":false,"key":
+  "burstObservatory","label":"Burst Observatory","runtime_file":
+  "14_burstObservatory.json","source_file":"modules/14_burstObservatory.json",
+  "text":"{\n  \"burstObservatory\": {\n    \"subjectSelector\": [],\n    \
+  "pingConfig\": {\n      \"destination\": \"http://127.0.0.1/\",\n      \
+  "connectivity\": \"http://127.0.0.1/\",\n      \"interval\": \"10s\",\n
+  \"sampling\": 2,\n      \"timeout\": \"1s\",\n      \"httpMethod\": \"GET\"\n
+  }\n  }\n}\n"}]
+  statistics RPC: {"availability":"unavailable","missing_conditions":[],
+  "rates":[],"received_at":null,"run_id":null,"sample":null}
+  Overview real statistics screen:  XRM [Overview] Profiles  Modules
+  Subscriptions  Nodes  Logs  Config
+  Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configurat
+  ╭────────────────────────�-
+  ��─────────╮  
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  │ + Success                        │  
+   Running Profile   Cold Start                                    Next Connect
+  │ Connect Cold Start: completed    │  
+   Actual target     Group · Local group                           Saved
+  settings
+  ap╰───────────────────────�-
+  �──────────╯  
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Unavailable reason: stats, policy, metrics
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configurat
+  ╭────────────────────────�-
+  ��─────────╮  
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  │ + Success                        │  
+   Running Profile   Cold Start                                    Next Connect
+  │ Connect Cold Start: completed    │  
+   Actual target     Group · Local group                           Saved
+  settings
+  ap╰───────────────────────�-
+  �──────────╯  
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Unavailable reason: stats, policy, metrics
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configurat
+  ╭────────────────────────�-
+  ��─────────╮  
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  │ + Success                        │  
+   Running Profile   Cold Start                                    Next Connect
+  │ Connect Cold Start: completed    │  
+   Actual target     Group · Local group                           Saved
+  settings
+  ap╰───────────────────────�-
+  �──────────╯  
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Unavailable reason: stats, policy, metrics
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1295668                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: available · latency: unmeasured
+  e2e07-socks  total up 68 B · down 107 B
+  block  total up 0 B · down 0 B
+  direct  total up 0 B · down 0 B
+  xrm.node.60a9b511-827e-4eac-be71-8dcc8ce2d831  total up 0 B · down 97 B
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Cold Start · Next: Cold Start · Module Edit: Cold Start ·
+  Running: Cold Start                                 
+   View Cold Start
+  xrmd ready · Page content (Content)
+  F1 Help & actions 
+
+  Expected TUI text: Nodes  All
+   XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+  Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture  Source:
+  backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes]
+  Logs  Config                                                   
+      Scope: All  Scope: Local  Scope: Groups  Source: local VLESS fixture
+  Source: backup VLESS fixture              1/5 
+   Nodes  Node inventory  /  Search: Local VLESS
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+     Node                   Protocol   Enabled  Support
+  Saved  Run                      
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ───────────────── 
+   ▸ Local VLESS            vless      yes      typed-uri; Xray v26.9.9
+  loopback-verified —      —                        
+                                                                              -
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Viewing: Office · Next: Cold Start · Module Edit: Cold Start · Running:
+  Cold Start                                     
+   Highlighted Local VLESS · Saved none · Running Group · 9c7eea11-2480-
+  4e76-baac-d16c9c789645                            
+   xrmd ready · Page content (Content)
+  F1 Help & actions 
+
+
+===============================================================================
+test cases:   1 |   0 passed | 1 failed
+assertions: 120 | 119 passed | 1 failed
+
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+product_repair    =  85.97 sec*proc (1 test)
+real_core         =  85.97 sec*proc (1 test)
+
+Total Test time (real) =  85.97 sec
+
+The following tests FAILED:
+	195 - E2E-07 (Failed)                                   product_repair real_core
+Errors while running CTest

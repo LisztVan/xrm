@@ -1,0 +1,24 @@
+ Overview  Profiles  Modules [1m[Subscriptions][0m Nodes  Logs  Config
+────────────────────────────────────────────────────────────────────────────────
+  [1mName                     [0m [1mNodes   [0m [1mResult          [0m [1mAuto    [0m [1mBound     [0m
+──[1mEdit subscription [unsaved]                                                 [0m──
+[1m▸ [0m────────────────────────────────────────────────────────────────────────────[1m [0m
+  [1mName                   [0;7mLocal fixture updated draft                         [0m┃
+  [1mURL                    [0m••••••••••••••••••••••••••••••                      ┃
+  [1mUser-Agent             [0;2m                                                    [0m┃
+  [1mAuto refresh           [0m▣                                                   ┃
+  [1mInterval seconds       [0m21600                                               ┃
+  [1mProxy URL              [0;2m                                                    [0m┃
+  [1mHeaders (advanced JSON)                                                    [0m┃
+  {}
+
+  ! 连接xrmd失败: no such file or directory
+  ────────────────────────────────────────────────────────────────────────────
+  ┌────┐┌──────┐
+  │Save││Cancel│
+  └────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+[1mView Alph?a · Use Alph?a · Edit none · Run Alph?a
+[0mProfile Alpha · Core Process fixture · sources 0 · ID cef3f28a-7912-42f9-85ed-55
+[2mstale — 连接xrmd失败: no such file or directory · Content                [0mF1 Help

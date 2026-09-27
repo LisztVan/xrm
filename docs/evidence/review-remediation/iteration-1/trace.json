@@ -1,0 +1,266 @@
+[
+  {
+    "time": 222093.135,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-sesp055a",
+      "pid": 1508436,
+      "xrm_sha256": "df3eac50c6306f31072dd1e333f86e54f030ff7b4a2f64a63a6e72a93171599f"
+    }
+  },
+  {
+    "time": 222095.161,
+    "action": "fixture",
+    "value": {
+      "profile_a": "304c69e3-ef2d-41e3-ad6a-0356ba746d21",
+      "profile_b": "5fea9949-d09a-445e-a854-d13a954fd0a7",
+      "node": "7505e76e-3193-4571-8f96-50cd92618d5b",
+      "core": "c59f9161-8dbd-4a0e-b8e7-fc8d625f4e8b",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 222095.264,
+    "action": "tui_pid",
+    "value": "1508522"
+  },
+  {
+    "time": 222095.273,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222095.329,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 222095.386,
+    "action": "capture",
+    "value": "profiles"
+  },
+  {
+    "time": 222095.386,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 222095.445,
+    "action": "capture",
+    "value": "help-profiles"
+  },
+  {
+    "time": 222095.445,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 222095.578,
+    "action": "key",
+    "value": "R"
+  },
+  {
+    "time": 222095.627,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 222095.676,
+    "action": "text",
+    "value": " draft"
+  },
+  {
+    "time": 222095.738,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 222095.878,
+    "action": "capture",
+    "value": "dialog"
+  },
+  {
+    "time": 222095.878,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222095.926,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 222095.979,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 222096.122,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.171,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.219,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.267,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.316,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.369,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 222096.417,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.466,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.515,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.563,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 222096.611,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 222096.665,
+    "action": "capture",
+    "value": "appearance"
+  },
+  {
+    "time": 222096.665,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 222096.713,
+    "action": "key",
+    "value": "Space"
+  },
+  {
+    "time": 222096.761,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.81,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.859,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.907,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222096.956,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.005,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.053,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 222097.112,
+    "action": "capture",
+    "value": "paper-config"
+  },
+  {
+    "time": 222097.114,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 222097.252,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 222097.396,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.444,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.494,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.543,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.592,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.641,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222097.697,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 222097.754,
+    "action": "capture",
+    "value": "paper-logs"
+  },
+  {
+    "time": 222097.76,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-sesp055a"
+    }
+  }
+]

@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config
+ Logs  Core output
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ TIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ -        stdout                                   Configuration OK.
+ 12:54:35 stderr                                   Using confdir from arg: /tmp/xrm-component-lab-e6ojxmpm/state/run
+                                                 | time/candidate/run-1790484875288-1
+ -        stdout                                   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1
+                                                 | linux/amd64)
+ -        stdout                                   A unified platform for anti-censorship.
+ 12:54:35 stderr                                   Using confdir from arg: /tmp/xrm-component-lab-e6ojxmpm/state/run
+                                                 | time/candidate/run-1790484875288-1
+ 12:54:35 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt
+                                                 | ime/candidate/run-1790484875288-1/00_log.json Format:json}
+ 12:54:35 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt
+                                                 | ime/candidate/run-1790484875288-1/01_dns.json Format:json}
+ 12:54:35 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt
+                                                 | ime/candidate/run-1790484875288-1/02_inbounds.json Format:json}    ╻
+ 12:54:35 stdout   Info    infra/conf              [/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                                                 | 484875288-1/02_inbounds.json] appended inbound with tag:           ┃
+                                                 | local-socks                                                        ┃
+ 12:54:35 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt  ┃
+                                                 | ime/candidate/run-1790484875288-1/03_outbounds.json Format:json}   ┃
+ 12:54:35 stdout   Info    infra/conf              [/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                                                 | 484875288-1/03_outbounds.json] prepend outbound with tag: direct   ┃
+ 12:54:35 stdout   Info    infra/conf              [/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                                                 | 484875288-1/03_outbounds.json] prepend outbound with tag: block    ┃
+ 12:54:35 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt  ┃
+                                                 | ime/candidate/run-1790484875288-1/04_routing.json Format:json}     ┃
+ 12:54:35 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt  ┃
+                                                 | ime/candidate/run-1790484875288-1/90_nodes_tail.json Format:json}  ┃
+ 12:54:35 stdout   Info    infra/conf              [/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                                                 | 484875288-1/90_nodes_tail.json] appended outbound with tag:        ┃
+                                                 | xrm.node.6150da7a-e315-43ff-a3d7-74efd5a3ba36                      ┃
+ 12:54:35 stdout   Warning                         core: Xray 26.9.9 started                                          ┃
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: Lab Home
+ Following · 28 text lines
+ xrmd ready · Page navigation (TopNav)                                                                F1 Help & actions

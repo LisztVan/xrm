@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api [0m            › [2m2/15[0m 
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                   [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   DNS servers                                                              [0;2m [0m 
+ [2m    DNS query and cache settings                                              [0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mDNS servers[0;2m  DRAFT COLLECTION                                           [0m │[2m [0m 
+ [1;2mD[0m│ [2mFocus: rows · Up/Down choose · Tab for actions                          [0m │[2m [0m 
+ [2md[0m│   [1m#  [0m [1mAddress                      [0m [1mPort   [0m [1mStrategy        [0m             │[2m [0m 
+ [2m─[0m┤ [2m────────────────────────────────────────────────────────────────────────[0m ├[2m─[0m 
+ [2m1[0m│   1   1.1.1.1                       Default Inherit                      │[2m [0m 
+ [2m [0m│ [1;7m> 2   9.9.9.9                       53      Inherit                    [0m  │[2m [0m 
+ [2m [0m│ [2mSelected: 2 · 9.9.9.9 · 53 · Inherit                                    [0m │[2m [0m 
+ [2m2[0m│ [2m                                                                        [0m │[2m [0m 
+ [2m [0m│  [ View ]  [ Add ]  [ Edit ]  [ Copy ]  [ Delete ]  [ Up ]               │[2m [0m 
+ [2m [0m│  [ Done ]                                                                │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha            [0m 
+ dns · Source editable · Visual · included                                      
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json    [0mF1 Help & actions 

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m2/15[0m
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                                                           [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>   DNS servers                [0;2m  [1mDNS servers[0;2m  Draft                                                                   [0m
+ [2m    DNS query and cache setting  dns.servers                                                                          [0m
+ [2m    DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m                                 1  [1mlocalhost[0;2m                                                                         [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mLab Home / dns · Source                                                                           [0m │[2m        [0m
+ [2m        [0m│ [2mChild forms change this draft; Save writes Source; Connect publishes saved settings. Visual edits [0m │[2m        [0m
+ [2m        [0m│ [2mlisted native fields; other fields/types remain in JSON (F2). Read only? In Profiles, View this   [0m │[2m        [0m
+ [2m        [0m│ [2mProfile and allow its…                                                                            [0m │[2m        [0m
+ [2m        [0m│ [2mTasks · arrows choose; Enter executes available task                                              [0m │[2m        [0m
+ [2m        [0m│ [1;7m> F2              Open JSON                                                                      [0m  │[2m        [0m
+ [2m        [0m│   Ctrl-S / s      Save module source                                                               │[2m        [0m
+ [2m        [0m│   F6              External editor                                                                  │[2m        [0m
+ [2m        [0m│   I               Exclude module                                                                   │[2m        [0m
+ [2m        [0m│   i               Source / runtime paths                                                           │[2m        [0m
+ [2m        [0m│   v               View Runtime                                                                     │[2m        [0m
+ [2m        [0m│   N               Notification history                                                             │[2m        [0m
+ [2m        [0m│   r               Refresh                                                                          │[2m        [0m
+ [2m        [0m│   Enter           Open section · Selected section                                                  │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mNavigation and input                                                                              [0m │[2m        [0m
+ [2m        [0m│ Up / Down               Choose section                                                             │[2m        [0m
+ [2m        [0m│ Left / Right            Collapse / expand                                                          │[2m        [0m
+ [2m        [0m│ Esc                     Return one level                                                           │[2m        [0m
+ [2m        [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ dns · Source editable · Visual · included
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json                                            [0mF1 Help & actions

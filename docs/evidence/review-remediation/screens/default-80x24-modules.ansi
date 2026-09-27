@@ -1,0 +1,24 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview  Profiles [1m[38;2;115;194;230m[Modules][0m[38;2;146;163;183m Subscriptions  Nodes  Logs  Config [39m          
+ [38;2;115;194;230m  [38;2;146;163;183m log [1m[38;2;115;194;230m dns [0m[38;2;146;163;183m inbounds  outbounds  routing  observatory  api [39m           [38;2;115;194;230m › [38;2;146;163;183m2/15[39m 
+ [1mdns[0m[38;2;146;163;183m  SOURCE · READ ONLY · Visual                                              [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [1;7m>   DNS servers                          [0m╭──────────────────────────────────╮  
+     DNS query and cache settings         │ [1m[38;2;115;194;230mi Info                          [0m │  
+     DNS hosts                            │ Use set to Alpha; runtime        │  
+                                          │ unchanged                        │  
+ [1mDNS servers[0m[38;2;146;163;183m  Read only                   [39m╰──────────────────────────────────╯[38;2;146;163;183m [39m 
+ [38;2;146;163;183mdns.servers                                                                   [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183m1  [1m[39m1.1.1.1[0m                                                                     
+ [38;2;146;163;183m   port [39mDefault[38;2;146;163;183m    strategy [39mInherit                                            
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Alpha · Edit none · Run Alpha                                [39m 
+ dns · Source read-only · Visual · included                                     
+ [38;2;146;163;183mxrmd ready · Content · modules/01_dns.json                   [38;2;115;194;230mF1 Help & actions[39m 

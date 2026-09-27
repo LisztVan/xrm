@@ -1,0 +1,9 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 165: Overview statistics keep missing metrics and latency explicitly unavailable
+1/2 Test #165: Overview statistics keep missing metrics and latency explicitly unavailable .......   Passed    3.59 sec
+    Start 171: CLI human Profile and runtime receipts preserve machine results and saved scope
+2/2 Test #171: CLI human Profile and runtime receipts preserve machine results and saved scope ...   Passed    2.42 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   6.01 sec

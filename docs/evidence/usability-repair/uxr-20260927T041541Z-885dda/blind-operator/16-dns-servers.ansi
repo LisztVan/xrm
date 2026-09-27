@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m2/15[0m
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                                                           [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>   DNS servers                [0;2m  [1mDNS servers[0;2m  Draft                                                                   [0m
+ [2m    DNS query and cache setting  dns.servers                                                                          [0m
+ [2m    DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m                                 1  [1mlocalhost[0;2m                                                                         [0m
+ [2m                                    port Default    strategy Inherit                                                  [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mDNS servers[0;2m  DRAFT COLLECTION                                                                     [0m │[2m        [0m
+ [2m        [0m│ [2mFocus: rows · Up/Down choose · Tab for actions                                                    [0m │[2m        [0m
+ [2m        [0m│   [1m#  [0m [1mAddress                      [0m [1mPort   [0m [1mStrategy        [0m                                       │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1;7m> 1   localhost                     Default Inherit                                              [0m  │[2m        [0m
+ [2m        [0m│ [2mSelected: 1 · localhost · Default · Inherit                                                       [0m │[2m        [0m
+ [2m        [0m│ [2m                                                                                                  [0m │[2m        [0m
+ [2m        [0m│  [ View ]  [ Add ]  [ Edit ]  [ Copy ]  [ Delete ]                                                 │[2m        [0m
+ [2m        [0m│  [ Done ]                                                                                          │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ dns · Source editable · Visual · included
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json                                            [0mF1 Help & actions

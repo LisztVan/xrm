@@ -1,0 +1,667 @@
+[
+  {
+    "label": "fixture",
+    "socket": "/tmp/xrm-uxr-cli-oilhydd4/daemon.sock",
+    "database": "/tmp/xrm-uxr-cli-oilhydd4/db/state.sqlite",
+    "http_port": 34357,
+    "core_sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+    "xrm_sha256": "e94e373a489e0e635a49d0c037f0b718ca4fd409cfa13d48804ee9ae785d3e47",
+    "xrmd_sha256": "604fedf6ed6d72b752866c584c22884e53350bfb34759ffc55111b84cf07135f"
+  },
+  {
+    "label": "fixed core registration",
+    "argv": [
+      "--json",
+      "core",
+      "register",
+      "/tmp/xrm-g1-xray-v26.9.9/xray",
+      "--name",
+      "Fixed Xray"
+    ],
+    "code": 0,
+    "stdout": "{\"id\":\"15787dfa-bf8a-4ff5-a17b-0d6187ee8aee\",\"managed\":false,\"name\":\"Fixed Xray\",\"path\":\"/tmp/xrm-g1-xray-v26.9.9/xray\",\"reported_version\":\"Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "profile create",
+    "argv": [
+      "--json",
+      "profile",
+      "create",
+      "--name",
+      "Home"
+    ],
+    "code": 0,
+    "stdout": "{\"additional_node_ids\":[],\"append_selected_default\":true,\"core_id\":\"\",\"enabled_source_ids\":[],\"environment\":{\"asset_dir\":null,\"cwd\":\"\",\"process_environment\":{}},\"geodata_resource_ids\":{},\"id\":\"6c270277-35f3-4315-8b09-d1b2ae1a2737\",\"modules\":[{\"filename\":\"00_log.json\",\"included\":true,\"key\":\"log\"},{\"filename\":\"01_dns.json\",\"included\":true,\"key\":\"dns\"},{\"filename\":\"02_inbounds.json\",\"included\":true,\"key\":\"inbounds\"},{\"filename\":\"03_outbounds.json\",\"included\":true,\"key\":\"outbounds\"},{\"filename\":\"04_routing.json\",\"included\":true,\"key\":\"routing\"},{\"filename\":\"05_observatory.json\",\"included\":false,\"key\":\"observatory\"},{\"filename\":\"06_api.json\",\"included\":false,\"key\":\"api\"},{\"filename\":\"07_metrics.json\",\"included\":false,\"key\":\"metrics\"},{\"filename\":\"08_stats.json\",\"included\":false,\"key\":\"stats\"},{\"filename\":\"09_policy.json\",\"included\":false,\"key\":\"policy\"},{\"filename\":\"10_fakedns.json\",\"included\":false,\"key\":\"fakedns\"},{\"filename\":\"11_geodata.json\",\"included\":false,\"key\":\"geodata\"},{\"filename\":\"12_env.json\",\"included\":false,\"key\":\"env\"},{\"filename\":\"13_version.json\",\"included\":false,\"key\":\"version\"},{\"filename\":\"14_burstObservatory.json\",\"included\":false,\"key\":\"burstObservatory\"}],\"name\":\"Home\",\"selected\":null}\n",
+    "stderr": ""
+  },
+  {
+    "label": "config file input",
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--file",
+      "/tmp/xrm-uxr-cli-oilhydd4/module.json"
+    ],
+    "code": 0,
+    "stdout": "Saved native module dns for Profile Home; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "label": "file source",
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "dns"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":true,\"key\":\"dns\",\"label\":\"DNS\",\"runtime_file\":\"01_dns.json\",\"source_file\":\"modules/01_dns.json\",\"text\":\"{\\\"dns\\\":{\\\"servers\\\":[\\\"localhost\\\"],\\\"unknownFixture\\\":{\\\"keep\\\":true}}}\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "config stdin input",
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--file",
+      "-"
+    ],
+    "code": 0,
+    "stdout": "Saved native module dns for Profile Home; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "label": "stdin source",
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "dns"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":true,\"key\":\"dns\",\"label\":\"DNS\",\"runtime_file\":\"01_dns.json\",\"source_file\":\"modules/01_dns.json\",\"text\":\"{\\\"dns\\\":{\\\"servers\\\":[\\\"1.1.1.1\\\"],\\\"unknownFixture\\\":{\\\"keep\\\":0}}}\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "legacy text input",
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--text",
+      "{\"dns\":{\"servers\":[\"localhost\"],\"unknownFixture\":{\"keep\":true}}}"
+    ],
+    "code": 0,
+    "stdout": "Saved native module dns for Profile Home; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "label": "before invalid inputs",
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "dns"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":true,\"key\":\"dns\",\"label\":\"DNS\",\"runtime_file\":\"01_dns.json\",\"source_file\":\"modules/01_dns.json\",\"text\":\"{\\\"dns\\\":{\\\"servers\\\":[\\\"localhost\\\"],\\\"unknownFixture\\\":{\\\"keep\\\":true}}}\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "invalid JSON file",
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--file",
+      "/tmp/xrm-uxr-cli-oilhydd4/module.json"
+    ],
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm config edit — Profile Home / dns\nReason: Invalid native module JSON at byte 44\nRecovery: Correct the JSON syntax at the reported byte, then retry; no source file was saved.\nNext: xrm --socket '/tmp/xrm-uxr-cli-oilhydd4/daemon.sock' config show 'Home' 'dns'\n"
+  },
+  {
+    "label": "missing JSON file",
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--file",
+      "/tmp/xrm-uxr-cli-oilhydd4/missing.json"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config edit — Profile Home / dns\nReason: The requested data could not be read or written.\nRecovery: Check the path, access permissions and storage diagnostic; keep unsaved changes.\nNext: xrm --socket '/tmp/xrm-uxr-cli-oilhydd4/daemon.sock' config show 'Home' 'dns'\n"
+  },
+  {
+    "label": "mutually exclusive JSON input",
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--file",
+      "/tmp/xrm-uxr-cli-oilhydd4/module.json",
+      "--text",
+      "{\"dns\":{\"servers\":[\"localhost\"],\"unknownFixture\":{\"keep\":true}}}"
+    ],
+    "code": 108,
+    "stdout": "",
+    "stderr": "xrm config edit: --text excludes --file\n\nSave a module's original JSON text\n\nUsage: xrm config edit [OPTIONS] PROFILE MODULE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  MODULE (required)       Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --text JSON_TEXT  Native module JSON passed as an argument Cannot \n                          combine with --file. \n        --file PATH       Read native module JSON from PATH, or - for stdin \n                          Cannot combine with --text. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config edit Home dns --file ./dns.json\n  cat ./dns.json | xrm config edit Home dns --file -\n  xrm config edit Home dns --text '{\"dns\":{\"servers\":[\"localhost\"]}}'\n\nProfile accepts an exact saved name or UUID.\n"
+  },
+  {
+    "label": "source unchanged after invalid input",
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "dns"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":true,\"key\":\"dns\",\"label\":\"DNS\",\"runtime_file\":\"01_dns.json\",\"source_file\":\"modules/01_dns.json\",\"text\":\"{\\\"dns\\\":{\\\"servers\\\":[\\\"localhost\\\"],\\\"unknownFixture\\\":{\\\"keep\\\":true}}}\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "source add unique",
+    "argv": [
+      "--json",
+      "sub",
+      "add",
+      "--name",
+      "Local fixture",
+      "--url",
+      "http://127.0.0.1:1/unreachable",
+      "--paused"
+    ],
+    "code": 0,
+    "stdout": "{\"id\":\"b1509220-5734-428f-9885-61e629e9ef4f\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "source add ID-shaped name",
+    "argv": [
+      "--json",
+      "sub",
+      "add",
+      "--name",
+      "b1509220-5734-428f-9885-61e629e9ef4f",
+      "--url",
+      "http://127.0.0.1:1/unreachable",
+      "--paused"
+    ],
+    "code": 0,
+    "stdout": "{\"id\":\"e3a91f90-bbe2-4a8b-ab9b-d84ce7c5562f\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "source add duplicate A",
+    "argv": [
+      "--json",
+      "sub",
+      "add",
+      "--name",
+      "Duplicate",
+      "--url",
+      "http://127.0.0.1:1/unreachable",
+      "--paused"
+    ],
+    "code": 0,
+    "stdout": "{\"id\":\"d6aa251d-a095-4d02-835f-e00839126ac2\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "source add duplicate B",
+    "argv": [
+      "--json",
+      "sub",
+      "add",
+      "--name",
+      "Duplicate",
+      "--url",
+      "http://127.0.0.1:1/unreachable",
+      "--paused"
+    ],
+    "code": 0,
+    "stdout": "{\"id\":\"50f8874a-4494-40e7-9a56-f40524d36220\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "subscription exact name",
+    "argv": [
+      "--json",
+      "sub",
+      "show",
+      "Local fixture"
+    ],
+    "code": 0,
+    "stdout": "{\"state\":{\"etag\":null,\"last_attempt\":null,\"last_malformed_count\":0,\"last_modified\":null,\"last_result\":\"\",\"last_success\":null,\"last_unsupported_count\":0,\"reported_notices\":[],\"reported_usage\":null},\"subscription\":{\"auto_refresh\":false,\"headers\":{},\"id\":\"b1509220-5734-428f-9885-61e629e9ef4f\",\"info_name_prefixes\":null,\"interval_seconds\":21600,\"name\":\"Local fixture\",\"route\":{\"proxy_url\":null},\"settings_revision\":0,\"url\":\"http://127.0.0.1:1/unreachable\",\"user_agent\":\"Xray\"}}\n",
+    "stderr": ""
+  },
+  {
+    "label": "subscription ID priority",
+    "argv": [
+      "--json",
+      "sub",
+      "show",
+      "b1509220-5734-428f-9885-61e629e9ef4f"
+    ],
+    "code": 0,
+    "stdout": "{\"state\":{\"etag\":null,\"last_attempt\":null,\"last_malformed_count\":0,\"last_modified\":null,\"last_result\":\"\",\"last_success\":null,\"last_unsupported_count\":0,\"reported_notices\":[],\"reported_usage\":null},\"subscription\":{\"auto_refresh\":false,\"headers\":{},\"id\":\"b1509220-5734-428f-9885-61e629e9ef4f\",\"info_name_prefixes\":null,\"interval_seconds\":21600,\"name\":\"Local fixture\",\"route\":{\"proxy_url\":null},\"settings_revision\":0,\"url\":\"http://127.0.0.1:1/unreachable\",\"user_agent\":\"Xray\"}}\n",
+    "stderr": ""
+  },
+  {
+    "label": "subscription other ID",
+    "argv": [
+      "--json",
+      "sub",
+      "show",
+      "e3a91f90-bbe2-4a8b-ab9b-d84ce7c5562f"
+    ],
+    "code": 0,
+    "stdout": "{\"state\":{\"etag\":null,\"last_attempt\":null,\"last_malformed_count\":0,\"last_modified\":null,\"last_result\":\"\",\"last_success\":null,\"last_unsupported_count\":0,\"reported_notices\":[],\"reported_usage\":null},\"subscription\":{\"auto_refresh\":false,\"headers\":{},\"id\":\"e3a91f90-bbe2-4a8b-ab9b-d84ce7c5562f\",\"info_name_prefixes\":null,\"interval_seconds\":21600,\"name\":\"b1509220-5734-428f-9885-61e629e9ef4f\",\"route\":{\"proxy_url\":null},\"settings_revision\":0,\"url\":\"http://127.0.0.1:1/unreachable\",\"user_agent\":\"Xray\"}}\n",
+    "stderr": ""
+  },
+  {
+    "label": "non-TTY subscription list",
+    "argv": [
+      "sub",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "50f8874a-4494-40e7-9a56-f40524d36220\tDuplicate\tpaused\t\tnodes=0\tunsupported=0\tmalformed=0\tlast_attempt=never\tlast_success=never\nb1509220-5734-428f-9885-61e629e9ef4f\tLocal fixture\tpaused\t\tnodes=0\tunsupported=0\tmalformed=0\tlast_attempt=never\tlast_success=never\nd6aa251d-a095-4d02-835f-e00839126ac2\tDuplicate\tpaused\t\tnodes=0\tunsupported=0\tmalformed=0\tlast_attempt=never\tlast_success=never\ne3a91f90-bbe2-4a8b-ab9b-d84ce7c5562f\tb1509220-5734-428f-9885-61e629e9ef4f\tpaused\t\tnodes=0\tunsupported=0\tmalformed=0\tlast_attempt=never\tlast_success=never\n",
+    "stderr": ""
+  },
+  {
+    "label": "ambiguous subscription name",
+    "argv": [
+      "sub",
+      "show",
+      "Duplicate"
+    ],
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm sub show — Duplicate\nReason: Subscription name is ambiguous. Use one source ID: 50f8874a-4494-40e7-9a56-f40524d36220, d6aa251d-a095-4d02-835f-e00839126ac2\nRecovery: Use one exact source ID shown above; the name alone does not select a unique source.\nNext: xrm --socket '/tmp/xrm-uxr-cli-oilhydd4/daemon.sock' sub list\n"
+  },
+  {
+    "label": "subscription edit by name",
+    "argv": [
+      "sub",
+      "edit",
+      "Local fixture",
+      "--name",
+      "Renamed source"
+    ],
+    "code": 0,
+    "stdout": "Updated subscription [b1509220-5734-428f-9885-61e629e9ef4f]; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "label": "renamed source lookup",
+    "argv": [
+      "--json",
+      "sub",
+      "show",
+      "Renamed source"
+    ],
+    "code": 0,
+    "stdout": "{\"state\":{\"etag\":null,\"last_attempt\":null,\"last_malformed_count\":0,\"last_modified\":null,\"last_result\":\"settings_changed\",\"last_success\":null,\"last_unsupported_count\":0,\"reported_notices\":[],\"reported_usage\":null},\"subscription\":{\"auto_refresh\":false,\"headers\":{},\"id\":\"b1509220-5734-428f-9885-61e629e9ef4f\",\"info_name_prefixes\":null,\"interval_seconds\":21600,\"name\":\"Renamed source\",\"route\":{\"proxy_url\":null},\"settings_revision\":1,\"url\":\"http://127.0.0.1:1/unreachable\",\"user_agent\":\"Xray\"}}\n",
+    "stderr": ""
+  },
+  {
+    "label": "unknown subscription name",
+    "argv": [
+      "sub",
+      "show",
+      "No such source"
+    ],
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm sub show — No such source\nReason: The requested object or a required reference was not found.\nRecovery: Refresh the relevant list and use an existing name or ID.\nNext: xrm --socket '/tmp/xrm-uxr-cli-oilhydd4/daemon.sock' sub list\n"
+  },
+  {
+    "label": "human subscription all failed",
+    "argv": [
+      "sub",
+      "update",
+      "Renamed source"
+    ],
+    "code": 4,
+    "stdout": "",
+    "stderr": "Error: Subscription update failed — b1509220-5734-428f-9885-61e629e9ef4f\nReason: The subscription download failed.\nRecovery: Inspect the source's last error and check its URL, server response, and network route before retrying.\nStage: download\nCause: HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\n"
+  },
+  {
+    "label": "failed subscription detail by name",
+    "argv": [
+      "sub",
+      "show",
+      "Renamed source"
+    ],
+    "code": 0,
+    "stdout": "Subscription Renamed source [b1509220-5734-428f-9885-61e629e9ef4f]\nAuto refresh: off\nLast result: failed\nFailure stage: download\nLast error: HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\nURL and headers: hidden in human output; use --json sub show for editing\n",
+    "stderr": ""
+  },
+  {
+    "label": "JSON aggregate failure",
+    "argv": [
+      "--json",
+      "sub",
+      "update",
+      "b1509220-5734-428f-9885-61e629e9ef4f"
+    ],
+    "code": 4,
+    "stdout": "{\"completed\":[],\"failed\":[{\"error\":{\"code\":\"network_error\",\"message\":\"HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\",\"subject\":\"b1509220-5734-428f-9885-61e629e9ef4f\"},\"source_id\":\"b1509220-5734-428f-9885-61e629e9ef4f\"}]}\n",
+    "stderr": ""
+  },
+  {
+    "label": "all sources failed",
+    "argv": [
+      "sub",
+      "update"
+    ],
+    "code": 4,
+    "stdout": "",
+    "stderr": "Error: Subscription update failed — b1509220-5734-428f-9885-61e629e9ef4f\nReason: The subscription download failed.\nRecovery: Inspect the source's last error and check its URL, server response, and network route before retrying.\nStage: download\nCause: HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\nError: Subscription update failed — 50f8874a-4494-40e7-9a56-f40524d36220\nReason: The subscription download failed.\nRecovery: Inspect the source's last error and check its URL, server response, and network route before retrying.\nStage: download\nCause: HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\nError: Subscription update failed — d6aa251d-a095-4d02-835f-e00839126ac2\nReason: The subscription download failed.\nRecovery: Inspect the source's last error and check its URL, server response, and network route before retrying.\nStage: download\nCause: HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\nError: Subscription update failed — e3a91f90-bbe2-4a8b-ab9b-d84ce7c5562f\nReason: The subscription download failed.\nRecovery: Inspect the source's last error and check its URL, server response, and network route before retrying.\nStage: download\nCause: HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\n"
+  },
+  {
+    "label": "partial fixture add",
+    "argv": [
+      "--json",
+      "sub",
+      "add",
+      "--name",
+      "Partial fixture",
+      "--url",
+      "http://127.0.0.1:34357/partial",
+      "--paused"
+    ],
+    "code": 0,
+    "stdout": "{\"id\":\"19b18497-51a2-4f77-a4fe-47e759bf9c25\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "human partial subscription",
+    "argv": [
+      "sub",
+      "update",
+      "Partial fixture"
+    ],
+    "code": 4,
+    "stdout": "19b18497-51a2-4f77-a4fe-47e759bf9c25 added=1 updated=0 missing=0 unsupported=1 malformed=0 partial\n",
+    "stderr": "Partial subscription update — 19b18497-51a2-4f77-a4fe-47e759bf9c25: item 2 · unsupported_uri_feature: subscription URI protocol is not supported (scheme)\n"
+  },
+  {
+    "label": "partial source detail",
+    "argv": [
+      "sub",
+      "show",
+      "Partial fixture"
+    ],
+    "code": 0,
+    "stdout": "Subscription Partial fixture [19b18497-51a2-4f77-a4fe-47e759bf9c25]\nAuto refresh: off\nLast result: partial\nFailure stage: parse\nLast error: item 2 · unsupported_uri_feature: subscription URI protocol is not supported (scheme)\nURL and headers: hidden in human output; use --json sub show for editing\n",
+    "stderr": ""
+  },
+  {
+    "label": "JSON aggregate partial",
+    "argv": [
+      "--json",
+      "sub",
+      "update",
+      "19b18497-51a2-4f77-a4fe-47e759bf9c25"
+    ],
+    "code": 4,
+    "stdout": "{\"completed\":[{\"added\":0,\"first_issue\":\"item 2 · unsupported_uri_feature: subscription URI protocol is not supported (scheme)\",\"malformed\":0,\"missing\":0,\"partial\":true,\"source_id\":\"19b18497-51a2-4f77-a4fe-47e759bf9c25\",\"unsupported\":1,\"updated\":0}],\"failed\":[]}\n",
+    "stderr": ""
+  },
+  {
+    "label": "old node retained after partial",
+    "argv": [
+      "--json",
+      "node",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "{\"items\":[{\"enabled\":true,\"id\":\"864e45e5-a233-4228-bc49-4d6d527812bc\",\"labels\":[],\"name\":\"Loopback fixture\",\"protocol\":\"vless\",\"security\":\"none\",\"source_id\":\"19b18497-51a2-4f77-a4fe-47e759bf9c25\",\"source_missing\":false,\"support\":\"typed-uri; Xray v26.9.9 loopback-verified\",\"transport\":\"RAW\"}],\"next_offset\":null,\"total\":1}\n",
+    "stderr": ""
+  },
+  {
+    "label": "before failed re-update",
+    "argv": [
+      "--json",
+      "node",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "{\"items\":[{\"enabled\":true,\"id\":\"864e45e5-a233-4228-bc49-4d6d527812bc\",\"labels\":[],\"name\":\"Loopback fixture\",\"protocol\":\"vless\",\"security\":\"none\",\"source_id\":\"19b18497-51a2-4f77-a4fe-47e759bf9c25\",\"source_missing\":false,\"support\":\"typed-uri; Xray v26.9.9 loopback-verified\",\"transport\":\"RAW\"}],\"next_offset\":null,\"total\":1}\n",
+    "stderr": ""
+  },
+  {
+    "label": "change source URL before failure",
+    "argv": [
+      "sub",
+      "edit",
+      "Partial fixture",
+      "--url",
+      "http://127.0.0.1:1/unreachable"
+    ],
+    "code": 0,
+    "stdout": "Updated subscription [19b18497-51a2-4f77-a4fe-47e759bf9c25]; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "label": "failed re-update",
+    "argv": [
+      "sub",
+      "update",
+      "Partial fixture"
+    ],
+    "code": 4,
+    "stdout": "",
+    "stderr": "Error: Subscription update failed — 19b18497-51a2-4f77-a4fe-47e759bf9c25\nReason: The subscription download failed.\nRecovery: Inspect the source's last error and check its URL, server response, and network route before retrying.\nStage: download\nCause: HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server\n"
+  },
+  {
+    "label": "after failed re-update",
+    "argv": [
+      "--json",
+      "node",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "{\"items\":[{\"enabled\":true,\"id\":\"864e45e5-a233-4228-bc49-4d6d527812bc\",\"labels\":[],\"name\":\"Loopback fixture\",\"protocol\":\"vless\",\"security\":\"none\",\"source_id\":\"19b18497-51a2-4f77-a4fe-47e759bf9c25\",\"source_missing\":false,\"support\":\"typed-uri; Xray v26.9.9 loopback-verified\",\"transport\":\"RAW\"}],\"next_offset\":null,\"total\":1}\n",
+    "stderr": ""
+  },
+  {
+    "label": "remove by name",
+    "argv": [
+      "sub",
+      "remove",
+      "Renamed source"
+    ],
+    "code": 0,
+    "stdout": "Removed subscription Renamed source; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "label": "TTY profile list",
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "NAME      ID                                    CORE ID\nHome      6c270277-35f3-4315-8b09-d1b2ae1a2737  none\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY profile show",
+    "argv": [
+      "profile",
+      "show",
+      "Home"
+    ],
+    "code": 0,
+    "stdout": "Profile  Home\n\n  ID               6c270277-35f3-4315-8b09-d1b2ae1a2737\n  Core             none\n  Saved target     none\n  Sources          0 bound\n  Modules          15\n  Append selected  on\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY core list",
+    "argv": [
+      "core",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "NAME        VERSION                       STATE     ID                                    PATH\nFixed Xray  Xray 26.9.9 (Xray, Penetrate  system    15787dfa-bf8a-4ff5-a17b-0d6187ee8aee  /tmp/xrm-g1-xray-v26.9.9/xra\n            s Everything.) 52a412d (go1.                                                  y\n            27.1 linux/amd64)                                                             \n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY sub list",
+    "argv": [
+      "sub",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "NAME                                  REFRESH   RESULT    NODES     ID\nPartial fixture                       paused    failed    1         19b18497-51a2-4f77-a4fe-47e759bf9c25\nDuplicate                             paused    failed    0         50f8874a-4494-40e7-9a56-f40524d36220\nDuplicate                             paused    failed    0         d6aa251d-a095-4d02-835f-e00839126ac2\nb1509220-5734-428f-9885-61e629e9ef4f  paused    failed    0         e3a91f90-bbe2-4a8b-ab9b-d84ce7c5562f\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY node list",
+    "argv": [
+      "node",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "Nodes  1 total\n\nNAME              PROTOCOL  SUPPORT                                    STATE     ID\nLoopback fixture  vless     typed-uri; Xray v26.9.9 loopback-verified  enabled   864e45e5-a233-4228-bc49-4d6d527812bc\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY group list",
+    "argv": [
+      "group",
+      "list",
+      "Home"
+    ],
+    "code": 0,
+    "stdout": "No groups in this Profile\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY status",
+    "argv": [
+      "status"
+    ],
+    "code": 0,
+    "stdout": "state: stopped\nhealth: traffic unverified\nrunning profile: none\nsaved target: scope is running Profile only; inspect `profile show <ref>`\napplied target: no running target\nruntime override: none\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY logs help",
+    "argv": [
+      "logs",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Read the bounded server/core log buffer\n\nUsage: xrm logs [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --cursor CURSOR   Transport buffer cursor, not a log record number; 0 \n                          starts at the oldest available chunk Default: 0. \n        --limit LIMIT     Maximum log text bytes returned by this read \n                          (default 65536) Default: 65536. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm logs --limit 100\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "TTY logs limits",
+    "argv": [
+      "logs",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Read the bounded server/core log buffer\n\nUsage: xrm logs [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --cursor CURSOR   Transport buffer cursor, not a log record number; 0 \n                          starts at the oldest available chunk Default: 0. \n        --limit LIMIT     Maximum log text bytes returned by this read \n                          (default 65536) Default: 65536. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm logs --limit 100\n",
+    "stderr": "",
+    "tty": true
+  },
+  {
+    "label": "human head",
+    "producer_argv": [
+      "stats",
+      "--watch"
+    ],
+    "producer_code": 0,
+    "consumer_argv": [
+      "head",
+      "-n",
+      "1"
+    ],
+    "consumer_code": 0,
+    "stdout": "metrics: unavailable\n",
+    "producer_stderr": "",
+    "consumer_stderr": ""
+  },
+  {
+    "label": "JSON head",
+    "producer_argv": [
+      "--json",
+      "stats",
+      "--watch"
+    ],
+    "producer_code": 0,
+    "consumer_argv": [
+      "head",
+      "-n",
+      "1"
+    ],
+    "consumer_code": 0,
+    "stdout": "{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n",
+    "producer_stderr": "",
+    "consumer_stderr": ""
+  },
+  {
+    "label": "shell head pipefail=False",
+    "code": 0,
+    "stdout": "metrics: unavailable\nproducer=0 consumer=0 aggregate=0\n",
+    "stderr": ""
+  },
+  {
+    "label": "shell head pipefail=True",
+    "code": 0,
+    "stdout": "metrics: unavailable\nproducer=0 consumer=0 aggregate=0\n",
+    "stderr": ""
+  },
+  {
+    "label": "watch cat then SIGINT",
+    "producer_code": 0,
+    "consumer_code": 0,
+    "stdout": "{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n",
+    "producer_stderr": "",
+    "consumer_stderr": ""
+  },
+  {
+    "label": "stdout non-EPIPE",
+    "code": 3,
+    "stderr": "{\"error\":{\"code\":\"io_error\",\"message\":\"Cannot write stats output\"}}\n"
+  },
+  {
+    "label": "watch SIGINT",
+    "producer_code": 0,
+    "stdout": "{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n",
+    "stderr": ""
+  },
+  {
+    "label": "watch daemon disconnected",
+    "producer_code": 3,
+    "stdout": "{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n",
+    "stderr": "{\"error\":{\"code\":\"io_error\",\"message\":\"发送IPC请求失败: broken pipe\"}}\n"
+  }
+]

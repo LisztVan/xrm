@@ -1,0 +1,6 @@
+{
+  "NO_COLOR": "1",
+  "TERM": "xterm-256color",
+  "COLORTERM": "truecolor",
+  "source": "Inherited process environment inspected during this run"
+}

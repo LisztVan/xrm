@@ -1,0 +1,585 @@
+[
+  {
+    "time": 223680.632,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-3v00lnup",
+      "pid": 1546435,
+      "xrm_sha256": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03"
+    }
+  },
+  {
+    "time": 223680.746,
+    "action": "tui_pid",
+    "value": "1546456"
+  },
+  {
+    "time": 223680.754,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223680.807,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223680.858,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223680.911,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223680.961,
+    "action": "help_execute",
+    "value": "│ > e               Allow module Edit · Real Loopback                    ╹ │"
+  },
+  {
+    "time": 223680.961,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223681.015,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223681.166,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223681.217,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223681.267,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223681.315,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223681.367,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223681.416,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223681.469,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223681.519,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223681.569,
+    "action": "help_execute",
+    "value": "─┤ > e               Edit entry · DNS servers                             ┃ ├─"
+  },
+  {
+    "time": 223681.569,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223681.621,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223681.672,
+    "action": "text",
+    "value": "localhost"
+  },
+  {
+    "time": 223681.739,
+    "action": "capture",
+    "value": "01-dns-form"
+  },
+  {
+    "time": 223681.74,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223681.798,
+    "action": "help_execute",
+    "value": "1│ > Ctrl-S          Add to draft · DNS server                            ┃ │"
+  },
+  {
+    "time": 223681.798,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223681.85,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223681.983,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223682.036,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223682.087,
+    "action": "help_execute",
+    "value": "1│ > Ctrl-S / s      Save module source                                   ┃ │"
+  },
+  {
+    "time": 223682.087,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223682.142,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223682.277,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223682.417,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.465,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.512,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.56,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.607,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.655,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.713,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.763,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223682.813,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.861,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.909,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223682.957,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223683.005,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223683.058,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223683.106,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223683.16,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223683.21,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223683.26,
+    "action": "help_execute",
+    "value": "─┤ > e               Edit entry · Routing rules (ordered)                 ┃ ├─"
+  },
+  {
+    "time": 223683.261,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223683.314,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223683.362,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223683.412,
+    "action": "text",
+    "value": "TUI loopback"
+  },
+  {
+    "time": 223683.481,
+    "action": "capture",
+    "value": "02-routing-form"
+  },
+  {
+    "time": 223683.481,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223683.535,
+    "action": "help_execute",
+    "value": "1│ > Ctrl-S          Add to draft · Routing rule                          ┃ │"
+  },
+  {
+    "time": 223683.535,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223683.587,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223683.72,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223683.773,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223683.824,
+    "action": "help_execute",
+    "value": "1│ > Ctrl-S / s      Save module source                                   ┃ │"
+  },
+  {
+    "time": 223683.824,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223683.879,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223684.015,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223684.155,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223684.203,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223684.251,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223684.299,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223684.347,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223684.4,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223684.45,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223684.503,
+    "action": "help_execute",
+    "value": "S│ > c               Connect saved · Real Loopback                        ┃ │"
+  },
+  {
+    "time": 223684.503,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223687.138,
+    "action": "capture",
+    "value": "03-real-xray-running"
+  },
+  {
+    "time": 223687.145,
+    "action": "runtime_stats",
+    "value": {
+      "availability": "unavailable",
+      "missing_conditions": [
+        "stats",
+        "policy",
+        "metrics"
+      ],
+      "rates": [],
+      "received_at": null,
+      "run_id": null,
+      "sample": null
+    }
+  },
+  {
+    "time": 223687.147,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223687.287,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223687.334,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223687.382,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223687.43,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223687.478,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223687.531,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223688.225,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223688.279,
+    "action": "help_execute",
+    "value": "0│ > p               Pause reading                                        ┃ │"
+  },
+  {
+    "time": 223688.279,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223688.338,
+    "action": "capture",
+    "value": "04-real-xray-logs"
+  },
+  {
+    "time": 223688.339,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223688.392,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223688.442,
+    "action": "help_execute",
+    "value": "0│ > i               Raw log details                                      ┃ │"
+  },
+  {
+    "time": 223688.442,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223688.501,
+    "action": "capture",
+    "value": "05-real-xray-log-detail"
+  },
+  {
+    "time": 223688.501,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223688.663,
+    "action": "real_core_proof",
+    "value": {
+      "version": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\nA unified platform for anti-censorship.\n",
+      "sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+      "profile": "981b2581-27e7-4c87-93b3-88c97a81500b",
+      "pid": 1546762,
+      "confdir": "/tmp/xrm-rewrite-ui-3v00lnup/runtime/candidate/run-1790443362747-1",
+      "files": [
+        "00_log.json",
+        "01_dns.json",
+        "02_inbounds.json",
+        "03_outbounds.json",
+        "04_routing.json"
+      ],
+      "curl_stdout": "xrm-real-component-loopback\n",
+      "route": "http://127.0.0.1:40265/proof",
+      "socks_port": 45943,
+      "dns": {
+        "dns": {
+          "servers": [
+            "localhost"
+          ]
+        }
+      },
+      "routing": {
+        "routing": {
+          "rules": [
+            {
+              "network": "tcp",
+              "outboundTag": "direct",
+              "ruleTag": "TUI loopback"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "time": 223688.665,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223688.808,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223688.856,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223688.905,
+    "action": "key",
+    "value": "q"
+  },
+  {
+    "time": 223689.094,
+    "action": "tui_pid",
+    "value": "1547037"
+  },
+  {
+    "time": 223689.097,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223689.151,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223689.204,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223689.255,
+    "action": "help_execute",
+    "value": "N│ > d               Stop core                                            ┃ │"
+  },
+  {
+    "time": 223689.255,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223689.312,
+    "action": "capture",
+    "value": "06-real-xray-stopped"
+  },
+  {
+    "time": 223689.647,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-3v00lnup"
+    }
+  }
+]

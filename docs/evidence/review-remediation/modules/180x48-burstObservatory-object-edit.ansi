@@ -1,0 +1,48 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                    
+   [2m log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version [0;1m burstObservatory [0m                                       [2m15/15[0m 
+ [1mburstObservatory[0;2m  SOURCE · EDIT · Visual                                                                                                                                          [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Burst observatory         [0;2m   [1mBurst observatory[0;2m  Draft                                                                                                                         [0m 
+ [2m                                 burst[0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m                                      [0m 
+ [2m                                 ─────[0m┤ [1mBurst observatory[0;2m  EDIT · field 1/7                                                               [0m ├[2m──────────────────────────────────────[0m 
+ [2m                                 subje[0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                 Probe[0m│ [1m> subjectSelector                                                                                [0m  │[2m                                      [0m 
+ [2m                                 Mean [0m│   [1;7m[x] Set value[0m  [2mExplicit value[0m                                                                    │[2m                                      [0m 
+ [2m                                 pingC[0m│     [1msubjectSelector                             [0m                                                   │[2m                                      [0m 
+ [2m                                 Timeo[0m│   [2m───────────────────────────────────────────────────────────────────────────────────────────────[0m  │[2m                                      [0m 
+ [2m                                      [0m│   [1m> direct                                                                                      [0m   │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   New subjectSelector: [ Enter value                                                            ]  │[2m                                      [0m 
+ [2m                                      [0m│    [ Add ]  [ Delete ]                                                                             │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Outbound tag prefixes                                                                          [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   Probe URL               [x] Set value  [2mExplicit value[0m                                            │[2m                                      [0m 
+ [2m                                      [0m│                           [ https://example.invalid/probe                                       ]  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   Local connectivity URL  [ ] Set value  [2mNot set · field omitted[0m                                   │[2m                                      [0m 
+ [2m                                      [0m│                           [2m[ Enter value                                                         ][0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   Mean interval           [x] Set value  [2mExplicit value[0m                                            │[2m                                      [0m 
+ [2m                                      [0m│                           [ 1m                                                                  ]  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Duration; core minimum 10s, default 1m                                                         [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   pingConfig/sampling     [x] Set value  [2mExplicit value[0m                                            │[2m                                      [0m 
+ [2m                                      [0m│                           [ 0                                                                   ]  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   Timeout                 [x] Set value  [2mExplicit value[0m                                            │[2m                                      [0m 
+ [2m                                      [0m│                           [ 5s                                                                  ]  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Duration; default 5s                                                                           [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   HTTP method             [ ] Set value  [2mNot set · field omitted[0m                                   │[2m                                      [0m 
+ [2m                                      [0m│                           [2m[ Enter value                                                         ][0m  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Default HEAD; extension methods allowed                                                        [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m                                      [0m 
+ [2m                                      [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m                                      [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                                                                            [0m 
+ burstObservatory · Source editable · Visual · excluded                                   
+ [2mxrmd ready · Content · modules/14_burstObservatory.json                                                                                                          [0mF1 Help & actions 

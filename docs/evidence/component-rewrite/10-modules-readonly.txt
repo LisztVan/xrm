@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+{ ╭Help─────────────────────────────────────────╭Done──────────────────────────╮
+  │F2  Visual / JSON — Modules                  │Saved Alpha / routing; runtime│
+  │Ctrl-S  Save module source — Modules [unavail│unchanged (2)                 │
+  │F6  External editor — Modules [unavailable: M╰──────────────────────────────╯
+  │I  Include / exclude — Modules [unavailable: ╭Info──────────────────────────╮
+  │i  Source / runtime paths — Modules          │Module Edit ended             │
+  │v  Source / Runtime — Modules                ╰────────────────────────────┬─╯
+  │s  Save module source — Modules [unavailable: Enable module Edit for Alpha│
+  │N  Notification history — Modules                                         │
+  │r  Refresh — Modules                                                      │
+  │Arrows / Home / End  Move cursor — Text                                   │
+  │Ctrl-Home / Ctrl-End  Document start / end — Text                         │
+  │Esc  Close one layer — Editor                                             │
+} │Enter  View / activate — Focused object                                   │
+  │Esc  Return one layer — Current page                                      │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+
+────────────────────────────────────────────────────────────────────────────────
+View Alpha · Use Alpha · Edit none · Run Alpha
+dns · Source read-only · JSON · included · modules/01_dns.json
+xrmd ready · Content                                                     F1 Help

@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+> dns-server [unsaved]                           ╭Info─────────────────────────╮
+  ───────────────────────────────────────────────┤Module Edit enabled for Alpha│
+  Address                9.9.9.9                 ╰─────────────────────────────╯
+  ╭Help──────────────────────────────────────────────────────────────────────╮
+  │Tab / Shift-Tab  Move between fields and buttons — Current form           │
+  │Arrows / Home / End  Move cursor or choice — Focused control              │
+  │Ctrl-Home / Ctrl-End  Document start / end — Multiline text               │
+  │Enter  Insert newline in multiline text / activate button — Focused contro│
+  │Ctrl-S  Save / accept form — Current draft                                │
+  │Esc  Cancel / close form — Current draft                                  │
+  │q e u p ? Space  Text in input fields — No background action              │
+  │F1  Context help — All contexts                                           │
+  │                                                                          │
+  ╰────────────┬┬──────┬─────────────────────────────────────────────────────╯
+  │Add to draft││Cancel│
+  └────────────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+View Alpha · Use Alpha · Edit Alpha · Run Alpha
+dns · Source editable · Visual · included · modules/01_dns.json
+xrmd ready · Content                                                     F1 Help

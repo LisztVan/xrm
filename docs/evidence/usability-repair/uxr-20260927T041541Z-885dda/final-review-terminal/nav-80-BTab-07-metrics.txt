@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  dns  inbounds  outbounds  routing  observatory  api  metrics         › 8/15 
+ metrics  SOURCE · READ ONLY · Visual                                           
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Metrics endpoint                     ╭──────────────────────────────────╮  
+                                          │ i Info · history in Help         │  
+ Metrics endpoint  Read only              │ Refreshed Subscriptions          │  
+ metrics                                  ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Listen address:port     127.0.0.1:11111                                        
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ metrics · Source read-only · Visual · excluded                                 
+ xrmd ready · Section selection (SecondaryNav) · modules/0…   F1 Help & actions 

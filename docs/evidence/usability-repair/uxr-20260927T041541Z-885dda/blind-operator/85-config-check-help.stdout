@@ -1,0 +1,19 @@
+Run Xray's complete configuration check
+
+Usage: xrm config check [OPTIONS] PROFILE
+
+POSITIONALS:
+  PROFILE (required)      Exact Profile name or UUID (saved configuration) 
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm config check Home
+
+Profile accepts an exact saved name or UUID.

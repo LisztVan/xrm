@@ -1,0 +1,48 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config                                                                                                               
+ Profiles  2 Profiles / independent runtime contexts                                                                                                                                
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Alpha                  Process fixture      —      yes    running                                                                                                                
+ ▸ Beta                   Process fixture      yes    —      —                                                                                                                      
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Beta · Module Edit: Alpha · Running: Alpha                                                                                                                  
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory                                                                                                                
+ xrmd ready · Page content (Content)                                                                                                                              F1 Help & actions 

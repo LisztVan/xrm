@@ -1,0 +1,24 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview [1m[38;2;115;194;230m[Profiles][0m[38;2;146;163;183m Modules  Subscriptions  Nodes  Logs  Config [39m          
+ [1mProfiles[0m[38;2;146;163;183m  2 Profiles / independent runtime contexts                           [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m[38;2;66;83;104m─[0m┤ [1mHelp & actions[0m[38;2;146;163;183m                                                          [39m ├[2m[38;2;66;83;104m─[0m 
+ [2m [0m│ [38;2;66;83;104m────────────────────────────────────────────────────────────────────────[39m │[2m [0m 
+ [1;2m[38;2;115;194;230m▸[0m│ [1mProfiles · View Alpha                                                   [0m │[2m [0m 
+ [2m [0m│ [38;2;146;163;183mUse selects the next connection Profile; Cancel Use and module Edit do  [39m │[2m [0m 
+ [2m [0m│ [38;2;146;163;183mnot change the running core. Metadata is independent of Edit. Us…       [39m │[2m [0m 
+ [2m [0m│ [38;2;146;163;183mTasks · arrows choose; Enter executes available task                    [39m │[2m [0m 
+ [2m [0m│ [1;7m> [38;2;115;194;230mu               [39mCancel Use · Beta                                    [0m┃ │[2m [0m 
+ [2m [0m│   [38;2;115;194;230me               [39mAllow module Edit · Beta                             ┃ │[2m [0m 
+ [2m [0m│   [38;2;115;194;230mn               [39mNew Profile                                          ┃ │[2m [0m 
+ [2m [0m│   [38;2;115;194;230mR               [39mRename Profile                                       ╹ │[2m [0m 
+ [2m [0m│   [38;2;115;194;230mm               [39mProfile metadata                                       │[2m [0m 
+ [2m [0m│   [38;2;115;194;230mc               [39mCopy Profile                                           │[2m [0m 
+ [2m [0m│ [38;2;66;83;104m────────────────────────────────────────────────────────────────────────[39m │[2m [0m 
+ [2m [0m│ [38;2;146;163;183mTab moves · Space toggles · Enter activates · Esc closes                [39m │[2m [0m 
+ [2m [0m│ [38;2;146;163;183mEsc closes Help and restores your place                                 [39m │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mViewing: Alpha · Next: Beta · Module Edit: Alpha · Running: Alpha             [39m 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ [38;2;146;163;183mxrmd ready · Page content (Content)                          [38;2;115;194;230mF1 Help & actions[39m 

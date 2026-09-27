@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config           
+    Scope: All  Scope: Local  Scope: Groups  Source: Local                  4/4 
+ Nodes  Node inventory                                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ N│ Nodes · View Alpha                                                       │  
+  │  Groups are under Nodes / Scope: Groups. Choose Profile Use in Profiles; │  
+  │ Connect in Overview.                                                     │  
+  │ Tasks · arrows choose; Enter executes available task                     │  
+  │ > a               Add node                                             ┃ │  
+  │   e               Edit node                                            ╹ │  
+  │   J               Advanced node editor                                   │  
+  │   i               Import share URI / native outbound                     │  
+  │   C               Copy as local node                                     │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ View Alpha · 0b71051e-7e02-475c-9a42-353ee02be230                              
+ xrmd ready · Page content (Content)                          F1 Help & actions 

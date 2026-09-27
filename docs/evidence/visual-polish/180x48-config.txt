@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+  Core  Geodata  Tests  Appearance  Editor  General
+ Config / Core  Installed & registered Xray binaries
+ ────────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────
+   Core / release                 Version              State                         │  Inspection  CURSOR
+ ──────────────────────────────────────────────────────────────────────────────────  │
+ ▸ Process fixture                26.9.9               registered                    │  Process fixture
+                                                                                     │  Version   Xray 26.9.9 (Xray, Penetrates Everything.)
+                                                                                     │  Path      /home/lisztzy/Projects/xrm/build/component-rewrite/tests/xrm_fake_core
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+ ────────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ Cursor Process fixture
+ xrmd ready · Content                                                                                                                                                   ? / F1 Help

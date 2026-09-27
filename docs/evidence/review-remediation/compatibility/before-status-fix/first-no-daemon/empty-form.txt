@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  Unavailable                                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ P│ new Profile  EDIT · field 1/3                                            │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name                    [ Enter value                               ]  │  
+  │                                                                          │  
+  │   Core                    ‹ No core yet ›                                │  
+  │                                                                          │  
+  │   Preset                  ‹ Local SOCKS proxy ›                          │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View none · Use none · Edit none · Run unknown                                 
+ View none · Core not set · Saved none                                          
+ xrmd unavailable · Content                                   F1 Help & actions 

@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+ ‹  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory           15/15 
+ burstObservatory  SOURCE · READ ONLY · Visual                                                                          
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Burs╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Burst observatory  READ ONLY · field 1/7                                                           │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── ├──────── 
+         │ > subjectSelector                                                                                ┃ │         
+         │   Explicit value                                                                                 ┃ │         
+         │     subjectSelector                                                                              ┃ │         
+         │   ───────────────────────────────────────────────────────────────────────────────────────────────┃ │         
+         │   > direct                                                                                       ┃ │         
+         │   Outbound tag prefixes                                                                          ┃ │         
+         │                                                                                                  ┃ │         
+         │   Probe URL               Explicit value                                                         ┃ │         
+         │                             https://example.invalid/probe                                        ┃ │         
+         │                                                                                                  ┃ │         
+         │   Local connectivity URL  Not set · field omitted                                                ┃ │         
+         │                             Not set (read only)                                                  ┃ │         
+         │                                                                                                  ┃ │         
+         │   Mean interval           Explicit value                                                         ┃ │         
+         │                             1m                                                                   ┃ │         
+         │   Duration; core minimum 10s, default 1m                                                         ┃ │         
+         │                                                                                                  ┃ │         
+         │   pingConfig/sampling     Explicit value                                                         ┃ │         
+         │                             0                                                                    ┃ │         
+         │                                                                                                  ┃ │         
+         │   Timeout                 Explicit value                                                         ┃ │         
+         │                             5s                                                                   ┃ │         
+         │   Duration; default 5s                                                                           ┃ │         
+         │                                                                                                  ┃ │         
+         │   HTTP method             Not set · field omitted                                                ╹ │         
+         │                             Not set (read only)                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Close ]                                                                                         │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit none · Run none                                                          
+ burstObservatory · Source read-only · Visual · excluded    
+ xrmd ready · Content · modules/14_burstObservatory.json                                              F1 Help & actions 

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log  dns  inbounds  outbounds  routing  observatory  api  metrics [0;1m stats [0;2m policy  fakedns  geodata  env [0m     › [2m9/15[0m 
+ [1mstats[0;2m  SOURCE · EDIT · Visual                                                                                         [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2mStats object (no native paramet[0;2m  [1mStats object (no native parameters)[0;2m  Draft                                           [0m 
+ [2m                                 stats                                                                                [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 [1mStats object present                                                                 [0m 
+ [2m                                 No native parameters. Source inclusion is managed independently.                     [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2m        [0m│ stats has no native parameters.                                                                    │[2m        [0m 
+ [2m        [0m│ Source inclusion is managed separately.                                                            │[2m        [0m 
+ [2m        [0m│ [1;7m [ Keep empty stats object in draft ]                                                             [0m │[2m        [0m 
+ [2m        [0m│  [ Close ]                                                                                         │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                [0m 
+ stats · Source editable · Visual · excluded                
+ [2mxrmd ready · Content · modules/08_stats.json                                                         [0mF1 Help & actions 

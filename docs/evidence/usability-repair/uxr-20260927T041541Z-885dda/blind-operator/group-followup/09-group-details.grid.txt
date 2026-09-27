@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+    Scope: All  Scope: Local  Scope: Groups  Source: Local fixture                                                  3/4
+ Nodes  Groups · selection bindings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Group                      Mode           Strategy        Members
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Lab Local Group            manual         random          explicit
+
+
+
+
+
+
+
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Details                                                                                            │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │   Nodes                                                                                            │
+         │   Highlighted Lab Local Group · Saved Node · Loopback direct · Running none                        │
+         │   ID: 69fb5656-0494-4a80-a1d1-f7f0ed5a0e5e                                                         │
+         │   Socket: /tmp/xrm-component-lab-yl6o5vb4/run/xrmd.sock                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ Highlighted Lab Local Group · Saved Node · Loopback direct · Running none
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

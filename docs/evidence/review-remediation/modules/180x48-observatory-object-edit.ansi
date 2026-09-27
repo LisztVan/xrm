@@ -1,0 +1,48 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                    
+   [2m log  dns  inbounds  outbounds  routing [0;1m observatory [0;2m api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory [0m                                        [2m6/15[0m 
+ [1mobservatory[0;2m  SOURCE · EDIT · Visual                                                                                                                                               [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Connection observatory    [0;2m   [1mConnection observatory[0;2m  Draft                                                                                                                    [0m 
+ [2m                                 observatory                                                                                                                                      [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 subjectSelector         direct                                                                                                                   [0m 
+ [2m                                 Probe interval          30s                                                                                                                      [0m 
+ [2m                                 enableConcurrency       false                                                                                                                    [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                      [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m                                      [0m 
+ [2m                                      [0m│ [1mConnection observatory[0;2m  EDIT · field 1/4                                                          [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│ [1m> subjectSelector                                                                                [0m  │[2m                                      [0m 
+ [2m                                      [0m│   [1;7m[x] Set value[0m  [2mExplicit value[0m                                                                    │[2m                                      [0m 
+ [2m                                      [0m│     [1msubjectSelector                             [0m                                                   │[2m                                      [0m 
+ [2m                                      [0m│   [2m───────────────────────────────────────────────────────────────────────────────────────────────[0m  │[2m                                      [0m 
+ [2m                                      [0m│   [1m> direct                                                                                      [0m   │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   New subjectSelector: [ Enter value                                                            ]  │[2m                                      [0m 
+ [2m                                      [0m│    [ Add ]  [ Delete ]                                                                             │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Outbound tag prefixes                                                                          [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   Probe URL               [ ] Set value  [2mNot set · field omitted[0m                                   │[2m                                      [0m 
+ [2m                                      [0m│                           [2m[ Enter value                                                         ][0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   Probe interval          [x] Set value  [2mExplicit value[0m                                            │[2m                                      [0m 
+ [2m                                      [0m│                           [ 30s                                                                 ]  │[2m                                      [0m 
+ [2m                                      [0m│ [2m  Duration, e.g. 10s, 2h45m                                                                      [0m  │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│   enableConcurrency       ‹ False ›                                                                │[2m                                      [0m 
+ [2m                                      [0m│                                                                                                    │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m                                      [0m 
+ [2m                                      [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m                                      [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                                                                            [0m 
+ observatory · Source editable · Visual · excluded                                        
+ [2mxrmd ready · Content · modules/05_observatory.json                                                                                                               [0mF1 Help & actions 

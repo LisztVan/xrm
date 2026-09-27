@@ -1,0 +1,5 @@
+module: log
+enabled: yes
+source: modules/00_log.json
+runtime: 00_log.json
+{"log":{"loglevel":"info"}}

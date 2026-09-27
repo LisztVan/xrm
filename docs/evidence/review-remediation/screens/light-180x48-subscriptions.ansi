@@ -1,0 +1,48 @@
+[38;2;32;43;56m[48;2;243;246;249m [1m[38;2;0;93;143m[48;2;229;235;242mXRM [0m[38;2;82;98;117m[48;2;229;235;242m Overview  Profiles  Modules [1m[38;2;0;93;143m[Subscriptions][0m[38;2;82;98;117m[48;2;229;235;242m Nodes  Logs  Config [38;2;32;43;56m                                                                                                             [48;2;243;246;249m 
+ [1mSubscriptions[0m[38;2;82;98;117m[48;2;243;246;249m  12 sources / node inventory                                                                                                                                        [38;2;32;43;56m 
+ [38;2;132;145;160m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;32;43;56m 
+   [1mSource                  [0m[38;2;32;43;56m[48;2;243;246;249m [1mNodes  [0m[38;2;32;43;56m[48;2;243;246;249m [1mResult         [0m[38;2;32;43;56m[48;2;243;246;249m [1mAuto   [0m[38;2;32;43;56m[48;2;243;246;249m [1mBound    [0m[38;2;32;43;56m[48;2;243;246;249m                                                                                                               
+ [38;2;132;145;160m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;32;43;56m 
+ [1m[38;2;0;93;143m[48;2;211;229;240m▸ Local fixture 06 / sour… 0       Not refreshed   off     no                                                                                                                    [0m[38;2;32;43;56m[48;2;243;246;249m  
+   Local fixture 02 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 08 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 07 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 01 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 11 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 03 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 00 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 10 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 09 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 04 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 05 / sour… 0       Not refreshed   off     no                                                                                                                      
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ [38;2;132;145;160m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;32;43;56m 
+ [38;2;82;98;117mView Alpha · Use none · Edit none · Run Alpha                                                                                                                                     [38;2;32;43;56m 
+ Highlighted Local fixture 06 / source name · Not refreshed · 0 nodes                                                                                                               
+ [38;2;82;98;117mxrmd ready · Content                                                                                                                                             [38;2;0;93;143mF1 Help & actions[38;2;32;43;56m 

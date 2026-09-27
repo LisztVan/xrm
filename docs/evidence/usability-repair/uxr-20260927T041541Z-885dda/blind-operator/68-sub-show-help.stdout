@@ -1,0 +1,17 @@
+Show a source summary; --json includes its editable URL
+
+Usage: xrm sub show [OPTIONS] SOURCE_ID
+
+POSITIONALS:
+  SOURCE_ID (required)    Exact subscription name or source ID from sub list 
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm sub show SOURCE_ID

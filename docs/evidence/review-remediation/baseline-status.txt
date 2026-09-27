@@ -1,0 +1,62 @@
+ M AGENTS.md
+ M CMakeLists.txt
+ M docs/requirements.md
+ M docs/tui-manual-acceptance.md
+ M docs/usage.md
+ M src/cli/command_options.hpp
+ M src/cli/commands.cpp
+ M src/cli/geodata_commands.cpp
+ M src/cli/node_commands.cpp
+ M src/cli/print.cpp
+ M src/cli/profile_commands.cpp
+ M src/cli/routing_preset_commands.cpp
+ M src/cli/rpc_session.hpp
+ M src/cli/subscription_commands.cpp
+ M src/infra/store.cpp
+ M src/profile/profile_service.cpp
+ M src/profile/profile_service.hpp
+ M src/server/api_router.cpp
+ M src/tui/app.cpp
+ D src/tui/table_view.hpp
+ M tests/CMakeLists.txt
+ M tests/integration/m1/m1_tests.cpp
+ M tests/integration/store/store_tests.cpp
+ M tests/tui/acceptance/acceptance_tests.cpp
+?? .agents/
+?? .codex/
+?? docs/cli-rewrite-evidence.md
+?? docs/cli-visual-polish.md
+?? docs/codex-iteration-prompt.md
+?? docs/codex-repair-task.md
+?? docs/component-rewrite-terminal.md
+?? docs/component-ui-rewrite-execution.md
+?? docs/evidence/
+?? docs/module-form-coverage.md
+?? docs/native-visual-polish.md
+?? docs/product-repair-spec.md
+?? docs/terminal/
+?? docs/tui-acceptance-migration.md
+?? docs/tui-visual-design.md
+?? docs/xrm-interaction-execution.md
+?? docs/xrm-interaction-spec.md
+?? docs/xrm-tui-interaction-repair.md
+?? scripts/
+?? src/cli/help.hpp
+?? src/cli/presentation.hpp
+?? src/client/rpc_session.hpp
+?? src/infra/pipe_write_scope.hpp
+?? src/tui/adapters/
+?? src/tui/components/
+?? src/tui/forms/
+?? src/tui/pages/
+?? src/tui/shell/
+?? tests/cli/
+?? tests/tui/components/
+?? tests/tui/forms/
+?? tests/tui/rewrite/
+?? xrm-component-ui-rewrite-prompt.md
+?? xrm-interaction-audit.md
+?? xrm-interaction-redesign-prompt.md
+?? xrm-review-remediation-prompt.md
+?? "\347\262\230\350\264\264\347\232\204\346\226\207\346\234\254 (1)(3).txt"
+?? "\347\262\230\350\264\264\347\232\204\346\226\207\346\234\254 (2).txt"

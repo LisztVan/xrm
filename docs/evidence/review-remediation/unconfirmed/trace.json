@@ -1,0 +1,156 @@
+[
+  {
+    "time": 225504.242,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-7pr1dc2x",
+      "pid": 1591926,
+      "xrm_sha256": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef"
+    }
+  },
+  {
+    "time": 225504.347,
+    "action": "tui_pid",
+    "value": "1591932"
+  },
+  {
+    "time": 225504.355,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225504.409,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225504.461,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225504.514,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 225504.566,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 225504.617,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225504.668,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225504.811,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225504.861,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225504.915,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225504.967,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225505.019,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 225505.071,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225505.119,
+    "action": "key",
+    "value": "C-Home"
+  },
+  {
+    "time": 225505.168,
+    "action": "text",
+    "value": " "
+  },
+  {
+    "time": 225505.232,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 225505.294,
+    "action": "capture",
+    "value": "committed-but-receipt-lost"
+  },
+  {
+    "time": 225505.566,
+    "action": "capture",
+    "value": "reconnected-unsaved-draft-kept"
+  },
+  {
+    "time": 225505.568,
+    "action": "actual_commit_and_lost_receipt",
+    "value": [
+      {
+        "request": {
+          "id": 1,
+          "method": "module.save",
+          "params": {
+            "expected_text": "{\n  \"log\": {\n    \"loglevel\": \"warning\"\n  }\n}\n",
+            "module": "log",
+            "profile_id": "b9467c10-ab1b-4f14-9450-c1d763821c44",
+            "text": " {\n  \"log\": {\n    \"loglevel\": \"warning\"\n  }\n}\n"
+          },
+          "v": 1
+        },
+        "actual_reply": {
+          "id": 1,
+          "ok": true,
+          "result": {
+            "status": "saved_only"
+          },
+          "v": 1
+        }
+      }
+    ]
+  },
+  {
+    "time": 225505.568,
+    "action": "verification",
+    "value": {
+      "status": "PASS",
+      "server": "real isolated xrmd",
+      "fault": "forward real module.save; read successful actual reply; close socket without forwarding receipt",
+      "writes_observed": 1,
+      "source_changed": true,
+      "TUI_draft_retained": true,
+      "automatic_retry": false,
+      "runtime": "stopped; no generated confdir"
+    }
+  },
+  {
+    "time": 225505.578,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-7pr1dc2x"
+    }
+  }
+]

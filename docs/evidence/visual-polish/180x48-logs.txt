@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config
+ Logs  Core output
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ TIME     CURSOR   SOURCE   LEVEL   SUBSYSTEM             MESSAGE
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+          #3       stdout                                 XRM_FAKE_CORE_LOG_0001
+          #4       stdout                                 XRM_FAKE_CORE_LOG_0002
+          #5       stdout                                 XRM_FAKE_CORE_LOG_0003
+          #6       stdout                                 XRM_FAKE_CORE_LOG_0004
+          #7       stdout                                 XRM_FAKE_CORE_LOG_0005                                                                                                  ┃
+          #8       stdout                                 XRM_FAKE_CORE_LOG_0006                                                                                                  ┃
+          #9       stdout                                 XRM_FAKE_CORE_LOG_0007                                                                                                  ┃
+          #10      stdout                                 XRM_FAKE_CORE_LOG_0008                                                                                                  ┃
+          #11      stdout                                 XRM_FAKE_CORE_LOG_0009                                                                                                  ┃
+          #12      stdout                                 XRM_FAKE_CORE_LOG_0010                                                                                                  ┃
+          #13      stdout                                 XRM_FAKE_CORE_LOG_0011                                                                                                  ┃
+          #14      stdout                                 XRM_FAKE_CORE_LOG_0012                                                                                                  ┃
+          #15      stdout                                 XRM_FAKE_CORE_LOG_0013                                                                                                  ┃
+          #16      stdout                                 XRM_FAKE_CORE_LOG_0014                                                                                                  ┃
+          #17      stdout                                 XRM_FAKE_CORE_LOG_0015                                                                                                  ┃
+          #18      stdout                                 XRM_FAKE_CORE_LOG_0016                                                                                                  ┃
+          #19      stdout                                 XRM_FAKE_CORE_LOG_0017                                                                                                  ┃
+          #20      stdout                                 XRM_FAKE_CORE_LOG_0018                                                                                                  ┃
+          #21      stdout                                 XRM_FAKE_CORE_LOG_0019                                                                                                  ┃
+          #22      stdout                                 XRM_FAKE_CORE_LOG_0020                                                                                                  ┃
+          #23      stdout                                 XRM_FAKE_CORE_LOG_0021                                                                                                  ┃
+ 12:41:02 #24      stdout   Info    transport/internet/t~ accepted connection from 127.0.0.1:51002                                                                                ┃
+ 12:41:03 #24      stdout   Warning app/dns               resolver timeout; preserving the configured fallback order                                                              ┃
+ 12:41:04 #24      stdout   Error   proxy/vless           loopback fixture rejected a deliberately invalid request; this long message must remain aligned when wrapped at 80      ┃
+                                                          columns                                                                                                                 ┃
+          #24      stdout                                 native output without severity or timestamp                                                                             ┃
+ 12:41:02 #25      stdout   Info    transport/internet/t~ accepted connection from 127.0.0.1:51002                                                                                ┃
+ 12:41:03 #25      stdout   Warning app/dns               resolver timeout; preserving the configured fallback order                                                              ┃
+ 12:41:04 #25      stdout   Error   proxy/vless           loopback fixture rejected a deliberately invalid request; this long message must remain aligned when wrapped at 80      ┃
+                                                          columns                                                                                                                 ┃
+          #25      stdout                                 native output without severity or timestamp                                                                             ┃
+          #26      stdout                                 XRM_FAKE_CORE_LOG_0000                                                                                                  ┃
+          #27      stdout                                 XRM_FAKE_CORE_LOG_0001                                                                                                  ┃
+          #28      stdout                                 XRM_FAKE_CORE_LOG_0002                                                                                                  ┃
+          #29      stdout                                 XRM_FAKE_CORE_LOG_0003                                                                                                  ┃
+          #30      stdout                                 XRM_FAKE_CORE_LOG_0004                                                                                                  ┃
+          #31      stdout                                 XRM_FAKE_CORE_LOG_0005                                                                                                  ┃
+          #32      stdout                                 XRM_FAKE_CORE_LOG_0006                                                                                                  ┃
+          #33      stdout                                 XRM_FAKE_CORE_LOG_0007                                                                                                  ┃
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ PAUSED · 42 lines · new 0 · dropped no · truncated no
+ xrmd ready · Content · cursor 33                                                                                                                                       ? / F1 Help

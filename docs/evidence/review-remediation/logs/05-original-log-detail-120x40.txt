@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config                                                   
+ Logs  Core output                                                                                                      
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                              
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ -        stdout                                   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1       ┃ 
+                                                 | linux/amd64)                                                       ┃ 
+ -        stdout                                   A unified platform for anti-censorship.                            ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi  ┃ 
+                                                 | date/run-1790443286055-1/00_log.json Format:json}                  ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi  ┃ 
+                                                 | date/run-1790443286055-1/01_dns.json Format:json}                  ┃ 
+ 01:21:26╭────────────────────────────────────────────────────────────────────────────────────────────────────╮candi  ┃ 
+         │ Details                                                                                            │       ┃ 
+ 01:21:26│ ────────────────────────────────────────────────────────────────────────────────────────────────── │86055  ┃ 
+         │   Log text line                                                                                    │       ┃ 
+ 01:21:26│   Time    not supplied                                                                             │candi  ┃ 
+         │   Transport chunk  1                                                                               │       ┃ 
+ 01:21:26│   Source  core_stdout                                                                              │86055  ┃ 
+         │   Level   not supplied                                                                             │ct       
+ 01:21:26│   Subsystem                                                                                        │candi    
+         │                                                                                                    │         
+ 01:21:26│   Line within chunk  1                                                                             │         
+ 01:21:26│                                                                                                    │         
+ -       │   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)                        │         
+ 01:21:26│   Socket: /tmp/xrm-rewrite-ui-dmf5gpzp/xrmd.sock                                                   │/cand    
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+ -        stdout                                   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1         
+                                                 | linux/amd64)                                                         
+ -        stdout                                   A unified platform for anti-censorship.                              
+ 01:21:26 stderr                                   Using confdir from arg: /tmp/xrm-rewrite-ui-dmf5gpzp/runtime/cand    
+                                                 | idate/run-1790443286055-1                                            
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi    
+                                                 | date/run-1790443286055-1/00_log.json Format:json}                    
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candi    
+                                                 | date/run-1790443286055-1/01_dns.json Format:json}                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Real log review · Use Real log review · Edit none · Run Real log review                                           
+ Paused · 45 text lines · 7 new text lines buffered                                                                     
+ xrmd ready · Content                                                                                 F1 Help & actions 

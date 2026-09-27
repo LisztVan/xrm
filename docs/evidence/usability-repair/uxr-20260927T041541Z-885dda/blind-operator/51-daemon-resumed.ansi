@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules [0;1m[Subscriptions][0;2m Nodes  Logs  Config [0m
+ [1mSubscriptions[0;2m  1 source / node inventory                                                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m  [1mSource                  [0;2m [1mNodes  [0;2m [1mResult         [0;2m [1mAuto   [0;2m [1mBound    [0;2m                                                  [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m▸ Local fixture            1       Updated         on      yes                                                       [0;2m [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mSubscriptions · View Lab Home                                                                     [0m │[2m        [0m
+ [2m        [0m│ [2m Subscription updates change inventory only. Bind sources to a Profile here; select Nodes and     [0m │[2m        [0m
+ [2m        [0m│ [2mConnect separately. xrmd is unavailable at /tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock. Check   [0m │[2m        [0m
+ [2m        [0m│ [2mthis endpoint and start t…                                                                        [0m │[2m        [0m
+ [2m        [0m│ [2mTasks · arrows choose; Enter executes available task                                              [0m │[2m        [0m
+ [2m        [0m│ [1;7m> a               Add subscription                                                               [0m  │[2m        [0m
+ [2m        [0m│   e               Edit subscription                                                                │[2m        [0m
+ [2m        [0m│ [2m  u               Update subscription                                                            [0m  │[2m        [0m
+ [2m        [0m│ [2m  U               Update all subscriptions                                                       [0m  │[2m        [0m
+ [2m        [0m│ [2m  t               Pause / resume auto refresh                                                    [0m  │[2m        [0m
+ [2m        [0m│   b               Bind sources                                                                     │[2m        [0m
+ [2m        [0m│ [2m  D               Remove subscription                                                            [0m  │[2m        [0m
+ [2m        [0m│ [2m  h               History cleanup                                                                [0m  │[2m        [0m
+ [2m        [0m│   N               Notification history                                                             │[2m        [0m
+ [2m        [0m│   r               Refresh                                                                          │[2m        [0m
+ [2m        [0m│   F               Full object details                                                              │[2m        [0m
+ [2m        [0m│   Enter           View highlighted object                                                          │[2m        [0m
+ [2m        [0m│                   Last error diagnostic                                                            │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mNavigation and input                                                                              [0m │[2m        [0m
+ [2m        [0m│ Arrows / PgUp / PgDn    Browse rows; Home / End jump                                               │[2m        [0m
+ [2m        [0m│ Esc                     Return one level                                                           │[2m        [0m
+ [2m        [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: unknown                                         [0m
+ Highlighted Local fixture · Updated · 1 nodes
+ [2mxrmd disconnected · cached data · Page content (Content)                                             [0mF1 Help & actions

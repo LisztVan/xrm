@@ -1,0 +1,4 @@
+Error: xrm config show — Profile Lab Home
+Reason: The requested object or a required reference was not found.
+Recovery: Refresh the relevant list and use an existing name or ID.
+Next: xrm --socket '/tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock' profile list

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 5/15 
+ routing  SOURCE · EDIT · JSON · UNSAVED *                                      
+ ────────────────────────────────────────────────────────────────────────────── 
+ [ {                                                                          ] 
+     "routing": {                                                               
+       "rules": [                                                               
+         {                                                                      
+           "domain": [                                                          
+             "example.test"                                                     
+           ],                                                                   
+           "futureNative": 42,                                                  
+           "outboundTag": "direct",                                             
+           "ruleTag": "Initial rule edited copy",                               
+           "type": "field"                                                      
+         },                                                                     
+         {                                                                      
+           "domain": [                                                          
+             "example.test"                                                     
+           ],                                                                   
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ routing · Source editable · JSON · Unsaved * · included                        
+ xrmd ready · Page content (Content) · modules/04_routing.…   F1 Help & actions 

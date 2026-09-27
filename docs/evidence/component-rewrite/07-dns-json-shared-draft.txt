@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+{                                                ╭Info─────────────────────────╮
+  "dns": {                                       │Module Edit enabled for Alpha│
+    "futureNative": {                            ╰─────────────────────────────╯
+      "preserved": true
+    },
+    "servers": [
+      "1.1.1.1",
+      {
+        "address": "9.9.9.9",
+        "port": 53
+      }
+    ]
+  }
+}
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+View Alpha · Use Alpha · Edit Alpha · Run Alpha
+dns · Source editable · JSON · unsaved · included · modules/01_dns.json
+xrmd ready · Content                                                     F1 Help

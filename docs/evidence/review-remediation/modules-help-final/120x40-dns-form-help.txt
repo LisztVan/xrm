@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15 
+ dns  SOURCE · EDIT · Visual                                                                                            
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   DNS servers                  DNS servers  Draft                                                                    
+     DNS query and cache setting  dns.servers                                                                           
+     DNS hosts                    ───────────────────────────────────────────────────────────────────────────────────── 
+                                  1  1.1.1.1                                                                            
+                                     port 53    strategy UseIP                                                          
+                                                                                                                        
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Help & actions                                                                                     │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ DNS server                                                                                         │         
+         │ Add to draft: dns draft. Module Save: Source. Connect / Apply: runtime. Cancel: discard this       │         
+         │ object's unsubmitted changes. Native path /dns/servers/0.                                          │         
+         │ Actions · choose with arrows, Enter to execute                                                     │         
+         │ > Ctrl-S          Add to draft · DNS server                                                        │         
+         │   Esc             Cancel / close form · DNS server                                                 │         
+         │                   Editing scope and advanced fields · DNS server                                   │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ Navigation and input                                                                               │         
+         │ Tab / Shift-Tab         Move between fields and buttons                                            │         
+         │ Arrows / Home / End     Move cursor or choice                                                      │         
+         │ Ctrl-Home / Ctrl-End    Document start / end                                                       │         
+         │ Enter                   Insert newline in multiline text / activate button                         │         
+         │ Esc closes Help and restores your place                                                            │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ dns · Source editable · Visual · excluded                  
+ xrmd ready · Content · modules/01_dns.json                                                           F1 Help & actions 

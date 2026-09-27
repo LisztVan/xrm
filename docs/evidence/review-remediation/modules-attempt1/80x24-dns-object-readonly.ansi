@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api [0m            › [2m2/15[0m
+ [1mdns[0;2m  SOURCE · READ ONLY · Visual                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m
+ [2m [0m│ [1mDNS server[0;2m  READ ONLY                                                   [0m │[2m [0m
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2m [0m│ [1m> Address [read only]     [0m  [2m1.1.1.1                                  [0m  ┃ │[2m [0m
+ [1;2mD[0m│ [2m  IP, DNS URL, localhost or fakedns                                    [0m┃ │[2m [0m
+ [2md[0m│                                                                          │[2m [0m
+ [2m─[0m┤   port [read only]        [x] Set value  [2mExplicit value[0m                  ├[2m─[0m
+ [2m1[0m│                             [2m53                                       [0m    │[2m [0m
+ [2m [0m│ [2m  Default 53; URL port applies for DOH/DOQL                            [0m  │[2m [0m
+ [2m [0m│                                                                          │[2m [0m
+ [2m [0m│   domains [read only]                                                    │[2m [0m
+ [2m [0m│   [ ] Set value  [2mNot set · field omitted[0m                                 │[2m [0m
+ [2m [0m│   [2m  domains                                                            [0m  │[2m [0m
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2m [0m│  [ Close ]                                                               │[2m [0m
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m
+ dns · Source read-only · Visual · excluded
+ [2mxrmd ready · Content · modules/01_dns.json                   [0mF1 Help & actions

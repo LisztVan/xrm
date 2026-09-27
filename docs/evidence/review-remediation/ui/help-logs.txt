@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ N╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Help & actions                                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Logs · View Alpha                                                        │  
+  │ Pause keeps the current buffer in place; new text is buffered. Enter     │  
+  │ shows original text and transport details. No core lifecycle actio…      │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > p               Pause reading                                        ┃ │  
+  │   i               Raw log details                                        │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Up / Down / PageUp /    Browse history                                   │  
+  │ PageDown                                                                 │  
+  │ End                     Resume follow                                    │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                 
+ Following · 0 text lines                                                       
+ xrmd ready · Content                                         F1 Help & actions 

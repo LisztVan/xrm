@@ -1,0 +1,19 @@
+Show Profile settings
+
+Usage: xrm profile show [OPTIONS] PROFILE
+
+POSITIONALS:
+  PROFILE (required)      Exact Profile name or UUID (saved configuration) 
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm profile show Home
+
+Profile accepts an exact saved name or UUID.

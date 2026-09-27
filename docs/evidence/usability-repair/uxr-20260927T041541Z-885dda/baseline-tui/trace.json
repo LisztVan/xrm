@@ -1,0 +1,159 @@
+[
+  {
+    "time": 262932.229,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-q63w4e3v",
+      "pid": 1171109,
+      "xrm_sha256": "2c8bb9dfc5e41d0e54eb9c15dacdca9d964daf98dd4565b65b95f2a91bb74df5"
+    }
+  },
+  {
+    "time": 262934.264,
+    "action": "fixture",
+    "value": {
+      "profile_a": "89755b35-3ca5-4f4c-bcf2-5ef4934e5549",
+      "profile_b": "fdeb515a-1de6-4f73-8ca4-9c820bcac419",
+      "node": "85f57419-b9d7-4d09-8854-186d55a58a3a",
+      "core": "38e3b17e-7f1a-48b8-b909-a5a46ea7fb25",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 262934.325,
+    "action": "tui_pid",
+    "value": "1171146"
+  },
+  {
+    "time": 262934.333,
+    "action": "capture",
+    "value": "overview-start"
+  },
+  {
+    "time": 262934.342,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 262934.397,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 262934.45,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 262934.498,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 262934.556,
+    "action": "capture",
+    "value": "profiles-before-enter"
+  },
+  {
+    "time": 262934.556,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 262934.613,
+    "action": "capture",
+    "value": "profiles-after-enter"
+  },
+  {
+    "time": 262934.613,
+    "action": "key",
+    "value": "R"
+  },
+  {
+    "time": 262934.67,
+    "action": "capture",
+    "value": "rename-clean"
+  },
+  {
+    "time": 262934.67,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 262934.811,
+    "action": "capture",
+    "value": "rename-after-one-esc"
+  },
+  {
+    "time": 262934.811,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 262934.953,
+    "action": "capture",
+    "value": "rename-after-two-esc"
+  },
+  {
+    "time": 262934.969,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 262935.022,
+    "action": "key",
+    "value": "R"
+  },
+  {
+    "time": 262935.071,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 262935.119,
+    "action": "text",
+    "value": " pending"
+  },
+  {
+    "time": 262935.191,
+    "action": "capture",
+    "value": "rename-dirty"
+  },
+  {
+    "time": 262935.191,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 262935.331,
+    "action": "capture",
+    "value": "rename-dirty-esc"
+  },
+  {
+    "time": 262935.331,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 262935.472,
+    "action": "capture",
+    "value": "rename-dirty-second-esc"
+  },
+  {
+    "time": 262935.472,
+    "action": "verification",
+    "value": {
+      "status": "baseline recorded",
+      "note": "Profile Enter/Esc/dirty keys one event at a time; exact screen and forked fake core only; no product verdict from text alone"
+    }
+  },
+  {
+    "time": 262935.56,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-q63w4e3v"
+    }
+  }
+]

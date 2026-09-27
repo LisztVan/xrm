@@ -1,0 +1,73 @@
+Filters: [UX-02],[UX-07],[UX-08],[UX-09],[UX-INT]
+Randomness seeded to: 876449092
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+UX-INT Profile and Subscription editors save their own sources
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1450
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:567: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with message:
+  expected=changed outside this form
+   Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ────
+    Name                     Nodes   Result          Auto    Bound
+  ──Edit subscription [unsaved]
+  ──
+  ▸
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────
+    Name                   Stale subscription
+  ┃
+    URL
+  •••••••••••••••••••••••••�-
+  ��                          ┃
+    User-Agent             Xray
+  ┃
+    Auto refresh           ▣
+  ┃
+    Interval seconds       21600
+  ┃
+    Proxy URL
+  ┃
+    Headers (advanced JSON)
+  ┃
+    {}
+  ┃
+  
+
+    ────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+    ┌────┐┌──────┐
+    │Save││Cancel│
+    └────┘└──────┘
+  
+─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ────
+  View Home renamed · Use Home renamed · Edit none · Run none
+  
+xrmd ready · Content                                                     F1
+  Help
+
+===============================================================================
+test cases:   9 |   8 passed | 1 failed
+assertions: 264 | 263 passed | 1 failed
+

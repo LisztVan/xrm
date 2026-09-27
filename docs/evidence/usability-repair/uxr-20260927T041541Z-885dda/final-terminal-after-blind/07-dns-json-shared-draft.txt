@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · JSON · UNSAVED *                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+ [ {                                                                          ] 
+     "dns": {                                                                   
+       "futureNative": {                                                        
+         "preserved": true                                                      
+       },                                                                       
+       "servers": [                                                             
+         "1.1.1.1",                                                             
+         {                                                                      
+           "address": "9.9.9.9",                                                
+           "port": 53                                                           
+         }                                                                      
+       ]                                                                        
+     }                                                                          
+   }                                                                            
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ dns · Source editable · JSON · Unsaved * · included                            
+ xrmd ready · Page content (Content) · modules/01_dns.json    F1 Help & actions 

@@ -1,0 +1,9 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 178: UI-01 text keys do not fire global actions and TUI exit leaves core running
+    Start 179: UI-04 advanced node form preserves typed subobjects and core selection
+1/2 Test #178: UI-01 text keys do not fire global actions and TUI exit leaves core running ...   Passed   11.53 sec
+2/2 Test #179: UI-04 advanced node form preserves typed subobjects and core selection ........   Passed   11.88 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  11.89 sec

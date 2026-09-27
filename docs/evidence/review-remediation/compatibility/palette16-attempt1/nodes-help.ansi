@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [0m[37m[40m Overview  Profiles  Modules  Subscriptions [1m[96m[Nodes][0m[37m[40m Logs  Config [97m          
+ [96m  [1m Scope: All [0m[37m[40m Scope: Local  Scope: Groups [97m                             [96m   [37m1/3[97m 
+ [1mNodes[0m[37m[40m  Node inventory                                                         [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [2m [0m[97m[40m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m[97m[40m 
+ [2m[90m─[0m[97m[40m┤ [1mHelp & actions[0m[37m[40m                                                          [97m ├[2m[90m─[0m[97m[40m 
+ [2m [0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m[37mN[0m[97m[40m│ [1mNodes · View Compatibility                                              [0m[97m[40m │[2m[37m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mActions · choose with arrows, Enter to execute                          [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1m[96m> a               Add node                                             [0m[97m[40m┃ │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mi               [97mImport share URI / native outbound                   ┃ │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mk               [97mCancel active node tests                             ┃ │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96m/               [97mFilter nodes                                           │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mf               [97mShow / hide missing nodes                              │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1mNavigation and input                                                    [0m[97m[40m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mArrows / PgUp / PgDn    [97mBrowse rows; Home / End jump                     │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mEsc                     [97mReturn one level                                 │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mEsc closes Help and restores your place                                 [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m[97m[40m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ View Compatibility · all                                                       
+ [37mxrmd ready · Content                                         [96mF1 Help & actions[97m 

@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  3 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸╭──────────────────────────────────────────────────────────────────────────╮  
+  │ metadata Profile  EDIT · field 1/3                                       │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name                    [ Review 中文 é qeeu                        ]  │  
+  │                                                                          │  
+  │   Core                    ‹ No core yet ›                                │  
+  │                                                                          │  
+  │   Append selected default [x] Enabled                                    │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Review 中文… · Use none · Edit none · Run Alpha                           
+ View Review 中文 é qeeu · Core not set · Saved none                            
+ xrmd ready · Content                                         F1 Help & actions 

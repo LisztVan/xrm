@@ -1,0 +1,45 @@
+[
+  {
+    "time": 264136.877,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-mqt94hos",
+      "pid": 1188345,
+      "xrm_sha256": "1ef7c6e24812e0a7b07cf42498c1c8f169fa4db067ae285f483459a2352b40f1"
+    }
+  },
+  {
+    "time": 264136.949,
+    "action": "tui_pid",
+    "value": "1188394"
+  },
+  {
+    "time": 264136.958,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264137.012,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264137.064,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264143.121,
+    "action": "capture",
+    "value": "failure"
+  },
+  {
+    "time": 264143.386,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-mqt94hos"
+    }
+  }
+]

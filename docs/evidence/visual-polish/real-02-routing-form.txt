@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+  log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  pol
+ routing  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ Routing rule  UNSAVED *                                                  │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │ > Rule label *            TUI loopback                                 ┃ │
+  │   domain                  No entries                                   ┃ │
+  │   ip                      No entries                                   ┃ │
+  │   port                                                                 ┃ │
+  │   network                 (o) tcp                                      ┃ │
+  │   sourceIP                No entries                                   ┃ │
+  │   sourcePort                                                             │
+  │   localIP                 No entries                                     │
+  │   localPort                                                              │
+  │   user                    No entries                                     │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │  [ Add to draft ]  [ Cancel ]                                            │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Real Loopback · Use Real Loopback · Edit Real Loopback · Run none
+ routing · Source editable · Visual · included
+ xrmd ready · Content · modules/04_routing.json                     ? / F1 Help

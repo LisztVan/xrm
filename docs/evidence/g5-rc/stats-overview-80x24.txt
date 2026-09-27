@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ Runtime  ACTUAL                                                                
+ running  Xray 26.9.9  PID 1277348      
+ Running Profile   G5 Stats             
+ Actual target     Node · G5 loopback direct                                    
+ Health            Process alive; traffic unverified                            
+
+ Saved configuration  VIEW G5 Stats                                             
+ Saved target      Node · G5 loopback direct                                    
+ Next Connect      G5 Stats             
+ Saved settings apply only on Connect / Apply                                   
+
+ Statistics  OBSERVED                                                           
+ Traffic: available · latency: unmeasured                                       
+ g5-socks  total up 784 B · down 1168 B 
+ block  total up 0 B · down 0 B         
+ direct  total up 0 B · down 0 B        
+ xrm.node.05d3f5f1-56bc-484f-834a-bb19170d3f35  total up 672 B · down 1072 B    
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: G5 Stats · Next: G5 Stats · Module Edit: none · Running: G5 Stats     
+ View G5 Stats      
+ xrmd ready · Page navigation (TopNav)                        F1 Help & actions 

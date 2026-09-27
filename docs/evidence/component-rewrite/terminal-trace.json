@@ -1,0 +1,1566 @@
+[
+  {
+    "time": 213097.016,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-iu1nml0j",
+      "pid": 1442864,
+      "xrm_sha256": "34197d37153a4af713f14a19bca71dc4174bb31b8b987ac63da7e185bcd323f1"
+    }
+  },
+  {
+    "time": 213099.041,
+    "action": "fixture",
+    "value": {
+      "profile_a": "cef3f28a-7912-42f9-85ed-5572d01cbed2",
+      "profile_b": "35800846-4ad4-4ea7-a4cf-4fd1df904a32",
+      "node": "f7e215c7-31dc-4ed8-9ebe-d9c21bfd4bb5",
+      "core": "821660b6-ab8f-411a-9da6-d4c0483cc2e3",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 213099.098,
+    "action": "tui_pid",
+    "value": "1443110"
+  },
+  {
+    "time": 213099.103,
+    "action": "capture",
+    "value": "01-overview-80x24"
+  },
+  {
+    "time": 213099.111,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213099.163,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213099.215,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 213099.262,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 213099.31,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213099.364,
+    "action": "capture",
+    "value": "02-profiles-details-bottom"
+  },
+  {
+    "time": 213099.365,
+    "action": "key",
+    "value": "u"
+  },
+  {
+    "time": 213099.421,
+    "action": "capture",
+    "value": "03-use-cancelled-core-running"
+  },
+  {
+    "time": 213099.421,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 213099.47,
+    "action": "key",
+    "value": "u"
+  },
+  {
+    "time": 213099.523,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213099.664,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213099.715,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213099.769,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213099.816,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213099.876,
+    "action": "capture",
+    "value": "04-dns-visual-sections"
+  },
+  {
+    "time": 213099.876,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213099.928,
+    "action": "key",
+    "value": "a"
+  },
+  {
+    "time": 213099.98,
+    "action": "text",
+    "value": "9.9.9.9"
+  },
+  {
+    "time": 213100.043,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213100.091,
+    "action": "text",
+    "value": "oops"
+  },
+  {
+    "time": 213100.154,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213100.212,
+    "action": "capture",
+    "value": "05-dns-invalid-form-keeps-values"
+  },
+  {
+    "time": 213100.212,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 213100.261,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 213100.308,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 213100.356,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 213100.404,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 213100.452,
+    "action": "text",
+    "value": "53"
+  },
+  {
+    "time": 213100.515,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 213100.563,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213100.611,
+    "action": "key",
+    "value": "Left"
+  },
+  {
+    "time": 213100.66,
+    "action": "text",
+    "value": "0"
+  },
+  {
+    "time": 213100.723,
+    "action": "key",
+    "value": "BSpace"
+  },
+  {
+    "time": 213100.771,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 213100.828,
+    "action": "capture",
+    "value": "06-help-over-form"
+  },
+  {
+    "time": 213100.828,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213100.962,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213101.012,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213101.145,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213101.203,
+    "action": "capture",
+    "value": "07-dns-json-shared-draft"
+  },
+  {
+    "time": 213101.203,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213101.251,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213101.299,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213101.347,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 213101.395,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 213101.445,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213101.493,
+    "action": "text",
+    "value": "x"
+  },
+  {
+    "time": 213101.557,
+    "action": "key",
+    "value": "BSpace"
+  },
+  {
+    "time": 213101.605,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213101.652,
+    "action": "key",
+    "value": "c"
+  },
+  {
+    "time": 213101.7,
+    "action": "key",
+    "value": "-"
+  },
+  {
+    "time": 213101.748,
+    "action": "key",
+    "value": "D"
+  },
+  {
+    "time": 213102.527,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213102.574,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213102.707,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213102.761,
+    "action": "capture",
+    "value": "08-dns-collection-edited"
+  },
+  {
+    "time": 213102.764,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213102.9,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213103.045,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213103.097,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213103.145,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213103.194,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213103.242,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213103.294,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213103.344,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 213103.395,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213103.443,
+    "action": "text",
+    "value": " edited"
+  },
+  {
+    "time": 213103.506,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213103.554,
+    "action": "key",
+    "value": "c"
+  },
+  {
+    "time": 213103.602,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 213103.651,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 213103.703,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213103.751,
+    "action": "text",
+    "value": " copy"
+  },
+  {
+    "time": 213103.814,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213103.863,
+    "action": "key",
+    "value": "+"
+  },
+  {
+    "time": 213103.911,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213104.044,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213104.101,
+    "action": "capture",
+    "value": "09-routing-copy-reordered-json"
+  },
+  {
+    "time": 213104.101,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213104.15,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213104.201,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213104.25,
+    "action": "key",
+    "value": "D"
+  },
+  {
+    "time": 213105.808,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213105.856,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213105.989,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213106.041,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213106.177,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213106.318,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213106.366,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213106.414,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213106.462,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213106.51,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213106.559,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213106.612,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213106.663,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 213106.711,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 213106.76,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 213106.815,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213106.956,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213107.007,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213107.061,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213107.11,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213107.163,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213107.211,
+    "action": "text",
+    "value": "q?invalid"
+  },
+  {
+    "time": 213107.274,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213107.329,
+    "action": "capture",
+    "value": "10-modules-readonly"
+  },
+  {
+    "time": 213107.337,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213107.473,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213107.608,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213107.753,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213107.807,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213107.855,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213107.903,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213107.952,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.001,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.049,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.098,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.146,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.194,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.242,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.29,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.338,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.387,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.434,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213108.482,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213108.536,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213108.587,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213108.637,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213108.773,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213108.917,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213108.97,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213109.018,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213109.071,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213109.121,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213109.171,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213109.307,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213109.45,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213109.503,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213109.551,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213109.604,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213109.655,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213109.705,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213109.841,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213109.984,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213110.036,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213110.084,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213110.138,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213110.188,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213110.239,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213110.374,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213110.517,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213110.57,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213110.618,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213110.672,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213110.723,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213110.773,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213110.909,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213111.054,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213111.107,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213111.154,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213111.208,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213111.259,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213111.31,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213111.446,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213111.589,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213111.642,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213111.689,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213111.744,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213111.794,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213111.845,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213111.981,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213112.125,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213112.179,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213112.226,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213112.28,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213112.329,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213112.38,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213112.517,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213112.661,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213112.713,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213112.761,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213112.813,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213112.864,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213112.915,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213113.05,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213113.193,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213113.245,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213113.293,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213113.345,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213113.397,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213113.448,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213113.584,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213113.727,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213113.78,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213113.828,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213113.88,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213113.931,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213113.983,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213114.119,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213114.262,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213114.316,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213114.363,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213114.416,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213114.466,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213114.517,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213114.653,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213114.796,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213114.849,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213114.897,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213114.95,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213115.001,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213115.051,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213115.188,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213115.332,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213115.385,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213115.433,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213115.488,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213115.538,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213115.589,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213115.725,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213115.868,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213115.921,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213115.969,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213116.024,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213116.074,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 213116.133,
+    "action": "capture",
+    "value": "10b-all-15-modules-readonly"
+  },
+  {
+    "time": 213116.135,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213116.271,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213116.413,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213116.461,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213116.509,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213116.557,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213116.606,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213116.654,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213116.709,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213116.761,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 213116.809,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 213116.858,
+    "action": "key",
+    "value": "R"
+  },
+  {
+    "time": 213116.909,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213116.957,
+    "action": "key",
+    "value": "Left"
+  },
+  {
+    "time": 213117.005,
+    "action": "text",
+    "value": "Z"
+  },
+  {
+    "time": 213117.068,
+    "action": "key",
+    "value": "BSpace"
+  },
+  {
+    "time": 213117.117,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 213117.167,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213117.3,
+    "action": "text",
+    "value": "?"
+  },
+  {
+    "time": 213117.364,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213117.42,
+    "action": "capture",
+    "value": "11-profile-rename-without-edit"
+  },
+  {
+    "time": 213117.424,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213117.564,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213117.612,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213117.666,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213117.717,
+    "action": "key",
+    "value": "a"
+  },
+  {
+    "time": 213117.767,
+    "action": "text",
+    "value": "Local fixture"
+  },
+  {
+    "time": 213117.83,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213117.878,
+    "action": "text",
+    "value": "http://127.0.0.1:37063/fixture"
+  },
+  {
+    "time": 213117.942,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 213117.99,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213118.039,
+    "action": "text",
+    "value": " updated"
+  },
+  {
+    "time": 213118.108,
+    "action": "capture",
+    "value": "12-subscription-multifield"
+  },
+  {
+    "time": 213118.108,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213118.161,
+    "action": "key",
+    "value": "u"
+  },
+  {
+    "time": 213118.901,
+    "action": "capture",
+    "value": "13-toast-completed"
+  },
+  {
+    "time": 213121.911,
+    "action": "capture",
+    "value": "14-toast-expired"
+  },
+  {
+    "time": 213121.911,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 213121.967,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213122.015,
+    "action": "text",
+    "value": " draft"
+  },
+  {
+    "time": 213122.081,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213122.138,
+    "action": "capture",
+    "value": "15-save-failure-draft-retained"
+  },
+  {
+    "time": 213122.329,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213124.394,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213124.535,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213124.588,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213124.639,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213124.694,
+    "action": "capture",
+    "value": "16-nodes-80x24"
+  },
+  {
+    "time": 213124.696,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213124.832,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213124.974,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213125.027,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213125.309,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 213125.357,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 213125.413,
+    "action": "capture",
+    "value": "17-logs-paused"
+  },
+  {
+    "time": 213125.414,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 213125.468,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213125.608,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213125.661,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213125.712,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213125.768,
+    "action": "capture",
+    "value": "18-config-cores"
+  },
+  {
+    "time": 213125.771,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213125.906,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 213126.046,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213126.094,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 213126.147,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 213126.198,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 213126.246,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 213126.294,
+    "action": "key",
+    "value": "R"
+  },
+  {
+    "time": 213126.345,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 213126.393,
+    "action": "text",
+    "value": " unsaved"
+  },
+  {
+    "time": 213126.614,
+    "action": "capture",
+    "value": "19-form-120x40"
+  },
+  {
+    "time": 213126.752,
+    "action": "capture",
+    "value": "20-small-terminal-protection"
+  },
+  {
+    "time": 213127.019,
+    "action": "capture",
+    "value": "21-form-180x48"
+  },
+  {
+    "time": 213127.029,
+    "action": "capture",
+    "value": "22-restored-draft-80x24"
+  },
+  {
+    "time": 213127.03,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 213127.078,
+    "action": "verification",
+    "value": {
+      "status": "PASS",
+      "scenarios": "seven pages; form input/help/errors; Use/Edit/readonly; DNS/routing native collections; subscription toast; Logs; resize; RPC and runtime-file facts",
+      "real_xray": "SKIP: process fixture only; real core verification is a separate gate",
+      "G5": "PENDING user acceptance"
+    }
+  },
+  {
+    "time": 213127.188,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-iu1nml0j"
+    }
+  }
+]

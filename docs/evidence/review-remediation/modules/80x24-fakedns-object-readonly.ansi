@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+ ‹ [2m routing  observatory  api  metrics  stats  policy [0;1m fakedns [0m         › [2m11/15[0m 
+ [1mfakedns[0;2m  SOURCE · READ ONLY · Visual                                          [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Fake DNS pools                                                           [0;2m [0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [1;2mF[0m│ [1mFake DNS pool[0;2m  READ ONLY · field 1/2                                    [0m │[2m [0m 
+ [2mf[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m─[0m┤ [1m> Fake IP pool (CIDR)     [0;2mExplicit value                               [0m  ├[2m─[0m 
+ [2m1[0m│ [1m                          [0m  [2m198.18.0.0/15                            [0m    │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│   poolSize                [2mExplicit value                               [0m  │[2m [0m 
+ [2m [0m│                             [2m65535                                    [0m    │[2m [0m 
+ [2m [0m│ [2m  Number of cached mappings                                            [0m  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Close ]                                                               │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m 
+ fakedns · Source read-only · Visual · excluded                                 
+ [2mxrmd ready · Content · modules/10_fakedns.json               [0mF1 Help & actions 

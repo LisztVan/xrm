@@ -1,0 +1,15 @@
+module: routing
+enabled: yes
+source: modules/04_routing.json
+runtime: 04_routing.json
+{
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "network": "tcp",
+        "outboundTag": "xrm.node.6150da7a-e315-43ff-a3d7-74efd5a3ba36"
+      }
+    ]
+  }
+}

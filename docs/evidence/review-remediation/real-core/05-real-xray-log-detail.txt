@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL     MESSAGE                                            
+ ─╭──────────────────────────────────────────────────────────────────────────╮─ 
+  │ Details                                                                  │  
+ 0│ ──────────────────────────────────────────────────────────────────────── │  
+  │   Log text line                                                          │  
+  │   Time    2026/09/27 01:22:45.366422                                     │  
+  │   Transport chunk  9                                                     │  
+ 0│   Source  core_stdout                                                    │  
+  │   Level   not supplied                                                   │  
+  │   Subsystem                                                              │  
+ 0│                                                                          │  
+  │   Line within chunk  1                                                   │  
+  │                                                                          │  
+  │   2026/09/27 01:22:45.366422 from tcp:127.0.0.1:36888 accepted tcp:127   │╻ 
+ 0│   Socket: /tmp/xrm-rewrite-ui-3v00lnup/xrmd.sock                         │┃ 
+ 0╰──────────────────────────────────────────────────────────────────────────╯┃ 
+                           | tcp:127.0.0.1:40265 [socks-in -> direct]         ┃ 
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Real Loopba… · Use Real Loopba… · Edit Real Loopba… · Run Real Loopba…    
+ Paused · 23 text lines                                                         
+ xrmd ready · Content                                         F1 Help & actions 

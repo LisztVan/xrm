@@ -1,0 +1,48 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config                                                                                                               
+ Overview  Runtime & saved configuration                                                                                                                                            
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Runtime  ACTUAL                                                                               Saved configuration  VIEW Alpha                                                      
+ running  Xray 26.9.9  PID 1195634                                                             Saved target      Node · Loopback inventory                                          
+ Running Profile   Alpha                                                                       Next Connect      Beta                                                               
+ Actual target     Node · Loopback inventory                                                   Saved settings apply only on Connect / Apply                                         
+ Health            Process alive; traffic unverified                                                                                                                                
+                                                                                                                                                                                    
+ Statistics  OBSERVED                                                                                                                                                               
+ Traffic: unavailable · latency: unmeasured                                                                                                                                         
+ Unavailable reason: stats, policy, metrics                                                                                                                                         
+                                                                                                                                                                                    
+ Inventory  1 node · 1 source                                                                                                                                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Beta · Module Edit: Alpha · Running: Alpha                                                                                                                  
+ View Alpha                                                                                                                                                                         
+ xrmd ready · Page content (Content)                                                                                                                              F1 Help & actions 

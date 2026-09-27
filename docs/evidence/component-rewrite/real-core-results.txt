@@ -1,0 +1,16 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 61: RC-04
+1/4 Test #61: RC-04 ............................   Passed    6.11 sec
+    Start 62: RC-05
+2/4 Test #62: RC-05 ............................   Passed    3.07 sec
+    Start 64: RC-07
+3/4 Test #64: RC-07 ............................   Passed    0.59 sec
+    Start 72: E2E-06
+4/4 Test #72: E2E-06 ...........................   Passed    6.37 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Label Time Summary:
+real_core    =  16.15 sec*proc (4 tests)
+
+Total Test time (real) =  16.15 sec

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions [0;1m[Nodes][0;2m Logs  Config [0m
+   [2m Scope: All  Scope: Local [0;1m Scope: Groups [0;2m Source: Local fixture [0m                                                 [2m3/4[0m
+ [1mNodes[0;2m  Groups · selection bindings                                                                                    [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m  [1mGroup [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m────────[0m┤ [1mAdd Group[0;2m  UNSAVED * · field 8/12                                                                 [0m ├[2m────────[0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2mNo Group[0m│   Strategy                ‹ Random ›                                                               │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   Member scope            ‹ Explicit nodes ›                                                     ┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│   Nodes *                                                                                        ┃ │[2m        [0m
+ [2m        [0m│   [x] Loopback direct                                                                            ┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│   Sources                                                                                        ┃ │[2m        [0m
+ [2m        [0m│   [ ] Local fixture                                                                              ┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│   Include local           [ ] Enabled                                                            ┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│ [1m> Manual member *         [7m‹ Loopback direct ›                                                    [0m┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│   Native balancer tag     [ xrm-group-266209399881164                                           ]┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│   Protocols                                                                                      ┃ │[2m        [0m
+ [2m        [0m│   [ ] VLESS                                                                                        │[2m        [0m
+ [2m        [0m│   [ ] VMess                                                                                        │[2m        [0m
+ [2m        [0m│   [ ] Trojan                                                                                       │[2m        [0m
+ [2m        [0m│   [ ] Shadowsocks                                                                                  │[2m        [0m
+ [2m        [0m│   [ ] Hysteria2                                                                                    │[2m        [0m
+ [2m        [0m│   [ ] Native                                                                                       │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   Name filters                                                                                     │[2m        [0m
+ [2m        [0m│     [1mName filters                                [0m                                                   │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│  [ Save ]  [ Cancel ]                                                                              │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none                                                [0m
+ View Lab Home · groups
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

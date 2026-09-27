@@ -1,0 +1,78 @@
+{
+  "url_preflight": {
+    "code": "invalid_argument",
+    "message": "订阅URL必须是包含主机名的完整HTTP(S)地址",
+    "subject": "url"
+  },
+  "invalid_core_binary": {
+    "code": "core_check_failed",
+    "message": "Xray version命令没有返回版本文本"
+  },
+  "profile_without_core": {
+    "code": "not_found",
+    "message": "核心不存在",
+    "subject": ""
+  },
+  "success": {
+    "last_result": "success",
+    "node_count": 1,
+    "last_success_set": true
+  },
+  "http_503": {
+    "error": {
+      "code": "network_error",
+      "message": "订阅服务器返回HTTP 503",
+      "subject": "ec734991-15f4-4872-8c9c-8e540c9818c6"
+    },
+    "last_result": "failed",
+    "last_error": "订阅服务器返回HTTP 503",
+    "last_error_stage": "http",
+    "node_count": 1,
+    "last_success_preserved": true
+  },
+  "restart_persistence": {
+    "last_error": "订阅服务器返回HTTP 503",
+    "last_error_stage": "http",
+    "node_count": 1
+  },
+  "partial": {
+    "first_issue": "item 2 · invalid_uri: subscription item is not a URI",
+    "last_error": "item 2 · invalid_uri: subscription item is not a URI",
+    "last_error_stage": "parse",
+    "node_count": 1
+  },
+  "invalid_body": {
+    "error": {
+      "code": "invalid_argument",
+      "message": "订阅没有可用节点（malformed=1, unsupported=0），旧库存已保留；首个问题：item 1 · html_body: subscription response is HTML, not a node list",
+      "subject": "ec734991-15f4-4872-8c9c-8e540c9818c6"
+    },
+    "last_error": "订阅没有可用节点（malformed=1, unsupported=0），旧库存已保留；首个问题：item 1 · html_body: subscription response is HTML, not a node list",
+    "last_error_stage": "parse",
+    "node_count": 1,
+    "last_success_preserved": true
+  },
+  "restored": {
+    "last_result": "success",
+    "last_error": null,
+    "node_count": 1
+  },
+  "connection_refused": {
+    "error": {
+      "code": "network_error",
+      "message": "HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server",
+      "subject": "eaffbd0c-a109-43af-bad0-a854055fdfe4"
+    },
+    "last_error": "HTTP下载失败: Failed to connect to 127.0.0.1:1 after 0 ms: Could not connect to server",
+    "last_error_stage": "download"
+  },
+  "stale_stop": {
+    "error": {
+      "code": "conflict",
+      "hint": "刷新运行状态，确认目标后再停止",
+      "message": "运行实例已改变；没有停止当前实例",
+      "subject": "no-longer-current"
+    },
+    "runtime_unchanged": true
+  }
+}

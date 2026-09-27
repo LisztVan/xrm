@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview [0;1m[Profiles][0;2m Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mProfiles[0;2m  2 Profiles / independent runtime contexts                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+   [1mProfile               [0m [1mCore            [0m╭──────────────────────────────────╮  
+ [2m─────────────────────────────────────────[0m┤ [1m+ Success                       [0m ├[2m─[0m 
+ [1;7m▸ Alph?a                 Process fixture [0m│ Profile Alph?a saved; runtime    │  
+   Beta                   Process fixture │ unchanged                        │  
+                                          ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alph?a · Next: Alph?a · Module Edit: none · Running: Alph?a          [0m 
+ View Alph?a · Core Process fixture · Saved Node · Loopback inventory           
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

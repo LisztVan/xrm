@@ -1,0 +1,11 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 193: E2E-07
+1/1 Test #193: E2E-07 ...........................   Passed  115.13 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+product_repair    = 115.13 sec*proc (1 test)
+real_core         = 115.13 sec*proc (1 test)
+
+Total Test time (real) = 115.13 sec

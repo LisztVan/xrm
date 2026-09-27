@@ -1,0 +1,194 @@
+[
+  {
+    "time": 224829.766,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-fsyxy7a5",
+      "pid": 1582267,
+      "xrm_sha256": "6640d8dc6b91c97d46ea61214c2759cba25a54e0ae9fa451a6f19afbe2b29aa5"
+    }
+  },
+  {
+    "time": 224831.791,
+    "action": "fixture",
+    "value": {
+      "profile_a": "e2454999-d496-4563-a3e9-70676fc8d150",
+      "profile_b": "1ebceca5-f5bf-44cf-8b1b-226b5d811b1b",
+      "node": "db15c341-ea81-43e7-9f3d-e048d8f3a80b",
+      "core": "017c6c47-ea54-45e2-ac7a-c06c8097c417",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 224831.851,
+    "action": "tui_pid",
+    "value": "1582304"
+  },
+  {
+    "time": 224831.86,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 224831.915,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 224831.967,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 224832.015,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 224832.065,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 224832.117,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 224832.168,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 224832.221,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 224832.273,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 224832.417,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 224832.468,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 224832.524,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 224832.573,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 224832.626,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 224832.679,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 224832.731,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 224832.779,
+    "action": "key",
+    "value": "C-Home"
+  },
+  {
+    "time": 224832.828,
+    "action": "text",
+    "value": "!"
+  },
+  {
+    "time": 224832.893,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 224832.956,
+    "action": "capture",
+    "value": "invalid-json-inline-and-toast-deferred"
+  },
+  {
+    "time": 224832.957,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 224833.015,
+    "action": "capture",
+    "value": "invalid-json-help"
+  },
+  {
+    "time": 224833.015,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 224833.15,
+    "action": "key",
+    "value": "C-Home"
+  },
+  {
+    "time": 224833.199,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 224833.248,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 224833.309,
+    "action": "capture",
+    "value": "json-saved-input-unobscured"
+  },
+  {
+    "time": 224833.309,
+    "action": "key",
+    "value": "F2"
+  },
+  {
+    "time": 224833.366,
+    "action": "capture",
+    "value": "toast-returned-after-json-editing"
+  },
+  {
+    "time": 224836.385,
+    "action": "capture",
+    "value": "toast-erased-without-residue"
+  },
+  {
+    "time": 224836.386,
+    "action": "verification",
+    "value": {
+      "status": "PASS",
+      "scope": "JSON validation stays inline; Help full validation; invalid source never saved; Toast deferred while typing; explicit source save leaves runtime untouched"
+    }
+  },
+  {
+    "time": 224836.397,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-fsyxy7a5"
+    }
+  }
+]

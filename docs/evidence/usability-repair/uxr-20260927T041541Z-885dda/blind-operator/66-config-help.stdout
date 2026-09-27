@@ -1,0 +1,43 @@
+Inspect and edit native Xray modules
+
+Usage: xrm config [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+SUBCOMMANDS:
+  modules                 List all native Xray modules and their 
+                          source/runtime files 
+  show                    Show one source module or the generated runtime 
+                          files 
+  edit                    Save a module's original JSON text 
+  enable                  Include a native module in runtime 
+  disable                 Disable runtime output for a native module 
+  statistics              Explicitly edit native modules for traffic 
+                          statistics 
+  env                     Edit Xray's native env module, not xrmd's process 
+                          environment 
+  version                 Edit the native Xray minimum/maximum version range 
+  geodata                 Edit geodata resource references and update schedule 
+  api                     Edit native Xray API services without automatically 
+                          opening the API 
+  metrics                 Edit the native Xray Metrics listener 
+  log                     Edit common native log fields 
+  render                  Materialize a multi-file preview 
+  check                   Run Xray's complete configuration check 
+  dump                    Show Xray diagnostic dump without writing it back 
+  apply                   Check saved settings while stopped, or apply them to 
+                          the running core 
+  export                  Export generated multi-file confdir 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm config modules Home
+  xrm config show Home dns
+  xrm config check Home
+
+Next: xrm config <command> --help

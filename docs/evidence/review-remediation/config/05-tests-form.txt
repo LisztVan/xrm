@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               3/6
+ Config / Tests  XRM program settings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Setting                  Value
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Parallel tests           3
+   Test URL                 Not configured
+   Response limit (bytes)   8388608
+   Timeout (ms)             5000
+
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Node test defaults  EDIT · field 1/4                                                               │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ > Default test URL        [ Enter value                                                         ]  │
+         │                                                                                                    │
+         │   Timeout (ms)            [ 5000                                                                ]  │
+         │                                                                                                    │
+         │   Concurrent tests        [ 3                                                                   ]  │
+         │                                                                                                    │
+         │   Download cap (bytes)    [ 8388608                                                             ]  │
+         │                                                                                                    │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Save ]  [ Cancel ]                                                                              │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ View Home · Use Home · Edit none · Run none
+ XRM / Tests · preferences do not modify native Xray modules
+ xrmd ready · Content                                                                                 F1 Help & actions

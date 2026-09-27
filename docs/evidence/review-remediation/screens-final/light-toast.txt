@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  18 Profiles / independent runtime contexts                           
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                       Core     ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ i Info                           ├─ 
+   Lab region 08 / long descrip… Process f│ Use set to Alpha; runtime        │  
+   Lab region 15 / long descrip… Process f│ unchanged                        │╻ 
+   Lab region 09 / long descrip… Process f╰──────────────────────────────────╯┃ 
+   Lab region 10 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 01 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 14 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 07 / long descrip… Process fixture      —      —      —         ┃ 
+ ▸ Alpha                         Process fixture      yes    —      running   ┃ 
+   Lab region 06 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 13 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 03 / long descrip… Process fixture      —      —      —         ┃ 
+   Beta                          Process fixture      —      —      —         ┃ 
+   Lab region 02 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 00 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 12 / long descrip… Process fixture      —      —      —         ╹ 
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Content                                         F1 Help & actions 

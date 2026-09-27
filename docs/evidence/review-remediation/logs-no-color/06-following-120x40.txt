@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config                                                   
+ Logs  Core output                                                                                                      
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                              
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                                 | [tcp:127.0.0.1:33601]                                                
+ 01:15:49 stdout   Info    transport/internet/t…   [3705423189] dialing TCP to tcp:127.0.0.1:33601                      
+ 01:15:49 stdout   Debug   transport/internet      [3705423189] dialing to tcp:127.0.0.1:33601                          
+ 01:15:49 stdout   Info    proxy/freedom           [3705423189] connection opened to tcp:127.0.0.1:33601, local         
+                                                 | endpoint 127.0.0.1:49062, remote endpoint 127.0.0.1:33601            
+ 01:15:49 stdout   Debug                           [3705423189] proxy: CopyRawConn splice                               
+ 01:15:49 stdout   Debug   proxy/socks             [390623698] Not Socks request, try to parse as HTTP request          
+ 01:15:49 stdout   Info    proxy/http              [390623698] request to Method [GET] Host [] with URL                 
+                                                 | [/invalid-socks]                                                     
+ 01:15:49 stdout   Info    app/proxyman/inbound    [390623698] connection ends > write tcp                              
+                                                 | 127.0.0.1:36143->127.0.0.1:46018: write: broken pipe                 
+ 01:15:49 stdout                                   from tcp:127.0.0.1:46030 accepted tcp:127.0.0.1:33601                
+                                                 | [review-socks -> review-direct]                                      
+ 01:15:49 stdout   Info    proxy/socks             [2882636166] TCP Connect request to tcp:127.0.0.1:33601              
+ 01:15:49 stdout   Info    app/dispatcher          [2882636166] taking detour [review-direct] for                       
+                                                 | [tcp:127.0.0.1:33601]                                                
+ 01:15:49 stdout   Info    transport/internet/t…   [2882636166] dialing TCP to tcp:127.0.0.1:33601                      
+ 01:15:49 stdout   Debug   transport/internet      [2882636166] dialing to tcp:127.0.0.1:33601                          
+ 01:15:49 stdout   Info    proxy/freedom           [2882636166] connection opened to tcp:127.0.0.1:33601, local         
+                                                 | endpoint 127.0.0.1:49072, remote endpoint 127.0.0.1:33601          ┃ 
+ 01:15:49 stdout   Debug                           [2882636166] proxy: CopyRawConn splice                             ┃ 
+ 01:15:52 stdout   Info    proxy/socks             [123923259] TCP Connect request to tcp:127.0.0.1:33601             ┃ 
+ 01:15:52 stdout   Info    app/dispatcher          [123923259] taking detour [review-direct] for                      ┃ 
+                                                 | [tcp:127.0.0.1:33601]                                              ┃ 
+ 01:15:52 stdout   Info    transport/internet/t…   [123923259] dialing TCP to tcp:127.0.0.1:33601                     ┃ 
+ 01:15:52 stdout   Debug   transport/internet      [123923259] dialing to tcp:127.0.0.1:33601                         ┃ 
+ 01:15:52 stdout                                   from tcp:127.0.0.1:33204 accepted tcp:127.0.0.1:33601              ┃ 
+                                                 | [review-socks -> review-direct]                                    ┃ 
+ 01:15:52 stdout   Info    proxy/freedom           [123923259] connection opened to tcp:127.0.0.1:33601, local        ┃ 
+                                                 | endpoint 127.0.0.1:33960, remote endpoint 127.0.0.1:33601          ┃ 
+ 01:15:52 stdout   Debug                           [123923259] proxy: CopyRawConn splice                              ┃ 
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Real log review · Use Real log review · Edit none · Run Real log review                                           
+ Following · 52 text lines                                  
+ xrmd ready · Content                                                                                 F1 Help & actions 

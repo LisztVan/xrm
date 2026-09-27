@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  Unavailable                                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ P│ new Profile                                                              │  
+  │ Save this object to its saved settings; runtime remains unchanged.       │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > Ctrl-S          Save · new Profile                                   ┃ │  
+  │   Esc             Cancel / close form · new Profile                    ┃ │  
+  │                   Editing scope and advanced fields · new Profile      ╹ │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Tab / Shift-Tab         Move between fields and buttons                  │  
+  │ Arrows / Home / End     Move cursor or choice                            │  
+  │ Ctrl-Home / Ctrl-End    Document start / end                             │  
+  │ Enter                   Insert newline in multiline text / activate      │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View none · Use none · Edit none · Run unknown                                 
+ View none · Core not set · Saved none                                          
+ xrmd unavailable · Content                                   F1 Help & actions 

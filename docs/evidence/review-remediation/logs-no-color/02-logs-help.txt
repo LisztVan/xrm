@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ T╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Logs · View Real log review                                              │  
+ 0│ Pause keeps the current buffer in place; new text is buffered. Enter     │  
+  │ shows original text and transport details. No core lifecycle actio…      │  
+ 0│ Actions · choose with arrows, Enter to execute                           │  
+  │ > p               Pause reading                                        ┃ │  
+ 0│   i               Raw log details                                        │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ 0│ Navigation and input                                                     │  
+  │ Up / Down / PageUp /    Browse history                                   │  
+ 0│ PageDown                                                                 │  
+  │ End                     Resume follow                                    │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │┃ 
+ 0╰──────────────────────────────────────────────────────────────────────────╯┃ 
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Real log re… · Use Real log re… · Edit none · Run Real log re…            
+ Following · 45 text lines                                                      
+ xrmd ready · Content                                         F1 Help & actions 

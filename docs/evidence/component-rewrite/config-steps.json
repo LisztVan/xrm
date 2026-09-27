@@ -1,0 +1,361 @@
+[
+  {
+    "screen": "01-overview",
+    "text": "[Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nCORE  stopped\nRunning Profile  none\nActual target    none\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nSaved (Home)  none\nHealth  process_only · process state; remote traffic unverified\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nStatistics\nTraffic: unavailable · latency: unmeasured\n  core not running\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nInventory  0 nodes · 0 sources\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · TopNav                                                                                              F1 Help\n"
+  },
+  {
+    "keys": [
+      "Tab",
+      "Tab",
+      "Tab",
+      "Tab",
+      "Tab",
+      "Tab",
+      "Enter",
+      "Enter",
+      "a"
+    ]
+  },
+  {
+    "screen": "02-core-form",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Core / release                 Version              State\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nNo registered cores\n\n\n\n\n\n\n\n\n\n          Register Xray core\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          Name\n          Executable path\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────────┐┌──────┐\n          │Register││Cancel│\n          └────────┘└──────┘\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "text": "Fixture Xray"
+  },
+  {
+    "keys": [
+      "Tab"
+    ]
+  },
+  {
+    "text": "/missing/xray"
+  },
+  {
+    "keys": [
+      "C-s"
+    ]
+  },
+  {
+    "screen": "03-core-invalid",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Core / release                 Version              State\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nNo registered cores\n\n\n\n\n\n\n\n\n\n          Register Xray core [unsaved]\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          Name                   Fixture Xray\n          Executable path        /missing/xray\n          ! 核心必须是可执行文件的绝对路径\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────────┐┌──────┐\n          │Register││Cancel│\n          └────────┘└──────┘\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Home",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete"
+    ]
+  },
+  {
+    "text": "/tmp/xrm-g1-xray-v26.9.9/xray"
+  },
+  {
+    "keys": [
+      "C-s"
+    ]
+  },
+  {
+    "screen": "04-core-saved",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Core / release                 Version              State                           ╭Done────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Registered Fixture Xray; no core│\n▸ Fixture Xray                   Xray 26.9.9 (Xray, P registered                      │started                         │\n                                                                                      ╰────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "u"
+    ]
+  },
+  {
+    "screen": "04b-core-selected",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Core / release                 Version              State                           ╭Done────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Registered Fixture Xray; no core│\n▸ Fixture Xray                   Xray 26.9.9 (Xray, P registered                      │started                         │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Info────────────────────────────╮\n                                                                                      │Use core started                │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Use core: completed             │\n                                                                                      ╰────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Escape",
+      "Tab",
+      "Tab",
+      "Enter",
+      "e"
+    ]
+  },
+  {
+    "screen": "05-tests-form",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Setting                      Value                                                  ╭Done────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Registered Fixture Xray; no core│\n▸ concurrency                  3                                                      │started                         │\n  default_url                                                                         ╰────────────────────────────────╯\n  max_body_bytes               8388608                                                ╭Info────────────────────────────╮\n  timeout_ms                   5000                                                   │Use core started                │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Use core: completed             │\n                                                                                      ╰────────────────────────────────╯\n\n          Node test defaults\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          Default test URL\n          Timeout (ms)           5000\n          Concurrent tests       3\n          Download cap (bytes)   8388608\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────┐┌──────┐\n          │Save││Cancel│\n          └────┘└──────┘\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "text": "http://127.0.0.1/fixture?quep"
+  },
+  {
+    "keys": [
+      "Tab",
+      "Home",
+      "Delete",
+      "Delete",
+      "Delete",
+      "Delete"
+    ]
+  },
+  {
+    "text": "4500"
+  },
+  {
+    "keys": [
+      "Tab",
+      "Home",
+      "Delete"
+    ]
+  },
+  {
+    "text": "9"
+  },
+  {
+    "keys": [
+      "C-s"
+    ]
+  },
+  {
+    "screen": "06-tests-invalid",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Setting                      Value                                                  ╭Done────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Registered Fixture Xray; no core│\n▸ concurrency                  3                                                      │started                         │\n  default_url                                                                         ╰────────────────────────────────╯\n  max_body_bytes               8388608                                                ╭Info────────────────────────────╮\n  timeout_ms                   5000                                                   │Use core started                │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Use core: completed             │\n                                                                                      ╰────────────────────────────────╯\n\n          Node test defaults [unsaved]\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          Default test URL       http://127.0.0.1/fixture?quep\n          Timeout (ms)           4500\n          Concurrent tests       9\n            ! Maximum: 3\n          Download cap (bytes)   8388608\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────┐┌──────┐\n          │Save││Cancel│\n          └────┘└──────┘\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Home",
+      "Delete"
+    ]
+  },
+  {
+    "text": "2"
+  },
+  {
+    "keys": [
+      "C-s"
+    ]
+  },
+  {
+    "screen": "07-tests-saved",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Setting                      Value                                                 ╭Done─────────────────────────────╮\n─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│\n▸ concurrency                  2                                                     │started                          │\n  default_url                  http://127.0.0.1/fixture?quep                         ╰─────────────────────────────────╯\n  max_body_bytes               8388608\n  timeout_ms                   4500\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Escape",
+      "Tab",
+      "Tab",
+      "Enter",
+      "e"
+    ]
+  },
+  {
+    "screen": "08-editor-form",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Setting                      Value                                                 ╭Done─────────────────────────────╮\n─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│\n▸ argv                         []                                                    │started                          │\n                                                                                     ╰─────────────────────────────────╯\n\n\n\n\n\n\n          External editor\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          Editor arguments (one per line)\n\n\n\n\n\n            First line is the executable. No shell quoting. Empty text uses VISUAL / EDITOR. Blank argument li\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────┐┌──────┐\n          │Save││Cancel│\n          └────┘└──────┘\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "text": "/usr/bin/vi"
+  },
+  {
+    "keys": [
+      "Enter"
+    ]
+  },
+  {
+    "text": "-n"
+  },
+  {
+    "keys": [
+      "C-s"
+    ]
+  },
+  {
+    "screen": "09-editor-saved",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Setting                      Value                                                 ╭Done─────────────────────────────╮\n─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│\n▸ argv                         [\"/usr/bin/vi\",\"-n\"]                                  │started                          │\n                                                                                     ╰─────────────────────────────────╯\n                                                                                     ╭Done─────────────────────────────╮\n                                                                                     │External editor saved            │\n                                                                                     ╰─────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Escape",
+      "BTab",
+      "Enter",
+      "e"
+    ]
+  },
+  {
+    "screen": "10-appearance-form",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Setting                      Value                                                 ╭Done─────────────────────────────╮\n─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│\n▸ cli_color                    auto                                                  │started                          │\n  color_mode                   auto                                                  ╰─────────────────────────────────╯\n  density                      comfortable                                           ╭Done─────────────────────────────╮\n  icon_mode                    unicode                                               │External editor saved            │\n  reduce_mXRM appearance                                                             ╰─────────────────────────────────╯\n  theme   ────────────────────────────────────────────────────────────────────────────────────────────────────\n          Theme                  ◉ Terminal default\n                                 ○ Dark\n                                 ○ Light\n          Color mode             ◉ Automatic\n                                 ○ True color\n                                 ○ 256 colors\n                                 ○ No color\n          Density                ◉ Comfortable\n                                 ○ Compact\n          Icons                  ◉ Unicode\n                                 ○ ASCII\n          Reduce motion          ☐\n          CLI colors             ◉ Automatic\n                                 ○ On in terminals\n                                 ○ Never\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────┐┌──────┐\n          │Save││Cancel│\n          └────┘└──────┘\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Down",
+      "Space",
+      "C-s"
+    ]
+  },
+  {
+    "screen": "11-appearance-saved",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Setting                      Value                                                 ╭Done─────────────────────────────╮\n─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│\n▸ cli_color                    auto                                                  │started                          │\n  color_mode                   auto                                                  ╰─────────────────────────────────╯\n  density                      comfortable                                           ╭Done─────────────────────────────╮\n  icon_mode                    unicode                                               │External editor saved            │\n  reduce_motion                false                                                 ╰─────────────────────────────────╯\n  theme                        dark                                                  ╭Done─────────────────────────────╮\n                                                                                     │XRM appearance saved             │\n                                                                                     ╰─────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Escape",
+      "BTab",
+      "BTab",
+      "Enter",
+      "a"
+    ]
+  },
+  {
+    "screen": "12-geodata-form",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                    ╭Done─────────────────────────────╮\n─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│\nNo Geodata resources                                                                 │started                          │\n                                                                                     ╰─────────────────────────────────╯\n                                                                                     ╭Done─────────────────────────────╮\n                                                                                     │External editor saved            │\n                                                                                     ╰─────────────────────────────────╯\n          Add Geodata resource                                                       ╭Done─────────────────────────────╮\n          ───────────────────────────────────────────────────────────────────────────┤XRM appearance saved             │\n          Name                                                                       ╰─────────────────────────────────╯\n          Resource type          ◉ GeoIP\n                                 ○ GeoSite\n          Runtime filename       geoip.dat\n          Source type            ◉ HTTP(S) URL\n                                 ○ Local file on server\n          Source URL or local pat\n            Source type determines whether this is a URL or a server-local .dat file.\n          Automatic updates      ☐\n          Interval (seconds)     0\n            0 disables the schedule. Positive automatic updates require a validator core.\n          Validator Xray         ◉ No validator selected\n                                 ○ Fixture Xray · Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────┐┌──────┐\n          │Save││Cancel│\n          └────┘└──────┘\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "text": "Geo Fixture"
+  },
+  {
+    "keys": [
+      "Tab",
+      "Tab",
+      "Tab",
+      "Down",
+      "Space",
+      "Tab"
+    ]
+  },
+  {
+    "text": "/tmp/xrm-config-pty-jp05mly8/local-geoip.dat"
+  },
+  {
+    "keys": [
+      "Tab",
+      "Tab",
+      "Home",
+      "Delete"
+    ]
+  },
+  {
+    "text": "60"
+  },
+  {
+    "keys": [
+      "Tab",
+      "Down",
+      "Space",
+      "C-s"
+    ]
+  },
+  {
+    "screen": "13-geodata-created",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                   ╭Done──────────────────────────────╮\n────────────────────────────────────────────────────────────────────────────────────┤XRM appearance saved              │\n▸ Geo Fixture                geoip                           off                    ╰──────────────────────────────────╯\n                                                                                    ╭Done──────────────────────────────╮\n                                                                                    │Geodata Geo Fixture saved; runtime│\n                                                                                    │unchanged                         │\n                                                                                    ╰──────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "e",
+      "End"
+    ]
+  },
+  {
+    "text": " edited"
+  },
+  {
+    "keys": [
+      "C-s"
+    ]
+  },
+  {
+    "screen": "14-geodata-edited",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                   ╭Done──────────────────────────────╮\n────────────────────────────────────────────────────────────────────────────────────┤Geodata Geo Fixture saved; runtime│\n▸ Geo Fixture edited         geoip                           off                    │unchanged                         │\n                                                                                    ╰──────────────────────────────────╯\n                                                                                    ╭Done──────────────────────────────╮\n                                                                                    │Geodata Geo Fixture edited saved; │\n                                                                                    │runtime unchanged                 │\n                                                                                    ╰──────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "b",
+      "Space",
+      "C-s"
+    ]
+  },
+  {
+    "screen": "15-geodata-bind-rejected",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                   ╭Done──────────────────────────────╮\n────────────────────────────────────────────────────────────────────────────────────┤Geodata Geo Fixture saved; runtime│\n▸ Geo Fixture edited         geoip                           off                    │unchanged                         │\n                                                                                    ╰──────────────────────────────────╯\n                                                                                    ╭Done──────────────────────────────╮\n                                                                                    │Geodata Geo Fixture edited saved; │\n                                                                                    │runtime unchanged                 │\n                                                                                    ╰──────────────────────────────────╯\n\n\n\n\n          Geodata for Home [unsaved]\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          Resources              ▣ Geo Fixture edited · geoip.dat (not validated)\n            One validated resource per filename. Uncheck a resource to remove its binding.\n          ! Update and validate Geo Fixture edited before binding it\n          ────────────────────────────────────────────────────────────────────────────────────────────────────\n          ┌────┐┌──────┐\n          │Save││Cancel│\n          └────┘└──────┘\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Escape",
+      "Right",
+      "Enter"
+    ]
+  },
+  {
+    "keys": [
+      "u"
+    ]
+  },
+  {
+    "screen": "16-geodata-validated",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                    ╭Done─────────────────────────────╮\n─────────────────────────────────────────────────────────────────────────────────────┤Geodata Geo Fixture edited saved;│\n▸ Geo Fixture edited         geoip        success            off                     │runtime unchanged                │\n                                                                                     ╰─────────────────────────────────╯\n                                                                                     ╭Info─────────────────────────────╮\n                                                                                     │Update resource started          │\n                                                                                     ╰─────────────────────────────────╯\n                                                                                     ╭Done─────────────────────────────╮\n                                                                                     │Update resource: completed       │\n                                                                                     ╰─────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "b",
+      "Space",
+      "C-s"
+    ]
+  },
+  {
+    "screen": "17-geodata-bound",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                     ╭Info────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Update resource started         │\n▸ Geo Fixture edited         geoip        success            off                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Update resource: completed      │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Geodata bindings saved for Home;│\n                                                                                      │runtime unchanged               │\n                                                                                      ╰────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "D",
+      "Enter"
+    ]
+  },
+  {
+    "screen": "18-bound-remove-rejected",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                     ╭Done────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Update resource: completed      │\n▸ Geo Fixture edited         geoip        success            off                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Geodata bindings saved for Home;│\n                                                                                      │runtime unchanged               │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Error───────────────────────────╮\n                                                                                      │Resource removal:               │\n                                                                                      │Geodata资源仍被Profile使用      │\n                                                                                      ╰────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "b",
+      "Space",
+      "C-s"
+    ]
+  },
+  {
+    "screen": "19-geodata-unbound",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                     ╭Done────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Update resource: completed      │\n▸ Geo Fixture edited         geoip        success            off                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Geodata bindings saved for Home;│\n                                                                                      │runtime unchanged (2)           │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Error───────────────────────────╮\n                                                                                      │Resource removal:               │\n                                                                                      │Geodata资源仍被Profile使用      │\n                                                                                      ╰────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "D",
+      "Enter"
+    ]
+  },
+  {
+    "screen": "20-geodata-removed",
+    "text": " Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]\n Core  Geodata  Tests  Appearance  Editor  General\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n  Resource                   Kind         Result             Auto                     ╭Done────────────────────────────╮\n──────────────────────────────────────────────────────────────────────────────────────┤Geodata bindings saved for Home;│\nNo Geodata resources                                                                  │runtime unchanged (2)           │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Error───────────────────────────╮\n                                                                                      │Resource removal:               │\n                                                                                      │Geodata资源仍被Profile使用      │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Resource removal saved; runtime │\n                                                                                      │unchanged                       │\n                                                                                      ╰────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\n\nxrmd ready · Content                                                                                             F1 Help\n"
+  },
+  {
+    "keys": [
+      "Escape",
+      "Escape",
+      "BTab",
+      "BTab",
+      "BTab",
+      "BTab",
+      "BTab",
+      "BTab",
+      "Enter",
+      "i"
+    ]
+  },
+  {
+    "screen": "21-local-entry-readonly",
+    "text": " Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config\n log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burst\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n>   Inbound listeners                                                                 ╭Done────────────────────────────╮\n                                                                                      │Geodata bindings saved for Home;│\n                                                                                      │runtime unchanged (2)           │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Error───────────────────────────╮\n                                                                                      │Resource removal:               │\n                                                                                      │Geodata资源仍被Profile使用      │\n                                                                                      ╰────────────────────────────────╯\n                                                                                      ╭Done────────────────────────────╮\n                                                                                      │Resource removal saved; runtime │\n                                                                                      │unchanged                       │\n                                                                                      ╰────────────────────────────────╯\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\nView Home · Use Home · Edit none · Run none\ninbounds · Source read-only · Visual · included · modules/02_inbounds.json\nxrmd ready · Content                                                                                             F1 Help\n"
+  }
+]

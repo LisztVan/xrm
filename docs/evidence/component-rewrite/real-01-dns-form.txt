@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+> dns-server [unsaved]                            ╭Info────────────────────────╮
+  ────────────────────────────────────────────────┤Module Edit enabled for Real│
+  Address                localhost                │Loopback                    │
+    IP, DNS URL, localhost or fakedns             ╰────────────────────────────╯
+  port
+    Default 53; URL port applies for DOH/DOQL | Unset
+  domains
+    Entries
+  ───────────────────────────────────────────────────────────────────────────
+  No entries
+
+  Value:
+  ────────────────────────────────────────────────────────────────────────────
+  ┌────────────┐┌──────┐
+  │Add to draft││Cancel│
+  └────────────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+View Real Loopback · Use Real Loopback · Edit Real Loopback · Run none
+dns · Source editable · Visual · included · modules/01_dns.json
+xrmd ready · Content                                                     F1 Help

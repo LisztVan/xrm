@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config           
+    Scope: All  Scope: Local  Scope: Groups                              › 1/15 
+ Nodes  Node inventory                                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+   Node                   Protocol   Enabled  Support    Saved  Run             
+ ────────────────────────────────────────────────────────────────────────────── 
+   Loopback route 36 / l… freedom    yes      raw-only   —      —               
+   Loopback route 07 / l… freedom    yes      raw-only   —      —               
+   Loopback route 27 / l… freedom    yes      raw-only   —      —               
+   Loopback route 15 / l… freedom    yes      raw-only   —      —               
+   Loopback route 09 / l… freedom    yes      raw-only   —      —               
+   Loopback route 11 / l… freedom    yes      raw-only   —      —               
+   Loopback route 34 / l… freedom    yes      raw-only   —      —               
+   Loopback route 03 / l… freedom    yes      raw-only   —      —               
+   Loopback route 31 / l… freedom    yes      raw-only   —      —               
+   Loopback route 35 / l… freedom    yes      raw-only   —      —             ┃ 
+   Loopback route 04 / l… freedom    yes      raw-only   —      —             ┃ 
+ ▸ Loopback inventory     freedom    yes      raw-only   yes    yes           ┃ 
+   Loopback route 12 / l… freedom    yes      raw-only   —      —             ┃ 
+   Loopback route 37 / l… freedom    yes      raw-only   —      —             ┃ 
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                 
+ Highlighted Loopback inventory · Saved Node · Loopback inventory · Running No… 
+ xrmd ready · Content                                         F1 Help & actions 

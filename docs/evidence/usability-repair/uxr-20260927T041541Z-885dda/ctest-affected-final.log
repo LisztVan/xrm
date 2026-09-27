@@ -1,0 +1,9 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 313: Stopped runtime lookup does not claim the Profile is missing
+1/2 Test #313: Stopped runtime lookup does not claim the Profile is missing ...   Passed    0.00 sec
+    Start 374: xrm_component_rewrite_terminal
+2/2 Test #374: xrm_component_rewrite_terminal .................................   Passed   30.88 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =  30.89 sec

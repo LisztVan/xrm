@@ -1,0 +1,22 @@
+Full CTest #368, UX-07/09 module views, failed after TUI SIGSEGV.
+Signal: 11
+Command: /home/lisztzy/Projects/xrm/out/real-core/xrm --socket /tmp/xrm-i52-tui-275471838500908/xrmd.sock tui
+Stack:
+Stack trace of thread 1428212:
+#0  0x000055594b189981 _ZN5ftxui5EventC2EOS0_ (xrm + 0x2c3981)
+#1  0x000055594b1c8230 _ZSt12construct_atIN5ftxui5EventEJS1_EQaant20is_unbounded_array_vIT_ErqXgsnwcvPvLi0E_S2_pispcl7declvalIT0_EEEEEPS2_S5_DpOS4_ (xrm + 0x302230)
+#2  0x000055594b1c51dc _ZNSt16allocator_traitsISaIN5ftxui5EventEEE9constructIS1_JS1_EEEvRS2_PT_DpOT0_ (xrm + 0x2ff1dc)
+#3  0x000055594b1c27ef _ZNSt5dequeIN5ftxui5EventESaIS1_EE9push_backEOS1_ (xrm + 0x2fc7ef)
+#4  0x000055594b1c0655 _ZN5ftxui19MultiReceiverBufferINS_5EventEE4PushES1_ (xrm + 0x2fa655)
+#5  0x000055594b1b2758 _ZZN5ftxui3App8InternalC4EPS0_NS_12AppDimensionEbENKUlNS_5EventEE_clES4_ (xrm + 0x2ec758)
+#6  0x000055594b1bb36a __invoke_impl<void, ftxui::App::Internal::Internal(ftxui::App*, ftxui::AppDimension, bool)::<lambda(ftxui::Event)>&, ftxui::Event> (xrm + 0x2f536a)
+#7  0x000055594b1ba0c3 __invoke_r<void, ftxui::App::Internal::Internal(ftxui::App*, ftxui::AppDimension, bool)::<lambda(ftxui::Event)>&, ftxui::Event> (xrm + 0x2f40c3)
+#8  0x000055594b1b8fa5 _M_invoke (xrm + 0x2f2fa5)
+#9  0x000055594b1cfceb _ZNKSt8functionIFvN5ftxui5EventEEEclES1_ (xrm + 0x309ceb)
+#10 0x000055594b1cd6f9 _ZN5ftxui19TerminalInputParser4SendENS0_6OutputE (xrm + 0x3076f9)
+#11 0x000055594b1cd43e _ZN5ftxui19TerminalInputParser3AddEc (xrm + 0x30743e)
+#12 0x000055594b1b656a _ZN5ftxui3App8Internal19FetchTerminalEventsEv (xrm + 0x2f056a)
+#13 0x000055594b1b4073 _ZN5ftxui3App8Internal7RunOnceERKSt10shared_ptrINS_13ComponentBaseEE (xrm + 0x2ee073)
+#14 0x000055594b1b439a _ZN5ftxui3App8Internal15RunOnceBlockingESt10shared_ptrINS_13ComponentBaseEE (xrm + 0x2ee39a)
+#15 0x000055594b1b788c _ZN5ftxui3App15RunOnceBlockingESt10shared_ptrINS_13ComponentBaseEE (xrm + 0x2f188c)
+Focused rerun: PASS; 10 repeated focused reruns: PASS.

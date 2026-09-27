@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15 
+ dns  SOURCE · EDIT · Visual                                                                                            
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   DNS ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+     DNS │ DNS server  EDIT · field 1/15                                                                      │         
+     DNS │ ────────────────────────────────────────────────────────────────────────────────────────────────── ├──────── 
+         │ > Address                 [ 1.1.1.1                                                             ]┃ │         
+         │   IP, DNS URL, localhost or fakedns                                                              ┃ │         
+         │                                                                                                  ┃ │         
+         │   port                    [x] Set value  Explicit value                                          ┃ │         
+         │                           [ 53                                                                  ]┃ │         
+         │   Default 53; URL port applies for DOH/DOQL                                                      ┃ │         
+         │                                                                                                  ┃ │         
+         │   domains                                                                                        ┃ │         
+         │   [ ] Set value  Not set · field omitted                                                         ┃ │         
+         │     domains                                                                                      ┃ │         
+         │   ───────────────────────────────────────────────────────────────────────────────────────────────┃ │         
+         │                                                                                                    │         
+         │   No entries                                                                                       │         
+         │   New domains: [ Enter value                                                                    ]  │         
+         │    [ Add ]                                                                                         │         
+         │   Priority domain matches                                                                          │         
+         │                                                                                                    │         
+         │   expectedIPs                                                                                      │         
+         │   [ ] Set value  Not set · field omitted                                                           │         
+         │     expectedIPs                                                                                    │         
+         │   ───────────────────────────────────────────────────────────────────────────────────────────────  │         
+         │                                                                                                    │         
+         │   No entries                                                                                       │         
+         │   New expectedIPs: [ Enter value                                                                ]  │         
+         │    [ Add ]                                                                                         │         
+         │   Keep matching responses                                                                          │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Add to draft ]  [ Cancel ]                                                                      │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ dns · Source editable · Visual · excluded                  
+ xrmd ready · Content · modules/01_dns.json                                                           F1 Help & actions 

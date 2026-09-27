@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               5/6
+ Config / Editor  XRM program settings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Setting                  Value
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ External editor          Not configured
+
+
+
+
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ External editor  FORM · field 1/1                                                                  │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ > Editor arguments (one per line)                                                                  │
+         │   [ Enter value                                                                                    │
+         │                                                                                                    │
+         │                                                                                                    │
+         │                                                                                                    │
+         │   First line is the executable. No shell quoting. Empty text uses VISUAL / EDITOR. Blank argument  │
+         │                                                                                                    │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Save ]  [ Cancel ]                                                                              │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ XRM / Editor · preferences do not modify native Xray modules
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

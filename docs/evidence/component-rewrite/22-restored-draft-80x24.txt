@@ -1,0 +1,24 @@
+ Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config
+────────────────────────────────────────────────────────────────────────────────
+  Profile                      Core                     Session
+────────────────────────────────────────────────────────────────────────────────
+  Beta                         Process fixture
+▸ Alph?a                       Process fixture          Use Run
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        rename Profile [unsaved]
+                                        ────────────────────────────────────────
+                                        Name                   Alph?a unsaved
+                                        ────────────────────────────────────────
+                                        ┌────┐┌──────┐

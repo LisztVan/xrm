@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config
+ Profiles  2 profiles  /  independent runtime contexts
+ ──────────────────────────────────────────────────────────────────────────────
+   Profile                  Core                   Session
+ ──────────────────────────────────────────────────────────────────────────────
+ ▸ Alpha                    Process fixture        Edit Run
+   Beta                     Process fixture
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use none · Edit Alpha · Run Alpha
+ Cursor Alpha
+ xrmd ready · Content                                               ? / F1 Help

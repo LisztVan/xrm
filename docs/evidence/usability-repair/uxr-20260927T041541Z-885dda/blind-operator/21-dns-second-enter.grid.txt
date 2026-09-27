@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15
+ dns  SOURCE · EDIT · Visual · UNSAVED *
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   DNS ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+     DNS │ DNS server  READ ONLY · field 1/15                                                                 │
+     DNS │ ────────────────────────────────────────────────────────────────────────────────────────────────── ├────────
+         │ Server address                                                                                   ┃ │
+         │ > Address                   127.0.0.1                                                            ┃ │
+         │   IP, DNS URL, localhost or fakedns                                                              ┃ │
+         │                                                                                                  ┃ │
+         │   port                    Not set · field omitted                                                ┃ │
+         │                             Enable Set value to edit; draft value retained                       ┃ │
+         │   Default 53; URL port applies for DOH/DOQL                                                      ┃ │
+         │                                                                                                  ┃ │
+         │ Matching and response filters                                                                    ┃ │
+         │   domains                                                                                        ┃ │
+         │   Not set · field omitted                                                                        ┃ │
+         │     Enable Set value to edit; draft value retained                                               ┃ │
+         │   Priority domain matches                                                                        ┃ │
+         │                                                                                                  ╹ │
+         │   expectedIPs                                                                                      │
+         │   Not set · field omitted                                                                          │
+         │     Enable Set value to edit; draft value retained                                                 │
+         │   Keep matching responses                                                                          │
+         │                                                                                                    │
+         │   unexpectedIPs                                                                                    │
+         │   Not set · field omitted                                                                          │
+         │     Enable Set value to edit; draft value retained                                                 │
+         │   Exclude matching responses                                                                       │
+         │                                                                                                    │
+         │   queryStrategy             Unset / use core default                                               │
+         │   Unset: inherit DNS strategy                                                                      │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Close ]                                                                                         │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ dns · Source editable · Visual · Unsaved * · included
+ xrmd ready · Page content (Content) · modules/01_dns.json                                            F1 Help & actions

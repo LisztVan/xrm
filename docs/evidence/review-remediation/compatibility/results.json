@@ -1,0 +1,223 @@
+{
+  "xterm": {
+    "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+    "captures": 16,
+    "verification": {
+      "status": "PASS",
+      "mode": "xterm",
+      "pages": [
+        "Overview",
+        "Profiles",
+        "Modules",
+        "Subscriptions",
+        "Nodes",
+        "Logs",
+        "Config"
+      ],
+      "colour_codes": [
+        [
+          38,
+          5,
+          74
+        ],
+        [
+          38,
+          5,
+          109
+        ],
+        [
+          38,
+          5,
+          179
+        ],
+        [
+          38,
+          5,
+          240
+        ],
+        [
+          38,
+          5,
+          254
+        ],
+        [
+          48,
+          5,
+          234
+        ],
+        [
+          48,
+          5,
+          235
+        ],
+        [
+          48,
+          5,
+          237
+        ]
+      ],
+      "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+      "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+    },
+    "cleanup": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-zanb3qq1"
+    }
+  },
+  "palette16": {
+    "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+    "captures": 16,
+    "verification": {
+      "status": "PASS",
+      "mode": "palette16",
+      "pages": [
+        "Overview",
+        "Profiles",
+        "Modules",
+        "Subscriptions",
+        "Nodes",
+        "Logs",
+        "Config"
+      ],
+      "colour_codes": [
+        [
+          37
+        ],
+        [
+          40
+        ],
+        [
+          90
+        ],
+        [
+          93
+        ],
+        [
+          96
+        ],
+        [
+          97
+        ]
+      ],
+      "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+      "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+    },
+    "cleanup": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-buwqvpo8"
+    }
+  },
+  "dumb": {
+    "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+    "captures": 16,
+    "verification": {
+      "status": "PASS",
+      "mode": "dumb",
+      "pages": [
+        "Overview",
+        "Profiles",
+        "Modules",
+        "Subscriptions",
+        "Nodes",
+        "Logs",
+        "Config"
+      ],
+      "colour_codes": [],
+      "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+      "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+    },
+    "cleanup": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-1dnmyd6k"
+    }
+  },
+  "no-color": {
+    "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+    "captures": 16,
+    "verification": {
+      "status": "PASS",
+      "mode": "no-color",
+      "pages": [
+        "Overview",
+        "Profiles",
+        "Modules",
+        "Subscriptions",
+        "Nodes",
+        "Logs",
+        "Config"
+      ],
+      "colour_codes": [],
+      "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+      "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+    },
+    "cleanup": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-zvgfny8j"
+    }
+  },
+  "first-no-daemon": {
+    "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+    "captures": 16,
+    "verification": {
+      "status": "PASS",
+      "mode": "first-no-daemon",
+      "pages": [
+        "Overview",
+        "Profiles",
+        "Modules",
+        "Subscriptions",
+        "Nodes",
+        "Logs",
+        "Config"
+      ],
+      "colour_codes": [
+        [
+          38,
+          5,
+          74
+        ],
+        [
+          38,
+          5,
+          109
+        ],
+        [
+          38,
+          5,
+          179
+        ],
+        [
+          38,
+          5,
+          240
+        ],
+        [
+          38,
+          5,
+          254
+        ],
+        [
+          48,
+          5,
+          234
+        ],
+        [
+          48,
+          5,
+          235
+        ],
+        [
+          48,
+          5,
+          237
+        ]
+      ],
+      "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+      "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+    },
+    "cleanup": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-p0pbdbh7"
+    }
+  }
+}

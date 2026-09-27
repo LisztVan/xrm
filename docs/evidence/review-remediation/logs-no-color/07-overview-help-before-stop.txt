@@ -1,0 +1,40 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config                                                   
+ Overview  Runtime & saved configuration                                                                                
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Runtime  ACTUAL                                                 Saved configuration  VIEW Real log review              
+ running  Xray 26.9.9  PID 1524101                               Saved target      none                                 
+ Running Profile   Real log review                               Next Connect      Real log review                      
+ Actual target     none                                          Saved settings apply only on Connect / Apply           
+ Health            Process alive; traffic unverified                                                                    
+                                                                                                                        
+ Statisti╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+ Traffic:│ Help & actions                                                                                     │         
+ Requires│ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ Overview · View Real log review · Connect uses Real log review                                     │         
+ Inventor│ Connect publishes saved settings only. Statistics need saved stats, policy and metrics settings    │         
+         │ plus a running core. Configure in Modules, then explicitly Connect.                                │         
+         │ Actions · choose with arrows, Enter to execute                                                     │         
+         │ > c               Connect saved · Real log review                                                  │         
+         │   d               Stop core                                                                        │         
+         │   f               Runtime paths                                                                    │         
+         │   i               Inspect local entry                                                              │         
+         │   N               Notification history                                                             │         
+         │   r               Refresh                                                                          │         
+         │   F               Full object details                                                              │         
+         │   Enter           View highlighted object                                                          │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ Navigation and input                                                                               │         
+         │ Esc                     Return one level                                                           │         
+         │ Esc closes Help and restores your place                                                            │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Real log review · Use Real log review · Edit none · Run Real log review                                           
+ View Real log review ·                                                                                                 
+ xrmd ready · Content                                                                                 F1 Help & actions 

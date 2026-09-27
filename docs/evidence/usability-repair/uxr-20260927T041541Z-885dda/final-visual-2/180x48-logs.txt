@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config                                                                                                               
+ Logs  Core output                                                                                                                                                                  
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                                                                                          
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ -        stdout                                   continued line                                                                                                                   
+ -        stdout                                   XRM_FAKE_CORE_LOG_0000                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0001                                                                                                         ╻ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0002                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0003                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0004                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0005                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0006                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0007                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0008                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0009                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0010                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0011                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0012                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0013                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0014                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0015                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0016                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0017                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0018                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0019                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0020                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0021                                                                                                         ┃ 
+ 12:41:02 stdout   Info    transport/internet/t…   accepted connection from 127.0.0.1:51002                                                                                       ┃ 
+ 12:41:03 stdout   Warning app/dns                 resolver timeout; preserving the configured fallback order                                                                     ┃ 
+ 12:41:04 stdout   Error   proxy/vless             loopback fixture rejected a deliberately invalid request; this long message must remain aligned when wrapped at 80 columns     ┃ 
+ -        stdout                                   native output without severity or timestamp                                                                                    ┃ 
+ 12:41:02 stdout   Info    transport/internet/t…   accepted connection from 127.0.0.1:51002                                                                                       ┃ 
+ 12:41:03 stdout   Warning app/dns                 resolver timeout; preserving the configured fallback order                                                                     ┃ 
+ 12:41:04 stdout   Error   proxy/vless             loopback fixture rejected a deliberately invalid request; this long message must remain aligned when wrapped at 80 columns     ┃ 
+ -        stdout                                   native output without severity or timestamp                                                                                    ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0000                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0001                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0002                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0003                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0004                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0005                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0006                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0007                                                                                                         ┃ 
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha                                                                                                                  
+ Paused · 42 text lines                                                                                                                                                             
+ xrmd ready · Page content (Content)                                                                                                                              F1 Help & actions 

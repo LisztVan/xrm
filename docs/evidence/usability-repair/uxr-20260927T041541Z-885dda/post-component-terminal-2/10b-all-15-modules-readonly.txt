@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  stats  policy  fakedns  geodata  env  version  burstObservatory       15/15 
+ burstObservatory  SOURCE · READ ONLY · Visual                                  
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Burst observatory                                                          
+                                                                                
+ Burst observatory  Read only                                                   
+ burstObservatory                                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ subjectSelector         Empty list                                             
+ Probe URL               http://127.0.0.1/                                      
+ Local connectivity URL  http://127.0.0.1/                                      
+ Mean interval           10s                                                    
+ pingConfig/sampling     2                                                      
+ Timeout                 1s                                                     
+ HTTP method             GET                                                    
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ burstObservatory · Source read-only · Visual · excluded                        
+ xrmd ready · Page content (Content) · modules/14_burstObs…   F1 Help & actions 

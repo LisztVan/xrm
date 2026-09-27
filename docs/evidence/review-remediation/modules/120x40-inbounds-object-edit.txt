@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 3/15 
+ inbounds  SOURCE · EDIT · Visual                                                                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Inbound listeners            Inbound listeners  Draft                                                              
+                                  inbounds                                                                              
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  1               local-socks · socks · 127.0.0.1:19091                                 
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Inbound listener  EDIT · field 1/4                                                                 │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ > tag                     [x] Set value  Explicit value                                            │         
+         │                           [ local-socks                                                         ]  │         
+         │                                                                                                    │         
+         │   protocol                ‹ socks ›                                                                │         
+         │                                                                                                    │         
+         │   listen                  [x] Set value  Explicit value                                            │         
+         │                           [ 127.0.0.1                                                           ]  │         
+         │                                                                                                    │         
+         │   port                    [x] Set value  Explicit value                                            │         
+         │                           [ 19091                                                               ]  │         
+         │   Native number, port/range string or env:NAME; existing type preserved                            │         
+         │                                                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Add to draft ]  [ Cancel ]                                                                      │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ inbounds · Source editable · Visual · excluded             
+ xrmd ready · Content · modules/02_inbounds.json                                                      F1 Help & actions 

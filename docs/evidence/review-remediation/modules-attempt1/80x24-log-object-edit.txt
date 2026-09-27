@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api             › 1/15
+ log  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+ >╭──────────────────────────────────────────────────────────────────────────╮
+  │ Xray logging  EDIT                                                       │
+ X│ ──────────────────────────────────────────────────────────────────────── │
+ l│ > Access destination      [x] Set value  Explicit value                ┃ │
+ ─┤                           [ none                                      ]┃ ├─
+ A│   Path; empty = stdout; none disables                                  ┃ │
+ E│                                                                        ┃ │
+ l│   Error destination       [x] Set value  Explicit value                ┃ │
+  │                           [ none                                      ]┃ │
+  │                                                                        ╹ │
+  │   loglevel                ‹ warning ›                                    │
+  │   Unset: warning                                                         │
+  │                                                                          │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │  [ Add to draft ]  [ Cancel ]                                            │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Module revi… · Use Module revi… · Edit Module revi… · Run none
+ log · Source editable · Visual · excluded
+ xrmd ready · Content · modules/00_log.json                   F1 Help & actions

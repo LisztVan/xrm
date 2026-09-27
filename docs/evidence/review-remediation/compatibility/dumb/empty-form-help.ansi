@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview [0;1m[Profiles][0;2m Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mProfiles[0;2m  1 Profile / independent runtime contexts                            [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m─[0m┤ [1mHelp & actions[0;2m                                                          [0m ├[2m─[0m 
+ [1;2m▸[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mnew Profile                                                             [0m │[2m [0m 
+ [2m [0m│ [2mSave this object to its saved settings; runtime remains unchanged.      [0m │[2m [0m 
+ [2m [0m│ [2mActions · choose with arrows, Enter to execute                          [0m │[2m [0m 
+ [2m [0m│ [1;7m> Ctrl-S          Save · new Profile                                   [0m  │[2m [0m 
+ [2m [0m│   Esc             Cancel / close form · new Profile                      │[2m [0m 
+ [2m [0m│                   Editing scope and advanced fields · new Profile        │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mNavigation and input                                                    [0m │[2m [0m 
+ [2m [0m│ Tab / Shift-Tab         Move between fields and buttons                  │[2m [0m 
+ [2m [0m│ Arrows / Home / End     Move cursor or choice                            │[2m [0m 
+ [2m [0m│ Ctrl-Home / Ctrl-End    Document start / end                             │[2m [0m 
+ [2m [0m│ Enter                   Insert newline in multiline text / activate      │[2m [0m 
+ [2m [0m│ [2mEsc closes Help and restores your place                                 [0m │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Compatibili… · Use Compatibili… · Edit none · Run none                   [0m 
+ View Compatibility · Core not set · Saved none                                 
+ [2mxrmd ready · Content                                         [0mF1 Help & actions 

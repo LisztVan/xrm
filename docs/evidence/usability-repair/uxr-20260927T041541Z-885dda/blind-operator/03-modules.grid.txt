@@ -1,0 +1,40 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+ Overview  Runtime & saved configuration
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Runtime  ACTUAL                                      Saved configuration  VIEW Lab Home
+ stopped                                              Saved target      Node · Loopback direct
+ Running Profile   none                               Next Connect      Lab Home
+ Actual target     none                               Saved settings apply only on Connect / Apply
+ Health            Not running
+
+ Statistics  OBSERVED
+ Traffic:╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ Unavaila│ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+ Inventor│ Overview · View Lab Home · Page navigation                                                         │
+         │ Add nodes in Nodes; choose the next Profile in Profiles. Connect publishes saved settings only.    │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │   Enter           Open Overview                                                                    │
+         │ > q               Exit TUI                                                                         │
+         │ The running core keeps running.                                                                    │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Tab / Shift-Tab         Choose a page                                                              │
+         │ Esc                     Return one level                                                           │
+         │ After Enter             Connect saved                                                              │
+         │ After Enter             Stop core                                                                  │
+         │ After Enter             Runtime paths                                                              │
+         │ After Enter             Inspect local entry                                                        │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ View Lab Home
+ xrmd ready · Page navigation (TopNav)                                                                F1 Help & actions

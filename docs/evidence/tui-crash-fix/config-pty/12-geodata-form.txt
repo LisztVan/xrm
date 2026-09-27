@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               2/6
+ Config / Geodata  Resource cache
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Resource                   Kind         Result             Auto
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+ No Geoda╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Add Geodata resource  FORM · field 1/8                                                             │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ > Name                    [ Enter value                                                         ]  │
+         │                                                                                                    │
+         │   Resource type           ‹ GeoIP ›                                                                │
+         │                                                                                                    │
+         │   Runtime filename        [ geoip.dat                                                           ]  │
+         │                                                                                                    │
+         │   Source type             ‹ HTTP(S) URL ›                                                          │
+         │                                                                                                    │
+         │   Source URL or local path[ Enter value                                                         ]  │
+         │   Source type determines whether this is a URL or a server-local .dat file. Hidden · Ctrl-R        │
+         │ reveals/hides the real value without changing it.                                                  │
+         │                                                                                                    │
+         │   Automatic updates       [ ] Enabled                                                              │
+         │                                                                                                    │
+         │   Interval (seconds)      [ 0                                                                   ]  │
+         │   0 disables the schedule. Positive automatic updates require a validator core.                    │
+         │                                                                                                    │
+         │   Validator Xray          ‹ No validator selected ›                                                │
+         │                                                                                                    │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Save ]  [ Cancel ]                                                                              │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ View Home · Geodata
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

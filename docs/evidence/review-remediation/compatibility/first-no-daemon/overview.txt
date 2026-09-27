@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ Runtime  ACTUAL                                                                
+ unknown                                                                        
+ Running Profile   unavailable                                                  
+ Actual target     unavailable                                                  
+ Health            Unknown                                                      
+                                                                                
+ Saved configuration  VIEW none                                                 
+ Saved target      none                                                         
+ Next Connect      No Use Profile                                               
+ Saved settings apply only on Connect / Apply                                   
+                                                                                
+ Statistics  OBSERVED                                                           
+ Traffic: stale · latency: unmeasured                                           
+                                                                                
+ Inventory  unavailable                                                         
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View none · Use none · Edit none · Run unknown                                 
+ No View Profile · open Help for available tasks                                
+ xrmd unavailable · Content                                   F1 Help & actions 

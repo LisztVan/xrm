@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m2/15[0m
+ [1mdns[0;2m  SOURCE · EDIT · Visual · UNSAVED *                                                                               [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>   DNS servers                [0;2m  [1mDNS servers[0;2m  Draft                                                                   [0m
+ [2m    DNS query and cache setting  dns.servers                                                                          [0m
+ [2m    DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m                                 1  [1mlocalhost[0;2m                                                                         [0m
+ [2m                                    port Default    strategy Inherit                                                  [0m
+ [2m                                                                                                                      [0m
+ [2m                                 2  [1m127.0.0.1[0;2m                                                                         [0m
+ [2m                                    port Default    strategy Inherit                                                  [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mUnsaved DNS server[0;2m                                                                                [0m │[2m        [0m
+ [2m        [0m│ Add to draft keeps these object changes in the module draft. Discard closes this form without      │[2m        [0m
+ [2m        [0m│ changing the parent draft. Source and runtime files remain unchanged.                              │[2m        [0m
+ [2m        [0m│ ────────────────────────────────────────────────────────────────────────────────────────────────── │[2m        [0m
+ [2m        [0m│ [1;7m [ Add to draft ] [0m [ Discard ]  [ Continue editing ]                                               │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ dns · Source editable · Visual · Unsaved * · included
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json                                            [0mF1 Help & actions

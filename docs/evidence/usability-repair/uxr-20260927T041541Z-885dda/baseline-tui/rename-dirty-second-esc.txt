@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+   Alpha                  Process fixture      yes    —      running            
+ ▸ Beta                   Process fixture      —      —      —                  
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+  │ rename Profile  UNSAVED * · field 1/1                                    │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name *                  [ Beta pending                              ]  │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Beta · Use Alpha · Edit none · Run Alpha                                  
+ View Beta · Core Process fixture · Saved none                                  
+ xrmd ready · Content                                         F1 Help & actions 

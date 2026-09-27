@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions [0;1m[Nodes][0;2m Logs  Config [0m
+   [2m Scope: All  Scope: Local [0;1m Scope: Groups [0;2m Source: Local fixture [0m                                                 [2m3/4[0m
+ [1mNodes[0;2m  Groups · selection bindings                                                                                    [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m  [1mGroup                     [0;2m [1mMode          [0;2m [1mStrategy       [0;2m [1mMembers     [0;2m                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m▸ Lab Local Group            manual         random          explicit                                                 [0;2m [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mDetails[0;2m                                                                                           [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│   [2mNodes                                                                                         [0m   │[2m        [0m
+ [2m        [0m│   [2mHighlighted Lab Local Group · Saved Node · Loopback direct · Running none                     [0m   │[2m        [0m
+ [2m        [0m│   [2mID: 69fb5656-0494-4a80-a1d1-f7f0ed5a0e5e                                                      [0m   │[2m        [0m
+ [2m        [0m│   [2mSocket: /tmp/xrm-component-lab-yl6o5vb4/run/xrmd.sock                                         [0m   │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none                                                [0m
+ Highlighted Lab Local Group · Saved Node · Loopback direct · Running none
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

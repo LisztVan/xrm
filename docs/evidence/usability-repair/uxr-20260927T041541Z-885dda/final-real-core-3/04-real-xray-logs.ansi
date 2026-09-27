@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m          
+ [1mLogs[0;2m  Core output                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL     MESSAGE      [0m╭──────────────────────────────────╮[2m [0m 
+ [2m─────────────────────────────────────────[0m┤ [1m+ Success                       [0m ├[2m─[0m 
+                           [2m| [0mon] appended │ Connect Real Loopback: completed │  
+ [2m12:39:10 stdout   Info      infra/conf/se[0m╰──────────────────────────────────╯  
+                           [2m| [0m&{Name:/tmp/xrm-rewrite-ui-_3ju4sz6/runtime/can    
+                           [2m| [0mdidate/run-1790483950565-1/03_outbounds.json       
+                           [2m| [0mFormat:json}                                       
+ [2m12:39:10 stdout   Info      infra/conf: [0m[/tmp/xrm-rewrite-ui-_3ju4sz6/runti    
+                           [2m| [0mme/candidate/run-1790483950565-1/03_outbounds.j    
+                           [2m| [0mson] prepend outbound with tag: direct             
+ [2m12:39:10 stdout   Info      infra/conf/serial: [0mReading config:                 
+                           [2m| [0m&{Name:/tmp/xrm-rewrite-ui-_3ju4sz6/runtime/can    
+                           [2m| [0mdidate/run-1790483950565-1/04_routing.json         
+                           [2m| [0mFormat:json}                                     ╻ 
+ [2m12:39:10 stdout   [0mWarning [2m  [0mcore: Xray 26.9.9 started                        ┃ 
+ [1;2;7m12:39:12 stdout             [0;1;7mfrom tcp:127.0.0.1:38568 accepted                [0m┃ 
+ [1;7m                          [2m| [0;1;7mtcp:127.0.0.1:41811 [socks-in -> direct]         [0m┃ 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn…[0m 
+ Paused · 23 text lines                                                         
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                        10/15 
+ policy  SOURCE · EDIT · Visual                                                                                                                                                     
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   User levels                  User levels  Draft                                                                                                                                
+     System traffic counters      policy.levels                                                                                                                                     
+                                  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                  0    ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+                                       │ User levels  EDIT · field 1/9                                                                      │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ > User level              [ 0                                                                   ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   handshake               [x] Set value  Explicit value                                            │                                       
+                                       │                           [ 0                                                                   ]  │                                       
+                                       │   Seconds; default 60                                                                              │                                       
+                                       │                                                                                                    │                                       
+                                       │   connIdle                [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │   Seconds; default 300                                                                             │                                       
+                                       │                                                                                                    │                                       
+                                       │   uplinkOnly              [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │   Seconds; default 1                                                                               │                                       
+                                       │                                                                                                    │                                       
+                                       │   downlinkOnly            [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │   Seconds; default 1                                                                               │                                       
+                                       │                                                                                                    │                                       
+                                       │   bufferSize              [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │   KB; default depends on architecture                                                              │                                       
+                                       │                                                                                                    │                                       
+                                       │   statsUserUplink         ‹ False ›                                                                │                                       
+                                       │                                                                                                    │                                       
+                                       │   statsUserDownlink       ‹ Not set · field omitted ›                                              │                                       
+                                       │                                                                                                    │                                       
+                                       │   statsUserOnline         ‹ Not set · field omitted ›                                              │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Add to draft ]  [ Cancel ]                                                                      │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                                                                             
+ policy · Source editable · Visual · excluded                                             
+ xrmd ready · Content · modules/09_policy.json                                                                                                                    F1 Help & actions 

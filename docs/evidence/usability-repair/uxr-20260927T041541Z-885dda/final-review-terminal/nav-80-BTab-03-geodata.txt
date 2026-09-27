@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  observatory  api  metrics  stats  policy  fakedns  geodata  env     › 12/15 
+ geodata  SOURCE · READ ONLY · Visual                                           
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Core reload schedule                 ╭──────────────────────────────────╮  
+     Core download assets                 │ i Info · history in Help         │  
+                                          │ Refreshed Subscriptions          │  
+ Core reload schedule  Read only          ╰──────────────────────────────────╯  
+ geodata                                                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ No explicit settings                                                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ geodata · Source read-only · Visual · excluded                                 
+ xrmd ready · Section selection (SecondaryNav) · modules/1…   F1 Help & actions 

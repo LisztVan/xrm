@@ -1,0 +1,48 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                    
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory [0m                                        [2m5/15[0m 
+ [1mrouting[0;2m  SOURCE · EDIT · Visual                                                                                                                                                   [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Routing rules (ordered)   [0;2m   [1mRouting rules (ordered)[0;2m  Draft                                                                                                                   [0m 
+ [2m    Native balancers             routing.rules                                                                                                                                    [0m 
+ [2m    Domain strategy              ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 1  [1mRouting rule[0;2m   to direct                                                                                                                      [0m 
+ [2m                                    match domain domain:example.test                                                                                                              [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                      [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m                                      [0m 
+ [2m                                      [0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│ [1mRouting rule                                                                                      [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2mNative path /routing/rules/0. Matches combine with AND. Tab to Target: outboundTag / balancerTag. [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2mruleTag is optional. Add to draft: routing draft. Module Save: Source. Connect / Apply: runtime.  [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2mCancel: discard this object's unsubmitted changes. Additional paths retained: /futureNative. Edit [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2min the matching native section or JSON.                                                           [0m │[2m                                      [0m 
+ [2m                                      [0m│ [2mActions · choose with arrows, Enter to execute                                                    [0m │[2m                                      [0m 
+ [2m                                      [0m│ [1;7m> Ctrl-S          Add to draft · Routing rule                                                    [0m  │[2m                                      [0m 
+ [2m                                      [0m│   Esc             Cancel / close form · Routing rule                                               │[2m                                      [0m 
+ [2m                                      [0m│                   Editing scope and advanced fields · Routing rule                                 │[2m                                      [0m 
+ [2m                                      [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m                                      [0m 
+ [2m                                      [0m│ [1mNavigation and input                                                                              [0m │[2m                                      [0m 
+ [2m                                      [0m│ Tab / Shift-Tab         Move between fields and buttons                                            │[2m                                      [0m 
+ [2m                                      [0m│ Arrows / Home / End     Move cursor or choice                                                      │[2m                                      [0m 
+ [2m                                      [0m│ Ctrl-Home / Ctrl-End    Document start / end                                                       │[2m                                      [0m 
+ [2m                                      [0m│ Enter                   Insert newline in multiline text / activate button                         │[2m                                      [0m 
+ [2m                                      [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m                                      [0m 
+ [2m                                      [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m                                      [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m                                                                                                                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                                                                            [0m 
+ routing · Source editable · Visual · excluded                                            
+ [2mxrmd ready · Content · modules/04_routing.json                                                                                                                   [0mF1 Help & actions 

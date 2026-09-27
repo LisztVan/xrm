@@ -1,0 +1,2825 @@
+[
+  {
+    "argv": [],
+    "code": 0,
+    "stdout": "Manage Xray nodes, native configurations and the independent core\n\nUsage: xrm [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --version         Display program version information and exit \n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nInteractive:\n  tui                     Open the seven-page interactive terminal application \n\nSaved configuration:\n  profile                 Manage saved Profiles \n  config                  Inspect and edit native Xray modules \n  group                   Manage saved dynamic Xray balancers \n  select                  Persist a node selection without connecting \n  routing                 Profile routing preset operations \n\nInventory and resources:\n  core                    Register and inspect Xray binaries \n  node                    Manage the independent node inventory \n  sub                     Manage subscription sources and refresh node \n                          inventory \n  geodata                 Manage shared GeoIP/GeoSite resources \n\nRun and observe:\n  connect                 Apply saved Profile settings and connect \n  disconnect              Stop the managed Xray process \n  status                  Show expected/actual core runtime state \n  logs                    Read the bounded server/core log buffer \n  operation               Inspect an asynchronous operation \n  stats                   Show server-sampled Xray traffic and observations \n\nXRM settings and server:\n  server                  Server operations \n  settings                Manage XRM appearance and Manager editor preferences \n\nExamples:\n  xrm tui\n  xrm profile list\n  xrm profile create --name Home\n  xrm config modules Home\n  xrm connect Home\n\nNext: xrm <command> --help\nHelp is local and never connects to xrmd.\nSaving and selecting never connect. Use connect to apply saved settings.\nMachine output: xrm --json <command>; errors use stderr.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "server"
+    ],
+    "code": 0,
+    "stdout": "Server operations\n\nUsage: xrm server [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  info                    Show the connected server version \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm server info\n\nNext: xrm server <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile"
+    ],
+    "code": 0,
+    "stdout": "Manage saved Profiles\n\nUsage: xrm profile [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  create                  Create a local Profile from the built-in preset \n  list                    List Profiles \n  show                    Show Profile settings \n  clone                   Copy a saved Profile under a new name \n  rename                  Rename a saved Profile \n  remove                  Delete a saved Profile \n  sources                 Set the subscription sources used by one Profile \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile list\n  xrm profile create --name Home\n  xrm profile show Home\n\nNext: xrm profile <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config"
+    ],
+    "code": 0,
+    "stdout": "Inspect and edit native Xray modules\n\nUsage: xrm config [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  modules                 List all native Xray modules and their \n                          source/runtime files \n  show                    Show one source module or the generated runtime \n                          files \n  edit                    Save a module's original JSON text \n  enable                  Include a native module in runtime \n  disable                 Disable runtime output for a native module \n  statistics              Explicitly edit native modules for traffic \n                          statistics \n  env                     Edit Xray's native env module, not xrmd's process \n                          environment \n  version                 Edit the native Xray minimum/maximum version range \n  geodata                 Edit geodata resource references and update schedule \n  api                     Edit native Xray API services without automatically \n                          opening the API \n  metrics                 Edit the native Xray Metrics listener \n  log                     Edit common native log fields \n  render                  Materialize a multi-file preview \n  check                   Run Xray's complete configuration check \n  dump                    Show Xray diagnostic dump without writing it back \n  apply                   Check saved settings while stopped, or apply them to \n                          the running core \n  export                  Export generated multi-file confdir \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config modules Home\n  xrm config show Home dns\n  xrm config check Home\n\nNext: xrm config <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node"
+    ],
+    "code": 0,
+    "stdout": "Manage the independent node inventory\n\nUsage: xrm node [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  add                     Save a manual node from typed settings, a share URI \n                          or native outbound JSON \n  list                    List saved nodes without connection secrets \n  show                    Show a node summary; --json includes editable \n                          connection settings \n  edit                    Edit one typed \n                          transport/security/sockopt/finalmask/mux subobject \n  replace                 Replace a manual node's name and typed/native \n                          settings \n  copy                    Copy a node as an independent manual node \n  remove                  Remove an unreferenced manual node \n  enable                  Enable a node \n  disable                 Disable a node \n  alias                   Set or clear a node display alias \n  labels                  Set node labels as comma-separated values \n  history                 Preview and confirm source-local redundant history \n                          cleanup \n  test                    Explicit ICMP, TCP, proxy URL or bounded download \n                          test \n  test-results            Show this Server session's observed node tests \n  test-cancel             Cancel one in-flight node test \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node list\n  xrm node add --name Direct --outbound-json '{\"protocol\":\"freedom\",\"settings\":{}}'\n\nNext: xrm node <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "sources"
+    ],
+    "code": 0,
+    "stdout": "Set the subscription sources used by one Profile\n\nUsage: xrm profile sources [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  set                     Replace source bindings; no --source means use none \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile sources set Home\n\nNext: xrm profile sources <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "statistics"
+    ],
+    "code": 0,
+    "stdout": "Explicitly edit native modules for traffic statistics\n\nUsage: xrm config statistics [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  enable                  Enable stats, policy counters and the Metrics \n                          endpoint \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config statistics enable Home --metrics-listen 127.0.0.1:11111\n\nNext: xrm config statistics <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "edit",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Save a module's original JSON text\n\nUsage: xrm config edit [OPTIONS] PROFILE MODULE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  MODULE (required)       Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --text JSON_TEXT  Native module JSON passed as an argument Cannot \n                          combine with --file. \n        --file PATH       Read native module JSON from PATH, or - for stdin \n                          Cannot combine with --text. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config edit Home dns --text '{\"dns\":{\"servers\":[\"localhost\"]}}'\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "server",
+      "info",
+      "-h"
+    ],
+    "code": 0,
+    "stdout": "Show the connected server version\n\nUsage: xrm server info [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm server info\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--version"
+    ],
+    "code": 0,
+    "stdout": "xrm 0.1.0\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "create"
+    ],
+    "code": 106,
+    "stdout": "",
+    "stderr": "xrm profile create: --name is required\n\nCreate a local Profile from the built-in preset\n\nUsage: xrm profile create [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n        --core CORE       Registered core ID (may be selected later) \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile create --name Home\n"
+  },
+  {
+    "argv": [
+      "server",
+      "not-a-command"
+    ],
+    "code": 109,
+    "stdout": "",
+    "stderr": "xrm server: The following argument was not expected: not-a-command\n\nServer operations\n\nUsage: xrm server [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  info                    Show the connected server version \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm server info\n\nNext: xrm server <command> --help\n"
+  },
+  {
+    "argv": [
+      "config",
+      "show",
+      "Home",
+      "--bad-option"
+    ],
+    "code": 109,
+    "stdout": "",
+    "stderr": "xrm config show: The following argument was not expected: --bad-option\n\nShow one source module or the generated runtime files\n\nUsage: xrm config show [OPTIONS] PROFILE [MODULE]\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  MODULE                  Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --module-key MODULE \n                          Native Xray module key, for example dns or routing \n        --source SOURCE   Choices: source, runtime. Default: source. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config show Home dns\n  xrm config show Home --source runtime\n\nProfile accepts an exact saved name or UUID.\n"
+  },
+  {
+    "argv": [
+      "--json",
+      "profile",
+      "create"
+    ],
+    "code": 106,
+    "stdout": "",
+    "stderr": "{\"error\":{\"code\":\"invalid_argument\",\"message\":\"--name is required\"}}\n"
+  },
+  {
+    "argv": [
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Manage Xray nodes, native configurations and the independent core\n\nUsage: xrm [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --version         Display program version information and exit \n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nInteractive:\n  tui                     Open the seven-page interactive terminal application \n\nSaved configuration:\n  profile                 Manage saved Profiles \n  config                  Inspect and edit native Xray modules \n  group                   Manage saved dynamic Xray balancers \n  select                  Persist a node selection without connecting \n  routing                 Profile routing preset operations \n\nInventory and resources:\n  core                    Register and inspect Xray binaries \n  node                    Manage the independent node inventory \n  sub                     Manage subscription sources and refresh node \n                          inventory \n  geodata                 Manage shared GeoIP/GeoSite resources \n\nRun and observe:\n  connect                 Apply saved Profile settings and connect \n  disconnect              Stop the managed Xray process \n  status                  Show expected/actual core runtime state \n  logs                    Read the bounded server/core log buffer \n  operation               Inspect an asynchronous operation \n  stats                   Show server-sampled Xray traffic and observations \n\nXRM settings and server:\n  server                  Server operations \n  settings                Manage XRM appearance and Manager editor preferences \n\nExamples:\n  xrm tui\n  xrm profile list\n  xrm profile create --name Home\n  xrm config modules Home\n  xrm connect Home\n\nNext: xrm <command> --help\nHelp is local and never connects to xrmd.\nSaving and selecting never connect. Use connect to apply saved settings.\nMachine output: xrm --json <command>; errors use stderr.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "settings",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Manage XRM appearance and Manager editor preferences\n\nUsage: xrm settings [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  show                    Show XRM program settings \n  set                     Set one appearance preference \n  editor                  Set or clear Manager-side external editor argv \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm settings show\n  xrm settings set cli_color never\n\nNext: xrm settings <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "settings",
+      "editor",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set or clear Manager-side external editor argv\n\nUsage: xrm settings editor [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  set                     Set argv as a JSON string array; no shell is used \n  clear                   Use Manager VISUAL/EDITOR fallback again \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm settings editor set '[\"/usr/bin/vi\",\"-n\"]'\n\nNext: xrm settings editor <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "settings",
+      "editor",
+      "clear",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Use Manager VISUAL/EDITOR fallback again\n\nUsage: xrm settings editor clear [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm settings editor clear\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "settings",
+      "editor",
+      "set",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set argv as a JSON string array; no shell is used\n\nUsage: xrm settings editor set [OPTIONS] ARGV_JSON\n\nPOSITIONALS:\n  ARGV_JSON (required)    Example: '[\"/usr/bin/vi\",\"-n\"]' \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm settings editor set '[\"/usr/bin/vi\",\"-n\"]'\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "settings",
+      "set",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set one appearance preference\n\nUsage: xrm settings set [OPTIONS] KEY VALUE\n\nPOSITIONALS:\n  KEY (required)          theme, color_mode, density, icon_mode, reduce_motion \n                          or cli_color \n  VALUE (required)        Preference value \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm settings set cli_color never\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "settings",
+      "show",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show XRM program settings\n\nUsage: xrm settings show [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm settings show\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "server",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Server operations\n\nUsage: xrm server [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  info                    Show the connected server version \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm server info\n\nNext: xrm server <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "server",
+      "info",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show the connected server version\n\nUsage: xrm server info [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm server info\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "stats",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show server-sampled Xray traffic and observations\n\nUsage: xrm stats [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --watch           Refresh the shared server sample every two seconds \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm stats\n  xrm --json stats --watch\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "operation",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Inspect an asynchronous operation\n\nUsage: xrm operation [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  get                     Read an operation's final result \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm operation get --help\n\nNext: xrm operation <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "operation",
+      "get",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Read an operation's final result\n\nUsage: xrm operation get [OPTIONS] OPERATION_ID\n\nPOSITIONALS:\n  OPERATION_ID (required) Operation ID returned by the server \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm operation get OPERATION_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "logs",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Read the bounded server/core log buffer\n\nUsage: xrm logs [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --cursor CURSOR   Transport buffer cursor, not a log record number; 0 \n                          starts at the oldest available chunk Default: 0. \n        --limit LIMIT     Maximum log text bytes returned by this read \n                          (default 65536) Default: 65536. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm logs --limit 100\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "status",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show expected/actual core runtime state\n\nUsage: xrm status [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm status\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "disconnect",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Stop the managed Xray process\n\nUsage: xrm disconnect [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm disconnect\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "connect",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Apply saved Profile settings and connect\n\nUsage: xrm connect [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --node NODE       Optionally persist a node selection before \n                          connecting \n        --group GROUP     Optionally persist a group selection before \n                          connecting \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm connect Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Manage shared GeoIP/GeoSite resources\n\nUsage: xrm geodata [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  list                    List registered shared resources \n  add                     Register one resource; download is a separate update \n  update                  Fetch and validate one resource with the selected \n                          Xray \n  bind                    Bind a validated resource to a Profile \n  remove                  Remove an unbound resource record \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm geodata list\n  xrm geodata add --help\n\nNext: xrm geodata <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "remove",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Remove an unbound resource record\n\nUsage: xrm geodata remove [OPTIONS] RESOURCE\n\nPOSITIONALS:\n  RESOURCE (required)     Exact resource name or ID \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm geodata remove Local\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "bind",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Bind a validated resource to a Profile\n\nUsage: xrm geodata bind [OPTIONS] PROFILE RESOURCE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or ID \n  RESOURCE (required)     Exact resource name or ID \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm geodata bind Home Local\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "update",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Fetch and validate one resource with the selected Xray\n\nUsage: xrm geodata update [OPTIONS] RESOURCE\n\nPOSITIONALS:\n  RESOURCE (required)     Exact resource name or ID \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --core CORE (required) \n                          Exact registered core name or ID \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm geodata update Local --core Xray\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "add",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Register one resource; download is a separate update\n\nUsage: xrm geodata add [OPTIONS] NAME KIND FILE_NAME\n\nPOSITIONALS:\n  NAME (required)         Human-readable resource name \n  KIND (required)         geoip or geosite Choices: geoip, geosite. \n  FILE_NAME (required)    Target .dat filename \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --url URL         HTTPS resource URL Cannot combine with --file. \n        --file PATH       Local resource .dat path Cannot combine with --url. \n        --auto-update     Enable periodic cache updates \n        --interval-seconds INTERVAL_SECONDS \n                          Refresh interval in seconds Default: 0. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm geodata add Local geoip geoip.dat --file /tmp/geoip.dat\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "list",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List registered shared resources\n\nUsage: xrm geodata list [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm geodata list\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "sub",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Manage subscription sources and refresh node inventory\n\nUsage: xrm sub [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  add                     Add a subscription source \n  list                    List sources without URL credentials \n  show                    Show a source summary; --json includes its editable \n                          URL \n  edit                    Edit source name and/or URL \n  update                  Refresh one source or all sources; never applies \n                          runtime files \n  remove                  Remove a source while preserving its nodes \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm sub list\n  xrm sub add --name Local --url http://127.0.0.1:8080/sub --paused\n\nNext: xrm sub <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "sub",
+      "remove",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Remove a source while preserving its nodes\n\nUsage: xrm sub remove [OPTIONS] SOURCE_ID\n\nPOSITIONALS:\n  SOURCE_ID (required)    Exact subscription name or source ID from sub list \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --keep-nodes      Convert its current nodes to independent manual \n                          nodes \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm sub remove SOURCE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "sub",
+      "update",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Refresh one source or all sources; never applies runtime files\n\nUsage: xrm sub update [OPTIONS] [SOURCE_ID]\n\nPOSITIONALS:\n  SOURCE_ID               Exact subscription name or source ID; omit for all \n                          sources \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm sub update\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "sub",
+      "edit",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit source name and/or URL\n\nUsage: xrm sub edit [OPTIONS] SOURCE_ID\n\nPOSITIONALS:\n  SOURCE_ID (required)    Exact subscription name or source ID from sub list \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME       Human-readable object name \n        --url URL         \n        --header HEADER ... \n                          Replace custom HTTP headers (repeatable) Default: \n                          {}. \n        --proxy PROXY     Explicit HTTP/SOCKS download proxy \n        --paused          Pause automatic refresh \n        --resume          Enable automatic refresh \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm sub edit SOURCE_ID --name Local\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "sub",
+      "show",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show a source summary; --json includes its editable URL\n\nUsage: xrm sub show [OPTIONS] SOURCE_ID\n\nPOSITIONALS:\n  SOURCE_ID (required)    Exact subscription name or source ID from sub list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm sub show SOURCE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "sub",
+      "list",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List sources without URL credentials\n\nUsage: xrm sub list [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm sub list\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "sub",
+      "add",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Add a subscription source\n\nUsage: xrm sub add [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n        --url URL (required) \n        --user-agent USER_AGENT \n                          HTTP User-Agent \n        --proxy PROXY     Explicit HTTP/SOCKS download proxy \n        --header HEADER ... \n                          Custom HTTP header KEY=VALUE (repeatable) Default: \n                          {}. \n        --paused          Do not refresh automatically \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm sub add --name Local --url http://127.0.0.1:8080/sub --paused\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Manage the independent node inventory\n\nUsage: xrm node [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  add                     Save a manual node from typed settings, a share URI \n                          or native outbound JSON \n  list                    List saved nodes without connection secrets \n  show                    Show a node summary; --json includes editable \n                          connection settings \n  edit                    Edit one typed \n                          transport/security/sockopt/finalmask/mux subobject \n  replace                 Replace a manual node's name and typed/native \n                          settings \n  copy                    Copy a node as an independent manual node \n  remove                  Remove an unreferenced manual node \n  enable                  Enable a node \n  disable                 Disable a node \n  alias                   Set or clear a node display alias \n  labels                  Set node labels as comma-separated values \n  history                 Preview and confirm source-local redundant history \n                          cleanup \n  test                    Explicit ICMP, TCP, proxy URL or bounded download \n                          test \n  test-results            Show this Server session's observed node tests \n  test-cancel             Cancel one in-flight node test \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node list\n  xrm node add --name Direct --outbound-json '{\"protocol\":\"freedom\",\"settings\":{}}'\n\nNext: xrm node <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "test-cancel",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Cancel one in-flight node test\n\nUsage: xrm node test-cancel [OPTIONS] OPERATION_ID\n\nPOSITIONALS:\n  OPERATION_ID (required) Operation ID returned by the server \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node test-cancel OPERATION_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "test-results",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show this Server session's observed node tests\n\nUsage: xrm node test-results [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node test-results\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "test",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Explicit ICMP, TCP, proxy URL or bounded download test\n\nUsage: xrm node test [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --kind KIND       Choices: icmp, tcp, url, download. Default: tcp. \n        --profile PROFILE Profile name or ID for isolated Xray proxy tests \n        --url URL         Explicit HTTP(S) target for URL/download test \n        --timeout-ms TIMEOUT_MS \n                          Bounded timeout (100–60000 ms) Default: 5000. \n        --max-bytes MAX_BYTES \n                          Download body cap (up to 32 MiB) Default: 8388608. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node test NODE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "history",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Preview and confirm source-local redundant history cleanup\n\nUsage: xrm node history [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  preview                 Read-only history candidates; no credentials are \n                          printed \n  confirm                 Remove only explicitly selected safe historical \n                          records \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node history preview --help\n\nNext: xrm node history <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "history",
+      "confirm",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Remove only explicitly selected safe historical records\n\nUsage: xrm node history confirm [OPTIONS] SOURCE_ID\n\nPOSITIONALS:\n  SOURCE_ID (required)    Stable source ID from sub list \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --id ID ... (required) \n                          Historical node ID from preview; repeat for multiple \n        --token TOKEN (required) \n                          Preview token; stale previews are rejected \n        --yes             Confirm deletion of the selected historical records \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node history confirm SOURCE_ID --id NODE_ID --token PREVIEW_TOKEN --yes\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "history",
+      "preview",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Read-only history candidates; no credentials are printed\n\nUsage: xrm node history preview [OPTIONS] SOURCE_ID\n\nPOSITIONALS:\n  SOURCE_ID (required)    Stable source ID from sub list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node history preview SOURCE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "labels",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set node labels as comma-separated values\n\nUsage: xrm node labels [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --values VALUES (required) \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node labels NODE_ID --values local,test\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "alias",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set or clear a node display alias\n\nUsage: xrm node alias [OPTIONS] ID [VALUE]\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n  VALUE                   \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node alias NODE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "disable",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Disable a node\n\nUsage: xrm node disable [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node disable NODE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "enable",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Enable a node\n\nUsage: xrm node enable [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node enable NODE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "remove",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Remove an unreferenced manual node\n\nUsage: xrm node remove [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node remove NODE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "copy",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Copy a node as an independent manual node\n\nUsage: xrm node copy [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node copy NODE_ID --name Example\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "replace",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Replace a manual node's name and typed/native settings\n\nUsage: xrm node replace [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n        --settings-json SETTINGS_JSON (required) \n                          Complete Node.settings stream/raw object \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node replace NODE_ID --name Direct --settings-json '{\"kind\":\"raw\",\"value\":{\"protocol\":\"freedom\",\"settings\":{}}}'\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "edit",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit one typed transport/security/sockopt/finalmask/mux subobject\n\nUsage: xrm node edit [OPTIONS] ID FIELD\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n  FIELD (required)        Choices: transport, security, sockopt, finalmask, \n                          mux. \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --json JSON (required) \n                          Typed node subobject JSON; use null to clear \n                          optional fields \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node edit NODE_ID mux --json '{\"enabled\":false}'\n\nFor machine output, place global --json before the command.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "show",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show a node summary; --json includes editable connection settings\n\nUsage: xrm node show [OPTIONS] ID\n\nPOSITIONALS:\n  ID (required)           Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node show NODE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "list",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List saved nodes without connection secrets\n\nUsage: xrm node list [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --search SEARCH   Filter by node name \n        --offset OFFSET   Page offset Default: 0. \n        --limit LIMIT     Page size Default: 100. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node list\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "add",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Save a manual node from typed settings, a share URI or native outbound JSON\n\nUsage: xrm node add [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME       Human readable node name (optional for a named URI) \n        --outbound-json OUTBOUND_JSON \n                          Complete native Xray outbound object \n        --settings-json SETTINGS_JSON \n                          Typed Node.settings stream object \n        --uri URI         Supported protocol share URI \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node add --name Direct --outbound-json '{\"protocol\":\"freedom\",\"settings\":{}}'\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Register and inspect Xray binaries\n\nUsage: xrm core [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  register                Register an existing Xray binary \n  list                    List registered Xray binaries \n  remove                  Remove an unused managed Xray install; system \n                          binaries are never deleted \n  releases                List official Xray releases and platform assets \n  install                 Install an explicitly selected official Xray version \n  use                     Use an installed core for a Profile \n  stop                    Stop the managed Xray process \n  restart                 Restart the active Profile using saved settings \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core list\n  xrm core register /opt/xray/xray --name Xray\n\nNext: xrm core <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "restart",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Restart the active Profile using saved settings\n\nUsage: xrm core restart [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core restart\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "stop",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Stop the managed Xray process\n\nUsage: xrm core stop [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core stop\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "use",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Use an installed core for a Profile\n\nUsage: xrm core use [OPTIONS] PROFILE VERSION_OR_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  VERSION_OR_ID (required)\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core use Home v26.9.9\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "install",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Install an explicitly selected official Xray version\n\nUsage: xrm core install [OPTIONS] VERSION\n\nPOSITIONALS:\n  VERSION (required)      \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --asset ASSET     Exact asset name from `xrm core releases` (defaults \n                          to this platform) \n        --allow-unverified-checksum \n                          Explicitly permit releases without an official \n                          SHA-256 digest \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core install v26.9.9\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "releases",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List official Xray releases and platform assets\n\nUsage: xrm core releases [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --prerelease      Include prerelease versions \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core releases\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "remove",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Remove an unused managed Xray install; system binaries are never deleted\n\nUsage: xrm core remove [OPTIONS] CORE_ID\n\nPOSITIONALS:\n  CORE_ID (required)      \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core remove CORE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "list",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List registered Xray binaries\n\nUsage: xrm core list [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core list\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "register",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Register an existing Xray binary\n\nUsage: xrm core register [OPTIONS] PATH\n\nPOSITIONALS:\n  PATH (required)         Absolute path to the Xray executable \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Local display name \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm core register /opt/xray/xray --name Xray\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "routing",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Profile routing preset operations\n\nUsage: xrm routing [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  preset                  Preview and save native routing presets \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm routing preset --help\n\nNext: xrm routing <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "routing",
+      "preset",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Preview and save native routing presets\n\nUsage: xrm routing preset [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  plan                    Show existing and proposed native routing JSON \n  save                    Save the planned native routing source; does not \n                          Apply \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm routing preset plan --help\n\nNext: xrm routing preset <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "routing",
+      "preset",
+      "save",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Save the planned native routing source; does not Apply\n\nUsage: xrm routing preset save [OPTIONS] PROFILE PRESET\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or ID \n  PRESET (required)       bypass_mainland, blacklist_proxy, global_proxy, \n                          direct_only, custom_native Choices: bypass_mainland, \n                          blacklist_proxy, global_proxy, direct_only, \n                          custom_native. \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --expected-file PATH (required) \n                          File with exact expected_text from a previously \n                          reviewed plan \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm routing preset save Home direct_only --expected-file /tmp/routing-baseline.json\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "routing",
+      "preset",
+      "plan",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show existing and proposed native routing JSON\n\nUsage: xrm routing preset plan [OPTIONS] PROFILE PRESET\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or ID \n  PRESET (required)       bypass_mainland, blacklist_proxy, global_proxy, \n                          direct_only, custom_native Choices: bypass_mainland, \n                          blacklist_proxy, global_proxy, direct_only, \n                          custom_native. \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm routing preset plan Home direct_only\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "select",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Persist a node selection without connecting\n\nUsage: xrm select [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  node                    Select a saved node for a Profile \n  group                   Persist a group selection without connecting \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm select node --help\n  xrm select group --help\n\nNext: xrm select <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "select",
+      "group",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Persist a group selection without connecting\n\nUsage: xrm select group [OPTIONS] PROFILE GROUP_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  GROUP_ID (required)     Stable group ID from group list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm select group Home GROUP_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "select",
+      "node",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Select a saved node for a Profile\n\nUsage: xrm select node [OPTIONS] PROFILE NODE_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  NODE_ID (required)      Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm select node Home NODE_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Manage saved dynamic Xray balancers\n\nUsage: xrm group [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  add                     Create a managed group with explicit node candidates \n  list                    List groups in a Profile \n  show                    Show one saved group \n  edit                    Replace one group from its complete JSON object \n  remove                  Remove a saved group \n  select                  Persist a manual group's chosen candidate \n  override                Temporarily override a running Xray balancer \n                          selection \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group list Home\n\nNext: xrm group <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "override",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Temporarily override a running Xray balancer selection\n\nUsage: xrm group override [OPTIONS] BALANCER [OUTBOUND]\n\nPOSITIONALS:\n  BALANCER (required)     \n  OUTBOUND                \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --runtime         Required: affects only the current running Xray \n        --clear           Clear the current runtime override \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group override proxy --runtime --clear\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "select",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Persist a manual group's chosen candidate\n\nUsage: xrm group select [OPTIONS] PROFILE GROUP_ID NODE_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  GROUP_ID (required)     Stable group ID from group list \n  NODE_ID (required)      Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group select Home GROUP_ID NODE_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "remove",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Remove a saved group\n\nUsage: xrm group remove [OPTIONS] PROFILE GROUP_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  GROUP_ID (required)     Stable group ID from group list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group remove Home GROUP_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "edit",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Replace one group from its complete JSON object\n\nUsage: xrm group edit [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --json JSON (required) \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group edit Home --json '{\"id\":\"GROUP_ID\",\"name\":\"Manual\",\"members\":{\"kind\":\"explicit\",\"node_ids\":[\"NODE_ID\"]},\"selection_mode\":\"manual\",\"selected_node_id\":\"NODE_ID\",\"balancer\":{\"tag\":\"proxy\",\"strategy\":{\"type\":\"random\"}}}'\n\nProfile accepts an exact saved name or UUID.\nFor machine output, place global --json before the command.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "show",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show one saved group\n\nUsage: xrm group show [OPTIONS] PROFILE GROUP_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  GROUP_ID (required)     Stable group ID from group list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group show Home GROUP_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "list",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List groups in a Profile\n\nUsage: xrm group list [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group list Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "add",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Create a managed group with explicit node candidates\n\nUsage: xrm group add [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n        --tag TAG (required) \n        --mode MODE       Choices: automatic, manual. Default: automatic. \n        --strategy STRATEGY \n                          Xray strategy; leastLoad is experimental and has not \n                          been verified against the fixed core Choices: \n                          random, roundRobin, leastPing, leastLoad. Default: \n                          leastPing. \n        --members MEMBERS ... (required) \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm group add Home --name Example --tag proxy --members NODE_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Inspect and edit native Xray modules\n\nUsage: xrm config [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  modules                 List all native Xray modules and their \n                          source/runtime files \n  show                    Show one source module or the generated runtime \n                          files \n  edit                    Save a module's original JSON text \n  enable                  Include a native module in runtime \n  disable                 Disable runtime output for a native module \n  statistics              Explicitly edit native modules for traffic \n                          statistics \n  env                     Edit Xray's native env module, not xrmd's process \n                          environment \n  version                 Edit the native Xray minimum/maximum version range \n  geodata                 Edit geodata resource references and update schedule \n  api                     Edit native Xray API services without automatically \n                          opening the API \n  metrics                 Edit the native Xray Metrics listener \n  log                     Edit common native log fields \n  render                  Materialize a multi-file preview \n  check                   Run Xray's complete configuration check \n  dump                    Show Xray diagnostic dump without writing it back \n  apply                   Check saved settings while stopped, or apply them to \n                          the running core \n  export                  Export generated multi-file confdir \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config modules Home\n  xrm config show Home dns\n  xrm config check Home\n\nNext: xrm config <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "export",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Export generated multi-file confdir\n\nUsage: xrm config export [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --source SOURCE   Saved candidate or actual running confdir Choices: \n                          saved, runtime. Default: saved. \n        --output PATH (required) \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config export Home --output /tmp/xrm-export\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "apply",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Check saved settings while stopped, or apply them to the running core\n\nUsage: xrm config apply [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config apply Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "dump",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show Xray diagnostic dump without writing it back\n\nUsage: xrm config dump [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config dump Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "check",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Run Xray's complete configuration check\n\nUsage: xrm config check [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config check Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "render",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Materialize a multi-file preview\n\nUsage: xrm config render [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config render Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "log",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit common native log fields\n\nUsage: xrm config log [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  level                   Set native Xray log level \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config log level --help\n\nNext: xrm config log <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "log",
+      "level",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set native Xray log level\n\nUsage: xrm config log level [OPTIONS] PROFILE LEVEL\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  LEVEL (required)        \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config log level Home warning\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "metrics",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit the native Xray Metrics listener\n\nUsage: xrm config metrics [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  listen                  Set a Metrics listen address \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config metrics listen --help\n\nNext: xrm config metrics <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "metrics",
+      "listen",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set a Metrics listen address\n\nUsage: xrm config metrics listen [OPTIONS] PROFILE LISTEN\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  LISTEN (required)       \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config metrics listen Home 127.0.0.1:11111\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "api",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit native Xray API services without automatically opening the API\n\nUsage: xrm config api [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  services                Set API services \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config api services --help\n\nNext: xrm config api <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "api",
+      "services",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set API services\n\nUsage: xrm config api services [OPTIONS] PROFILE SERVICES...\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  SERVICES ... (required) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config api services Home StatsService\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "geodata",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit geodata resource references and update schedule\n\nUsage: xrm config geodata [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  schedule                Set the Xray-native geodata update schedule \n  assets                  Replace geodata asset references from a JSON array \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config geodata schedule --help\n\nNext: xrm config geodata <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "geodata",
+      "assets",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Replace geodata asset references from a JSON array\n\nUsage: xrm config geodata assets [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --json JSON (required) \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config geodata assets Home --json '[]'\n\nProfile accepts an exact saved name or UUID.\nFor machine output, place global --json before the command.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "geodata",
+      "schedule",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set the Xray-native geodata update schedule\n\nUsage: xrm config geodata schedule [OPTIONS] PROFILE CRON\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  CRON (required)         \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config geodata schedule Home '0 0 * * *'\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "version",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit the native Xray minimum/maximum version range\n\nUsage: xrm config version [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  range                   Set or clear user-authored min/max fields \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config version range --help\n\nNext: xrm config version <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "version",
+      "range",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set or clear user-authored min/max fields\n\nUsage: xrm config version range [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --min MIN         \n        --max MAX         \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config version range Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "env",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Edit Xray's native env module, not xrmd's process environment\n\nUsage: xrm config env [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  set                     Set one native Xray environment value \n  unset                   Remove one native Xray environment value \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config env set --help\n\nNext: xrm config env <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "env",
+      "unset",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Remove one native Xray environment value\n\nUsage: xrm config env unset [OPTIONS] PROFILE KEY\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  KEY (required)          \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config env unset Home XRAY_LOCATION_ASSET\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "env",
+      "set",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set one native Xray environment value\n\nUsage: xrm config env set [OPTIONS] PROFILE KEY VALUE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  KEY (required)          \n  VALUE (required)        \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config env set Home XRAY_LOCATION_ASSET /opt/xray\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "statistics",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Explicitly edit native modules for traffic statistics\n\nUsage: xrm config statistics [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  enable                  Enable stats, policy counters and the Metrics \n                          endpoint \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config statistics enable Home --metrics-listen 127.0.0.1:11111\n\nNext: xrm config statistics <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "statistics",
+      "enable",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Enable stats, policy counters and the Metrics endpoint\n\nUsage: xrm config statistics enable [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --metrics-listen METRICS_LISTEN (required) \n                          Host:port to write into the native metrics module \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config statistics enable Home --metrics-listen 127.0.0.1:11111\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "disable",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Disable runtime output for a native module\n\nUsage: xrm config disable [OPTIONS] PROFILE MODULE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  MODULE (required)       Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config disable Home dns\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "enable",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Include a native module in runtime\n\nUsage: xrm config enable [OPTIONS] PROFILE MODULE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  MODULE (required)       Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config enable Home dns\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "edit",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Save a module's original JSON text\n\nUsage: xrm config edit [OPTIONS] PROFILE MODULE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  MODULE (required)       Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --text JSON_TEXT  Native module JSON passed as an argument Cannot \n                          combine with --file. \n        --file PATH       Read native module JSON from PATH, or - for stdin \n                          Cannot combine with --text. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config edit Home dns --text '{\"dns\":{\"servers\":[\"localhost\"]}}'\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "show",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show one source module or the generated runtime files\n\nUsage: xrm config show [OPTIONS] PROFILE [MODULE]\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  MODULE                  Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --module-key MODULE \n                          Native Xray module key, for example dns or routing \n        --source SOURCE   Choices: source, runtime. Default: source. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config show Home dns\n  xrm config show Home --source runtime\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "modules",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List all native Xray modules and their source/runtime files\n\nUsage: xrm config modules [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config modules Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Manage saved Profiles\n\nUsage: xrm profile [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  create                  Create a local Profile from the built-in preset \n  list                    List Profiles \n  show                    Show Profile settings \n  clone                   Copy a saved Profile under a new name \n  rename                  Rename a saved Profile \n  remove                  Delete a saved Profile \n  sources                 Set the subscription sources used by one Profile \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile list\n  xrm profile create --name Home\n  xrm profile show Home\n\nNext: xrm profile <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "sources",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set the subscription sources used by one Profile\n\nUsage: xrm profile sources [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  set                     Replace source bindings; no --source means use none \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile sources set Home\n\nNext: xrm profile sources <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "sources",
+      "set",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Replace source bindings; no --source means use none\n\nUsage: xrm profile sources set [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --source SOURCE ... \n                          Source ID to use; repeat for multiple sources \n                          Default: {}. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile sources set Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "remove",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Delete a saved Profile\n\nUsage: xrm profile remove [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile remove Office\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "rename",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Rename a saved Profile\n\nUsage: xrm profile rename [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile rename Home --name Office\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "clone",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Copy a saved Profile under a new name\n\nUsage: xrm profile clone [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile clone Home --name Office\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "show",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show Profile settings\n\nUsage: xrm profile show [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile show Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "list",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "List Profiles\n\nUsage: xrm profile list [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile list\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "create",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Create a local Profile from the built-in preset\n\nUsage: xrm profile create [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --name NAME (required) \n                          Human-readable object name \n        --core CORE       Registered core ID (may be selected later) \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm profile create --name Home\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "tui",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Open the seven-page interactive terminal application\n\nUsage: xrm tui [OPTIONS]\n\nOPTIONS:\n  -h,   --help            Show this help message \n        --profile PROFILE Initial Profile ID \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm tui\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "stats",
+      "--watch"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "{\"error\":{\"code\":\"io_error\",\"message\":\"连接xrmd失败: no such file or directory\"}}\n"
+  },
+  {
+    "argv": [
+      "config",
+      "api",
+      "services",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set API services\n\nUsage: xrm config api services [OPTIONS] PROFILE SERVICES...\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  SERVICES ... (required) \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config api services Home StatsService\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "api",
+      "services",
+      "Home",
+      "StatsService"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config api services — Profile Home / api\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "apply",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config apply — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "check",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config check — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "disable",
+      "Home",
+      "dns"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config disable — Profile Home / dns\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "dump",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config dump — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--text",
+      "{\"dns\":{\"servers\":[\"localhost\"]}}"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config edit — Profile Home / dns\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "enable",
+      "Home",
+      "dns"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config enable — Profile Home / dns\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "env",
+      "set",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set one native Xray environment value\n\nUsage: xrm config env set [OPTIONS] PROFILE KEY VALUE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  KEY (required)          \n  VALUE (required)        \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config env set Home XRAY_LOCATION_ASSET /opt/xray\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "env",
+      "set",
+      "Home",
+      "XRAY_LOCATION_ASSET",
+      "/opt/xray"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config env set — Profile Home / env\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "env",
+      "unset",
+      "Home",
+      "XRAY_LOCATION_ASSET"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config env unset — Profile Home / env\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "export",
+      "Home",
+      "--output",
+      "/tmp/xrm-export"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config export — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "geodata",
+      "assets",
+      "Home",
+      "--json",
+      "[]"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config geodata assets — Profile Home / geodata\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "geodata",
+      "schedule",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set the Xray-native geodata update schedule\n\nUsage: xrm config geodata schedule [OPTIONS] PROFILE CRON\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  CRON (required)         \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config geodata schedule Home '0 0 * * *'\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "geodata",
+      "schedule",
+      "Home",
+      "0 0 * * *"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config geodata schedule — Profile Home / geodata\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "log",
+      "level",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set native Xray log level\n\nUsage: xrm config log level [OPTIONS] PROFILE LEVEL\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  LEVEL (required)        \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config log level Home warning\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "log",
+      "level",
+      "Home",
+      "warning"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config log level — Profile Home / log\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "metrics",
+      "listen",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set a Metrics listen address\n\nUsage: xrm config metrics listen [OPTIONS] PROFILE LISTEN\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  LISTEN (required)       \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config metrics listen Home 127.0.0.1:11111\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "metrics",
+      "listen",
+      "Home",
+      "127.0.0.1:11111"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config metrics listen — Profile Home / metrics\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "modules",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config modules — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "render",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config render — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "show",
+      "Home",
+      "--source",
+      "runtime"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config show — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "show",
+      "Home",
+      "dns"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config show — Profile Home / dns\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "statistics",
+      "enable",
+      "Home",
+      "--metrics-listen",
+      "127.0.0.1:11111"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config statistics enable — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "config",
+      "version",
+      "range",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Set or clear user-authored min/max fields\n\nUsage: xrm config version range [OPTIONS] PROFILE\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --min MIN         \n        --max MAX         \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm config version range Home\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "version",
+      "range",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config version range — Profile Home / version\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "connect",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm connect — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "install",
+      "v26.9.9"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core install\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "list"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core list\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "register",
+      "/opt/xray/xray",
+      "--name",
+      "Xray"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core register\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "releases"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core releases\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "remove",
+      "CORE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core remove — CORE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "restart"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core restart\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "stop"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core stop\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "core",
+      "use",
+      "Home",
+      "v26.9.9"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm core use — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "disconnect"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm disconnect\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "geodata",
+      "add",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Register one resource; download is a separate update\n\nUsage: xrm geodata add [OPTIONS] NAME KIND FILE_NAME\n\nPOSITIONALS:\n  NAME (required)         Human-readable resource name \n  KIND (required)         geoip or geosite Choices: geoip, geosite. \n  FILE_NAME (required)    Target .dat filename \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --url URL         HTTPS resource URL Cannot combine with --file. \n        --file PATH       Local resource .dat path Cannot combine with --url. \n        --auto-update     Enable periodic cache updates \n        --interval-seconds INTERVAL_SECONDS \n                          Refresh interval in seconds Default: 0. \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm geodata add Local geoip geoip.dat --file /tmp/geoip.dat\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "add",
+      "Local",
+      "geoip",
+      "geoip.dat",
+      "--file",
+      "/tmp/geoip.dat"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm geodata add\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "geodata",
+      "bind",
+      "Home",
+      "Local"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm geodata bind — Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "geodata",
+      "list"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm geodata list\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "geodata",
+      "remove",
+      "Local"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm geodata remove — Local\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "geodata",
+      "update",
+      "Local",
+      "--core",
+      "Xray"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm geodata update — Local\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "group",
+      "add",
+      "Home",
+      "--name",
+      "Example",
+      "--tag",
+      "proxy",
+      "--members",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm group add — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "group",
+      "edit",
+      "Home",
+      "--json",
+      "{\"id\":\"GROUP_ID\",\"name\":\"Manual\",\"members\":{\"kind\":\"explicit\",\"node_ids\":[\"NODE_ID\"]},\"selection_mode\":\"manual\",\"selected_node_id\":\"NODE_ID\",\"balancer\":{\"tag\":\"proxy\",\"strategy\":{\"type\":\"random\"}}}"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm group edit — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "group",
+      "list",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm group list — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "group",
+      "override",
+      "proxy",
+      "--runtime",
+      "--clear"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm group override\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "group",
+      "remove",
+      "Home",
+      "GROUP_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm group remove — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "group",
+      "select",
+      "Home",
+      "GROUP_ID",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm group select — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "group",
+      "show",
+      "Home",
+      "GROUP_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm group show — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "logs",
+      "--limit",
+      "100"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm logs\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "add",
+      "--name",
+      "Direct",
+      "--outbound-json",
+      "{\"protocol\":\"freedom\",\"settings\":{}}"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node add\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "alias",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node alias — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "copy",
+      "NODE_ID",
+      "--name",
+      "Example"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node copy — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "disable",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node disable — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "edit",
+      "NODE_ID",
+      "mux",
+      "--json",
+      "{\"enabled\":false}"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node edit — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "enable",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node enable — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "history",
+      "confirm",
+      "SOURCE_ID",
+      "--id",
+      "NODE_ID",
+      "--token",
+      "PREVIEW_TOKEN",
+      "--yes"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node history confirm — SOURCE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "history",
+      "preview",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Read-only history candidates; no credentials are printed\n\nUsage: xrm node history preview [OPTIONS] SOURCE_ID\n\nPOSITIONALS:\n  SOURCE_ID (required)    Stable source ID from sub list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm node history preview SOURCE_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "history",
+      "preview",
+      "SOURCE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node history preview — SOURCE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "labels",
+      "NODE_ID",
+      "--values",
+      "local,test"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node labels — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "list"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node list\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "remove",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node remove — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "replace",
+      "NODE_ID",
+      "--name",
+      "Direct",
+      "--settings-json",
+      "{\"kind\":\"raw\",\"value\":{\"protocol\":\"freedom\",\"settings\":{}}}"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node replace — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "show",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node show — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "test",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node test — NODE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "test-cancel",
+      "OPERATION_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node test-cancel — OPERATION_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "node",
+      "test-results"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm node test-results\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "operation",
+      "get",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Read an operation's final result\n\nUsage: xrm operation get [OPTIONS] OPERATION_ID\n\nPOSITIONALS:\n  OPERATION_ID (required) Operation ID returned by the server \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm operation get OPERATION_ID\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "operation",
+      "get",
+      "OPERATION_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm operation get — OPERATION_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "clone",
+      "Home",
+      "--name",
+      "Office"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm profile clone — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "create",
+      "--name",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm profile create\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm profile list\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "remove",
+      "Office"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm profile remove — Profile Office\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "rename",
+      "Home",
+      "--name",
+      "Office"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm profile rename — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "show",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm profile show — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "sources",
+      "set",
+      "Home"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm profile sources set — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "routing",
+      "preset",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Preview and save native routing presets\n\nUsage: xrm routing preset [OPTIONS] [SUBCOMMAND]\n\nOPTIONS:\n  -h,   --help            Show this help message \n\nSUBCOMMANDS:\n  plan                    Show existing and proposed native routing JSON \n  save                    Save the planned native routing source; does not \n                          Apply \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm routing preset plan --help\n\nNext: xrm routing preset <command> --help\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "routing",
+      "preset",
+      "plan",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show existing and proposed native routing JSON\n\nUsage: xrm routing preset plan [OPTIONS] PROFILE PRESET\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or ID \n  PRESET (required)       bypass_mainland, blacklist_proxy, global_proxy, \n                          direct_only, custom_native Choices: bypass_mainland, \n                          blacklist_proxy, global_proxy, direct_only, \n                          custom_native. \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm routing preset plan Home direct_only\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "routing",
+      "preset",
+      "plan",
+      "Home",
+      "direct_only"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm routing preset plan — Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "routing",
+      "preset",
+      "save",
+      "Home",
+      "direct_only",
+      "--expected-file",
+      "/tmp/routing-baseline.json"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm routing preset save — Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "select",
+      "group",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Persist a group selection without connecting\n\nUsage: xrm select group [OPTIONS] PROFILE GROUP_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  GROUP_ID (required)     Stable group ID from group list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm select group Home GROUP_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "select",
+      "group",
+      "Home",
+      "GROUP_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm select group — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "select",
+      "node",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Select a saved node for a Profile\n\nUsage: xrm select node [OPTIONS] PROFILE NODE_ID\n\nPOSITIONALS:\n  PROFILE (required)      Exact Profile name or UUID (saved configuration) \n  NODE_ID (required)      Stable node ID from node list \n\nOPTIONS:\n  -h,   --help            Show this help message \n\nGLOBAL OPTIONS (before the command):\n        --socket PATH     xrmd Unix domain socket \n        --json            Write machine readable output \n        --verbose         Include original diagnostics in human errors \n\nExamples:\n  xrm select node Home NODE_ID\n\nProfile accepts an exact saved name or UUID.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "select",
+      "node",
+      "Home",
+      "NODE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm select node — Profile Home\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "server",
+      "info"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm server info\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "settings",
+      "editor",
+      "clear"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm settings editor clear\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "settings",
+      "editor",
+      "set",
+      "[\"/usr/bin/vi\",\"-n\"]"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm settings editor set\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "settings",
+      "set",
+      "cli_color",
+      "never"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm settings set\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "settings",
+      "show"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm settings show\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "stats"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm stats\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "status"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm status\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "sub",
+      "add",
+      "--name",
+      "Local",
+      "--url",
+      "http://127.0.0.1:8080/sub",
+      "--paused"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm sub add\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "sub",
+      "edit",
+      "SOURCE_ID",
+      "--name",
+      "Local"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm sub edit — SOURCE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "sub",
+      "list"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm sub list\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "sub",
+      "remove",
+      "SOURCE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm sub remove — SOURCE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "sub",
+      "show",
+      "SOURCE_ID"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm sub show — SOURCE_ID\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "sub",
+      "update"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm sub update\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "status"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm status\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\n"
+  },
+  {
+    "argv": [
+      "--verbose",
+      "status"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm status\nReason: The xrmd endpoint is unavailable or the connection was interrupted.\nRecovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' server info\nSocket: /tmp/xrm-cli-rewrite-hzaviaft/daemon.sock\nDiagnostic (original):\n连接xrmd失败: no such file or directory\n"
+  },
+  {
+    "argv": [
+      "--json",
+      "status"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "{\"error\":{\"code\":\"io_error\",\"message\":\"连接xrmd失败: no such file or directory\"}}\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "profile",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "create",
+      "--name",
+      "Home"
+    ],
+    "code": 0,
+    "stdout": "Created Profile Home [dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2]; no core started\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "profile",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "[{\"core_id\":\"\",\"id\":\"dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2\",\"name\":\"Home\"}]\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2\tHome\t\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "show",
+      "Home"
+    ],
+    "code": 0,
+    "stdout": "Profile Home [dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2]\nCore: none\nSaved target: none\nSources: 0\nModules: 15\nAppend selected default: on\nRuntime: unaffected by this query\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "node",
+      "add",
+      "--name",
+      "Direct",
+      "--outbound-json",
+      "{\"protocol\":\"freedom\",\"settings\":{}}"
+    ],
+    "code": 0,
+    "stdout": "{\"enabled\":true,\"id\":\"61ab2ef0-b24c-48c9-aa74-53713b52c762\",\"labels\":[],\"name\":\"Direct\",\"protocol\":\"freedom\",\"security\":\"—\",\"source_id\":null,\"source_missing\":false,\"support\":\"raw-only\",\"transport\":\"—\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "Nodes: 1\n61ab2ef0-b24c-48c9-aa74-53713b52c762\tDirect\tfreedom\traw-only\tavailable\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "show",
+      "61ab2ef0-b24c-48c9-aa74-53713b52c762"
+    ],
+    "code": 0,
+    "stdout": "Node Direct [61ab2ef0-b24c-48c9-aa74-53713b52c762]\nProtocol: freedom\nState: enabled\nSource: local\nConnection settings: hidden in human output; use --json node show for editing\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "select",
+      "node",
+      "Home",
+      "61ab2ef0-b24c-48c9-aa74-53713b52c762"
+    ],
+    "code": 0,
+    "stdout": "Saved target node 61ab2ef0-b24c-48c9-aa74-53713b52c762 for Profile Home; runtime unchanged\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "status"
+    ],
+    "code": 0,
+    "stdout": "{\"active\":null,\"actual_target\":null,\"desired_running\":false,\"error\":null,\"health\":\"process_only\",\"override_state\":\"none\",\"pid\":null,\"runtime_override\":null,\"saved_target\":null,\"state\":\"stopped\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--text",
+      "{\"dns\":{\"servers\":[\"localhost\"]}}"
+    ],
+    "code": 0,
+    "stdout": "Saved native module dns for Profile Home; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "status"
+    ],
+    "code": 0,
+    "stdout": "{\"active\":null,\"actual_target\":null,\"desired_running\":false,\"error\":null,\"health\":\"process_only\",\"override_state\":\"none\",\"pid\":null,\"runtime_override\":null,\"saved_target\":null,\"state\":\"stopped\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "stats"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":false,\"key\":\"stats\",\"label\":\"Stats\",\"runtime_file\":\"08_stats.json\",\"source_file\":\"modules/08_stats.json\",\"text\":\"{\\n  \\\"stats\\\": {}\\n}\\n\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "status"
+    ],
+    "code": 0,
+    "stdout": "state: stopped\nhealth: traffic unverified\nrunning profile: none\nsaved target: scope is running Profile only; inspect `profile show <ref>`\napplied target: no running target\nruntime override: none\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "connect",
+      "Home"
+    ],
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm connect — Profile Home\nReason: No Xray core is selected for this Profile.\nRecovery: Choose a registered Xray core for this Profile; register a binary if needed.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' core list\nSetup help: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' core register --help\nSelect core help: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' core use --help\n"
+  },
+  {
+    "argv": [
+      "profile",
+      "show",
+      "Missing Profile"
+    ],
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm profile show — Profile Missing Profile\nReason: The requested object or a required reference was not found.\nRecovery: Refresh the relevant list and use an existing name or ID.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' profile list\n"
+  },
+  {
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "dns"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":true,\"key\":\"dns\",\"label\":\"DNS\",\"runtime_file\":\"01_dns.json\",\"source_file\":\"modules/01_dns.json\",\"text\":\"{\\\"dns\\\":{\\\"servers\\\":[\\\"localhost\\\"]}}\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "dns",
+      "--text",
+      "{\"dns\":{\"servers\":[\"1.1.1.1\"]}}"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: xrm config edit — Profile Home / dns\nReason: The requested data could not be read or written.\nRecovery: Check the path, access permissions and storage diagnostic; keep unsaved changes.\nNext: xrm --socket '/tmp/xrm-cli-rewrite-hzaviaft/daemon.sock' config show 'Home' 'dns'\n"
+  },
+  {
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "dns"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":true,\"key\":\"dns\",\"label\":\"DNS\",\"runtime_file\":\"01_dns.json\",\"source_file\":\"modules/01_dns.json\",\"text\":\"{\\\"dns\\\":{\\\"servers\\\":[\\\"localhost\\\"]}}\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "status"
+    ],
+    "code": 0,
+    "stdout": "state: stopped\nhealth: traffic unverified\nrunning profile: none\nsaved target: scope is running Profile only; inspect `profile show <ref>`\napplied target: no running target\nruntime override: none\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "disconnect"
+    ],
+    "code": 0,
+    "stdout": "Core is stopped; saved Profile settings unchanged\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "settings",
+      "show"
+    ],
+    "code": 0,
+    "stdout": "XRM appearance\n  cli_color: auto\n  color_mode: auto\n  density: comfortable\n  icon_mode: unicode\n  reduce_motion: false\n  theme: dark\nEditor argv: VISUAL / EDITOR fallback\nNode test defaults:\n  concurrency: 3\n  default_url: \n  max_body_bytes: 8388608\n  timeout_ms: 5000\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "geodata",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "group",
+      "list",
+      "Home"
+    ],
+    "code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "config",
+      "show",
+      "Home",
+      "version"
+    ],
+    "code": 0,
+    "stdout": "{\"editor_support\":\"native\",\"included\":false,\"key\":\"version\",\"label\":\"Version\",\"runtime_file\":\"13_version.json\",\"source_file\":\"modules/13_version.json\",\"text\":null}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "Home\r\n  ID: dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2\r\n  Core ID: none\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "list"
+    ],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "Nodes  1 total\r\n\r\nNAME      PROTOCOL  SUPPORT   STATE     ID\r\nDirect    freedom   raw-only  enabled   61ab2ef0-b24c-48c9-aa74-53713b52c762\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "modules",
+      "Home"
+    ],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "Source files are editable; runtime filenames are generated on Connect / Apply.\r\nMODULE            INCLUDE   SOURCE FILE / RUNTIME FILE\r\nlog               included  modules/00_log.json\r\n                            00_log.json\r\ndns               included  modules/01_dns.json\r\n                            01_dns.json\r\ninbounds          included  modules/02_inbounds.json\r\n                            02_inbounds.json\r\noutbounds         included  modules/03_outbounds.json\r\n                            03_outbounds.json\r\nrouting           included  modules/04_routing.json\r\n                            04_routing.json\r\nobservatory       excluded  modules/05_observatory.json\r\n                            05_observatory.json\r\napi               excluded  modules/06_api.json\r\n                            06_api.json\r\nmetrics           excluded  modules/07_metrics.json\r\n                            07_metrics.json\r\nstats             excluded  modules/08_stats.json\r\n                            08_stats.json\r\npolicy            excluded  modules/09_policy.json\r\n                            09_policy.json\r\nfakedns           excluded  modules/10_fakedns.json\r\n                            10_fakedns.json\r\ngeodata           excluded  modules/11_geodata.json\r\n                            11_geodata.json\r\nenv               excluded  modules/12_env.json\r\n                            12_env.json\r\nversion           excluded  modules/13_version.json (not saved)\r\n                            13_version.json\r\nburstObservatory  excluded  modules/14_burstObservatory.json\r\n                            14_burstObservatory.json\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "terminal": true,
+    "width": 120,
+    "code": 0,
+    "stdout": "NAME      ID                                    CORE ID\r\nHome      dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2  none\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "list"
+    ],
+    "terminal": true,
+    "width": 120,
+    "code": 0,
+    "stdout": "Nodes  1 total\r\n\r\nNAME      PROTOCOL  SUPPORT   STATE     ID\r\nDirect    freedom   raw-only  enabled   61ab2ef0-b24c-48c9-aa74-53713b52c762\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "modules",
+      "Home"
+    ],
+    "terminal": true,
+    "width": 120,
+    "code": 0,
+    "stdout": "Source files are editable; runtime filenames are generated on Connect / Apply.\r\nMODULE            INCLUDE   SOURCE FILE                          RUNTIME FILE\r\nlog               included  modules/00_log.json                  00_log.json\r\ndns               included  modules/01_dns.json                  01_dns.json\r\ninbounds          included  modules/02_inbounds.json             02_inbounds.json\r\noutbounds         included  modules/03_outbounds.json            03_outbounds.json\r\nrouting           included  modules/04_routing.json              04_routing.json\r\nobservatory       excluded  modules/05_observatory.json          05_observatory.json\r\napi               excluded  modules/06_api.json                  06_api.json\r\nmetrics           excluded  modules/07_metrics.json              07_metrics.json\r\nstats             excluded  modules/08_stats.json                08_stats.json\r\npolicy            excluded  modules/09_policy.json               09_policy.json\r\nfakedns           excluded  modules/10_fakedns.json              10_fakedns.json\r\ngeodata           excluded  modules/11_geodata.json              11_geodata.json\r\nenv               excluded  modules/12_env.json                  12_env.json\r\nversion           excluded  modules/13_version.json (not saved)  13_version.json\r\nburstObservatory  excluded  modules/14_burstObservatory.json     14_burstObservatory.json\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "terminal": true,
+    "width": 180,
+    "code": 0,
+    "stdout": "NAME      ID                                    CORE ID\r\nHome      dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2  none\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "list"
+    ],
+    "terminal": true,
+    "width": 180,
+    "code": 0,
+    "stdout": "Nodes  1 total\r\n\r\nNAME      PROTOCOL  SUPPORT   STATE     ID\r\nDirect    freedom   raw-only  enabled   61ab2ef0-b24c-48c9-aa74-53713b52c762\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "modules",
+      "Home"
+    ],
+    "terminal": true,
+    "width": 180,
+    "code": 0,
+    "stdout": "Source files are editable; runtime filenames are generated on Connect / Apply.\r\nMODULE            INCLUDE   SOURCE FILE                          RUNTIME FILE\r\nlog               included  modules/00_log.json                  00_log.json\r\ndns               included  modules/01_dns.json                  01_dns.json\r\ninbounds          included  modules/02_inbounds.json             02_inbounds.json\r\noutbounds         included  modules/03_outbounds.json            03_outbounds.json\r\nrouting           included  modules/04_routing.json              04_routing.json\r\nobservatory       excluded  modules/05_observatory.json          05_observatory.json\r\napi               excluded  modules/06_api.json                  06_api.json\r\nmetrics           excluded  modules/07_metrics.json              07_metrics.json\r\nstats             excluded  modules/08_stats.json                08_stats.json\r\npolicy            excluded  modules/09_policy.json               09_policy.json\r\nfakedns           excluded  modules/10_fakedns.json              10_fakedns.json\r\ngeodata           excluded  modules/11_geodata.json              11_geodata.json\r\nenv               excluded  modules/12_env.json                  12_env.json\r\nversion           excluded  modules/13_version.json (not saved)  13_version.json\r\nburstObservatory  excluded  modules/14_burstObservatory.json     14_burstObservatory.json\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "code": 0,
+    "stdout": "dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2\tHome\t\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "node",
+      "test-results"
+    ],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "No node test results\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "Manage Xray nodes, native configurations and the independent core\r\n\r\nUsage: xrm [OPTIONS] [SUBCOMMAND]\r\n\r\nOPTIONS:\r\n  -h,   --help            Show this help message \r\n        --version         Display program version information and exit \r\n        --socket PATH     xrmd Unix domain socket \r\n        --json            Write machine readable output \r\n        --verbose         Include original diagnostics in human errors \r\n\r\nInteractive:\r\n  tui                     Open the seven-page interactive terminal application \r\n\r\nSaved configuration:\r\n  profile                 Manage saved Profiles \r\n  config                  Inspect and edit native Xray modules \r\n  group                   Manage saved dynamic Xray balancers \r\n  select                  Persist a node selection without connecting \r\n  routing                 Profile routing preset operations \r\n\r\nInventory and resources:\r\n  core                    Register and inspect Xray binaries \r\n  node                    Manage the independent node inventory \r\n  sub                     Manage subscription sources and refresh node \r\n                          inventory \r\n  geodata                 Manage shared GeoIP/GeoSite resources \r\n\r\nRun and observe:\r\n  connect                 Apply saved Profile settings and connect \r\n  disconnect              Stop the managed Xray process \r\n  status                  Show expected/actual core runtime state \r\n  logs                    Read the bounded server/core log buffer \r\n  operation               Inspect an asynchronous operation \r\n  stats                   Show server-sampled Xray traffic and observations \r\n\r\nXRM settings and server:\r\n  server                  Server operations \r\n  settings                Manage XRM appearance and Manager editor preferences \r\n\r\nExamples:\r\n  xrm tui\r\n  xrm profile list\r\n  xrm profile create --name Home\r\n  xrm config modules Home\r\n  xrm connect Home\r\n\r\nNext: xrm <command> --help\r\nHelp is local and never connects to xrmd.\r\nSaving and selecting never connect. Use connect to apply saved settings.\r\nMachine output: xrm --json <command>; errors use stderr.\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile"
+    ],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "Manage saved Profiles\r\n\r\nUsage: xrm profile [OPTIONS] [SUBCOMMAND]\r\n\r\nOPTIONS:\r\n  -h,   --help            Show this help message \r\n\r\nSUBCOMMANDS:\r\n  create                  Create a local Profile from the built-in preset \r\n  list                    List Profiles \r\n  show                    Show Profile settings \r\n  clone                   Copy a saved Profile under a new name \r\n  rename                  Rename a saved Profile \r\n  remove                  Delete a saved Profile \r\n  sources                 Set the subscription sources used by one Profile \r\n\r\nGLOBAL OPTIONS (before the command):\r\n        --socket PATH     xrmd Unix domain socket \r\n        --json            Write machine readable output \r\n        --verbose         Include original diagnostics in human errors \r\n\r\nExamples:\r\n  xrm profile list\r\n  xrm profile create --name Home\r\n  xrm profile show Home\r\n\r\nNext: xrm profile <command> --help\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "list"
+    ],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "Home\r\n  ID: dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2\r\n  Core ID: none\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "profile",
+      "create",
+      "--help"
+    ],
+    "terminal": true,
+    "width": 80,
+    "code": 0,
+    "stdout": "Create a local Profile from the built-in preset\r\n\r\nUsage: xrm profile create [OPTIONS]\r\n\r\nOPTIONS:\r\n  -h,   --help            Show this help message \r\n        --name NAME (required) \r\n                          Human-readable object name \r\n        --core CORE       Registered core ID (may be selected later) \r\n\r\nGLOBAL OPTIONS (before the command):\r\n        --socket PATH     xrmd Unix domain socket \r\n        --json            Write machine readable output \r\n        --verbose         Include original diagnostics in human errors \r\n\r\nExamples:\r\n  xrm profile create --name Home\r\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "core",
+      "register",
+      "/tmp/xrm-g1-xray-v26.9.9/xray",
+      "--name",
+      "Fixed Xray"
+    ],
+    "code": 0,
+    "stdout": "{\"id\":\"44943055-6004-43e0-a743-c471b3017bad\",\"managed\":false,\"name\":\"Fixed Xray\",\"path\":\"/tmp/xrm-g1-xray-v26.9.9/xray\",\"reported_version\":\"Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "core",
+      "use",
+      "Home",
+      "44943055-6004-43e0-a743-c471b3017bad"
+    ],
+    "code": 0,
+    "stdout": "Profile core updated (checked_only)\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "config",
+      "export",
+      "Home",
+      "--output",
+      "/tmp/xrm-cli-rewrite-hzaviaft/exported"
+    ],
+    "code": 0,
+    "stdout": "{\"exported\":true,\"output\":\"/tmp/xrm-cli-rewrite-hzaviaft/exported\",\"required_environment\":{}}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "status"
+    ],
+    "code": 0,
+    "stdout": "{\"active\":null,\"actual_target\":null,\"desired_running\":false,\"error\":null,\"health\":\"process_only\",\"override_state\":\"none\",\"pid\":null,\"runtime_override\":null,\"saved_target\":null,\"state\":\"stopped\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "config",
+      "edit",
+      "Home",
+      "inbounds",
+      "--text",
+      "{\"inbounds\":[]}"
+    ],
+    "code": 0,
+    "stdout": "Saved native module inbounds for Profile Home; running configuration unchanged\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "connect",
+      "Home"
+    ],
+    "code": 0,
+    "stdout": "Connected Profile Home [dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2]; process running; traffic unverified\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "--json",
+      "status"
+    ],
+    "code": 0,
+    "stdout": "{\"active\":{\"confdir\":\"/tmp/xrm-cli-rewrite-hzaviaft/db/runtime/candidate/run-1790483123234-1\",\"core_id\":\"44943055-6004-43e0-a743-c471b3017bad\",\"core_version\":\"Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\",\"profile_id\":\"dfb0aaf3-f46e-4e8c-940d-39f21e9a40b2\",\"run_id\":\"run-1790483123234-1\",\"selection\":{\"id_or_tag\":\"61ab2ef0-b24c-48c9-aa74-53713b52c762\",\"kind\":\"node\"},\"selection_display_name\":\"Direct\",\"selection_in_inventory\":true},\"actual_target\":{\"id_or_tag\":\"61ab2ef0-b24c-48c9-aa74-53713b52c762\",\"kind\":\"node\"},\"desired_running\":true,\"error\":null,\"health\":\"process_only\",\"override_state\":\"none\",\"pid\":1182383,\"runtime_override\":null,\"saved_target\":{\"id_or_tag\":\"61ab2ef0-b24c-48c9-aa74-53713b52c762\",\"kind\":\"node\"},\"state\":\"running\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "disconnect"
+    ],
+    "code": 0,
+    "stdout": "Core is stopped; saved Profile settings unchanged\n",
+    "stderr": ""
+  },
+  {
+    "scenario": "watch flush + Ctrl-C",
+    "code": 0,
+    "stdout": "{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n",
+    "stderr": ""
+  },
+  {
+    "scenario": "watch stdout consumer closed",
+    "code": 0,
+    "stdout": "{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n",
+    "stderr": ""
+  },
+  {
+    "scenario": "watch daemon disconnected",
+    "code": 3,
+    "stdout": "{\"availability\":\"unavailable\",\"missing_conditions\":[\"core not running\"],\"rates\":[],\"received_at\":null,\"run_id\":null,\"sample\":null}\n",
+    "stderr": "{\"error\":{\"code\":\"io_error\",\"message\":\"发送IPC请求失败: broken pipe\"}}\n"
+  }
+]

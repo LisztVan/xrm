@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 6/15 
+ observatory  SOURCE · EDIT · Visual                                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Connection observatory                                                     
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ C│ Help & actions                                                           │  
+ o│ ──────────────────────────────────────────────────────────────────────── │  
+ ─┤ Connection observatory                                                   ├─ 
+ s│ Add to draft: observatory draft. Module Save: Source. Connect / Apply:   │  
+ P│ runtime. Cancel: discard this object's unsubmitted changes. Nati…        │  
+ P│ Tasks · arrows choose; Enter executes available task                     │  
+  │ Ctrl-S          Add to draft · Connection observatory                    │  
+  │ Esc             Cancel / close form · Connection observatory             │  
+  │                 Editing scope and advanced fields · Connection observato │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn… 
+ observatory · Source editable · Visual · excluded                              
+ xrmd ready · Page content (Content) · modules/05_observat…   F1 Help & actions 

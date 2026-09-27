@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [1m log [0;2m dns  inbounds  outbounds  routing  observatory  api [0m            › [2m1/15[0m 
+ [1mlog[0;2m  SOURCE · READ ONLY · Visual                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mHelp & actions[0;2m                                                          [0m │[2m [0m 
+ [1;2mX[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2ml[0m│ [1mCompatibility / log · Source                                            [0m │[2m [0m 
+ [2m─[0m┤ [2mRead only: in Profiles allow module Edit for Compatibility. Visual edits[0m ├[2m─[0m 
+ [2ml[0m│ [2mlisted native fields; other fields/types remain in JSON (F2).           [0m │[2m [0m 
+ [2m [0m│ [2mActions · choose with arrows, Enter to execute                          [0m │[2m [0m 
+ [2m [0m│ [1;7m> F2              Open JSON                                            [0m┃ │[2m [0m 
+ [2m [0m│   i               Source / runtime paths                                 │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mNavigation and input                                                    [0m │[2m [0m 
+ [2m [0m│ Up / Down               Choose section                                   │[2m [0m 
+ [2m [0m│ Left / Right            Collapse / expand                                │[2m [0m 
+ [2m [0m│ Esc                     Return one level                                 │[2m [0m 
+ [2m [0m│ [2mEsc closes Help and restores your place                                 [0m │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Compatibili… · Use Compatibili… · Edit none · Run none                   [0m 
+ log · Source read-only · Visual · excluded                                     
+ [2mxrmd ready · Content · modules/00_log.json                   [0mF1 Help & actions 

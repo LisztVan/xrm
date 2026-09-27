@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15
+ dns  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+ >╭──────────────────────────────────────────────────────────────────────────╮
+  │ DNS server  EDIT                                                         │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │ > Address                 [ 1.1.1.1                                   ]┃ │
+ D│   IP, DNS URL, localhost or fakedns                                    ┃ │
+ d│                                                                          │
+ ─┤   port                    [x] Set value  Explicit value                  ├─
+ 1│                           [ 53                                        ]  │
+  │   Default 53; URL port applies for DOH/DOQL                              │
+  │                                                                          │
+  │   domains                                                                │
+  │   [ ] Set value  Not set · field omitted                                 │
+  │     domains                                                              │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │  [ Add to draft ]  [ Cancel ]                                            │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Module revi… · Use Module revi… · Edit Module revi… · Run none
+ dns · Source editable · Visual · excluded
+ xrmd ready · Content · modules/01_dns.json                   F1 Help & actions

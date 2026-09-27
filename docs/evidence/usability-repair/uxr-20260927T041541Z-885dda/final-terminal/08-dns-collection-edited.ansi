@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api [0m            › [2m2/15[0m 
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                   [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;7m>   DNS servers                          [0m╭──────────────────────────────────╮  
+     DNS query and cache settings         │ [1m+ Success · history in Help     [0m │  
+     DNS hosts                            │ Saved Alpha / dns; runtime       │  
+                                          │ unchanged · repeated 2 times     │  
+ [1mDNS servers[0;2m  Draft                       [0m╰──────────────────────────────────╯[2m [0m 
+ [2mdns.servers                                                                   [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m1  [0;1m1.1.1.1[0m                                                                     
+ [2m   port [0mDefault[2m    strategy [0mInherit                                            
+                                                                                
+ [2m2  [0;1m9.9.9.9[0m                                                                     
+ [2m   port [0m53[2m    strategy [0mInherit                                                 
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha            [0m 
+ dns · Source editable · Visual · included                                      
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json    [0mF1 Help & actions 

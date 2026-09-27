@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  routing  observatory  api  metrics  stats  policy  fakedns          › 11/15 
+ fakedns  SOURCE · READ ONLY · Visual                                           
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Fake DNS pools                       ╭──────────────────────────────────╮  
+                                          │ i Info · history in Help         │  
+ Fake DNS pools  Read only                │ Refreshed Subscriptions          │  
+ fakedns                                  ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ 1               198.18.0.0/15 · 65535                                          
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ fakedns · Source read-only · Visual · excluded                                 
+ xrmd ready · Section selection (SecondaryNav) · modules/1…   F1 Help & actions 

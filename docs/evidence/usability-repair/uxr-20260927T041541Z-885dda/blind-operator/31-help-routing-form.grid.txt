@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 5/15
+ routing  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   Routing rules (ordered)      Routing rules (ordered)  Draft
+     Native balancers             routing.rules
+     Domain strategy              ─────────────────────────────────────────────────────────────────────────────────────
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Routing rule                                                                                       │
+         │ Add to draft: routing draft. Module Save: Source. Connect / Apply: runtime. Cancel: discard this   │
+         │ object's unsubmitted changes. Matches combine with AND. Tab to Target: outboundTag / balancerTag.  │
+         │ ruleTag is optional.…                                                                              │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > Ctrl-S          Add to draft · Routing rule                                                      │
+         │   Esc             Cancel / close form · Routing rule                                               │
+         │   Jump            Go to Match conditions -> Target · Routing rule                                  │
+         │   Jump            Go to Target - choose outbound or balancer · Routing rule                        │
+         │   Jump            Go to Additional match conditions (AND) · Routing rule                           │
+         │   Jump            Go to Advanced native fields · Routing rule                                      │
+         │                   Editing scope and advanced fields · Routing rule                                 │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Tab / Shift-Tab         Move between fields and buttons                                            │
+         │ Arrows / Home / End     Move cursor or choose visible option immediately                           │
+         │ Ctrl-Home / Ctrl-End    Document start / end                                                       │
+         │ Space                   Toggle focused checkbox or presence                                        │
+         │ Enter                   Insert newline in multiline text / activate button; no checkbox change     │
+         │ q e u p ? Space         Text in input fields                                                       │
+         │ Add / Update / Delete / Activate the labelled list button with Enter                               │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ routing · Source editable · Visual · included
+ xrmd ready · Page content (Content) · modules/04_routing.json                                        F1 Help & actions

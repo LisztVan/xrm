@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 7/15 
+ api  SOURCE · READ ONLY · Visual                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Xray API                             ╭──────────────────────────────────╮  
+                                          │ i Info · history in Help         │  
+ Xray API  Read only                      │ Refreshed Subscriptions          │  
+ api                                      ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ tag                     api                                                    
+ services                HandlerService, StatsService                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ api · Source read-only · Visual · excluded                                     
+ xrmd ready · Section selection (SecondaryNav) · modules/0…   F1 Help & actions 

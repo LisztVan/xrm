@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · READ ONLY · JSON                                                 
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Help & actions                                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Alpha / dns · Source                                                     │  
+  │ Read only: in Profiles allow module Edit for Alpha. Visual edits listed  │  
+  │ native fields; other fields/types remain in JSON (F2). Read onl…         │  
+  │ Tasks · arrows choose; Enter executes available task                     │  
+  │ > F2              Open Visual                                          ┃ │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Arrows / Home / End     Move cursor                                      │  
+  │ Ctrl-Home / Ctrl-End    Document start / end                             │  
+  │ Esc                     Close one layer                                  │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ dns · Source read-only · JSON · included                                       
+ xrmd ready · Page content (Content) · modules/01_dns.json    F1 Help & actions 

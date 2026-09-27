@@ -1,0 +1,246 @@
+[
+  {
+    "time": 220634.654,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-p8pnbueb",
+      "pid": 1493637,
+      "xrm_sha256": "da2a19f6954b891a5042a82d93246f3a3f6720c2e6385d28fa5686fd75ebc503"
+    }
+  },
+  {
+    "time": 220636.68,
+    "action": "fixture",
+    "value": {
+      "profile_a": "eccf76e5-55c2-4f1f-b4f6-fa6aeadbd3b1",
+      "profile_b": "8b127d1d-d821-4f32-aeda-131838cc56da",
+      "node": "60da9a1f-4f09-46c6-9fcd-029c662a93d4",
+      "core": "4423ae44-b6c2-4a83-bb00-51d590bc2be6",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 220636.777,
+    "action": "tui_pid",
+    "value": "1493657"
+  },
+  {
+    "time": 220636.783,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220636.831,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220636.881,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 220636.935,
+    "action": "capture",
+    "value": "modules-first-80x24"
+  },
+  {
+    "time": 220636.935,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220636.983,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.032,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.08,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.129,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.177,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.225,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.273,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.322,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.37,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.419,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.467,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.515,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.563,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.617,
+    "action": "capture",
+    "value": "modules-last-80x24"
+  },
+  {
+    "time": 220637.623,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 220637.763,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.811,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.859,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.907,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220637.956,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220638.004,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220638.059,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 220638.11,
+    "action": "key",
+    "value": "R"
+  },
+  {
+    "time": 220638.158,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 220638.207,
+    "action": "text",
+    "value": " draft"
+  },
+  {
+    "time": 220638.271,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 220638.411,
+    "action": "capture",
+    "value": "unsaved-dialog-80x24"
+  },
+  {
+    "time": 220638.411,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220638.547,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 220638.598,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 220638.741,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220638.788,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220638.837,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220638.886,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 220638.941,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 220638.991,
+    "action": "key",
+    "value": "r"
+  },
+  {
+    "time": 220639.045,
+    "action": "capture",
+    "value": "paper-logs-80x24"
+  },
+  {
+    "time": 220639.052,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-p8pnbueb"
+    }
+  }
+]

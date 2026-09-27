@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config
+ Logs  Core output
+ ──────────────────────────────────────────────────────────────────────────────
+ No log entries received                  ╭──────────────────────────────────╮
+                                          │ + Success                        │
+                                          │ XRM appearance saved             │
+                                          ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ Following · 0 text lines
+ xrmd ready · Content                                         F1 Help & actions

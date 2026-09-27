@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+    Scope: All  Scope: Local  Scope: Groups  Source: Local fixture                                                  3/4
+ Nodes  Groups · selection bindings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Group                      Mode           Strategy        Members
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+ No Groups
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ View Lab Home · groups
+ xrmd ready · Section selection (SecondaryNav)                                                        F1 Help & actions

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config
+ Logs  Core output
+ ──────────────────────────────────────────────────────────────────────────────
+ TIME     CURSOR SOURCE   LEVEL   MESSAGE
+ ──────────────────────────────────────────────────────────────────────────────
+          #1     stdout   Info    UI process fixture                          ┃
+          #1     stdout           continued line                              ┃
+          #2     stdout   Info    UI process fixture                          ┃
+          #2     stdout           continued line                              ┃
+          #2     stdout           XRM_FAKE_CORE_LOG_0000                      ╹
+          #3     stdout           XRM_FAKE_CORE_LOG_0001
+          #4     stdout           XRM_FAKE_CORE_LOG_0002
+          #5     stdout           XRM_FAKE_CORE_LOG_0003
+          #6     stdout           XRM_FAKE_CORE_LOG_0004
+          #7     stdout           XRM_FAKE_CORE_LOG_0005
+          #8     stdout           XRM_FAKE_CORE_LOG_0006
+          #9     stdout           XRM_FAKE_CORE_LOG_0007
+          #10    stdout           XRM_FAKE_CORE_LOG_0008
+          #11    stdout           XRM_FAKE_CORE_LOG_0009
+          #12    stdout           XRM_FAKE_CORE_LOG_0010
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use none · Edit Alpha · Run Alpha
+ PAUSED · 42 lines · new 0 · dropped no · truncated no
+ xrmd ready · Content · cursor 33                                   ? / F1 Help

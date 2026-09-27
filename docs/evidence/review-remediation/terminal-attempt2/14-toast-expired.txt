@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  1 source / node inventory                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+   Source                   Nodes   Result          Auto    Bound               
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸ Local fixture updated    1       success         on      no                  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alph?a · Use Alph?a · Edit none · Run Alph?a                              
+ Highlighted Local fixture updated · success · 1 nodes                          
+ xrmd ready · Content                                         F1 Help & actions 

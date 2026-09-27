@@ -1,0 +1,40 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+ Overview  Runtime & saved configuration
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Runtime  ACTUAL                                                 Saved configuration  VIEW Lab Home
+ running  Xray 26.9.9  PID 1214338                               Saved target      Node · Loopback direct
+ Running Profile   Lab Home                                      Next Connect      Lab Home
+ Actual target     Node · Loopback direct                        Saved settings apply only on Connect / Apply
+ Health            Process alive; traffic unverified
+
+ Statistics  OBSERVED
+ Traffic: unavailable · latency: unmeasured
+ Unavailable reason: stats, policy, metrics
+
+ Inventory  2 nodes · 1 source
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Stop core                                                                                          │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Stop Lab Home (run run-1790484875288-1)? Current connections will close. Saved settings and module │
+         │ drafts remain.                                                                                     │
+         │                                                                                                    │
+         │  [ Confirm ]  [ Cancel ]                                                                           │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: Lab Home
+ View Lab Home
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

@@ -1,0 +1,28 @@
+$ xrm profile list
+NAME      ID                                    CORE ID
+Home      7b0b5006-54ef-4c44-a1a7-df11b275c484  none
+
+$ xrm node list
+Nodes  1 total
+
+NAME      PROTOCOL  SUPPORT   STATE     ID
+Direct    freedom   raw-only  enabled   fe0dd1d9-c752-4c9b-a560-a19b042c06d7
+
+$ xrm config modules Home
+Source files are editable; runtime filenames are generated on Connect / Apply.
+MODULE            INCLUDE   SOURCE FILE                          RUNTIME FILE
+log               included  modules/00_log.json                  00_log.json
+dns               included  modules/01_dns.json                  01_dns.json
+inbounds          included  modules/02_inbounds.json             02_inbounds.json
+outbounds         included  modules/03_outbounds.json            03_outbounds.json
+routing           included  modules/04_routing.json              04_routing.json
+observatory       excluded  modules/05_observatory.json          05_observatory.json
+api               excluded  modules/06_api.json                  06_api.json
+metrics           excluded  modules/07_metrics.json              07_metrics.json
+stats             excluded  modules/08_stats.json                08_stats.json
+policy            excluded  modules/09_policy.json               09_policy.json
+fakedns           excluded  modules/10_fakedns.json              10_fakedns.json
+geodata           excluded  modules/11_geodata.json              11_geodata.json
+env               excluded  modules/12_env.json                  12_env.json
+version           excluded  modules/13_version.json (not saved)  13_version.json
+burstObservatory  excluded  modules/14_burstObservatory.json     14_burstObservatory.json

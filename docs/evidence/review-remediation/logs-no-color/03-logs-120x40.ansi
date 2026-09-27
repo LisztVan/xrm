@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m                                                  
+ [1mLogs[0;2m  Core output                                                                                                     [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2;7m-        stdout                                   [0;1;7mXray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1       [0m┃ 
+ [1;7m                          [2m                      | [0;1;7mlinux/amd64)                                                       [0m┃ 
+ [2m-        stdout                                   [0mA unified platform for anti-censorship.                            ┃ 
+ [2m01:15:47 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi  ┃ 
+                           [2m                      | [0mdate/run-1790442947012-1/00_log.json Format:json}                  ┃ 
+ [2m01:15:47 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi  ┃ 
+                           [2m                      | [0mdate/run-1790442947012-1/01_dns.json Format:json}                  ┃ 
+ [2m01:15:47 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi  ┃ 
+                           [2m                      | [0mdate/run-1790442947012-1/02_inbounds.json Format:json}             ┃ 
+ [2m01:15:47 stdout   Info    infra/conf              [0m[/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012  ┃ 
+                           [2m                      | [0m-1/02_inbounds.json] appended inbound with tag: review-socks       ┃ 
+ [2m01:15:47 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi  ┃ 
+                           [2m                      | [0mdate/run-1790442947012-1/03_outbounds.json Format:json}            ┃ 
+ [2m01:15:47 stdout   Info    infra/conf              [0m[/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012  ┃ 
+                           [2m                      | [0m-1/03_outbounds.json] prepend outbound with tag: review-direct       
+ [2m01:15:47 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi    
+                           [2m                      | [0mdate/run-1790442947012-1/04_routing.json Format:json}                
+ [2m01:15:47 stdout   Debug   app/log                 [0mLogger started                                                       
+ [2m01:15:47 stdout   Info    app/dns                 [0mDNS: created localhost client                                        
+ [2m-        stdout                                   [0mConfiguration OK.                                                    
+ [2m01:15:47 stderr                                   [0mUsing confdir from arg: /tmp/xrm-rewrite-ui-_n_b1r7o/runtime/cand    
+                           [2m                      | [0midate/run-1790442947012-1                                            
+ [2m-        stdout                                   [0mXray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1         
+                           [2m                      | [0mlinux/amd64)                                                         
+ [2m-        stdout                                   [0mA unified platform for anti-censorship.                              
+ [2m01:15:47 stderr                                   [0mUsing confdir from arg: /tmp/xrm-rewrite-ui-_n_b1r7o/runtime/cand    
+                           [2m                      | [0midate/run-1790442947012-1                                            
+ [2m01:15:47 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi    
+                           [2m                      | [0mdate/run-1790442947012-1/00_log.json Format:json}                    
+ [2m01:15:47 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi    
+                           [2m                      | [0mdate/run-1790442947012-1/01_dns.json Format:json}                    
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Real log review · Use Real log review · Edit none · Run Real log review                                          [0m 
+ Paused · 45 text lines       
+ [2mxrmd ready · Content                                                                                 [0mF1 Help & actions 

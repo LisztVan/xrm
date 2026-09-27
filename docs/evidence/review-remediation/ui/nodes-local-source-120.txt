@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config                                                   
+    Scope: All  Scope: Local  Scope: Groups  Source: Local                                                          4/4 
+ Nodes  Node inventory                                                                                                  
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Node                   Protocol   Enabled  Support    Saved  Run                                                     
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                                                                                                        
+ No nodes in this view                                                                                                  
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                         
+ View Alpha · 7b30dbf4-ce0a-4e19-aeef-1d8b9d9bf0f3                                                                      
+ xrmd ready · Content                                                                                 F1 Help & actions 

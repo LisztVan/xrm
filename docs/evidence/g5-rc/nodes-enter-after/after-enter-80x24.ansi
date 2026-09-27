@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions [0;1m[Nodes][0;2m Logs  Config [0m          
+   [1m Scope: All [0;2m Scope: Local  Scope: Groups [0m                                [2m1/3[0m 
+ [1mNodes[0;2m  Node inventory                                                         [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m─[0m┤ [1mDetails[0;2m                                                                 [0m ├[2m─[0m 
+ [1;2m▸[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│   [2mG5 loopback inventory                                               [0m   │[2m [0m 
+ [2m [0m│   [2mHighlighted G5 loopback inventory · Saved none · Running none       [0m   │[2m [0m 
+ [2m [0m│   [2mID: 527b0b6f-499c-4934-ba28-b4610300bcf3                            [0m   │[2m [0m 
+ [2m [0m│   [2mSource: Local inventory                                             [0m   │[2m [0m 
+ [2m [0m│   [2mSource present: yes                                                 [0m   │[2m [0m 
+ [2m [0m│   [2mprotocol: freedom                                                   [0m   │[2m [0m 
+ [2m [0m│   [2mtransport: —                                                        [0m   │[2m [0m 
+ [2m [0m│   [2msecurity: —                                                         [0m   │[2m [0m 
+ [2m [0m│   [2menabled: true                                                       [0m   │[2m [0m 
+ [2m [0m│   [2msupport: raw-only                                                   [0m   │[2m [0m 
+ [2m [0m│   [2mSocket: /tmp/xrm-rewrite-ui-wvswgirs/xrmd.sock                      [0m   │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: G5 Nodes En… · Next: G5 Nodes En… · Module Edit: none · Running: none[0m 
+ Highlighted G5 loopback inventory · Saved none · Running none                  
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

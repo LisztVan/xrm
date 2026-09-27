@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                         4/15 
+ outbounds  SOURCE · EDIT · Visual                                                                                                                                                  
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Static outbounds (ordered)   Static outbounds (ordered)  Draft                                                                                                                 
+                                  outbounds                                                                                                                                         
+                                  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                  1               direct · freedom · Default                                                                                                        
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                       ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+                                       │ Static outbound  EDIT · field 1/4                                                                  │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ > tag                     [x] Set value  Explicit value                                            │                                       
+                                       │                           [ direct                                                              ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   protocol                ‹ freedom ›                                                              │                                       
+                                       │                                                                                                    │                                       
+                                       │   sendThrough             [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   targetStrategy          ‹ Unset / use core default ›                                             │                                       
+                                       │   Not used by freedom; freedom uses sockopt.domainStrategy                                         │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Add to draft ]  [ Cancel ]                                                                      │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                                                                             
+ outbounds · Source editable · Visual · excluded                                          
+ xrmd ready · Content · modules/03_outbounds.json                                                                                                                 F1 Help & actions 

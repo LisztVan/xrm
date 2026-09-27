@@ -1,0 +1,48 @@
+[38;2;32;43;56m[48;2;243;246;249m [1m[38;2;0;93;143m[48;2;229;235;242mXRM [Overview][0m[38;2;82;98;117m[48;2;229;235;242m Profiles  Modules  Subscriptions  Nodes  Logs  Config [38;2;32;43;56m                                                                                                             [48;2;243;246;249m 
+ [1mOverview[0m[38;2;82;98;117m[48;2;243;246;249m  Runtime & saved configuration                                                                                                                                           [38;2;32;43;56m 
+ [38;2;132;145;160m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;32;43;56m 
+ [1mRuntime[0m[38;2;82;98;117m[48;2;243;246;249m  ACTUAL                                                                           [38;2;32;43;56m    [1mSaved configuration[0m[38;2;82;98;117m[48;2;243;246;249m  VIEW Alpha                                                     [38;2;32;43;56m 
+ [1m[38;2;23;112;80mrunning[0m[38;2;82;98;117m[48;2;243;246;249m  Xray 26.9.9  PID 1195634[38;2;32;43;56m                                                             [38;2;82;98;117mSaved target      [38;2;32;43;56mNode · Loopback inventory                                          
+ [38;2;82;98;117mRunning Profile   [38;2;32;43;56mAlpha                                                                       [38;2;82;98;117mNext Connect      [38;2;32;43;56mBeta                                                               
+ [38;2;82;98;117mActual target     [38;2;32;43;56mNode · Loopback inventory                                                   [38;2;82;98;117mSaved settings apply only on Connect / Apply                                        [38;2;32;43;56m 
+ [38;2;82;98;117mHealth            [38;2;32;43;56mProcess alive; traffic unverified                                                                                                                                
+                                                                                                                                                                                    
+ [1mStatistics[0m[38;2;82;98;117m[48;2;243;246;249m  OBSERVED                                                                                                                                                              [38;2;32;43;56m 
+ Traffic: unavailable · latency: unmeasured                                                                                                                                         
+ [38;2;82;98;117mUnavailable reason: stats, policy, metrics                                                                                                                                        [38;2;32;43;56m 
+                                                                                                                                                                                    
+ Inventory  1 node · 1 source                                                                                                                                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ [38;2;132;145;160m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[38;2;32;43;56m 
+ [38;2;82;98;117mViewing: Alpha · Next: Beta · Module Edit: Alpha · Running: Alpha                                                                                                                 [38;2;32;43;56m 
+ View Alpha                                                                                                                                                                         
+ [38;2;82;98;117mxrmd ready · Page content (Content)                                                                                                                              [38;2;0;93;143mF1 Help & actions[38;2;32;43;56m 

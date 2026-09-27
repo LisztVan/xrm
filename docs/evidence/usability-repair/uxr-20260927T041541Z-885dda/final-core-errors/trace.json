@@ -1,0 +1,200 @@
+[
+  {
+    "socket": "/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock",
+    "database": "/tmp/xrm-uxr-core-errors-nqgt6vxf/state/server.sqlite",
+    "core_sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+    "xrm_sha256": "30b849aafacdab8a4a1dc8fb3cda8e4e3d80b250291ea7987be70c7a6e21b98b",
+    "xrmd_sha256": "103af026302ada08e53507f631ade1ebd4f3394f0d03432d059a662cbc0f7c16"
+  },
+  {
+    "label": "non-Xray executable",
+    "command": [
+      "core",
+      "register",
+      "/bin/true",
+      "--name",
+      "not-xray"
+    ],
+    "json": false,
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm core register\nReason: The executable did not identify itself as a working Xray core.\nRecovery: Check the binary path and run its version command, then register the correct Xray executable.\nNext: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' core list\nSetup help: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' core register --help\nSelect core help: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' core use --help\n"
+  },
+  {
+    "label": "create unbound Profile",
+    "command": [
+      "profile",
+      "create",
+      "--name",
+      "Unbound"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"additional_node_ids\":[],\"append_selected_default\":true,\"core_id\":\"\",\"enabled_source_ids\":[],\"environment\":{\"asset_dir\":null,\"cwd\":\"\",\"process_environment\":{}},\"geodata_resource_ids\":{},\"id\":\"f22456ad-c4fe-4923-b289-dc48920626c2\",\"modules\":[{\"filename\":\"00_log.json\",\"included\":true,\"key\":\"log\"},{\"filename\":\"01_dns.json\",\"included\":true,\"key\":\"dns\"},{\"filename\":\"02_inbounds.json\",\"included\":true,\"key\":\"inbounds\"},{\"filename\":\"03_outbounds.json\",\"included\":true,\"key\":\"outbounds\"},{\"filename\":\"04_routing.json\",\"included\":true,\"key\":\"routing\"},{\"filename\":\"05_observatory.json\",\"included\":false,\"key\":\"observatory\"},{\"filename\":\"06_api.json\",\"included\":false,\"key\":\"api\"},{\"filename\":\"07_metrics.json\",\"included\":false,\"key\":\"metrics\"},{\"filename\":\"08_stats.json\",\"included\":false,\"key\":\"stats\"},{\"filename\":\"09_policy.json\",\"included\":false,\"key\":\"policy\"},{\"filename\":\"10_fakedns.json\",\"included\":false,\"key\":\"fakedns\"},{\"filename\":\"11_geodata.json\",\"included\":false,\"key\":\"geodata\"},{\"filename\":\"12_env.json\",\"included\":false,\"key\":\"env\"},{\"filename\":\"13_version.json\",\"included\":false,\"key\":\"version\"},{\"filename\":\"14_burstObservatory.json\",\"included\":false,\"key\":\"burstObservatory\"}],\"name\":\"Unbound\",\"selected\":null}\n",
+    "stderr": ""
+  },
+  {
+    "label": "no selected core",
+    "command": [
+      "config",
+      "check",
+      "Unbound"
+    ],
+    "json": false,
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm config check — Profile Unbound\nReason: No Xray core is selected for this Profile.\nRecovery: Choose a registered Xray core for this Profile; register a binary if needed.\nNext: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' core list\nSetup help: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' core register --help\nSelect core help: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' core use --help\n"
+  },
+  {
+    "label": "register fixed Xray",
+    "command": [
+      "core",
+      "register",
+      "/tmp/xrm-g1-xray-v26.9.9/xray",
+      "--name",
+      "Fixed"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"id\":\"db86acbe-a8d1-4d2e-8625-45f49676cac6\",\"managed\":false,\"name\":\"Fixed\",\"path\":\"/tmp/xrm-g1-xray-v26.9.9/xray\",\"reported_version\":\"Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "create fixed-core Profile",
+    "command": [
+      "profile",
+      "create",
+      "--name",
+      "Invalid inbound",
+      "--core",
+      "db86acbe-a8d1-4d2e-8625-45f49676cac6"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"additional_node_ids\":[],\"append_selected_default\":true,\"core_id\":\"db86acbe-a8d1-4d2e-8625-45f49676cac6\",\"enabled_source_ids\":[],\"environment\":{\"asset_dir\":null,\"cwd\":\"\",\"process_environment\":{}},\"geodata_resource_ids\":{},\"id\":\"39703f0f-d836-41be-bc90-ae0652974c02\",\"modules\":[{\"filename\":\"00_log.json\",\"included\":true,\"key\":\"log\"},{\"filename\":\"01_dns.json\",\"included\":true,\"key\":\"dns\"},{\"filename\":\"02_inbounds.json\",\"included\":true,\"key\":\"inbounds\"},{\"filename\":\"03_outbounds.json\",\"included\":true,\"key\":\"outbounds\"},{\"filename\":\"04_routing.json\",\"included\":true,\"key\":\"routing\"},{\"filename\":\"05_observatory.json\",\"included\":false,\"key\":\"observatory\"},{\"filename\":\"06_api.json\",\"included\":false,\"key\":\"api\"},{\"filename\":\"07_metrics.json\",\"included\":false,\"key\":\"metrics\"},{\"filename\":\"08_stats.json\",\"included\":false,\"key\":\"stats\"},{\"filename\":\"09_policy.json\",\"included\":false,\"key\":\"policy\"},{\"filename\":\"10_fakedns.json\",\"included\":false,\"key\":\"fakedns\"},{\"filename\":\"11_geodata.json\",\"included\":false,\"key\":\"geodata\"},{\"filename\":\"12_env.json\",\"included\":false,\"key\":\"env\"},{\"filename\":\"13_version.json\",\"included\":false,\"key\":\"version\"},{\"filename\":\"14_burstObservatory.json\",\"included\":false,\"key\":\"burstObservatory\"}],\"name\":\"Invalid inbound\",\"selected\":null}\n",
+    "stderr": ""
+  },
+  {
+    "label": "add fixed local direct node",
+    "command": [
+      "node",
+      "add",
+      "--name",
+      "Local direct",
+      "--outbound-json",
+      "{\"protocol\":\"freedom\",\"settings\":{}}"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"enabled\":true,\"id\":\"ef025efe-6235-4a44-ab16-e95f7596e16a\",\"labels\":[],\"name\":\"Local direct\",\"protocol\":\"freedom\",\"security\":\"—\",\"source_id\":null,\"source_missing\":false,\"support\":\"raw-only\",\"transport\":\"—\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "select saved direct node",
+    "command": [
+      "select",
+      "node",
+      "Invalid inbound",
+      "ef025efe-6235-4a44-ab16-e95f7596e16a"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"status\":\"saved_only\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "stopped runtime is not a missing Profile",
+    "command": [
+      "config",
+      "show",
+      "Invalid inbound",
+      "--source",
+      "runtime"
+    ],
+    "json": false,
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm config show — Profile Invalid inbound\nReason: No Xray process is running, so there are no runtime configuration files to show.\nRecovery: Inspect saved Source with config show PROFILE MODULE; use status to check the actual runtime before connecting.\nNext: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' status\n"
+  },
+  {
+    "label": "Profile still exists",
+    "command": [
+      "profile",
+      "show",
+      "Invalid inbound"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"additional_node_ids\":[],\"append_selected_default\":true,\"core_id\":\"db86acbe-a8d1-4d2e-8625-45f49676cac6\",\"enabled_source_ids\":[],\"environment\":{\"asset_dir\":null,\"cwd\":\"\",\"process_environment\":{}},\"geodata_resource_ids\":{},\"id\":\"39703f0f-d836-41be-bc90-ae0652974c02\",\"modules\":[{\"filename\":\"00_log.json\",\"included\":true,\"key\":\"log\"},{\"filename\":\"01_dns.json\",\"included\":true,\"key\":\"dns\"},{\"filename\":\"02_inbounds.json\",\"included\":true,\"key\":\"inbounds\"},{\"filename\":\"03_outbounds.json\",\"included\":true,\"key\":\"outbounds\"},{\"filename\":\"04_routing.json\",\"included\":true,\"key\":\"routing\"},{\"filename\":\"05_observatory.json\",\"included\":false,\"key\":\"observatory\"},{\"filename\":\"06_api.json\",\"included\":false,\"key\":\"api\"},{\"filename\":\"07_metrics.json\",\"included\":false,\"key\":\"metrics\"},{\"filename\":\"08_stats.json\",\"included\":false,\"key\":\"stats\"},{\"filename\":\"09_policy.json\",\"included\":false,\"key\":\"policy\"},{\"filename\":\"10_fakedns.json\",\"included\":false,\"key\":\"fakedns\"},{\"filename\":\"11_geodata.json\",\"included\":false,\"key\":\"geodata\"},{\"filename\":\"12_env.json\",\"included\":false,\"key\":\"env\"},{\"filename\":\"13_version.json\",\"included\":false,\"key\":\"version\"},{\"filename\":\"14_burstObservatory.json\",\"included\":false,\"key\":\"burstObservatory\"}],\"name\":\"Invalid inbound\",\"selected\":{\"id_or_tag\":\"ef025efe-6235-4a44-ab16-e95f7596e16a\",\"kind\":\"node\"}}\n",
+    "stderr": ""
+  },
+  {
+    "label": "save core-invalid native inbound as Source",
+    "command": [
+      "config",
+      "edit",
+      "Invalid inbound",
+      "inbounds",
+      "--text",
+      "{\"inbounds\": [{\"listen\": \"127.0.0.1\", \"port\": 37971, \"protocol\": \"invalid-xrm-test\", \"settings\": {}}]}"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"status\":\"saved_only\"}\n",
+    "stderr": ""
+  },
+  {
+    "label": "include invalid inbound in candidate",
+    "command": [
+      "config",
+      "enable",
+      "Invalid inbound",
+      "inbounds"
+    ],
+    "json": true,
+    "code": 0,
+    "stdout": "{\"saved_only\":true}\n",
+    "stderr": ""
+  },
+  {
+    "label": "fixed Xray rejects candidate",
+    "command": [
+      "config",
+      "check",
+      "Invalid inbound"
+    ],
+    "json": false,
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm config check — Profile Invalid inbound\nReason: Xray rejected the candidate configuration.\nRecovery: Use --verbose to read Xray's diagnostic, then correct the saved configuration before connecting.\nNext: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' --verbose config check 'Invalid inbound'\n"
+  },
+  {
+    "label": "raw Xray diagnostic is reachable",
+    "command": [
+      "--verbose",
+      "config",
+      "check",
+      "Invalid inbound"
+    ],
+    "json": false,
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: xrm config check — Profile Invalid inbound\nReason: Xray rejected the candidate configuration.\nRecovery: Use --verbose to read Xray's diagnostic, then correct the saved configuration before connecting.\nNext: xrm --socket '/tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock' --verbose config check 'Invalid inbound'\nSocket: /tmp/xrm-uxr-core-errors-nqgt6vxf/run/xrmd.sock\nDiagnostic (original):\nXray候选配置检查失败\nSubject: 2026/09/27 13:09:53.827352 Using confdir from arg: /tmp/xrm-uxr-core-errors-nqgt6vxf/state/runtime/candidate/run-1790485793818-2\n\n"
+  },
+  {
+    "label": "machine error code retained",
+    "command": [
+      "config",
+      "check",
+      "Invalid inbound"
+    ],
+    "json": true,
+    "code": 1,
+    "stdout": "",
+    "stderr": "{\"error\":{\"code\":\"core_check_failed\",\"message\":\"Xray候选配置检查失败\",\"subject\":\"2026/09/27 13:09:53.932412 Using confdir from arg: /tmp/xrm-uxr-core-errors-nqgt6vxf/state/runtime/candidate/run-1790485793924-3\\n\"}}\n"
+  },
+  {
+    "result": "PASS",
+    "core_was_started": false
+  }
+]

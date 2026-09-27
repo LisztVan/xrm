@@ -1,0 +1,104 @@
+[
+  {
+    "time": 273612.011,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-9ue6vuyq",
+      "pid": 1378502,
+      "xrm_sha256": "7e3b53a807887fdb0963c889f0cd9018a4d5f29a91596e93922037b4b3971d67"
+    }
+  },
+  {
+    "time": 273612.117,
+    "action": "tui_pid",
+    "value": "1378507"
+  },
+  {
+    "time": 273612.127,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273612.175,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273612.224,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273612.274,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273612.323,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273612.371,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273612.428,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 273612.482,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 273612.545,
+    "action": "capture",
+    "value": "before-enter-80x24"
+  },
+  {
+    "time": 273612.545,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 273612.6,
+    "action": "capture",
+    "value": "after-enter-80x24"
+  },
+  {
+    "time": 273612.6,
+    "action": "enter_result",
+    "value": {
+      "core_id": "4d667480-b29e-402c-a8c9-feae287fa8d7",
+      "details_open": true,
+      "runtime_unchanged": true
+    }
+  },
+  {
+    "time": 273612.601,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 273612.742,
+    "action": "capture",
+    "value": "after-esc-80x24"
+  },
+  {
+    "time": 273612.747,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-9ue6vuyq"
+    }
+  },
+  {
+    "time": 273612.747,
+    "action": "fixture_removed",
+    "value": "/tmp/xrm-rewrite-ui-9ue6vuyq"
+  }
+]

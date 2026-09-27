@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · Visual                                                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ DNS server  UNSAVED * · field 4/15                                       │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │     Enable Set value to edit; draft value retained                       │  
+ D│   Priority domain matches                                                │  
+ d│                                                                        ┃ │  
+ ─┤ > expectedIPs                                                          ┃ ├─ 
+ 1│   [ ] Set value  Not set · field omitted                                 │  
+  │     Enable Set value to edit; draft value retained                       │  
+  │   Keep matching responses                                                │  
+  │                                                                          │  
+  │   unexpectedIPs                                                          │  
+  │   [ ] Set value  Not set · field omitted                                 │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Add to draft ]  [ Cancel ]                                            │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ dns · Source editable · Visual · included                                      
+ xrmd ready · Page content (Content) · modules/01_dns.json    F1 Help & actions 

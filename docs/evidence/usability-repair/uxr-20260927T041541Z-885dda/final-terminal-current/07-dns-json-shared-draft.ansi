@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api [0m            › [2m2/15[0m 
+ [1mdns[0;2m  SOURCE · EDIT · JSON · UNSAVED *                                         [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [ {                                                                          ] 
+     "dns": {                                                                   
+       "futureNative": {                                                        
+         "preserved": true                                                      
+       },                                                                       
+       "servers": [                                                             
+         "1.1.1.1",                                                             
+         {                                                                      
+           "address": "9.9.9.9",                                                
+           "port": 53                                                           
+         }                                                                      
+       ]                                                                        
+     }                                                                          
+   }                                                                            
+                                                                                
+                                                                                
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha            [0m 
+ dns · Source editable · JSON · Unsaved * · included                            
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json    [0mF1 Help & actions 

@@ -1,0 +1,58 @@
+Filters: [UI-NAV],[P1-FOCUS],[P1-SIZE],[P1-TABLE],[P3-TEMPLATE],[P3-MODULE-TABS],[P3-MODULE-NAV],[P3-RUNTIME],[P3-STRUCT],[P5-PRESET-UI],[P5-GEODATA-UI],[P4-RPC],[P4-CONFIG-TABS],[UI-LOCAL],[UI-CORE],[UI-CONFIG],[UI-12],[HISTORY-TUI],[PROFILE-LOCAL-TUI],[UI-SCROLL],""80x24 TUI keyboard flow*""
+Randomness seeded to: 191076159
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+P1 node table header and cells share display columns
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:698
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:735: FAILED:
+  CHECK( (origin_at > 0 && core_line[origin_at - 1] == ' ') )
+with expansion:
+  false
+with message:
+   Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+   Core  Geodata  Tests  Appearance  Editor  General
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ────
+    Core / release                Version             State
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ────
+  ▸ table-core                    Xray 26.9.9 (Xray, Pregistered
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ────
+  View none · Use none · Edit none · Run none
+  
+xrmd ready · Content                                                     F1
+  Help
+
+{"error":{"code":"conflict","message":"Xray 仍被 Profile 使用","subject":"uses-core"}}
+===============================================================================
+test cases:  23 |  22 passed | 1 failed
+assertions: 584 | 583 passed | 1 failed
+

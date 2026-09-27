@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               2/6
+ Config / Geodata  Resource cache
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Resource                   Kind         Result             Auto
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Geo Fixture edited         geoip                           off
+
+
+
+
+
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Geodata for Home  UNSAVED * · field 1/1                                                            │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ > Resources *                                                                                      │
+         │   [x] Geo Fixture edited · geoip.dat (not validated)                                               │
+         │   One validated resource per filename. Uncheck a resource to remove its binding.                   │
+         │                                                                                                    │
+         │ ! Update and validate Geo Fixture edited before binding it                                         │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Save ]  [ Cancel ]                                                                              │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ Highlighted Geo Fixture edited · geoip.dat
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

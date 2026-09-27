@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Resource                   Kind         Result             Auto                     ╭Done────────────────────────────╮
+──────────────────────────────────────────────────────────────────────────────────────┤Geodata bindings saved for Home;│
+No Geodata resources                                                                  │runtime unchanged (2)           │
+                                                                                      ╰────────────────────────────────╯
+                                                                                      ╭Error───────────────────────────╮
+                                                                                      │Resource removal:               │
+                                                                                      │Geodata资源仍被Profile使用      │
+                                                                                      ╰────────────────────────────────╯
+                                                                                      ╭Done────────────────────────────╮
+                                                                                      │Resource removal saved; runtime │
+                                                                                      │unchanged                       │
+                                                                                      ╰────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

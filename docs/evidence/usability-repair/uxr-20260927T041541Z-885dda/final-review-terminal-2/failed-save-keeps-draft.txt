@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸ Alpha                  Process fixture      —      yes    running            
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+  │ rename Profile  UNSAVED * · field 1/1                                    │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name *                  [ Alpha OFFLINE-DRAFT                       ]  │  
+  │                                                                          │  
+  │ ! The xrmd endpoint is unavailable or the connection was interrupted.    │  
+  │ Check the socket path and the server serving that endpoint. Confirm the  │  
+  │ result before retrying a write.                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Beta · Module Edit: Alpha · Running: unknown            
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd disconnected · cached data · Page content (Content)     F1 Help & actions 

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m                                                  
+ [1mLogs[0;2m  Core output                                                                                                     [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m-        stdout                                   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1       [0;2m┃[0m 
+ [1;2m                                                | linux/amd64)                                                       [0;2m┃[0m 
+ [2m-        stdout                                   A unified platform for anti-censorship.                            ┃[0m 
+ [2m01:15:47 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi  ┃[0m 
+ [2m                                                | date/run-1790442947012-1/00_log.json Format:json}                  ┃[0m 
+ [2m01:15:47 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi  ┃[0m 
+ [2m                                                | date/run-1790442947012-1/01_dns.json Format:json}                  ┃[0m 
+ [2m01:15:47[0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2mcandi  ┃[0m 
+ [2m        [0m│ [1mDetails[0;2m                                                                                           [0m │[2m       ┃[0m 
+ [2m01:15:47[0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m47012  ┃[0m 
+ [2m        [0m│   [2mLog text line                                                                                 [0m   │[2m       ┃[0m 
+ [2m01:15:47[0m│   [2mTime    not supplied                                                                          [0m   │[2mcandi  ┃[0m 
+ [2m        [0m│   [2mTransport chunk  1                                                                            [0m   │[2m       ┃[0m 
+ [2m01:15:47[0m│   [2mSource  core_stdout                                                                           [0m   │[2m47012  ┃[0m 
+ [2m        [0m│   [2mLevel   not supplied                                                                          [0m   │[2mct      [0m 
+ [2m01:15:47[0m│   [2mSubsystem                                                                                     [0m   │[2mcandi   [0m 
+ [2m        [0m│   [2m                                                                                              [0m   │[2m        [0m 
+ [2m01:15:47[0m│   [2mLine within chunk  1                                                                          [0m   │[2m        [0m 
+ [2m01:15:47[0m│   [2m                                                                                              [0m   │[2m        [0m 
+ [2m-       [0m│   [2mXray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)                     [0m   │[2m        [0m 
+ [2m01:15:47[0m│   [2mSocket: /tmp/xrm-rewrite-ui-_n_b1r7o/xrmd.sock                                                [0m   │[2m/cand   [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m-        stdout                                   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1        [0m 
+ [2m                                                | linux/amd64)                                                        [0m 
+ [2m-        stdout                                   A unified platform for anti-censorship.                             [0m 
+ [2m01:15:47 stderr                                   Using confdir from arg: /tmp/xrm-rewrite-ui-_n_b1r7o/runtime/cand   [0m 
+ [2m                                                | idate/run-1790442947012-1                                           [0m 
+ [2m01:15:47 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi   [0m 
+ [2m                                                | date/run-1790442947012-1/00_log.json Format:json}                   [0m 
+ [2m01:15:47 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candi   [0m 
+ [2m                                                | date/run-1790442947012-1/01_dns.json Format:json}                   [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Real log review · Use Real log review · Edit none · Run Real log review                                          [0m 
+ Paused · 45 text lines · 7 new text lines buffered         
+ [2mxrmd ready · Content                                                                                 [0mF1 Help & actions 

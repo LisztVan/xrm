@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  routing  observatory  api  metrics  stats  policy  fakedns          › 11/15 
+ fakedns  SOURCE · EDIT · Visual                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Fake DNS pools                                                             
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ F│ Fake DNS pool  EDIT · field 1/2                                          │  
+ f│ ──────────────────────────────────────────────────────────────────────── │  
+ ─┤ > Fake IP pool (CIDR)     [x] Set value  Explicit value                  ├─ 
+ 1│                           [ 198.18.0.0/15                             ]  │  
+  │                                                                          │  
+  │   poolSize                [x] Set value  Explicit value                  │  
+  │                           [ 65535                                     ]  │  
+  │   Number of cached mappings                                              │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Add to draft ]  [ Cancel ]                                            │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit Module revi… · Run none            
+ fakedns · Source editable · Visual · excluded                                  
+ xrmd ready · Content · modules/10_fakedns.json               F1 Help & actions 

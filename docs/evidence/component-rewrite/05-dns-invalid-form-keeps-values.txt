@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+> dns-server [unsaved]                           ╭Info─────────────────────────╮
+  ───────────────────────────────────────────────┤Module Edit enabled for Alpha│
+  Address                9.9.9.9                 ╰─────────────────────────────╯
+    IP, DNS URL, localhost or fakedns | Unset                                ┃
+  port                   oops
+    ! Enter a whole number
+  domains
+    Entries
+  ───────────────────────────────────────────────────────────────────────────
+  No entries
+
+  Value:
+  ────────────────────────────────────────────────────────────────────────────
+  ┌────────────┐┌──────┐
+  │Add to draft││Cancel│
+  └────────────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+View Alpha · Use Alpha · Edit Alpha · Run Alpha
+dns · Source editable · Visual · included · modules/01_dns.json
+xrmd ready · Content                                                     F1 Help

@@ -1,0 +1,377 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+      Start 198: TUI navigation shows one matching selected tab in the current terminal grid
+ 1/42 Test #198: TUI navigation shows one matching selected tab in the current terminal grid ...................   Passed    9.77 sec
+      Start 199: P1 layered Tab enters secondary navigation and keeps both bars at the top
+ 2/42 Test #199: P1 layered Tab enters secondary navigation and keeps both bars at the top .....................   Passed    0.73 sec
+      Start 200: P1 terminal below 80x24 protects and restores the current session
+ 3/42 Test #200: P1 terminal below 80x24 protects and restores the current session .............................   Passed    0.58 sec
+      Start 201: P1 node table header and cells share display columns
+ 4/42 Test #201: P1 node table header and cells share display columns ..........................................   Passed    0.86 sec
+      Start 202: P3 Profile creation edits name core and preset in one form
+ 5/42 Test #202: P3 Profile creation edits name core and preset in one form ....................................   Passed    0.66 sec
+      Start 203: P3 Modules secondary tabs show the selected native source without opening an editor
+ 6/42 Test #203: P3 Modules secondary tabs show the selected native source without opening an editor ...........   Passed    0.32 sec
+      Start 204: P3 module key selector keeps a far-right native tab visible at 80 columns
+ 7/42 Test #204: P3 module key selector keeps a far-right native tab visible at 80 columns .....................   Passed    1.10 sec
+      Start 205: P3 Modules runtime toggle does not silently render or start a stopped Profile
+ 8/42 Test #205: P3 Modules runtime toggle does not silently render or start a stopped Profile .................   Passed    0.40 sec
+      Start 206: P3 semantic module form changes the same unsaved native draft
+ 9/42 Test #206: P3 semantic module form changes the same unsaved native draft .................................   Passed    1.72 sec
+      Start 207: P5 routing preset is previewed before saving native routing source
+10/42 Test #207: P5 routing preset is previewed before saving native routing source ............................   Passed    1.69 sec
+      Start 208: P5 Config Geodata adds a shared resource without changing the running core
+11/42 Test #208: P5 Config Geodata adds a shared resource without changing the running core ....................   Passed    0.86 sec
+      Start 209: P5 Config Geodata validates and binds a local asset from the real TUI
+12/42 Test #209: P5 Config Geodata validates and binds a local asset from the real TUI .........................   Passed    1.51 sec
+      Start 210: P4 TCP test is an explicit RPC operation and leaves runtime stopped
+13/42 Test #210: P4 TCP test is an explicit RPC operation and leaves runtime stopped ...........................   Passed    0.07 sec
+      Start 211: P4 and P5 resources live in Config secondary navigation
+14/42 Test #211: P4 and P5 resources live in Config secondary navigation .......................................   Passed    0.39 sec
+      Start 212: Nodes Add exposes a real Local form and Group action
+15/42 Test #212: Nodes Add exposes a real Local form and Group action ..........................................   Passed    9.24 sec
+      Start 213: Config Core removes only an unused managed install
+16/42 Test #213: Config Core removes only an unused managed install ............................................   Passed    0.52 sec
+      Start 214: Config appearance and editor preferences persist across Manager sessions without Xray edits
+17/42 Test #214: Config appearance and editor preferences persist across Manager sessions without Xray edits ...   Passed   19.10 sec
+      Start 215: UI-12 local VLESS form saves a manual node and Group as a Profile outlet
+18/42 Test #215: UI-12 local VLESS form saves a manual node and Group as a Profile outlet ......................   Passed   10.76 sec
+      Start 216: TUI history preview cancels and confirms selected safe records
+19/42 Test #216: TUI history preview cancels and confirms selected safe records ................................   Passed    1.07 sec
+      Start 217: TUI local-use entry keeps an existing custom inbound intact
+20/42 Test #217: TUI local-use entry keeps an existing custom inbound intact ...................................   Passed    2.29 sec
+      Start 218: TUI node viewport follows the selected row across a 1205-node subscription
+21/42 Test #218: TUI node viewport follows the selected row across a 1205-node subscription ....................***Failed   11.64 sec
+Filters: "TUI node viewport follows the selected row across a 1205-node subscription"
+Randomness seeded to: 2770833731
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+TUI node viewport follows the selected row across a 1205-node subscription
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1110
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1153: FAILED:
+  CHECK( visibly_emphasized(tui.grid(true), last_name) )
+with expansion:
+  false
+with message:
+  subscription update result: {"completed":[{"added":1205,"malformed":0,
+  "missing":0,"partial":false,"source_id":"bf6aaa10-ed29-4784-8c6c-
+  00c0d3ed56cd","unsupported":0,"updated":0}],"failed":[]}
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 44 | 43 passed | 1 failed
+
+
+      Start 219: 80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter input
+22/42 Test #219: 80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter input ....................   Passed   10.62 sec
+      Start 220: UI-02/T25 logs expose pause and resume actions on the actual TUI
+23/42 Test #220: UI-02/T25 logs expose pause and resume actions on the actual TUI ..............................***Failed   11.34 sec
+Filters: "UI-02/T25 logs expose pause and resume actions on the actual TUI"
+Randomness seeded to: 1206418919
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+UI-02/T25 logs expose pause and resume actions on the actual TUI
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1227
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:570: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with message:
+  expected=Pause / follow
+   XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config
+   Logs  Core output
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   T╭───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+   ─┤ Help & actions
+  ├─
+   -│
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �───────────────────── │
+   -│ Logs · View logs
+  │
+   -│ Pause keeps the current buffer in place; new text is buffered. Enter
+  │
+   -│ shows original text and transport details. No core lifecycle actio…
+  │
+   -│ Actions · choose with arrows, Enter to execute
+  │
+   -│ > p               Pause reading
+  ┃ │
+   -│   i               Raw log details
+  │
+   -│
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �───────────────────── │
+   -│ Navigation and input
+  │
+   -│ Up / Down / PageUp /    Browse history
+  │
+   -│ PageDown
+  │
+   -│ End                     Resume follow
+  │
+   -│ Esc                     Return one level
+  │
+   -│ Esc closes Help and restores your place
+  │
+   -
+  ╰────────────────────────�-
+  ��────────────────────────�-
+  �────────────────────────╯-
+  ╻
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   View logs · Use logs · Edit none · Run logs
+   Following · 512 text lines · earlier output evicted
+   xrmd ready · Content                                         F1 Help &
+  actions
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 53 | 52 passed | 1 failed
+
+
+      Start 221: UI-03 overview distinguishes the saved target from the running target
+24/42 Test #221: UI-03 overview distinguishes the saved target from the running target .........................   Passed   11.25 sec
+      Start 222: disabled native modules without source open safely and remain disabled
+25/42 Test #222: disabled native modules without source open safely and remain disabled ........................   Passed  121.53 sec
+      Start 223: first use from xrm tui needs no Profile ID and completes local subscription to connect
+26/42 Test #223: first use from xrm tui needs no Profile ID and completes local subscription to connect ........***Failed   30.31 sec
+Filters: "first use from xrm tui needs no Profile ID and completes local subscription to connect"
+Randomness seeded to: 2258301759
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+first use from xrm tui needs no Profile ID and completes local subscription to
+connect
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1268
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1206: FAILED:
+  REQUIRE( status.value("state","")==state )
+with expansion:
+  "stopped" == "running"
+with message:
+  {"active":null,"actual_target":null,"desired_running":false,"error":null,
+  "health":"process_only","override_state":"none","pid":null,
+  "runtime_override":null,"saved_target":null,"state":"stopped"}
+
+===============================================================================
+test cases:   1 |   0 passed | 1 failed
+assertions: 267 | 266 passed | 1 failed
+
+
+      Start 224: TUI-SUB-02 failed refresh is visible and keeps the prior node inventory
+27/42 Test #224: TUI-SUB-02 failed refresh is visible and keeps the prior node inventory .......................   Passed    1.01 sec
+      Start 225: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts
+28/42 Test #225: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts ...................***Failed    9.37 sec
+Filters: "TUI-SUB-03 partial refresh shows imported\, unsupported and malformed counts"
+Randomness seeded to: 368096541
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1292
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:570: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with message:
+  expected=unsupported 1
+   XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+   Subscriptions  1 source / node inventory
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+    ╭───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+   ─┤ Details
+  ├─
+   ▸│
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �───────────────────── │
+    │   Subscriptions
+  │
+    │   Highlighted partial · Partial update · 1 nodes
+  │
+    │   ID: 601ad854-23b5-46bc-b732-6b76a6fc57d7
+  │
+    │   Last attempt: 2026-09-26 17:40:34 UTC
+  │
+    │   Last success: Not yet
+  │
+    │   View Profile binding (none): No View Profile
+  │
+    │   Other Profile bindings: inspect each Profile's source selection.
+  │
+    │   enabled: true
+  │
+    │   last_result: partial
+  │
+    │   unsupported_count: 1
+  │
+    │   malformed_count: 1
+  │
+    │   Socket: /tmp/xrm-i52-tui-224755212382855/xrmd.sock
+  │
+    ╰───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+  
+ ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   View none · Use none · Edit none · Run none
+   Highlighted partial · Partial update · 1 nodes
+   xrmd ready · Content                                         F1 Help &
+  actions
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 17 | 16 passed | 1 failed
+
+
+      Start 226: UI-06/UI-07 zero-profile startup and Profile management use names
+29/42 Test #226: UI-06/UI-07 zero-profile startup and Profile management use names .............................   Passed    2.46 sec
+      Start 227: UI-07 Profile management is name-oriented and browsing keeps the running Profile
+30/42 Test #227: UI-07 Profile management is name-oriented and browsing keeps the running Profile ..............   Passed    5.33 sec
+      Start 228: UI-05 opens a configured external editor from the native module draft
+31/42 Test #228: UI-05 opens a configured external editor from the native module draft .........................***Failed   11.45 sec
+Filters: "UI-05 opens a configured external editor from the native module draft"
+Randomness seeded to: 1686779742
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+UI-05 opens a configured external editor from the native module draft
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1320
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:570: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with messages:
+  mode := "nonzero"
+  expected=External editor failed
+   XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+      log  dns  inbounds  outbounds  routing  observatory  api             ›
+  1/15
+   log  SOURCE · EDIT · JSON · UNSAVED *
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   [ DRAFT_KEEP{
+  ]
+       "log": {
+         "loglevel": "info"
+       }
+     }
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+ ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   View editor · Use editor · Edit editor · Run none
+   log · Source editable · JSON · Unsaved * · included
+   xrmd ready · Content · modules/00_log.json                   F1 Help &
+  actions
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 89 | 88 passed | 1 failed
+
+
+      Start 229: T25 pause keeps a bounded log viewport and reports server buffer truncation
+32/42 Test #229: T25 pause keeps a bounded log viewport and reports server buffer truncation ...................   Passed    2.57 sec
+      Start 230: UX-02/03/04/05/06 focus layers route only the current keyboard scope
+33/42 Test #230: UX-02/03/04/05/06 focus layers route only the current keyboard scope ..........................   Passed   10.53 sec
+      Start 231: UX-07/09 module views use one full-width draft and F2 never saves
+34/42 Test #231: UX-07/09 module views use one full-width draft and F2 never saves .............................   Passed    4.08 sec
+      Start 232: UX-08 invalid JSON stays in the same draft until repaired
+35/42 Test #232: UX-08 invalid JSON stays in the same draft until repaired .....................................   Passed    0.93 sec
+      Start 233: UX-07 leaving an unsaved module draft requires an explicit choice
+36/42 Test #233: UX-07 leaving an unsaved module draft requires an explicit choice .............................   Passed    1.29 sec
+      Start 234: UX-09 formatting compact Source and switching read-only Runtime never saves
+37/42 Test #234: UX-09 formatting compact Source and switching read-only Runtime never saves ...................   Passed    2.76 sec
+      Start 235: UX-INT node JSON and Group field errors keep the bound PTY draft
+38/42 Test #235: UX-INT node JSON and Group field errors keep the bound PTY draft ..............................   Passed    2.00 sec
+      Start 236: UX-INT Profile and Subscription editors save their own sources
+39/42 Test #236: UX-INT Profile and Subscription editors save their own sources ................................   Passed    3.31 sec
+      Start 237: UX-INT offline inventory is unknown and cached data recovers in place
+40/42 Test #237: UX-INT offline inventory is unknown and cached data recovers in place .........................   Passed    0.60 sec
+      Start 238: UX-INT a dirty native draft survives same-session resize and exposes full paths
+41/42 Test #238: UX-INT a dirty native draft survives same-session resize and exposes full paths ...............   Passed    1.95 sec
+      Start 239: TUI native inbound Add requires Edit and preserves a disabled module
+42/42 Test #239: TUI native inbound Add requires Edit and preserves a disabled module ..........................   Passed   11.20 sec
+
+88% tests passed, 5 tests failed out of 42
+
+Total Test time (real) = 331.20 sec
+
+The following tests FAILED:
+	218 - TUI node viewport follows the selected row across a 1205-node subscription (Failed)
+	220 - UI-02/T25 logs expose pause and resume actions on the actual TUI (Failed)
+	223 - first use from xrm tui needs no Profile ID and completes local subscription to connect (Failed)
+	225 - TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts (Failed)
+	228 - UI-05 opens a configured external editor from the native module draft (Failed)
+Errors while running CTest

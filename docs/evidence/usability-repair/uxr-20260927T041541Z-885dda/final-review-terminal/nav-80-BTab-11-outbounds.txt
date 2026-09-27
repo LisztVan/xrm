@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 4/15 
+ outbounds  SOURCE · READ ONLY · Visual                                         
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Static outbounds (ordered)           ╭──────────────────────────────────╮  
+                                          │ i Info · history in Help         │  
+ Static outbounds (ordered)  Read only    │ Refreshed Subscriptions          │  
+ outbounds                                ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ 1               direct · freedom · Default                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ outbounds · Source read-only · Visual · included                               
+ xrmd ready · Section selection (SecondaryNav) · modules/0…   F1 Help & actions 

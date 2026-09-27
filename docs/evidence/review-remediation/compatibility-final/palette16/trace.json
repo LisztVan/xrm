@@ -1,0 +1,390 @@
+[
+  {
+    "time": 225790.418,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-fa1ezhvb",
+      "pid": 1594897,
+      "xrm_sha256": "2c8bb9dfc5e41d0e54eb9c15dacdca9d964daf98dd4565b65b95f2a91bb74df5"
+    }
+  },
+  {
+    "time": 225790.478,
+    "action": "tui_environment",
+    "value": {
+      "pid": 1594902,
+      "mode": "palette16",
+      "command": "env -u NO_COLOR TERM=vt100 COLORTERM= TERM_PROGRAM= WT_SESSION= /home/lisztzy/Projects/xrm/build/component-rewrite/xrm --socket /tmp/xrm-rewrite-ui-fa1ezhvb/xrmd.sock tui --profile a5b81daa-4ebe-47ea-a737-3670eab7c90c",
+      "actual": {
+        "TERM": "vt100",
+        "COLORTERM": "",
+        "TERM_PROGRAM": "",
+        "WT_SESSION": "",
+        "NO_COLOR": null
+      }
+    }
+  },
+  {
+    "time": 225790.492,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225790.549,
+    "action": "capture",
+    "value": "overview"
+  },
+  {
+    "time": 225790.553,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225790.611,
+    "action": "capture",
+    "value": "overview-help"
+  },
+  {
+    "time": 225790.614,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225790.751,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225790.894,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225790.948,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225791.005,
+    "action": "capture",
+    "value": "profiles"
+  },
+  {
+    "time": 225791.009,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225791.065,
+    "action": "capture",
+    "value": "profiles-help"
+  },
+  {
+    "time": 225791.068,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225791.205,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225791.348,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225791.403,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225791.454,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225791.514,
+    "action": "capture",
+    "value": "modules"
+  },
+  {
+    "time": 225791.518,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225791.577,
+    "action": "capture",
+    "value": "modules-help"
+  },
+  {
+    "time": 225791.581,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225791.717,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225791.854,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225791.997,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225792.052,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225792.11,
+    "action": "capture",
+    "value": "subscriptions"
+  },
+  {
+    "time": 225792.113,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225792.172,
+    "action": "capture",
+    "value": "subscriptions-help"
+  },
+  {
+    "time": 225792.176,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225792.312,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225792.455,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225792.51,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225792.561,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225792.62,
+    "action": "capture",
+    "value": "nodes"
+  },
+  {
+    "time": 225792.623,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225792.681,
+    "action": "capture",
+    "value": "nodes-help"
+  },
+  {
+    "time": 225792.685,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225792.822,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225792.96,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225793.104,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225793.16,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225793.219,
+    "action": "capture",
+    "value": "logs"
+  },
+  {
+    "time": 225793.222,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225793.282,
+    "action": "capture",
+    "value": "logs-help"
+  },
+  {
+    "time": 225793.286,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225793.423,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225793.567,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225793.623,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225793.674,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225793.734,
+    "action": "capture",
+    "value": "config"
+  },
+  {
+    "time": 225793.737,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225793.797,
+    "action": "capture",
+    "value": "config-help"
+  },
+  {
+    "time": 225793.801,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225793.937,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225794.074,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225794.218,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225794.266,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 225794.321,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 225794.373,
+    "action": "key",
+    "value": "n"
+  },
+  {
+    "time": 225794.43,
+    "action": "capture",
+    "value": "empty-form"
+  },
+  {
+    "time": 225794.433,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 225794.491,
+    "action": "capture",
+    "value": "empty-form-help"
+  },
+  {
+    "time": 225794.494,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225794.627,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 225794.76,
+    "action": "verification",
+    "value": {
+      "status": "PASS",
+      "mode": "palette16",
+      "pages": [
+        "Overview",
+        "Profiles",
+        "Modules",
+        "Subscriptions",
+        "Nodes",
+        "Logs",
+        "Config"
+      ],
+      "colour_codes": [
+        [
+          37
+        ],
+        [
+          40
+        ],
+        [
+          90
+        ],
+        [
+          93
+        ],
+        [
+          96
+        ],
+        [
+          97
+        ]
+      ],
+      "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+      "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+    }
+  },
+  {
+    "time": 225794.766,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-fa1ezhvb"
+    }
+  }
+]

@@ -1,0 +1,24 @@
+[38;5;254m[48;5;234m [1m[38;5;74m[48;5;235mXRM [Overview][0m[38;5;109m[48;5;235m Profiles  Modules  Subscriptions  Nodes  Logs  Config [38;5;254m         [48;5;234m 
+ [1mOverview[0m[38;5;109m[48;5;234m  Runtime & saved configuration                                       [38;5;254m 
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [1mRuntime[0m[38;5;109m[48;5;234m  ACTUAL                                                               [38;5;254m 
+ [1m[38;5;115mrunning[0m[38;5;109m[48;5;234m  Xray 26.9.9  PID 1540060[38;5;254m                                              
+ [38;5;109mRunning Profile   [38;5;254mAlpha                                                        
+ [38;5;109mActual target     [38;5;254mNode · Loopback inventory                                    
+ [38;5;109mHealth            [38;5;254mProcess alive; traffic unverified                            
+                                                                                
+ [1mSaved configuration[0m[38;5;109m[48;5;234m  VIEW Alpha                                               [38;5;254m 
+ [38;5;109mSaved target      [38;5;254mNode · Loopback inventory                                    
+ [38;5;109mNext Connect      [38;5;254mBeta                                                         
+ [38;5;109mSaved settings apply only on Connect / Apply                                  [38;5;254m 
+                                                                                
+ [1mStatistics[0m[38;5;109m[48;5;234m  OBSERVED                                                          [38;5;254m 
+ Traffic: unavailable · latency: unmeasured                                     
+ [38;5;109mRequires stats, policy, metrics                                               [38;5;254m 
+                                                                                
+ Inventory  1 node · 1 source                                                   
+                                                                                
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [38;5;109mView Alpha · Use Beta · Edit Alpha · Run Alpha                                [38;5;254m 
+ View Alpha ·                                                                   
+ [38;5;109mxrmd ready · Content                                         [38;5;74mF1 Help & actions[38;5;254m 

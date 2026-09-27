@@ -1,0 +1,10 @@
+module: routing
+enabled: yes
+source: modules/04_routing.json
+runtime: 04_routing.json
+{
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": []
+  }
+}

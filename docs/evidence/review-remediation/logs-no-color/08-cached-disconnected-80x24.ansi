@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m          
+ [1mLogs[0;2m  Core output                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL     MESSAGE      [0m╭──────────────────────────────────╮[2m [0m 
+ [2m─────────────────────────────────────────[0m┤ [1m+ Success · history in Help     [0m ├[2m─[0m 
+                           [2m| [0mto tcp:127.0.│ Stop core: completed             │  
+ [2m01:15:52 stdout   Info      app/dispatche[0m╰──────────────────────────────────╯  
+                           [2m| [0m[review-direct] for [tcp:127.0.0.1:33601]          
+ [2m01:15:52 stdout   Info      transport/internet/tcp: [0m[123923259] dialing        
+                           [2m| [0mTCP to tcp:127.0.0.1:33601                         
+ [2m01:15:52 stdout   Debug     transport/internet: [0m[123923259] dialing to         
+                           [2m| [0mtcp:127.0.0.1:33601                                
+ [2m01:15:52 stdout             [0mfrom tcp:127.0.0.1:33204 accepted                  
+                           [2m| [0mtcp:127.0.0.1:33601 [review-socks ->               
+                           [2m| [0mreview-direct]                                     
+ [2m01:15:52 stdout   Info      proxy/freedom: [0m[123923259] connection opened       
+                           [2m| [0mto tcp:127.0.0.1:33601, local endpoint             
+                           [2m| [0m127.0.0.1:33960, remote endpoint                   
+                           [2m| [0m127.0.0.1:33601                                  ┃ 
+ [2m01:15:52 stdout   Debug     [0m[123923259] proxy: CopyRawConn splice            ┃ 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Real log re… · Use Real log re… · Edit none · Run unknown                [0m 
+ Cached · disconnected · 52 text lines  
+ [2mxrmd disconnected · cached data · Content                    [0mF1 Help & actions 

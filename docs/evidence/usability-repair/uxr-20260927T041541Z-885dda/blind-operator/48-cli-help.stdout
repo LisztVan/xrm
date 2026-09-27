@@ -1,0 +1,51 @@
+Manage Xray nodes, native configurations and the independent core
+
+Usage: xrm [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+        --version         Display program version information and exit 
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Interactive:
+  tui                     Open the seven-page interactive terminal application 
+
+Saved configuration:
+  profile                 Manage saved Profiles 
+  config                  Inspect and edit native Xray modules 
+  group                   Manage saved dynamic Xray balancers 
+  select                  Persist a node selection without connecting 
+  routing                 Profile routing preset operations 
+
+Inventory and resources:
+  core                    Register and inspect Xray binaries 
+  node                    Manage the independent node inventory 
+  sub                     Manage subscription sources and refresh node 
+                          inventory 
+  geodata                 Manage shared GeoIP/GeoSite resources 
+
+Run and observe:
+  connect                 Apply saved Profile settings and connect 
+  disconnect              Stop the managed Xray process 
+  status                  Show expected/actual core runtime state 
+  logs                    Read the bounded server/core log buffer 
+  operation               Inspect an asynchronous operation 
+  stats                   Show server-sampled Xray traffic and observations 
+
+XRM settings and server:
+  server                  Server operations 
+  settings                Manage XRM appearance and Manager editor preferences 
+
+Examples:
+  xrm tui
+  xrm profile list
+  xrm profile create --name Home
+  xrm config modules Home
+  xrm connect Home
+
+Next: xrm <command> --help
+Help is local and never connects to xrmd.
+Saving and selecting never connect. Use connect to apply saved settings.
+Machine output: xrm --json <command>; errors use stderr.

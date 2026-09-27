@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m5/15[0m
+ [1mrouting[0;2m  SOURCE · EDIT · Visual · UNSAVED *                                                                           [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>   Routing rules (ordered)   [0;2m   [1mRouting rules (ordered)[0;2m  Draft                                                       [0m
+ [2m    Native balancers             routing.rules                                                                        [0m
+ [2m    Domain strategy              ─────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m                                 1  [1mRouting rule[0;2m   to xrm.node.6150da7a-e315-43ff-a3d7-74efd5a3ba36                   [0m
+ [2m                                    match network tcp                                                                 [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mRouting rules (ordered)[0;2m  DRAFT COLLECTION                                                         [0m │[2m        [0m
+ [2m        [0m│ [2mFocus: rows · Up/Down choose · Tab for actions                                                    [0m │[2m        [0m
+ [2m        [0m│   [1m#  [0m [1mRule / match                        [0m [1mTarget                                       [0m           │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1;7m> 1   network tcp                          xrm.node.6150da7a-e315-43ff-a3d7-74efd5a3ba36         [0m  │[2m        [0m
+ [2m        [0m│ [2mSelected: 1 · network tcp · xrm.node.6150da7a-e315-43ff-a3d7-74efd5a3ba36                         [0m │[2m        [0m
+ [2m        [0m│ [2m                                                                                                  [0m │[2m        [0m
+ [2m        [0m│  [ View ]  [ Add ]  [ Edit ]  [ Copy ]  [ Delete ]                                                 │[2m        [0m
+ [2m        [0m│  [ Done ]                                                                                          │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ routing · Source editable · Visual · Unsaved * · included
+ [2mxrmd ready · Page content (Content) · modules/04_routing.json                                        [0mF1 Help & actions

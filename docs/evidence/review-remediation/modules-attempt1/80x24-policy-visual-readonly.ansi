@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+ ‹ [2m outbounds  routing  observatory  api  metrics  stats [0;1m policy [0m       › [2m10/15[0m
+ [1mpolicy[0;2m  SOURCE · READ ONLY · Visual                                           [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;7m>   User levels                                                              [0m
+     System traffic counters
+
+ [1mUser levels[0;2m  Read only                                                        [0m
+ [2mpolicy.levels                                                                 [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2m0               [0m0 · Default · Default
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m
+ policy · Source read-only · Visual · excluded
+ [2mxrmd ready · Content · modules/09_policy.json                [0mF1 Help & actions

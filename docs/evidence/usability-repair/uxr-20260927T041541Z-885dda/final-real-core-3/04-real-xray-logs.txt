@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL     MESSAGE      ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ + Success                        ├─ 
+                           | on] appended │ Connect Real Loopback: completed │  
+ 12:39:10 stdout   Info      infra/conf/se╰──────────────────────────────────╯  
+                           | &{Name:/tmp/xrm-rewrite-ui-_3ju4sz6/runtime/can    
+                           | didate/run-1790483950565-1/03_outbounds.json       
+                           | Format:json}                                       
+ 12:39:10 stdout   Info      infra/conf: [/tmp/xrm-rewrite-ui-_3ju4sz6/runti    
+                           | me/candidate/run-1790483950565-1/03_outbounds.j    
+                           | son] prepend outbound with tag: direct             
+ 12:39:10 stdout   Info      infra/conf/serial: Reading config:                 
+                           | &{Name:/tmp/xrm-rewrite-ui-_3ju4sz6/runtime/can    
+                           | didate/run-1790483950565-1/04_routing.json         
+                           | Format:json}                                     ╻ 
+ 12:39:10 stdout   Warning   core: Xray 26.9.9 started                        ┃ 
+ 12:39:12 stdout             from tcp:127.0.0.1:38568 accepted                ┃ 
+                           | tcp:127.0.0.1:41811 [socks-in -> direct]         ┃ 
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn… 
+ Paused · 23 text lines                                                         
+ xrmd ready · Page content (Content)                          F1 Help & actions 

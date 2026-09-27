@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+ Subscriptions  1 source / node inventory
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Source                   Nodes   Result          Auto    Bound
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Local fixture            0       Not refreshed   on      yes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ Highlighted Local fixture · Not refreshed · 0 nodes
+ xrmd ready · Page navigation (TopNav)                                                                F1 Help & actions

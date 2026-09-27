@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m          
+ [1mLogs[0;2m  Core output                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL     MESSAGE                                           [0m 
+ [2m─[0m╭──────────────────────────────────────────────────────────────────────────╮[2m─[0m 
+ [2m [0m│ [1mDetails[0;2m                                                                 [0m │[2m [0m 
+ [2m1[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│   [2mLog text line                                                       [0m   │[2m [0m 
+ [2m [0m│   [2mTime    2026/09/27 12:39:12.940392                                  [0m   │[2m [0m 
+ [2m [0m│   [2mTransport chunk  8                                                  [0m   │[2m [0m 
+ [2m1[0m│   [2mSource  core_stdout                                                 [0m   │[2m [0m 
+ [2m [0m│   [2mLevel   not supplied                                                [0m   │[2m [0m 
+ [2m [0m│   [2mSubsystem                                                           [0m   │[2m [0m 
+ [2m1[0m│   [2m                                                                    [0m   │[2m [0m 
+ [2m [0m│   [2mLine within chunk  1                                                [0m   │[2m [0m 
+ [2m [0m│   [2m                                                                    [0m   │[2m [0m 
+ [2m [0m│   [2m2026/09/27 12:39:12.940392 from tcp:127.0.0.1:38568 accepted tcp:127[0m   │[2m╻[0m 
+ [2m1[0m│   [2mSocket: /tmp/xrm-rewrite-ui-_3ju4sz6/xrmd.sock                      [0m   │[2m┃[0m 
+ [1;2m1[0m╰──────────────────────────────────────────────────────────────────────────╯[2m┃[0m 
+ [1;2m                          | tcp:127.0.0.1:41811 [socks-in -> direct]         [0;2m┃[0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn…[0m 
+ Paused · 23 text lines                                                         
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

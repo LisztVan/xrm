@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+ ‹  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version      › 14/15 
+ version  SOURCE · EDIT · Visual                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Xray version constraint      Xray version constraint  Draft                                                        
+                                  version                                                                               
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  Minimum Xray version    26.9.9                                                        
+                                  Maximum Xray version                                                                  
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Xray version constraint  EDIT · field 1/2                                                          │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ > Minimum Xray version    [x] Set value  Explicit value                                            │         
+         │                           [ 26.9.9                                                              ]  │         
+         │   x.y.z; unset or empty imposes no limit                                                           │         
+         │                                                                                                    │         
+         │   Maximum Xray version    [x] Set value  Explicit value                                            │         
+         │                           [ Enter value                                                         ]  │         
+         │                                                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Add to draft ]  [ Cancel ]                                                                      │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ version · Source editable · Visual · excluded              
+ xrmd ready · Content · modules/13_version.json                                                       F1 Help & actions 

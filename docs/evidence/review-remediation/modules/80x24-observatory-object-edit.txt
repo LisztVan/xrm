@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 6/15 
+ observatory  SOURCE · EDIT · Visual                                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Connection observatory  EDIT · field 1/4                                 │  
+ C│ ──────────────────────────────────────────────────────────────────────── │  
+ o│ > subjectSelector                                                      ┃ │  
+ ─┤   [x] Set value  Explicit value                                        ┃ ├─ 
+ s│     subjectSelector                                                    ┃ │  
+ P│   ─────────────────────────────────────────────────────────────────────┃ │  
+ e│   > direct                                                             ┃ │  
+  │                                                                        ╹ │  
+  │   New subjectSelector: [ Enter value                                  ]  │  
+  │    [ Add ]  [ Delete ]                                                   │  
+  │   Outbound tag prefixes                                                  │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Add to draft ]  [ Cancel ]                                            │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit Module revi… · Run none            
+ observatory · Source editable · Visual · excluded                              
+ xrmd ready · Content · modules/05_observatory.json           F1 Help & actions 

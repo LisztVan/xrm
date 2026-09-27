@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+  Core  Geodata  Tests  Appearance  Editor  General
+ Config / Core  Installed & registered Xray binaries
+ ──────────────────────────────────────────────────────────────────────────────
+   Core / release                 Version              State
+ ──────────────────────────────────────────────────────────────────────────────
+ ▸ Process fixture                26.9.9               registered
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ Cursor Process fixture
+ xrmd ready · Content                                               ? / F1 Help

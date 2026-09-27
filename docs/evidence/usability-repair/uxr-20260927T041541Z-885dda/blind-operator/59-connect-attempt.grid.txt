@@ -1,0 +1,40 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+ Overview  Runtime & saved configuration
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Runtime  ACTUAL                                      Saved configuration  VIEW L ╭──────────────────────────────────╮
+ starting                                             Saved target      Node · Loo│ i Info                           │
+ Running Profile   none                               Next Connect      Lab Home  │ Connect Lab Home started         │
+ Actual target     none                               Saved settings apply only on╰──────────────────────────────────╯
+ Health            Unconfirmed
+
+ Statistics  OBSERVED
+ Traffic: unavailable · latency: unmeasured
+ Unavailable reason: core not running
+
+ Inventory  2 nodes · 1 source
+ Pending  Connect Lab Home
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ View Lab Home
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

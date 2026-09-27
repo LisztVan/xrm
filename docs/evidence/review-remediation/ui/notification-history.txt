@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ─╭──────────────────────────────────────────────────────────────────────────╮─ 
+ ▸│ Details                                                                  │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │   Notifications                                                          │  
+  │   Profile Review 中文 é qeeu saved; runtime unchanged                    │  
+  │   Use set to Review 中文 é qeeu; runtime unchanged                       │  
+  │   Cancelled Use for Review 中文 é qeeu; runtime unchanged                │  
+  │   Profile Review 中文 é qeeu renamed saved; runtime unchanged            │  
+  │   Delete Review 中文 é qeeu renamed saved; runtime unchanged             │  
+  │   Module Edit enabled for Alpha; runtime unchanged                       │  
+  │   Use set to Beta; runtime unchanged · repeated 3 times                  │  
+  │   Cancelled Use for Beta; runtime unchanged · repeated 2 times           │  
+  │                                                                          │  
+  │   Socket: /tmp/xrm-rewrite-ui-blljlfi3/xrmd.sock                         │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Beta · Edit Alpha · Run Alpha                                 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Content                                         F1 Help & actions 

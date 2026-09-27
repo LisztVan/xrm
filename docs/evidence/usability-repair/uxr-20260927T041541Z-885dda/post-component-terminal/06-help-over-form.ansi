@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api [0m            › [2m2/15[0m 
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                   [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mHelp & actions[0;2m                                                          [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mDNS server                                                              [0m │[2m [0m 
+ [1;2mD[0m│ [2mAdd to draft: dns draft. Module Save: Source. Connect / Apply: runtime. [0m │[2m [0m 
+ [2md[0m│ [2mCancel: discard this object's unsubmitted changes. Native path …        [0m │[2m [0m 
+ [2m─[0m┤ [2mTasks · arrows choose; Enter executes available task                    [0m ├[2m─[0m 
+ [2m1[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mNavigation and input                                                    [0m │[2m [0m 
+ [2m [0m│ Tab / Shift-Tab         Move between fields and buttons                  │[2m [0m 
+ [2m [0m│ Arrows / Home / End     Move cursor or choose visible option immediately │[2m [0m 
+ [2m [0m│ Ctrl-Home / Ctrl-End    Document start / end                             │[2m [0m 
+ [2m [0m│ Space                   Toggle focused checkbox or presence              │[2m [0m 
+ [2m [0m│ Enter                   Insert newline in multiline text / activate      │[2m [0m 
+ [2m [0m│                         button; no checkbox change                       │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha            [0m 
+ dns · Source editable · Visual · included                                      
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json    [0mF1 Help & actions 

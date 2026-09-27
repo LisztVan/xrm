@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · Visual                                                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Help & actions                                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ DNS server                                                               │  
+ D│ Add to draft: dns draft. Module Save: Source. Connect / Apply: runtime.  │  
+ d│ Cancel: discard this object's unsubmitted changes. Native path …         │  
+ ─┤ Tasks · arrows choose; Enter executes available task                     ├─ 
+ 1│ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Tab / Shift-Tab         Move between fields and buttons                  │  
+  │ Arrows / Home / End     Move cursor or choose visible option immediately │  
+  │ Ctrl-Home / Ctrl-End    Document start / end                             │  
+  │ Space                   Toggle focused checkbox or presence              │  
+  │ Enter                   Insert newline in multiline text / activate      │  
+  │                         button; no checkbox change                       │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ dns · Source editable · Visual · included                                      
+ xrmd ready · Page content (Content) · modules/01_dns.json    F1 Help & actions 

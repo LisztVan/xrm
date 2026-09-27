@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               1/6
+ Config / Core  Installed & registered Xray binaries
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Core / release                 Version              State                      ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ + Success                        ├─
+ ▸ Fixture Xray                   26.9.9               registered                 │ Registered Fixture Xray; no core │
+                                                                                  │ started                          │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ Highlighted Fixture Xray · /home/lisztzy/Projects/xrm/.deps/tools/xray-26.9.9/xray
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

@@ -1,0 +1,16 @@
+Show server-sampled Xray traffic and observations
+
+Usage: xrm stats [OPTIONS]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+        --watch           Refresh the shared server sample every two seconds 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm stats
+  xrm --json stats --watch

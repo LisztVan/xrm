@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ R╭──────────────────────────────────────────────────────────────────────────╮  
+ s│ Help & actions                                                           │  
+ R│ ──────────────────────────────────────────────────────────────────────── │  
+ A│ Overview · View Compatibility · Connect uses Compatibility               │  
+ H│ Connect publishes saved settings only. Statistics need saved stats,      │  
+  │ policy and metrics settings plus a running core. Configure in Modul…     │  
+ S│ Actions · choose with arrows, Enter to execute                           │  
+ S│ > c               Connect saved · Compatibility                        ┃ │  
+ N│   d               Stop core                                            ┃ │  
+ S│   f               Runtime paths                                        ┃ │  
+  │   i               Inspect local entry                                  ╹ │  
+ S│   N               Notification history                                   │  
+ T│ ──────────────────────────────────────────────────────────────────────── │  
+ U│ Navigation and input                                                     │  
+  │ Esc                     Return one level                                 │  
+ I│ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Compatibili… · Use Compatibili… · Edit none · Run none                    
+ View Compatibility                                                             
+ xrmd ready · Content                                         F1 Help & actions 

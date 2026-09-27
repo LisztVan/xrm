@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  18 Profiles / independent runtime contexts                           
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                       Core                 Use    Edit   Run         
+ ────────────────────────────────────────────────────────────────────────────── 
+   Lab region 08 / long descrip… Process fixture      —      —      —           
+   Lab region 15 / long descrip… Process fixture      —      —      —         ╻ 
+  ╭──────────────────────────────────────────────────────────────────────────╮┃ 
+  │ Unsaved form                                                             │┃ 
+  │ ──────────────────────────────────────────────────────────────────────── │┃ 
+  │ Unsaved changes to rename Profile. Save this object to its saved         │┃ 
+  │ settings; runtime remains unchanged. Discard closes this form and loses  │┃ 
+ ▸│ these local changes.                                                     │┃ 
+  │                                                                          │┃ 
+  │  [ Save ]  [ Discard ]  [ Continue editing ]                             │┃ 
+  ╰──────────────────────────────────────────────────────────────────────────╯┃ 
+   Beta                          Process fixture      —      —      —         ┃ 
+   Lab region 02 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 00 / long descrip… Process fixture      —      —      —         ┃ 
+   Lab region 12 / long descrip… Process fixture      —      —      —         ╹ 
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Content                                         F1 Help & actions 

@@ -1,0 +1,78 @@
+UpdateCTestConfiguration  from :/home/lisztzy/Projects/xrm/build/component-rewrite/DartConfiguration.tcl
+Parse Config file:/home/lisztzy/Projects/xrm/build/component-rewrite/DartConfiguration.tcl
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 223
+    Start 223: first use from xrm tui needs no Profile ID and completes local subscription to connect
+
+223: Test command: /home/lisztzy/Projects/xrm/build/component-rewrite/tests/tui/acceptance/xrm_tui_acceptance_tests "first use from xrm tui needs no Profile ID and completes local subscription to connect"
+223: Working Directory: /home/lisztzy/Projects/xrm/build/component-rewrite/tests/tui/acceptance
+223: Test timeout computed to be: 1500
+223: Filters: "first use from xrm tui needs no Profile ID and completes local subscription to connect"
+223: Randomness seeded to: 2738307969
+223: Overview after server stopped, before Manager completion:
+223:  XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+223:  Overview  Runtime & saved configuration
+223:  ──────────────────────────────────────────────────────────────────────────────
+223:  Runtime  ACTUAL                          ╭──────────────────────────────────╮
+223:  running  Xray 26.9.9  PID 1594414        │ i Info                           │
+223:  Running Profile   first profile          │ Stop core started                │
+223:  Actual target     Node · TUI-first-node  ╰──────────────────────────────────╯
+223:  Health            Process alive; traffic unverified
+223: 
+223:  Saved configuration  VIEW first profile
+223:  Saved target      Node · TUI-first-node
+223:  Next Connect      first profile
+223:  Saved settings apply only on Connect / Apply
+223: 
+223:  Statistics  OBSERVED
+223:  Traffic: unavailable · latency: unmeasured
+223: 
+223:  Inventory  1 node · 1 source
+223:  Pending  Stop core
+223: 
+223:  ──────────────────────────────────────────────────────────────────────────────
+223:  View first profi… · Use first profi… · Edit none · Run first profi…
+223:  View first profile
+223:  xrmd ready · Content                                         F1 Help & actions
+223: Overview after Manager stop completion:
+223:  XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+223:  Overview  Runtime & saved configuration
+223:  ──────────────────────────────────────────────────────────────────────────────
+223:  Runtime  ACTUAL                          ╭──────────────────────────────────╮
+223:  stopped                                  │ + Success · history in Help      │
+223:  Running Profile   none                   │ Stop core: completed             │
+223:  Actual target     none                   ╰──────────────────────────────────╯
+223:  Health            Not running
+223: 
+223:  Saved configuration  VIEW first profile
+223:  Saved target      Node · TUI-first-node
+223:  Next Connect      first profile
+223:  Saved settings apply only on Connect / Apply
+223:  ! Saved target differs from the running target
+223: 
+223:  Statistics  OBSERVED
+223:  Traffic: unavailable · latency: unmeasured
+223:  Unavailable reason: core not running
+223: 
+223:  Inventory  1 node · 1 source
+223:  ──────────────────────────────────────────────────────────────────────────────
+223:  View first profi… · Use first profi… · Edit none · Run none
+223:  View first profile
+223:  xrmd ready · Content                                         F1 Help & actions
+223: ===============================================================================
+223: All tests passed (159 assertions in 1 test case)
+223: 
+1/1 Test #223: first use from xrm tui needs no Profile ID and completes local subscription to connect ...   Passed   25.00 sec
+
+The following tests passed:
+	first use from xrm tui needs no Profile ID and completes local subscription to connect
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  25.03 sec

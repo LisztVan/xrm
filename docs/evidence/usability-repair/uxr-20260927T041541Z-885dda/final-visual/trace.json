@@ -1,0 +1,281 @@
+[
+  {
+    "time": 264136.846,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-c9gacbil",
+      "pid": 1188326,
+      "xrm_sha256": "1ef7c6e24812e0a7b07cf42498c1c8f169fa4db067ae285f483459a2352b40f1"
+    }
+  },
+  {
+    "time": 264138.867,
+    "action": "fixture",
+    "value": {
+      "profile_a": "117fed0a-4f0b-41c9-8f07-54ffff6aab20",
+      "profile_b": "ce88668b-0b0d-4f03-b708-a842ab5854ee",
+      "node": "3f96884d-5660-476f-a94f-f41b3a325e82",
+      "core": "9ade4c3b-6840-441e-b4cc-fa85343c64cc",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 264138.971,
+    "action": "tui_pid",
+    "value": "1188501"
+  },
+  {
+    "time": 264140.997,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264141.046,
+    "action": "key",
+    "value": "r"
+  },
+  {
+    "time": 264141.094,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264141.546,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264141.755,
+    "action": "capture",
+    "value": "80x24-overview"
+  },
+  {
+    "time": 264141.757,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264141.901,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264141.957,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264142.165,
+    "action": "capture",
+    "value": "80x24-profiles"
+  },
+  {
+    "time": 264142.168,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264142.31,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264142.362,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264142.417,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264142.465,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264142.676,
+    "action": "capture",
+    "value": "80x24-modules"
+  },
+  {
+    "time": 264142.679,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264142.816,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264142.96,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264143.015,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264143.224,
+    "action": "capture",
+    "value": "80x24-subscriptions"
+  },
+  {
+    "time": 264143.228,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264143.372,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264143.427,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264143.479,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264143.688,
+    "action": "capture",
+    "value": "80x24-nodes"
+  },
+  {
+    "time": 264143.692,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264143.828,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264143.971,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264144.027,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264144.08,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264144.129,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 264144.378,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264144.584,
+    "action": "capture",
+    "value": "80x24-logs"
+  },
+  {
+    "time": 264144.587,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264144.731,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264144.785,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264144.837,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264145.046,
+    "action": "capture",
+    "value": "80x24-config"
+  },
+  {
+    "time": 264145.353,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264145.49,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264145.633,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264145.688,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264145.898,
+    "action": "capture",
+    "value": "120x40-overview"
+  },
+  {
+    "time": 264145.902,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264146.047,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264146.101,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264146.154,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264146.202,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264152.269,
+    "action": "capture",
+    "value": "failure"
+  },
+  {
+    "time": 264152.275,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-c9gacbil"
+    }
+  }
+]

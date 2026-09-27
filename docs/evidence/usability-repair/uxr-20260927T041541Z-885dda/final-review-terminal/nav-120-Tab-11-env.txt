@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env     › 13/15 
+ env  SOURCE · READ ONLY · Visual                                                                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Xray process environment     Xray process environment  Read only                                                   
+                                  env                                                                                   
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  No entries                                                                            
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha                                                      
+ env · Source read-only · Visual · excluded                                                                             
+ xrmd ready · Section selection (SecondaryNav) · modules/12_env.json                                  F1 Help & actions 

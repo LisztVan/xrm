@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  0 sources / node inventory                                      
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Add subscription  UNSAVED * · field 1/7                                  ├─ 
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ N│ > Name *                  [ Local fixture updated                     ]┃ │  
+  │                                                                        ┃ │  
+  │   URL *                   [ ••••••••••••••••••••••••••••••            ]┃ │  
+  │    Hidden · Ctrl-R reveals/hides the real value without changing it.   ┃ │  
+  │                                                                        ┃ │  
+  │   User-Agent              [ Enter value                               ]┃ │  
+  │                                                                        ╹ │  
+  │   Auto refresh            [x] Enabled                                    │  
+  │                                                                          │  
+  │   Interval seconds        [ 21600                                     ]  │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alph?a · Next: Alph?a · Module Edit: none · Running: Alph?a           
+ View Alph?a                                                                    
+ xrmd ready · Page content (Content)                          F1 Help & actions 

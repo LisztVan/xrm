@@ -1,0 +1,24 @@
+[38;2;220;227;235m[48;2;19;26;35m [1m[38;2;115;194;230m[48;2;27;38;51mXRM [Overview][0m[38;2;146;163;183m[48;2;27;38;51m Profiles  Modules  Subscriptions  Nodes  Logs  Config [38;2;220;227;235m         [48;2;19;26;35m 
+ [1mOverview[0m[38;2;146;163;183m[48;2;19;26;35m  Runtime & saved configuration                                       [38;2;220;227;235m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [1mRuntime[0m[38;2;146;163;183m[48;2;19;26;35m  ACTUAL                          [38;2;220;227;235m[48;2;27;38;51m╭──────────────────────────────────╮[38;2;146;163;183m[48;2;19;26;35m [38;2;220;227;235m 
+ [1m[38;2;130;201;164mrunning[0m[38;2;146;163;183m[48;2;19;26;35m  Xray 26.9.9  PID 1546762[38;2;220;227;235m        [48;2;27;38;51m│ [1m[38;2;130;201;164m+ Success · history in Help     [0m[38;2;220;227;235m[48;2;27;38;51m │[48;2;19;26;35m  
+ [38;2;146;163;183mRunning Profile   [38;2;220;227;235mReal Loopback          [48;2;27;38;51m│ Connect Real Loopback: completed │[48;2;19;26;35m  
+ [38;2;146;163;183mActual target     [38;2;220;227;235mnone                   [48;2;27;38;51m╰──────────────────────────────────╯[48;2;19;26;35m  
+ [38;2;146;163;183mHealth            [38;2;220;227;235mProcess alive; traffic unverified                            
+                                                                                
+ [1mSaved configuration[0m[38;2;146;163;183m[48;2;19;26;35m  VIEW Real Loopback                                       [38;2;220;227;235m 
+ [38;2;146;163;183mSaved target      [38;2;220;227;235mnone                                                         
+ [38;2;146;163;183mNext Connect      [38;2;220;227;235mReal Loopback                                                
+ [38;2;146;163;183mSaved settings apply only on Connect / Apply                                  [38;2;220;227;235m 
+                                                                                
+ [1mStatistics[0m[38;2;146;163;183m[48;2;19;26;35m  OBSERVED                                                          [38;2;220;227;235m 
+ Traffic: unavailable · latency: unmeasured                                     
+ [38;2;146;163;183mRequires stats, policy, metrics                                               [38;2;220;227;235m 
+                                                                                
+ Inventory  0 nodes · 0 sources                                                 
+                                                                                
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[38;2;220;227;235m 
+ [38;2;146;163;183mView Real Loopba… · Use Real Loopba… · Edit Real Loopba… · Run Real Loopba…   [38;2;220;227;235m 
+ View Real Loopback ·                                                           
+ [38;2;146;163;183mxrmd ready · Content                                         [38;2;115;194;230mF1 Help & actions[38;2;220;227;235m 

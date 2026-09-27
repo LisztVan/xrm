@@ -1,0 +1,24 @@
+[38;5;254m[48;5;234m [1m[38;5;74m[48;5;235mXRM [Overview][0m[38;5;109m[48;5;235m Profiles  Modules  Subscriptions  Nodes  Logs  Config [38;5;254m         [48;5;234m 
+ [1mOverview[0m[38;5;109m[48;5;234m  Runtime & saved configuration                                       [38;5;254m 
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [1mRuntime[0m[38;5;109m[48;5;234m  ACTUAL                                                               [38;5;254m 
+ [1m[38;5;179mstopped[0m[38;5;254m[48;5;234m                                                                        
+ [38;5;109mRunning Profile   [38;5;254mnone                                                         
+ [38;5;109mActual target     [38;5;254mnone                                                         
+ [38;5;109mHealth            [38;5;254mNot running                                                  
+                                                                                
+ [1mSaved configuration[0m[38;5;109m[48;5;234m  VIEW Compatibility                                       [38;5;254m 
+ [38;5;109mSaved target      [38;5;254mnone                                                         
+ [38;5;109mNext Connect      [38;5;254mCompatibility                                                
+ [38;5;109mSaved settings apply only on Connect / Apply                                  [38;5;254m 
+                                                                                
+ [1mStatistics[0m[38;5;109m[48;5;234m  OBSERVED                                                          [38;5;254m 
+ Traffic: unavailable · latency: unmeasured                                     
+ [38;5;109mRequires core not running                                                     [38;5;254m 
+                                                                                
+ Inventory  0 nodes · 0 sources                                                 
+                                                                                
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [38;5;109mView Compatibili… · Use Compatibili… · Edit none · Run none                   [38;5;254m 
+ View Compatibility                                                             
+ [38;5;109mxrmd ready · Content                                         [38;5;74mF1 Help & actions[38;5;254m 

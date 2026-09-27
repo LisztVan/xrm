@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 7/15 
+ api  SOURCE · READ ONLY · Visual                                                                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Xray API                     Xray API  Read only                                                                   
+                                  api                                                                                   
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  tag                     control                                                       
+                                  services                StatsService                                                  
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Xray API  READ ONLY · field 1/3                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ > tag                     Explicit value                                                           │         
+         │                             control                                                                │         
+         │                                                                                                    │         
+         │   Listen address:port     Not set · field omitted                                                  │         
+         │                             Not set (read only)                                                    │         
+         │                                                                                                    │         
+         │   services                                                                                         │         
+         │   Explicit value                                                                                   │         
+         │   [ ] HandlerService                                                                               │         
+         │   [ ] LoggerService                                                                                │         
+         │   [x] StatsService                                                                                 │         
+         │   [ ] RoutingService                                                                               │         
+         │   [ ] ReflectionService                                                                            │         
+         │   [ ] ObservatoryService                                                                           │         
+         │                                                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Close ]                                                                                         │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit none · Run none                                                          
+ api · Source read-only · Visual · excluded                 
+ xrmd ready · Content · modules/06_api.json                                                           F1 Help & actions 

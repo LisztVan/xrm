@@ -1,0 +1,810 @@
+[0/1] Re-running CMake...
+-- Could NOT find LIBB2 (missing: LIBB2_LIBRARY LIBB2_INCLUDE_DIR) 
+-- Could NOT find LibXml2 (missing: LIBXML2_LIBRARY LIBXML2_INCLUDE_DIR) 
+-- Extended attributes support: Linux
+-- ACL support: none
+-- summary of build options:
+    Install prefix:  /usr/local
+    Target system:   Linux
+    Compiler:
+      C compiler:    /usr/bin/cc (GNU)
+      CFLAGS:         
+
+-- Using the multi-header code from /home/lisztzy/Projects/xrm/.deps/sources/nlohmann_json/include/
+-- ┌─ FTXUI 7.0.1 ────────────────────────
+-- │ FTXUI_BUILD_DOCS         : OFF
+-- │ FTXUI_BUILD_EXAMPLES     : OFF
+-- │ FTXUI_BUILD_MODULES      : OFF
+-- │ FTXUI_BUILD_TESTS        : OFF
+-- │ FTXUI_BUILD_TESTS_FUZZER : OFF
+-- │ FTXUI_CLANG_TIDY         : OFF
+-- │ FTXUI_DEV_WARNINGS       : OFF
+-- │ FTXUI_ENABLE_CCACHE      : OFF
+-- │ FTXUI_ENABLE_COVERAGE    : OFF
+-- │ FTXUI_ENABLE_INSTALL     : ON
+-- │ FTXUI_QUIET              : OFF
+-- └─────────────────────────────────────
+-- Configuring done (0.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: /home/lisztzy/Projects/xrm/out/real-core
+[1/639] Generating CXX dyndep file CMakeFiles/xrm_model.dir/CXX.dd
+[2/636] Generating CXX dyndep file CMakeFiles/xrm_tui_components.dir/CXX.dd
+[3/634] Generating CXX dyndep file CMakeFiles/xrm_contract.dir/CXX.dd
+[4/633] Generating CXX dyndep file CMakeFiles/xrm_logic.dir/CXX.dd
+[5/633] Generating CXX dyndep file CMakeFiles/xrm_tui_forms.dir/CXX.dd
+[6/633] Generating CXX dyndep file CMakeFiles/xrm_client_lib.dir/CXX.dd
+[7/633] Scanning /home/lisztzy/Projects/xrm/src/cli/core_commands.cpp for CXX dependencies
+[8/633] Scanning /home/lisztzy/Projects/xrm/src/cli/node_commands.cpp for CXX dependencies
+[9/633] Scanning /home/lisztzy/Projects/xrm/src/cli/commands.cpp for CXX dependencies
+[10/633] Scanning /home/lisztzy/Projects/xrm/src/cli/geodata_commands.cpp for CXX dependencies
+[11/633] Scanning /home/lisztzy/Projects/xrm/src/cli/runtime_commands.cpp for CXX dependencies
+[12/633] Scanning /home/lisztzy/Projects/xrm/src/cli/print.cpp for CXX dependencies
+[13/633] Scanning /home/lisztzy/Projects/xrm/src/cli/profile_commands.cpp for CXX dependencies
+[14/633] Scanning /home/lisztzy/Projects/xrm/src/cli/routing_preset_commands.cpp for CXX dependencies
+[15/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/fs-poll.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/fs-poll.c:30:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[16/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/idna.c.o
+[17/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/random.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/random.c:28:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[18/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/inet.c.o
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/inet.c: In function ‘uv_inet_pton’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/inet.c:157:7: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  157 |     p = strchr(src, '%');
+      |       ^
+[19/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/strtok.c.o
+[20/633] Scanning /home/lisztzy/Projects/xrm/src/cli/subscription_commands.cpp for CXX dependencies
+[21/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/strscpy.c.o
+[22/633] Scanning /home/lisztzy/Projects/xrm/src/cli/settings_commands.cpp for CXX dependencies
+[23/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/thread-common.c.o
+[24/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/timer.c.o
+[25/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/uv-data-getter-setters.c.o
+[26/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/threadpool.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/threadpool.c:25:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[27/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/version.c.o
+[28/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/uv-common.c.o
+[29/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/async.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/async.c:26:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[30/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/dl.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/dl.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[31/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/core.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/core.c:22:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[32/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/getaddrinfo.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/getaddrinfo.c:26:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[33/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/getnameinfo.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/getnameinfo.c:28:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[34/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/loop-watcher.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/loop-watcher.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[35/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/fs.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/fs.c:30:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[36/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/pipe.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/pipe.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[37/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/loop.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/loop.c:24:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[38/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/poll.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/poll.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[39/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/random-devurandom.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/random-devurandom.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[40/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/process.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/process.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[41/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/signal.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/signal.c:22:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[42/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/tcp.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/tcp.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[43/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/stream.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/stream.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[44/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/tty.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/tty.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[45/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/thread.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/thread.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[46/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/proctitle.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/proctitle.c:22:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[47/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/procfs-exepath.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/procfs-exepath.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[48/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/udp.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/udp.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[49/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/random-getrandom.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/random-getrandom.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[50/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/random-sysctl-linux.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/random-sysctl-linux.c:23:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+[51/633] Linking CXX static library libxrm_contract.a
+[52/633] Building C object _deps/libuv-build/CMakeFiles/uv_a.dir/src/unix/linux.c.o
+In file included from /home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/linux.c:27:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h: In function ‘uv__basename_r’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/internal.h:411:5: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  411 |   s = strrchr(path, '/');
+      |     ^
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/linux.c: In function ‘uv__cgroup1_find_cpu_controller’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/linux.c:2392:22: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2392 |   char* cgroup_cpu = strstr(cgroup, ":cpu,");
+      |                      ^~~~~~
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/linux.c: In function ‘uv__get_cgroupv2_constrained_cpu’:
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/linux.c:2354:47: warning: ‘/cpu.max’ directive output may be truncated writing 8 bytes into a region of size between 1 and 256 [-Wformat-truncation=]
+ 2354 |     snprintf(full_path, sizeof(full_path), "%s/cpu.max", path);
+      |                                               ^~~~~~~~
+/home/lisztzy/Projects/xrm/.deps/sources/libuv/src/unix/linux.c:2354:5: note: ‘snprintf’ output between 9 and 264 bytes into a destination of size 256
+ 2354 |     snprintf(full_path, sizeof(full_path), "%s/cpu.max", path);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[53/633] Linking CXX static library _deps/ftxui_dep-build/libftxui-component.a
+[54/633] Building CXX object CMakeFiles/xrm_logic.dir/src/profile/advanced_forms.cpp.o
+[55/633] Building CXX object CMakeFiles/xrm_logic.dir/src/geodata/resource_validation.cpp.o
+[56/633] Building CXX object CMakeFiles/xrm_logic.dir/src/profile/forms.cpp.o
+[57/633] Building CXX object CMakeFiles/xrm_logic.dir/src/profile/routing_presets.cpp.o
+[58/633] Building CXX object CMakeFiles/xrm_logic.dir/src/subscription/parser.cpp.o
+[59/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/codecs/codec.cpp.o
+[60/633] Building CXX object CMakeFiles/xrm_logic.dir/src/subscription/reconcile.cpp.o
+[61/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/codecs/hysteria.cpp.o
+[62/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/codecs/shadowsocks.cpp.o
+[63/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/codecs/stream.cpp.o
+[64/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/codecs/trojan.cpp.o
+[65/633] Generating CXX dyndep file CMakeFiles/xrm_server_lib.dir/CXX.dd
+[66/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/codecs/vless.cpp.o
+[67/633] Linking CXX static library libxrm_tui_components.a
+[68/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/codecs/vmess.cpp.o
+[69/633] Generating CXX dyndep file CMakeFiles/xrm_tui_frontend.dir/CXX.dd
+[70/633] Generating CXX dyndep file CMakeFiles/xrm_cli_frontend.dir/CXX.dd
+[71/633] Scanning /home/lisztzy/Projects/xrm/apps/xrmd_main.cpp for CXX dependencies
+[72/633] Scanning /home/lisztzy/Projects/xrm/apps/xrm_main.cpp for CXX dependencies
+[73/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_acl.c.o
+[74/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_check_magic.c.o
+[75/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_cmdline.c.o
+[76/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_cryptor.c.o
+[77/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_digest.c.o
+[78/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_entry.c.o
+[79/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_entry_copy_stat.c.o
+[80/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_entry_link_resolver.c.o
+[81/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_entry_sparse.c.o
+[82/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_entry_stat.c.o
+[83/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_entry_strmode.c.o
+[84/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_entry_xattr.c.o
+[85/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_hmac.c.o
+[86/633] Building CXX object CMakeFiles/xrm_client_lib.dir/src/client/rpc_client.cpp.o
+[87/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_options.c.o
+[88/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_match.c.o
+[89/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_pack_dev.c.o
+[90/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_pathmatch.c.o
+[91/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_parse_date.c.o
+[92/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_ppmd8.c.o
+[93/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_ppmd7.c.o
+[94/633] Building CXX object CMakeFiles/xrm_logic.dir/src/xray/runtime_assembler.cpp.o
+[95/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_random.c.o
+[96/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_rb.c.o
+[97/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_add_passphrase.c.o
+[98/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_append_filter.c.o
+[99/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_data_into_fd.c.o
+[100/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read.c.o
+[101/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_disk_set_standard_lookup.c.o
+[102/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_disk_entry_from_file.c.o
+[103/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_extract.c.o
+[104/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_disk_posix.c.o
+[105/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_extract2.c.o
+[106/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_open_fd.c.o
+[107/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_open_file.c.o
+[108/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_open_memory.c.o
+[109/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_open_filename.c.o
+[110/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_set_format.c.o
+[111/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_all.c.o
+[112/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_set_options.c.o
+[113/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_by_code.c.o
+[114/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_bzip2.c.o
+[115/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_compress.c.o
+[116/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_grzip.c.o
+[117/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_gzip.c.o
+[118/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_lrzip.c.o
+[119/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_lz4.c.o
+[120/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_lzop.c.o
+[121/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_none.c.o
+[122/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_rpm.c.o
+[123/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_program.c.o
+[124/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_uu.c.o
+[125/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_xz.c.o
+[126/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_filter_zstd.c.o
+[127/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_all.c.o
+[128/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_by_code.c.o
+[129/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_ar.c.o
+[130/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_cpio.c.o
+[131/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_7zip.c.o
+[132/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_empty.c.o
+[133/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_cab.c.o
+[134/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_iso9660.c.o
+[135/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_mtree.c.o
+[136/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_lha.c.o
+[137/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_raw.c.o
+[138/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_rar.c.o
+[139/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_rar5.c.o
+[140/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_tar.c.o
+[141/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_xar.c.o
+[142/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_warc.c.o
+[143/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_string_sprintf.c.o
+[144/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_time.c.o
+[145/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_read_support_format_zip.c.o
+[146/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_util.c.o
+[147/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_string.c.o
+[148/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_virtual.c.o
+[149/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_version_details.c.o
+[150/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_disk_set_standard_lookup.c.o
+[151/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write.c.o
+[152/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_open_fd.c.o
+[153/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_open_file.c.o
+[154/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_open_filename.c.o
+[155/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_open_memory.c.o
+[156/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_disk_posix.c.o
+[157/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter.c.o
+[158/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_by_name.c.o
+[159/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_b64encode.c.o
+[160/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_bzip2.c.o
+[161/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_compress.c.o
+[162/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_grzip.c.o
+[163/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_gzip.c.o
+[164/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_lrzip.c.o
+[165/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_lz4.c.o
+[166/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_lzop.c.o
+[167/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_none.c.o
+[168/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_program.c.o
+[169/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_uuencode.c.o
+[170/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_xz.c.o
+[171/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_add_filter_zstd.c.o
+[172/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format.c.o
+[173/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_by_name.c.o
+[174/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_ar.c.o
+[175/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_cpio.c.o
+[176/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_7zip.c.o
+[177/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_cpio_binary.c.o
+[178/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_cpio_newc.c.o
+[179/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_cpio_odc.c.o
+[180/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_filter_by_ext.c.o
+[181/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_gnutar.c.o
+[182/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_mtree.c.o
+/home/lisztzy/Projects/xrm/.deps/sources/libarchive/libarchive/archive_write_set_format_mtree.c: In function ‘sum_final’:
+/home/lisztzy/Projects/xrm/.deps/sources/libarchive/libarchive/archive_write_set_format_mtree.c:1616:26: warning: unused variable ‘digest’ [-Wunused-variable]
+ 1616 |         struct ae_digest digest;
+      |                          ^~~~~~
+[183/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_pax.c.o
+[184/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_raw.c.o
+[185/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_shar.c.o
+[186/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_ustar.c.o
+[187/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_v7tar.c.o
+[188/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_warc.c.o
+[189/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_iso9660.c.o
+[190/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_xar.c.o
+[191/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_passphrase.c.o
+[192/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_options.c.o
+[193/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/xxhash.c.o
+[194/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_write_set_format_zip.c.o
+[195/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/filter_fork_posix.c.o
+[196/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_blake2sp_ref.c.o
+[197/633] Linking C static library _deps/libuv-build/libuv.a
+[198/633] Building C object _deps/libarchive-build/libarchive/CMakeFiles/archive_static.dir/archive_blake2s_ref.c.o
+[199/633] Scanning /home/lisztzy/Projects/xrm/tests/support/fake_editor.cpp for CXX dependencies
+[200/633] Scanning /home/lisztzy/Projects/xrm/tests/support/fake_core.cpp for CXX dependencies
+[201/633] Linking CXX static library libxrm_logic.a
+[202/633] Building CXX object CMakeFiles/xrm_tui_forms.dir/src/tui/forms/native_form.cpp.o
+[203/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/infra/files.cpp.o
+[204/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/geodata/cache.cpp.o
+[205/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/infra/http.cpp.o
+[206/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/infra/process.cpp.o
+[207/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/profile/module_actions.cpp.o
+[208/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/profile/groups.cpp.o
+[209/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/infra/store.cpp.o
+[210/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/profile/profile_service.cpp.o
+[211/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/server/log_buffer.cpp.o
+[212/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/server/api_router.cpp.o
+[213/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/server/operations.cpp.o
+[214/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/server/node_test_service.cpp.o
+[215/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/server/rpc_server.cpp.o
+[216/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/server/application.cpp.o
+[217/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/subscription/subscription_service.cpp.o
+[218/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/xray/control.cpp.o
+[219/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/xray/core_manager.cpp.o
+[220/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/xray/installer.cpp.o
+[221/633] Linking CXX static library libxrm_client_lib.a
+[222/633] Linking CXX static library libxrm_tui_forms.a
+[223/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/xray/process_adapter.cpp.o
+[224/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/xray/metrics.cpp.o
+[225/633] Building CXX object CMakeFiles/xrm_server_lib.dir/src/xray/runtime_writer.cpp.o
+[226/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/adapters/rpc.cpp.o
+[227/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/app.cpp.o
+[228/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/pages/config.cpp.o
+[229/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/pages/modules.cpp.o
+[230/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/pages/profiles.cpp.o
+[231/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/pages/nodes.cpp.o
+[232/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/shell/actions.cpp.o
+[233/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/core_commands.cpp.o
+[234/633] Building CXX object CMakeFiles/xrm_tui_frontend.dir/src/tui/shell/workspace.cpp.o
+[235/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/commands.cpp.o
+[236/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/geodata_commands.cpp.o
+[237/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/node_commands.cpp.o
+[238/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/profile_commands.cpp.o
+[239/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/print.cpp.o
+[240/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/routing_preset_commands.cpp.o
+[241/633] Generating CXX dyndep file CMakeFiles/xrmd.dir/CXX.dd
+[242/633] Generating CXX dyndep file CMakeFiles/xrm.dir/CXX.dd
+[243/633] Linking C static library _deps/libarchive-build/libarchive/libarchive.a
+[244/633] Generating CXX dyndep file tests/CMakeFiles/xrm_fake_core.dir/CXX.dd
+[245/633] Generating CXX dyndep file tests/CMakeFiles/xrm_fake_editor.dir/CXX.dd
+[246/633] Linking CXX static library libxrm_server_lib.a
+[247/633] Linking CXX static library libxrm_tui_frontend.a
+[248/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/runtime_commands.cpp.o
+[249/633] Building CXX object CMakeFiles/xrm.dir/apps/xrm_main.cpp.o
+[250/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/subscription_commands.cpp.o
+[251/633] Building CXX object CMakeFiles/xrm_cli_frontend.dir/src/cli/settings_commands.cpp.o
+[252/633] Linking CXX static library libxrm_cli_frontend.a
+[253/633] Building CXX object tests/CMakeFiles/xrm_fake_editor.dir/support/fake_editor.cpp.o
+[254/633] Linking CXX executable tests/xrm_fake_editor
+[255/633] Building CXX object tests/CMakeFiles/xrm_fake_core.dir/support/fake_core.cpp.o
+[256/633] Linking CXX executable tests/xrm_fake_core
+[257/633] Linking CXX executable xrm
+[258/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/benchmark/catch_chronometer.cpp.o
+[259/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/benchmark/detail/catch_analyse.cpp.o
+[260/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/benchmark/detail/catch_benchmark_function.cpp.o
+[261/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/generators/catch_generator_exception.cpp.o
+[262/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/benchmark/detail/catch_stats.cpp.o
+[263/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/benchmark/detail/catch_run_for_at_least.cpp.o
+[264/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/generators/catch_generators.cpp.o
+[265/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/generators/catch_generators_random.cpp.o
+[266/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_automake.cpp.o
+[267/633] Building CXX object CMakeFiles/xrmd.dir/apps/xrmd_main.cpp.o
+[268/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_common_base.cpp.o
+[269/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_compact.cpp.o
+[270/633] Linking CXX executable xrmd
+[271/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_console.cpp.o
+[272/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_event_listener.cpp.o
+[273/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_cumulative_base.cpp.o
+[274/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_helpers.cpp.o
+[275/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_json.cpp.o
+[276/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_registrars.cpp.o
+[277/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_junit.cpp.o
+[278/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_multi.cpp.o
+[279/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_streaming_base.cpp.o
+[280/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_sonarqube.cpp.o
+[281/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_tap.cpp.o
+[282/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_teamcity.cpp.o
+[283/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_exception.cpp.o
+[284/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_capture.cpp.o
+[285/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_generatortracker.cpp.o
+[286/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/reporters/catch_reporter_xml.cpp.o
+[287/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_registry_hub.cpp.o
+[288/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_reporter_factory.cpp.o
+[289/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_config.cpp.o
+[290/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_testcase.cpp.o
+[291/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/interfaces/catch_interfaces_reporter.cpp.o
+[292/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_assertion_result.cpp.o
+[293/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_approx.cpp.o
+[294/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_config.cpp.o
+[295/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_get_random_seed.cpp.o
+[296/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_message.cpp.o
+[297/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_tag_alias_autoregistrar.cpp.o
+[298/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_registry_hub.cpp.o
+[299/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_test_case_info.cpp.o
+[300/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_timer.cpp.o
+[301/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_totals.cpp.o
+[302/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_session.cpp.o
+[303/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_test_spec.cpp.o
+[304/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_translate_exception.cpp.o
+[305/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_case_insensitive_comparisons.cpp.o
+[306/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_version.cpp.o
+[307/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/catch_tostring.cpp.o
+[308/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_assertion_handler.cpp.o
+[309/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_context.cpp.o
+[310/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_debug_console.cpp.o
+[311/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_console_colour.cpp.o
+[312/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_clara.cpp.o
+[313/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_debugger.cpp.o
+[314/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_commandline.cpp.o
+[315/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_errno_guard.cpp.o
+[316/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_decomposer.cpp.o
+[317/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_enforce.cpp.o
+[318/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_floating_point_helpers.cpp.o
+[319/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_getenv.cpp.o
+[320/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_enum_values_registry.cpp.o
+[321/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_exception_translator_registry.cpp.o
+[322/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_jsonwriter.cpp.o
+[323/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_fatal_condition_handler.cpp.o
+[324/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_istream.cpp.o
+[325/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_leak_detector.cpp.o
+[326/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_message_info.cpp.o
+[327/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_parse_numbers.cpp.o
+[328/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_lazy_expr.cpp.o
+[329/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_random_number_generator.cpp.o
+[330/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_polyfills.cpp.o
+[331/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_output_redirect.cpp.o
+[332/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_list.cpp.o
+[333/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_random_seed_generation.cpp.o
+[334/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_reusable_string_stream.cpp.o
+[335/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_reporter_spec_parser.cpp.o
+[336/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_reporter_registry.cpp.o
+[337/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_singletons.cpp.o
+[338/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_startup_exception_registry.cpp.o
+[339/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_source_line_info.cpp.o
+[340/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_run_context.cpp.o
+[341/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_section.cpp.o
+[342/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_stdstreams.cpp.o
+[343/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_test_case_info_hasher.cpp.o
+[344/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_stringref.cpp.o
+[345/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_string_manip.cpp.o
+[346/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_tag_alias_registry.cpp.o
+[347/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_test_registry.cpp.o
+[348/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_test_failure_exception.cpp.o
+[349/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_test_case_tracker.cpp.o
+[350/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_uncaught_exceptions.cpp.o
+[351/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_test_spec_parser.cpp.o
+[352/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_test_case_registry_impl.cpp.o
+[353/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_textflow.cpp.o
+[354/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_wildcard_pattern.cpp.o
+[355/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/internal/catch_xmlwriter.cpp.o
+[356/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers.cpp.o
+[357/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers_container_properties.cpp.o
+[358/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers_exception.cpp.o
+[359/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers_floating_point.cpp.o
+[360/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers_predicate.cpp.o
+[361/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers_quantifiers.cpp.o
+[362/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/contract_tests.cpp for CXX dependencies
+[363/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_common.cpp for CXX dependencies
+[364/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers_templated.cpp.o
+[365/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/internal/catch_matchers_impl.cpp.o
+[366/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_node.cpp for CXX dependencies
+[367/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_runtime.cpp for CXX dependencies
+[368/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_wire.cpp for CXX dependencies
+[369/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_dtos.cpp for CXX dependencies
+[370/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_store.cpp for CXX dependencies
+[371/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_process.cpp for CXX dependencies
+[372/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_rpc_client.cpp for CXX dependencies
+[373/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/include_rpc_server.cpp for CXX dependencies
+[374/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_profile.cpp for CXX dependencies
+[375/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_catalog.cpp for CXX dependencies
+[376/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_profile_service.cpp for CXX dependencies
+[377/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_assembler.cpp for CXX dependencies
+[378/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_codec.cpp for CXX dependencies
+[379/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_writer.cpp for CXX dependencies
+[380/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_core_manager.cpp for CXX dependencies
+[381/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/include_process_adapter.cpp for CXX dependencies
+[382/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m2/interfaces.cpp for CXX dependencies
+[383/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m1/interfaces.cpp for CXX dependencies
+[384/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m3/interfaces.cpp for CXX dependencies
+[385/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m4/include_node.cpp for CXX dependencies
+[386/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m4/interfaces.cpp for CXX dependencies
+[387/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m4/include_codec.cpp for CXX dependencies
+[388/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2.dir/catch2/matchers/catch_matchers_string.cpp.o
+[389/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m4/include_forms.cpp for CXX dependencies
+[390/633] Scanning /home/lisztzy/Projects/xrm/tests/contract/m4/include_installer.cpp for CXX dependencies
+[391/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/advanced_forms/advanced_forms_tests.cpp for CXX dependencies
+[392/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/assembly/basic/assembler_tests.cpp for CXX dependencies
+[393/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/assembly/groups/group_assembly_tests.cpp for CXX dependencies
+[394/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/codecs/vless.cpp for CXX dependencies
+[395/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/codecs/native.cpp for CXX dependencies
+[396/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/codecs/vmess.cpp for CXX dependencies
+[397/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/codecs/trojan.cpp for CXX dependencies
+[398/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/codecs/shadowsocks.cpp for CXX dependencies
+[399/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/codecs/hysteria.cpp for CXX dependencies
+[400/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/forms/forms_tests.cpp for CXX dependencies
+[401/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/modules/catalog_tests.cpp for CXX dependencies
+[402/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/metrics/metrics_tests.cpp for CXX dependencies
+[403/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/routing_presets/routing_preset_tests.cpp for CXX dependencies
+[404/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/node_tests/node_test_service_tests.cpp for CXX dependencies
+[405/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/routing_presets/geodata_real_tests.cpp for CXX dependencies
+[406/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/routing_presets/geodata_cache_tests.cpp for CXX dependencies
+[407/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/subscription/reconcile_tests.cpp for CXX dependencies
+[408/633] Scanning /home/lisztzy/Projects/xrm/tests/unit/subscription/parser_tests.cpp for CXX dependencies
+[409/633] Scanning /home/lisztzy/Projects/xrm/src/subscription/parser.cpp for CXX dependencies
+[410/633] Scanning /home/lisztzy/Projects/xrm/src/subscription/reconcile.cpp for CXX dependencies
+[411/633] Scanning /home/lisztzy/Projects/xrm/tests/tui/components/log_polish_tests.cpp for CXX dependencies
+[412/633] Scanning /home/lisztzy/Projects/xrm/tests/tui/components/components_tests.cpp for CXX dependencies
+[413/633] Scanning /home/lisztzy/Projects/xrm/tests/tui/components/showcase.cpp for CXX dependencies
+[414/633] Scanning /home/lisztzy/Projects/xrm/tests/tui/forms/native_form_tests.cpp for CXX dependencies
+[415/633] Scanning /home/lisztzy/Projects/xrm/src/tui/forms/native_form.cpp for CXX dependencies
+[416/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/bootstrap/m0_tests.cpp for CXX dependencies
+[417/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/codecs/m4_tests.cpp for CXX dependencies
+[418/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/control/control_tests.cpp for CXX dependencies
+[419/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/geodata/geodata_store_writer_tests.cpp for CXX dependencies
+[420/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/geodata/geodata_application_real_tests.cpp for CXX dependencies
+[421/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/geodata/cli_tests.cpp for CXX dependencies
+[422/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/geodata/routing_preset_real_tests.cpp for CXX dependencies
+[423/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/group_bindings/group_bindings_tests.cpp for CXX dependencies
+[424/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/http/http_tests.cpp for CXX dependencies
+[425/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/installer/installer_tests.cpp for CXX dependencies
+[426/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/inventory/m2_tests.cpp for CXX dependencies
+[427/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/lifecycle/basic/lifecycle_tests.cpp for CXX dependencies
+[428/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/logs/log_tests.cpp for CXX dependencies
+[429/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/lifecycle/advanced/lifecycle_advanced_tests.cpp for CXX dependencies
+[430/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/packaging/packaging_tests.cpp for CXX dependencies
+[431/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/module_actions/module_actions_tests.cpp for CXX dependencies
+[432/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/performance/performance_tests.cpp for CXX dependencies
+[433/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/process/process_tests.cpp for CXX dependencies
+[434/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/profile/profile_tests.cpp for CXX dependencies
+[435/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/real_core/m1.cpp for CXX dependencies
+[436/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/real_core/rc04.cpp for CXX dependencies
+[437/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/real_core/rc05.cpp for CXX dependencies
+[438/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/real_core/rc07.cpp for CXX dependencies
+[439/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/real_core/rc08.cpp for CXX dependencies
+[440/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/real_core/rc09.cpp for CXX dependencies
+[441/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/real_core/rc10_m4.cpp for CXX dependencies
+[442/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/release/e2e06.cpp for CXX dependencies
+[443/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/rpc_transport/rpc_transport_tests.cpp for CXX dependencies
+[444/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/runtime_writer/runtime_writer_tests.cpp for CXX dependencies
+[445/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/store/store_tests.cpp for CXX dependencies
+[446/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/subscription/subscription_tests.cpp for CXX dependencies
+[447/633] Scanning /home/lisztzy/Projects/xrm/tests/cli/human_message_tests.cpp for CXX dependencies
+[448/633] Scanning /home/lisztzy/Projects/xrm/tests/integration/workflows/m1_tests.cpp for CXX dependencies
+[449/633] Generating CXX dyndep file tests/CMakeFiles/xrm_contract_tests.dir/CXX.dd
+[450/633] Generating CXX dyndep file tests/unit/advanced_forms/CMakeFiles/xrm_advanced_forms_tests.dir/CXX.dd
+[451/633] Generating CXX dyndep file tests/unit/assembly/basic/CMakeFiles/xrm_assembler_tests.dir/CXX.dd
+[452/633] Generating CXX dyndep file tests/unit/assembly/groups/CMakeFiles/xrm_group_assembly_tests.dir/CXX.dd
+[453/633] Generating CXX dyndep file tests/unit/codecs/CMakeFiles/xrm_codec_tests.dir/CXX.dd
+[454/633] Generating CXX dyndep file tests/unit/forms/CMakeFiles/xrm_forms_tests.dir/CXX.dd
+[455/633] Scanning /home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp for CXX dependencies
+[456/633] Generating CXX dyndep file tests/unit/metrics/CMakeFiles/xrm_metrics_tests.dir/CXX.dd
+[457/633] Generating CXX dyndep file tests/unit/modules/CMakeFiles/xrm_module_tests.dir/CXX.dd
+[458/633] Generating CXX dyndep file tests/unit/routing_presets/CMakeFiles/xrm_routing_preset_tests.dir/CXX.dd
+[459/633] Generating CXX dyndep file tests/unit/node_tests/CMakeFiles/xrm_node_test_service_tests.dir/CXX.dd
+[460/633] Generating CXX dyndep file tests/unit/routing_presets/CMakeFiles/xrm_geodata_cache_tests.dir/CXX.dd
+[461/633] Generating CXX dyndep file tests/unit/routing_presets/CMakeFiles/xrm_geodata_real_tests.dir/CXX.dd
+[462/633] Generating CXX dyndep file tests/unit/subscription/CMakeFiles/xrm_subscription_tests.dir/CXX.dd
+[463/633] Generating CXX dyndep file tests/tui/components/CMakeFiles/xrm_tui_components_tests.dir/CXX.dd
+[464/633] Generating CXX dyndep file tests/tui/components/CMakeFiles/xrm_component_showcase.dir/CXX.dd
+[465/633] Generating CXX dyndep file tests/tui/forms/CMakeFiles/xrm_tui_forms_tests.dir/CXX.dd
+[466/633] Generating CXX dyndep file tests/integration/bootstrap/CMakeFiles/xrm_m0_tests.dir/CXX.dd
+[467/633] Generating CXX dyndep file tests/integration/codecs/CMakeFiles/xrm_m4_tests.dir/CXX.dd
+[468/633] Generating CXX dyndep file tests/integration/control/CMakeFiles/xrm_control_tests.dir/CXX.dd
+[469/633] Generating CXX dyndep file tests/integration/geodata/CMakeFiles/xrm_geodata_store_writer_tests.dir/CXX.dd
+[470/633] Generating CXX dyndep file tests/integration/geodata/CMakeFiles/xrm_geodata_application_real_tests.dir/CXX.dd
+[471/633] Generating CXX dyndep file tests/integration/geodata/CMakeFiles/xrm_geodata_cli_tests.dir/CXX.dd
+[472/633] Generating CXX dyndep file tests/integration/geodata/CMakeFiles/xrm_geodata_preset_real_tests.dir/CXX.dd
+[473/633] Generating CXX dyndep file tests/integration/group_bindings/CMakeFiles/xrm_group_bindings_tests.dir/CXX.dd
+[474/633] Generating CXX dyndep file tests/integration/http/CMakeFiles/xrm_http_tests.dir/CXX.dd
+[475/633] Generating CXX dyndep file tests/integration/installer/CMakeFiles/xrm_installer_tests.dir/CXX.dd
+[476/633] Generating CXX dyndep file tests/integration/inventory/CMakeFiles/xrm_m2_tests.dir/CXX.dd
+[477/633] Generating CXX dyndep file tests/integration/lifecycle/basic/CMakeFiles/xrm_lifecycle_tests.dir/CXX.dd
+[478/633] Generating CXX dyndep file tests/integration/lifecycle/advanced/CMakeFiles/xrm_lifecycle_advanced_tests.dir/CXX.dd
+[479/633] Linking CXX static library _deps/catch2-build/src/libCatch2d.a
+[480/633] Generating CXX dyndep file tests/integration/logs/CMakeFiles/xrm_log_tests.dir/CXX.dd
+[481/633] Generating CXX dyndep file tests/integration/performance/CMakeFiles/xrm_performance_tests.dir/CXX.dd
+[482/633] Generating CXX dyndep file tests/integration/module_actions/CMakeFiles/xrm_module_actions_tests.dir/CXX.dd
+[483/633] Generating CXX dyndep file tests/integration/packaging/CMakeFiles/xrm_packaging_tests.dir/CXX.dd
+[484/633] Generating CXX dyndep file tests/integration/profile/CMakeFiles/xrm_profile_tests.dir/CXX.dd
+[485/633] Generating CXX dyndep file tests/integration/process/CMakeFiles/xrm_process_tests.dir/CXX.dd
+[486/633] Generating CXX dyndep file tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/CXX.dd
+[487/633] Generating CXX dyndep file tests/integration/release/CMakeFiles/xrm_release_e2e_tests.dir/CXX.dd
+[488/633] Generating CXX dyndep file tests/integration/runtime_writer/CMakeFiles/xrm_runtime_writer_tests.dir/CXX.dd
+[489/633] Generating CXX dyndep file tests/integration/rpc_transport/CMakeFiles/xrm_rpc_transport_tests.dir/CXX.dd
+[490/633] Generating CXX dyndep file tests/integration/store/CMakeFiles/xrm_store_tests.dir/CXX.dd
+[491/633] Generating CXX dyndep file tests/integration/subscription/CMakeFiles/xrm_subscription_integration_tests.dir/CXX.dd
+[492/633] Generating CXX dyndep file tests/integration/workflows/CMakeFiles/xrm_m1_tests.dir/CXX.dd
+[493/633] Generating CXX dyndep file tests/cli/CMakeFiles/xrm_human_message_tests.dir/CXX.dd
+[494/633] Generating CXX dyndep file tests/tui/acceptance/CMakeFiles/xrm_tui_acceptance_tests.dir/CXX.dd
+[495/633] Building C object _deps/libarchive-build/unzip/CMakeFiles/bsdunzip.dir/__/libarchive_fe/lafe_err.c.o
+[496/633] Building C object _deps/libarchive-build/unzip/CMakeFiles/bsdunzip.dir/cmdline.c.o
+[497/633] Building C object _deps/libarchive-build/unzip/CMakeFiles/bsdunzip.dir/__/libarchive_fe/lafe_fnmatch.c.o
+[498/633] Building C object _deps/libarchive-build/unzip/CMakeFiles/bsdunzip.dir/__/libarchive_fe/lafe_getline.c.o
+[499/633] Building C object _deps/libarchive-build/unzip/CMakeFiles/bsdunzip.dir/__/libarchive_fe/passphrase.c.o
+[500/633] Building C object _deps/libarchive-build/unzip/CMakeFiles/bsdunzip.dir/bsdunzip.c.o
+[501/633] Building CXX object _deps/catch2-build/src/CMakeFiles/Catch2WithMain.dir/catch2/internal/catch_main.cpp.o
+[502/633] Linking CXX static library _deps/catch2-build/src/libCatch2Maind.a
+[503/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_common.cpp.o
+[504/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_node.cpp.o
+[505/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_runtime.cpp.o
+[506/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_wire.cpp.o
+[507/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_dtos.cpp.o
+[508/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_store.cpp.o
+[509/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/contract_tests.cpp.o
+[510/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_process.cpp.o
+[511/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_rpc_client.cpp.o
+[512/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_profile.cpp.o
+[513/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/include_rpc_server.cpp.o
+[514/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_catalog.cpp.o
+[515/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_profile_service.cpp.o
+[516/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_codec.cpp.o
+[517/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_assembler.cpp.o
+[518/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_writer.cpp.o
+[519/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_core_manager.cpp.o
+[520/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/include_process_adapter.cpp.o
+[521/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m1/interfaces.cpp.o
+[522/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m2/interfaces.cpp.o
+[523/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m4/include_node.cpp.o
+[524/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m3/interfaces.cpp.o
+[525/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m4/include_codec.cpp.o
+[526/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m4/include_forms.cpp.o
+[527/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m4/interfaces.cpp.o
+[528/633] Building CXX object tests/CMakeFiles/xrm_contract_tests.dir/contract/m4/include_installer.cpp.o
+[529/633] Building CXX object tests/unit/advanced_forms/CMakeFiles/xrm_advanced_forms_tests.dir/advanced_forms_tests.cpp.o
+[530/633] Building CXX object tests/unit/codecs/CMakeFiles/xrm_codec_tests.dir/vless.cpp.o
+[531/633] Building CXX object tests/unit/assembly/basic/CMakeFiles/xrm_assembler_tests.dir/assembler_tests.cpp.o
+[532/633] Building CXX object tests/unit/assembly/groups/CMakeFiles/xrm_group_assembly_tests.dir/group_assembly_tests.cpp.o
+[533/633] Building CXX object tests/unit/codecs/CMakeFiles/xrm_codec_tests.dir/vmess.cpp.o
+[534/633] Building CXX object tests/unit/codecs/CMakeFiles/xrm_codec_tests.dir/trojan.cpp.o
+[535/633] Building CXX object tests/unit/codecs/CMakeFiles/xrm_codec_tests.dir/native.cpp.o
+[536/633] Building CXX object tests/unit/codecs/CMakeFiles/xrm_codec_tests.dir/shadowsocks.cpp.o
+[537/633] Building CXX object tests/unit/modules/CMakeFiles/xrm_module_tests.dir/catalog_tests.cpp.o
+[538/633] Building CXX object tests/unit/metrics/CMakeFiles/xrm_metrics_tests.dir/metrics_tests.cpp.o
+[539/633] Building CXX object tests/unit/codecs/CMakeFiles/xrm_codec_tests.dir/hysteria.cpp.o
+[540/633] Building CXX object tests/unit/forms/CMakeFiles/xrm_forms_tests.dir/forms_tests.cpp.o
+[541/633] Building CXX object tests/unit/routing_presets/CMakeFiles/xrm_geodata_real_tests.dir/geodata_real_tests.cpp.o
+[542/633] Building CXX object tests/unit/routing_presets/CMakeFiles/xrm_routing_preset_tests.dir/routing_preset_tests.cpp.o
+[543/633] Building CXX object tests/unit/routing_presets/CMakeFiles/xrm_geodata_cache_tests.dir/geodata_cache_tests.cpp.o
+[544/633] Building CXX object tests/unit/node_tests/CMakeFiles/xrm_node_test_service_tests.dir/node_test_service_tests.cpp.o
+[545/633] Building CXX object tests/unit/subscription/CMakeFiles/xrm_subscription_tests.dir/parser_tests.cpp.o
+[546/633] Building CXX object tests/unit/subscription/CMakeFiles/xrm_subscription_tests.dir/__/__/__/src/subscription/parser.cpp.o
+[547/633] Building CXX object tests/tui/components/CMakeFiles/xrm_tui_components_tests.dir/components_tests.cpp.o
+[548/633] Building CXX object tests/unit/subscription/CMakeFiles/xrm_subscription_tests.dir/__/__/__/src/subscription/reconcile.cpp.o
+[549/633] Building CXX object tests/unit/subscription/CMakeFiles/xrm_subscription_tests.dir/reconcile_tests.cpp.o
+[550/633] Building CXX object tests/tui/components/CMakeFiles/xrm_tui_components_tests.dir/log_polish_tests.cpp.o
+[551/633] Building CXX object tests/tui/components/CMakeFiles/xrm_component_showcase.dir/showcase.cpp.o
+[552/633] Building CXX object tests/integration/bootstrap/CMakeFiles/xrm_m0_tests.dir/m0_tests.cpp.o
+[553/633] Building CXX object tests/tui/forms/CMakeFiles/xrm_tui_forms_tests.dir/native_form_tests.cpp.o
+[554/633] Building CXX object tests/tui/forms/CMakeFiles/xrm_tui_forms_tests.dir/__/__/__/src/tui/forms/native_form.cpp.o
+[555/633] Building CXX object tests/integration/codecs/CMakeFiles/xrm_m4_tests.dir/m4_tests.cpp.o
+[556/633] Building CXX object tests/integration/control/CMakeFiles/xrm_control_tests.dir/control_tests.cpp.o
+[557/633] Building CXX object tests/integration/geodata/CMakeFiles/xrm_geodata_cli_tests.dir/cli_tests.cpp.o
+[558/633] Building CXX object tests/integration/geodata/CMakeFiles/xrm_geodata_store_writer_tests.dir/geodata_store_writer_tests.cpp.o
+[559/633] Building CXX object tests/integration/geodata/CMakeFiles/xrm_geodata_application_real_tests.dir/geodata_application_real_tests.cpp.o
+[560/633] Building CXX object tests/integration/geodata/CMakeFiles/xrm_geodata_preset_real_tests.dir/routing_preset_real_tests.cpp.o
+[561/633] Building CXX object tests/integration/http/CMakeFiles/xrm_http_tests.dir/http_tests.cpp.o
+[562/633] Building CXX object tests/integration/installer/CMakeFiles/xrm_installer_tests.dir/installer_tests.cpp.o
+[563/633] Building CXX object tests/integration/group_bindings/CMakeFiles/xrm_group_bindings_tests.dir/group_bindings_tests.cpp.o
+[564/633] Building CXX object tests/integration/inventory/CMakeFiles/xrm_m2_tests.dir/m2_tests.cpp.o
+[565/633] Building CXX object tests/integration/logs/CMakeFiles/xrm_log_tests.dir/log_tests.cpp.o
+[566/633] Building CXX object tests/integration/lifecycle/basic/CMakeFiles/xrm_lifecycle_tests.dir/lifecycle_tests.cpp.o
+[567/633] Building CXX object tests/integration/packaging/CMakeFiles/xrm_packaging_tests.dir/packaging_tests.cpp.o
+[568/633] Building CXX object tests/integration/module_actions/CMakeFiles/xrm_module_actions_tests.dir/module_actions_tests.cpp.o
+[569/633] Building CXX object tests/integration/lifecycle/advanced/CMakeFiles/xrm_lifecycle_advanced_tests.dir/lifecycle_advanced_tests.cpp.o
+[570/633] Building CXX object tests/integration/process/CMakeFiles/xrm_process_tests.dir/process_tests.cpp.o
+[571/633] Building CXX object tests/integration/performance/CMakeFiles/xrm_performance_tests.dir/performance_tests.cpp.o
+[572/633] Building CXX object tests/integration/profile/CMakeFiles/xrm_profile_tests.dir/profile_tests.cpp.o
+[573/633] Building CXX object tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/rc04.cpp.o
+[574/633] Building CXX object tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/rc05.cpp.o
+[575/633] Building CXX object tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/m1.cpp.o
+[576/633] Building CXX object tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/rc07.cpp.o
+[577/633] Building CXX object tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/rc08.cpp.o
+[578/633] Building CXX object tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/rc09.cpp.o
+[579/633] Building CXX object tests/integration/real_core/CMakeFiles/xrm_real_core_tests.dir/rc10_m4.cpp.o
+[580/633] Building CXX object tests/integration/runtime_writer/CMakeFiles/xrm_runtime_writer_tests.dir/runtime_writer_tests.cpp.o
+[581/633] Building CXX object tests/integration/release/CMakeFiles/xrm_release_e2e_tests.dir/e2e06.cpp.o
+[582/633] Building CXX object tests/integration/rpc_transport/CMakeFiles/xrm_rpc_transport_tests.dir/rpc_transport_tests.cpp.o
+[583/633] Building CXX object tests/cli/CMakeFiles/xrm_human_message_tests.dir/human_message_tests.cpp.o
+[584/633] Building CXX object tests/integration/store/CMakeFiles/xrm_store_tests.dir/store_tests.cpp.o
+[585/633] Linking C executable _deps/libarchive-build/bin/bsdunzip
+[586/633] Linking CXX executable tests/xrm_contract_tests
+[587/633] Linking CXX executable tests/unit/advanced_forms/xrm_advanced_forms_tests
+[588/633] Linking CXX executable tests/unit/assembly/basic/xrm_assembler_tests
+[589/633] Building CXX object tests/integration/subscription/CMakeFiles/xrm_subscription_integration_tests.dir/subscription_tests.cpp.o
+[590/633] Linking CXX executable tests/unit/assembly/groups/xrm_group_assembly_tests
+[591/633] Linking CXX executable tests/unit/forms/xrm_forms_tests
+[592/633] Building CXX object tests/integration/workflows/CMakeFiles/xrm_m1_tests.dir/m1_tests.cpp.o
+[593/633] Linking CXX executable tests/unit/codecs/xrm_codec_tests
+[594/633] Linking CXX executable tests/unit/modules/xrm_module_tests
+[595/633] Linking CXX executable tests/unit/metrics/xrm_metrics_tests
+[596/633] Linking CXX executable tests/unit/routing_presets/xrm_routing_preset_tests
+[597/633] Linking CXX executable tests/unit/node_tests/xrm_node_test_service_tests
+[598/633] Linking CXX executable tests/unit/routing_presets/xrm_geodata_real_tests
+[599/633] Linking CXX executable tests/unit/routing_presets/xrm_geodata_cache_tests
+[600/633] Linking CXX executable tests/tui/components/xrm_tui_components_tests
+[601/633] Linking CXX executable tests/unit/subscription/xrm_subscription_tests
+[602/633] Linking CXX executable tests/tui/components/xrm_component_showcase
+[603/633] Linking CXX executable tests/integration/bootstrap/xrm_m0_tests
+[604/633] Linking CXX executable tests/tui/forms/xrm_tui_forms_tests
+[605/633] Linking CXX executable tests/integration/codecs/xrm_m4_tests
+[606/633] Linking CXX executable tests/integration/control/xrm_control_tests
+[607/633] Linking CXX executable tests/integration/geodata/xrm_geodata_cli_tests
+[608/633] Linking CXX executable tests/integration/geodata/xrm_geodata_store_writer_tests
+[609/633] Linking CXX executable tests/integration/geodata/xrm_geodata_application_real_tests
+[610/633] Linking CXX executable tests/integration/geodata/xrm_geodata_preset_real_tests
+[611/633] Linking CXX executable tests/integration/http/xrm_http_tests
+[612/633] Linking CXX executable tests/integration/group_bindings/xrm_group_bindings_tests
+[613/633] Linking CXX executable tests/integration/inventory/xrm_m2_tests
+[614/633] Linking CXX executable tests/integration/installer/xrm_installer_tests
+[615/633] Linking CXX executable tests/integration/lifecycle/basic/xrm_lifecycle_tests
+[616/633] Linking CXX executable tests/integration/logs/xrm_log_tests
+[617/633] Linking CXX executable tests/integration/lifecycle/advanced/xrm_lifecycle_advanced_tests
+[618/633] Linking CXX executable tests/integration/packaging/xrm_packaging_tests
+[619/633] Linking CXX executable tests/integration/process/xrm_process_tests
+[620/633] Linking CXX executable tests/integration/performance/xrm_performance_tests
+[621/633] Linking CXX executable tests/integration/module_actions/xrm_module_actions_tests
+[622/633] Linking CXX executable tests/integration/profile/xrm_profile_tests
+[623/633] Building CXX object tests/tui/acceptance/CMakeFiles/xrm_tui_acceptance_tests.dir/acceptance_tests.cpp.o
+[624/633] Linking CXX executable tests/integration/release/xrm_release_e2e_tests
+[625/633] Linking CXX executable tests/integration/runtime_writer/xrm_runtime_writer_tests
+[626/633] Linking CXX executable tests/integration/rpc_transport/xrm_rpc_transport_tests
+[627/633] Linking CXX executable tests/integration/real_core/xrm_real_core_tests
+[628/633] Linking CXX executable tests/integration/store/xrm_store_tests
+[629/633] Linking CXX executable tests/cli/xrm_human_message_tests
+[630/633] Linking CXX executable tests/integration/workflows/xrm_m1_tests
+[631/633] Linking CXX executable tests/integration/subscription/xrm_subscription_integration_tests
+[632/633] Linking CXX executable tests/tui/acceptance/xrm_tui_acceptance_tests

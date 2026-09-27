@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  1 source / node inventory                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+   Source                   Nodes   Resul ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ i Info · history in Help         ├─ 
+ ▸ Local                    0       Settin│ Refreshed Overview               │  
+                                          ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Beta · Module Edit: Alpha · Running: Alpha              
+ Highlighted Local · Settings changed · 0 nodes                                 
+ xrmd ready · Page content (Content)                          F1 Help & actions 

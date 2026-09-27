@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log  dns  inbounds [0;1m outbounds [0;2m routing  observatory  api [0m            › [2m4/15[0m
+ [1moutbounds[0;2m  SOURCE · READ ONLY · Visual                                        [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;7m>   Static outbounds (ordered)                                               [0m
+
+ [1mStatic outbounds (ordered)[0;2m  Read only                                         [0m
+ [2moutbounds                                                                     [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2m1               [0mdirect · freedom · Default
+
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m
+ outbounds · Source read-only · Visual · excluded
+ [2mxrmd ready · Content · modules/03_outbounds.json             [0mF1 Help & actions

@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15
+ dns  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   DNS servers                  DNS servers  Draft
+     DNS query and cache setting  dns.servers
+     DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────
+                                  1  localhost
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ DNS server                                                                                         │
+         │ Add to draft: dns draft. Module Save: Source. Connect / Apply: runtime. Cancel: discard this       │
+         │ object's unsubmitted changes. Native path /dns/servers/new.                                        │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > Ctrl-S          Add to draft · DNS server                                                        │
+         │   Esc             Cancel / close form · DNS server                                                 │
+         │   Jump            Go to Server address · DNS server                                                │
+         │   Jump            Go to Matching and response filters · DNS server                                 │
+         │   Jump            Go to Fallback and cache · DNS server                                            │
+         │   Jump            Go to Advanced native fields · DNS server                                        │
+         │                   Editing scope and advanced fields · DNS server                                   │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Tab / Shift-Tab         Move between fields and buttons                                            │
+         │ Arrows / Home / End     Move cursor or choose visible option immediately                           │
+         │ Ctrl-Home / Ctrl-End    Document start / end                                                       │
+         │ Space                   Toggle focused checkbox or presence                                        │
+         │ Enter                   Insert newline in multiline text / activate button; no checkbox change     │
+         │ q e u p ? Space         Text in input fields                                                       │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ dns · Source editable · Visual · included
+ xrmd ready · Page content (Content) · modules/01_dns.json                                            F1 Help & actions

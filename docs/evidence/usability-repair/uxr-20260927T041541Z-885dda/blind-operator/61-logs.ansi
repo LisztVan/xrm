@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1;7m[Logs][0;2m Config [0m
+ [1mLogs[0;2m  Core output                                                                                                     [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mTIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                             [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m-        stdout                                   [0mConfiguration OK.
+ [2m12:54:35 stderr                                   [0mUsing confdir from arg: /tmp/xrm-component-lab-e6ojxmpm/state/run
+                           [2m                      | [0mtime/candidate/run-1790484875288-1
+ [2m-        stdout                                   [0mXray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1
+                           [2m                      | [0mlinux/amd64)
+ [2m-        stdout                                   [0mA unified platform for anti-censorship.
+ [2m12:54:35 stderr                                   [0mUsing confdir from arg: /tmp/xrm-component-lab-e6ojxmpm/state/run
+                           [2m                      | [0mtime/candidate/run-1790484875288-1
+ [2m12:54:35 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt
+                           [2m                      | [0mime/candidate/run-1790484875288-1/00_log.json Format:json}
+ [2m12:54:35 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt
+                           [2m                      | [0mime/candidate/run-1790484875288-1/01_dns.json Format:json}
+ [2m12:54:35 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt
+                           [2m                      | [0mime/candidate/run-1790484875288-1/02_inbounds.json Format:json}    ╻
+ [2m12:54:35 stdout   Info    infra/conf              [0m[/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                           [2m                      | [0m484875288-1/02_inbounds.json] appended inbound with tag:           ┃
+                           [2m                      | [0mlocal-socks                                                        ┃
+ [2m12:54:35 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt  ┃
+                           [2m                      | [0mime/candidate/run-1790484875288-1/03_outbounds.json Format:json}   ┃
+ [2m12:54:35 stdout   Info    infra/conf              [0m[/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                           [2m                      | [0m484875288-1/03_outbounds.json] prepend outbound with tag: direct   ┃
+ [2m12:54:35 stdout   Info    infra/conf              [0m[/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                           [2m                      | [0m484875288-1/03_outbounds.json] prepend outbound with tag: block    ┃
+ [2m12:54:35 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt  ┃
+                           [2m                      | [0mime/candidate/run-1790484875288-1/04_routing.json Format:json}     ┃
+ [2m12:54:35 stdout   Info    infra/conf/serial       [0mReading config: &{Name:/tmp/xrm-component-lab-e6ojxmpm/state/runt  ┃
+                           [2m                      | [0mime/candidate/run-1790484875288-1/90_nodes_tail.json Format:json}  ┃
+ [2m12:54:35 stdout   Info    infra/conf              [0m[/tmp/xrm-component-lab-e6ojxmpm/state/runtime/candidate/run-1790  ┃
+                           [2m                      | [0m484875288-1/90_nodes_tail.json] appended outbound with tag:        ┃
+                           [2m                      | [0mxrm.node.6150da7a-e315-43ff-a3d7-74efd5a3ba36                      ┃
+ [2m12:54:35 stdout   [0mWarning [2m                        [0mcore: Xray 26.9.9 started                                          ┃
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: Lab Home                                        [0m
+ Following · 28 text lines
+ [2mxrmd ready · Page navigation (TopNav)                                                                [0mF1 Help & actions

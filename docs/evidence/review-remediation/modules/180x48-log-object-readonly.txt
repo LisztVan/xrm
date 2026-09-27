@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                         1/15 
+ log  SOURCE · READ ONLY · Visual                                                                                                                                                   
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Xray logging                 Xray logging  Read only                                                                                                                           
+                                  log                                                                                                                                               
+                                  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                  Access destination      none                                                                                                                      
+                                  Error destination       none                                                                                                                      
+                                  loglevel                warning                                                                                                                   
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                       ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+                                       │ Xray logging  READ ONLY · field 1/5                                                                │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ > Access destination      Explicit value                                                           │                                       
+                                       │                             none                                                                   │                                       
+                                       │   Path; empty = stdout; none disables                                                              │                                       
+                                       │                                                                                                    │                                       
+                                       │   Error destination       Explicit value                                                           │                                       
+                                       │                             none                                                                   │                                       
+                                       │                                                                                                    │                                       
+                                       │   loglevel                (o) warning                                                              │                                       
+                                       │   Unset: warning                                                                                   │                                       
+                                       │                                                                                                    │                                       
+                                       │   dnsLog                  (o) Not set · field omitted                                              │                                       
+                                       │                                                                                                    │                                       
+                                       │   IP masking              Not set · field omitted                                                  │                                       
+                                       │                             Not set (read only)                                                    │                                       
+                                       │   quarter, half, full, or native custom mask                                                       │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Close ]                                                                                         │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit none · Run none                                                                                                                      
+ log · Source read-only · Visual · excluded                                               
+ xrmd ready · Content · modules/00_log.json                                                                                                                       F1 Help & actions 

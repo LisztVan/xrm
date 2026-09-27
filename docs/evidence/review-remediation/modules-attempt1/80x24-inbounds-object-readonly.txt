@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api             › 3/15
+ inbounds  SOURCE · READ ONLY · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+ >╭──────────────────────────────────────────────────────────────────────────╮
+  │ Inbound listener  READ ONLY                                              │
+ I│ ──────────────────────────────────────────────────────────────────────── │
+ i│ > tag [read only]         [x] Set value  Explicit value                ┃ │
+ ─┤                             local-socks                                ┃ ├─
+ 1│                                                                        ┃ │
+  │   protocol [read only]    (o) socks                                    ┃ │
+  │                                                                        ┃ │
+  │   listen [read only]      [x] Set value  Explicit value                ┃ │
+  │                             127.0.0.1                                  ┃ │
+  │                                                                        ┃ │
+  │   port [read only]        [x] Set value  Explicit value                ╹ │
+  │                             19091                                        │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │  [ Close ]                                                               │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Module revi… · Use Module revi… · Edit none · Run none
+ inbounds · Source read-only · Visual · excluded
+ xrmd ready · Content · modules/02_inbounds.json              F1 Help & actions

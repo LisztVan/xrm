@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Core / release                 Version              State                           ╭Done────────────────────────────╮
+──────────────────────────────────────────────────────────────────────────────────────┤Registered Fixture Xray; no core│
+▸ Fixture Xray                   Xray 26.9.9 (Xray, P registered                      │started                         │
+                                                                                      ╰────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

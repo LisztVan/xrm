@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log  dns  inbounds  outbounds  routing  observatory  api [0;1m metrics [0;2m stats  policy  fakedns  geodata  env [0m     › [2m8/15[0m 
+ [1mmetrics[0;2m  SOURCE · READ ONLY · Visual                                                                                  [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;7m>   Metrics endpoint          [0m   [1mMetrics endpoint[0;2m  Read only                                                          [0m 
+                                  [2mmetrics                                                                              [0m 
+                                  [2m─────────────────────────────────────────────────────────────────────────────────────[0m 
+                                  [2mListen address:port     [0m127.0.0.1:19092                                               
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit none · Run none                                                         [0m 
+ metrics · Source read-only · Visual · excluded             
+ [2mxrmd ready · Content · modules/07_metrics.json                                                       [0mF1 Help & actions 

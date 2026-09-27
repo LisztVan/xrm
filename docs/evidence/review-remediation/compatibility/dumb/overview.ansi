@@ -1,0 +1,24 @@
+ [1mXRM [Overview][0;2m Profiles  Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mOverview[0;2m  Runtime & saved configuration                                       [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1mRuntime[0;2m  ACTUAL                                                               [0m 
+ [1mstopped[0m            
+ [2mRunning Profile   [0mnone                 
+ [2mActual target     [0mnone                 
+ [2mHealth            [0mNot running          
+
+ [1mSaved configuration[0;2m  VIEW Compatibility                                       [0m 
+ [2mSaved target      [0mnone                 
+ [2mNext Connect      [0mCompatibility        
+ [2mSaved settings apply only on Connect / Apply                                  [0m 
+
+ [1mStatistics[0;2m  OBSERVED                                                          [0m 
+ Traffic: unavailable · latency: unmeasured                                     
+
+ Inventory  0 nodes · 0 sources         
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Compatibili… · Use Compatibili… · Edit none · Run none                   [0m 
+ View Compatibility 
+ [2mxrmd ready · Content                                         [0mF1 Help & actions 

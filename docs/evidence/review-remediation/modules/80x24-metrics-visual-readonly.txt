@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  dns  inbounds  outbounds  routing  observatory  api  metrics         › 8/15 
+ metrics  SOURCE · READ ONLY · Visual                                           
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Metrics endpoint                                                           
+                                                                                
+ Metrics endpoint  Read only                                                    
+ metrics                                                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ Listen address:port     127.0.0.1:19092                                        
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit none · Run none                    
+ metrics · Source read-only · Visual · excluded                                 
+ xrmd ready · Content · modules/07_metrics.json               F1 Help & actions 

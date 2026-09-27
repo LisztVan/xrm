@@ -1,0 +1,48 @@
+ [1m[38;2;115;194;230mXRM [Overview][0m[38;2;146;163;183m Profiles  Modules  Subscriptions  Nodes  Logs  Config [39m                    
+ [1mOverview[0m[38;2;146;163;183m  Runtime & saved configuration                                                                                                                                           [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+ [1mRuntime[0m[38;2;146;163;183m  ACTUAL                                                                           [39m    [1mSaved configuration[0m[38;2;146;163;183m  VIEW Alpha                                                     [39m 
+ [1m[38;2;130;201;164mrunning[0m[38;2;146;163;183m  Xray 26.9.9  PID 1540060[39m                                                             [38;2;146;163;183mSaved target      [39mNode · Loopback inventory                                          
+ [38;2;146;163;183mRunning Profile   [39mAlpha                                                                       [38;2;146;163;183mNext Connect      [39mBeta                                                               
+ [38;2;146;163;183mActual target     [39mNode · Loopback inventory                                                   [38;2;146;163;183mSaved settings apply only on Connect / Apply                                        [39m 
+ [38;2;146;163;183mHealth            [39mProcess alive; traffic unverified                                      
+                                                                                          
+ [1mStatistics[0m[38;2;146;163;183m  OBSERVED                                                                                                                                                              [39m 
+ Traffic: unavailable · latency: unmeasured                                               
+ [38;2;146;163;183mRequires stats, policy, metrics                                                                                                                                                   [39m 
+                                                                                          
+ Inventory  1 node · 1 source                                                             
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                          
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Beta · Edit Alpha · Run Alpha                                                                                                                                    [39m 
+ View Alpha ·                                                                                                                                                                       
+ [38;2;146;163;183mxrmd ready · Content                                                                                                                                             [38;2;115;194;230mF1 Help & actions[39m 

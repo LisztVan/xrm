@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  observatory  api  metrics  stats  policy  fakedns  geodata  env     › 13/15 
+ env  SOURCE · READ ONLY · Visual                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Xray process environment                                                   
+                                                                                
+ Xray process environment  Read only                                            
+ env                                                                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ XRAY_LOCATION_ASConfigured                                                     
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit none · Run none                    
+ env · Source read-only · Visual · excluded                                     
+ xrmd ready · Content · modules/12_env.json                   F1 Help & actions 

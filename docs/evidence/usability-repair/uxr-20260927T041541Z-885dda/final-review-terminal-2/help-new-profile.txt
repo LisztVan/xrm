@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+ ▸│ ──────────────────────────────────────────────────────────────────────── │  
+  │ Profiles · View Alpha                                                    │  
+  │ Use selects the next connection Profile; Cancel Use and module Edit do   │  
+  │ not change the running core. Metadata is independent of Edit. Us…        │  
+  │ Tasks · arrows choose; Enter executes available task                     │  
+  │   u               Cancel Use · Alpha                                   ┃ │  
+  │   e               Allow module Edit · Alpha                            ┃ │  
+  │ > n               New Profile                                          ┃ │  
+  │   R               Rename Profile                                       ╹ │  
+  │   m               Profile metadata                                       │  
+  │   c               Copy Profile                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Page content (Content)                          F1 Help & actions 

@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview [0;1m[Profiles][0;2m Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mProfiles[0;2m  2 Profiles / independent runtime contexts                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+   [1mProfile               [0m [1mCore                [0m [1mUse   [0m [1mEdit  [0m [1mRun      [0m          
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+   Beta                   Process fixture      —      —      —                  
+ [1;7m▸ Alpha                  Process fixture      yes    —      running          [0m  
+                                                                                
+
+                                                                                
+                                                                                
+                                        
+                                                                                
+
+                                                                                
+                                                                                
+
+                                        
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha             [0m 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

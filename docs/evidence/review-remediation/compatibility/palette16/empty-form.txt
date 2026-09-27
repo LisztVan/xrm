@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  1 Profile / independent runtime contexts                             
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸╭──────────────────────────────────────────────────────────────────────────╮  
+  │ new Profile  EDIT · field 1/3                                            │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name                    [ Enter value                               ]  │  
+  │                                                                          │  
+  │   Core                    ‹ No core yet ›                                │  
+  │                                                                          │  
+  │   Preset                  ‹ Local SOCKS proxy ›                          │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Compatibili… · Use Compatibili… · Edit none · Run none                    
+ View Compatibility · Core not set · Saved none                                 
+ xrmd ready · Content                                         F1 Help & actions 

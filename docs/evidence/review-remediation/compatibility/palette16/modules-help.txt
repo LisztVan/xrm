@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 1/15 
+ log  SOURCE · READ ONLY · Visual                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Help & actions                                                           │  
+ X│ ──────────────────────────────────────────────────────────────────────── │  
+ l│ Compatibility / log · Source                                             │  
+ ─┤ Read only: in Profiles allow module Edit for Compatibility. Visual edits ├─ 
+ l│ listed native fields; other fields/types remain in JSON (F2).            │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > F2              Open JSON                                            ┃ │  
+  │   i               Source / runtime paths                                 │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Up / Down               Choose section                                   │  
+  │ Left / Right            Collapse / expand                                │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Compatibili… · Use Compatibili… · Edit none · Run none                    
+ log · Source read-only · Visual · excluded                                     
+ xrmd ready · Content · modules/00_log.json                   F1 Help & actions 

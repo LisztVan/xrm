@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [Overview][0m[37m[40m Profiles  Modules  Subscriptions  Nodes  Logs  Config [97m          
+ [1mOverview[0m[37m[40m  Runtime & saved configuration                                       [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [1mRuntime[0m[37m[40m  ACTUAL                                                               [97m 
+ [1m[93mstopped[0m[97m[40m                                                                        
+ [37mRunning Profile   [97mnone                                                         
+ [37mActual target     [97mnone                                                         
+ [37mHealth            [97mNot running                                                  
+                                                                                
+ [1mSaved configuration[0m[37m[40m  VIEW Compatibility                                       [97m 
+ [37mSaved target      [97mnone                                                         
+ [37mNext Connect      [97mCompatibility                                                
+ [37mSaved settings apply only on Connect / Apply                                  [97m 
+                                                                                
+ [1mStatistics[0m[37m[40m  OBSERVED                                                          [97m 
+ Traffic: unavailable · latency: unmeasured                                     
+                                                                                
+ Inventory  0 nodes · 0 sources                                                 
+                                                                                
+                                                                                
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ View Compatibility                                                             
+ [37mxrmd ready · Content                                         [96mF1 Help & actions[97m 

@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸ Beta                   Process fixture      yes    —      —                  
+   Alpha                  Process fixture      —      yes    running            
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Unsaved form                                                             │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Unsaved changes to rename Profile. Save this object to its saved         │  
+  │ settings; runtime remains unchanged. Discard closes this form and loses  │  
+  │ these local changes.                                                     │  
+  │                                                                          │  
+  │  [ Save ]  [ Discard ]  [ Continue editing ]                             │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Beta · Edit Alpha · Run Alpha                                 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Content                                         F1 Help & actions 

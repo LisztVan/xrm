@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Help & actions                                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ new Profile                                                              │  
+  │ Save this object to its saved settings; runtime remains unchanged.       │  
+  │ Tasks · arrows choose; Enter executes available task                     │  
+  │ > Ctrl-S          Save · new Profile                                     │  
+  │   Esc             Cancel / close form · new Profile                      │  
+  │                   Editing scope and advanced fields · new Profile        │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Page content (Content)                          F1 Help & actions 

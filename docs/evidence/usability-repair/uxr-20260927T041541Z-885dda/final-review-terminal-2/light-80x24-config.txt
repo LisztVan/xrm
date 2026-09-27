@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]          
+    Core  Geodata  Tests  Appearance  Editor  General                       1/6 
+ Config / Core  Installed & registered Xray binaries                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Core / release                 Version ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ i Info · history in Help         ├─ 
+ ▸ Process fixture                26.9.9  │ Refreshed Overview               │  
+                                          ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Beta · Module Edit: Alpha · Running: Alpha              
+ Highlighted Process fixture · /home/lisztzy/Projects/xrm/build/component-rewr… 
+ xrmd ready · Page content (Content)                          F1 Help & actions 

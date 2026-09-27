@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api [0m            › [2m5/15[0m 
+ [1mrouting[0;2m  SOURCE · READ ONLY · Visual                                          [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mRouting rule[0;2m  READ ONLY · field 1/18                                    [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mMatch conditions -> Target                                             ┃[0m │[2m [0m 
+ [1;2mR[0m│ [1m> Rule label              [0;2mNot set · field omitted                       [0m │[2m [0m 
+ [2mr[0m│ [1m                          [0;2m  Not set (read only)                         [0m │[2m [0m 
+ [2m─[0m┤ [2m  Optional native ruleTag; not a match condition                        [0m ├[2m─[0m 
+ [2m1[0m│                                                                          │[2m [0m 
+ [2m [0m│   domain                                                                 │[2m [0m 
+ [2m [0m│   [2mExplicit value                                                        [0m │[2m [0m 
+ [2m [0m│     [1mdomain                                      [0m                         │[2m [0m 
+ [2m [0m│   [2m───────────────────────────────────────────────────────────────────── [0m │[2m [0m 
+ [2m [0m│   [1m> domain:example.test                                                [0m  │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Close ]                                                               │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m 
+ routing · Source read-only · Visual · excluded                                 
+ [2mxrmd ready · Content · modules/04_routing.json               [0mF1 Help & actions 

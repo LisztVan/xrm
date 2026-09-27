@@ -1,0 +1,24 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview  Profiles  Modules [1m[38;2;115;194;230m[Subscriptions][0m[38;2;146;163;183m Nodes  Logs  Config [39m          
+ [1mSubscriptions[0m[38;2;146;163;183m  12 sources / node inventory                                    [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+   [1mSource                        [0m [1mNodes  [0m ╭──────────────────────────────────╮  
+ [38;2;66;83;104m─────────────────────────────────────────[39m┤ [1m[38;2;115;194;230mi Info                          [0m ├[38;2;66;83;104m─[39m 
+ [1;7m▸ Local fixture 06 / source name 0       [0m│ Use set to Alpha; runtime        │  
+   Local fixture 01 / source name 0       │ unchanged                        │  
+   Local fixture 03 / source name 0       ╰──────────────────────────────────╯  
+   Local fixture 05 / source name 0       Not refreshed   off     no            
+   Local fixture 04 / source name 0       Not refreshed   off     no            
+   Local fixture 11 / source name 0       Not refreshed   off     no            
+   Local fixture 09 / source name 0       Not refreshed   off     no            
+   Local fixture 07 / source name 0       Not refreshed   off     no            
+   Local fixture 00 / source name 0       Not refreshed   off     no            
+   Local fixture 08 / source name 0       Not refreshed   off     no            
+   Local fixture 02 / source name 0       Not refreshed   off     no            
+   Local fixture 10 / source name 0       Not refreshed   off     no            
+                                                                                
+                                                                                
+                                                                                
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Alpha · Edit none · Run Alpha                                [39m 
+ Highlighted Local fixture 06 / source name · Not refreshed · 0 nodes           
+ [38;2;146;163;183mxrmd ready · Content                                         [38;2;115;194;230mF1 Help & actions[39m 

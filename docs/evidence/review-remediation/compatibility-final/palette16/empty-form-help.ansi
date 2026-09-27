@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [0m[37m[40m Overview [1m[96m[Profiles][0m[37m[40m Modules  Subscriptions  Nodes  Logs  Config [97m          
+ [1mProfiles[0m[37m[40m  1 Profile / independent runtime contexts                            [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [2m [0m[97m[40m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m[97m[40m 
+ [2m[90m─[0m[97m[40m┤ [1mHelp & actions[0m[37m[40m                                                          [97m ├[2m[90m─[0m[97m[40m 
+ [1;2m[96m▸[0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1mnew Profile                                                             [0m[97m[40m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mSave this object to its saved settings; runtime remains unchanged.      [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mActions · choose with arrows, Enter to execute                          [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1m[96m> Ctrl-S          Save · new Profile                                   [0m[97m[40m  │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mEsc             [97mCancel / close form · new Profile                      │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96m                [97mEditing scope and advanced fields · new Profile        │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1mNavigation and input                                                    [0m[97m[40m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mTab / Shift-Tab         [97mMove between fields and buttons                  │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mArrows / Home / End     [97mMove cursor or choice                            │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mCtrl-Home / Ctrl-End    [97mDocument start / end                             │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mEnter                   [97mInsert newline in multiline text / activate      │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mEsc closes Help and restores your place                                 [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m[97m[40m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ View Compatibility · Core not set · Saved none                                 
+ [37mxrmd ready · Content                                         [96mF1 Help & actions[97m 

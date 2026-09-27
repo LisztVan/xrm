@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ▸│ new Profile  UNSAVED * · field 1/3                                       │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name *                  [ Review 中文 é qeeu                        ]  │  
+  │                                                                          │  
+  │   Core                    ‹ No core yet ›                                │  
+  │                                                                          │  
+  │   Preset                  ‹ Local SOCKS proxy ›                          │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Page content (Content)                          F1 Help & actions 

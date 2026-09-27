@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [1m log [0;2m dns  inbounds  outbounds  routing  observatory  api [0m            › [2m1/15[0m 
+ [1mlog[0;2m  SOURCE · READ ONLY · Visual                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;7m>   Xray logging                                                             [0m  
+                                                                                
+ [1mXray logging[0;2m  Read only                                                       [0m 
+ [2mlog                                                                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mAccess destination      [0mnone                                                   
+ [2mError destination       [0mnone           
+ [2mloglevel                [0mwarning        
+                                                                                
+
+                                                                                
+                                                                                
+
+                                        
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m 
+ log · Source read-only · Visual · excluded                                     
+ [2mxrmd ready · Content · modules/00_log.json                   [0mF1 Help & actions 

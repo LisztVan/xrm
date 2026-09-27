@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 6/15 
+ observatory  SOURCE · READ ONLY · Visual                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Connection observatory               ╭──────────────────────────────────╮  
+                                          │ i Info · history in Help         │  
+ Connection observatory  Read only        │ Refreshed Subscriptions          │  
+ observatory                              ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ subjectSelector         Empty list                                             
+ Probe URL               http://127.0.0.1/                                      
+ Probe interval          10s                                                    
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ observatory · Source read-only · Visual · excluded                             
+ xrmd ready · Section selection (SecondaryNav) · modules/0…   F1 Help & actions 

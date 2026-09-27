@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+ Subscriptions  1 source / node inventory
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Source                   Nodes   Result          Auto    Bound                 ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ + Success                        ├─
+ ▸ Local fixture            1       Failed: inspect on      yes                   │ Subscription Local fixture saved │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ i Info                           │
+                                                                                  │ Update Local fixture started     │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ ! Error                          │
+                                                                                  │ Update Local fixture: Refresh    │
+                                                                                  │ source — Local fixture: The      │
+                                                                                  │ subscription download failed.    │
+                                                                                  │ Inspect the source's last error  │
+                                                                                  │ and check its URL, server        │
+                                                                                  │ response, and network route      │
+                                                                                  │ before...                        │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ Highlighted Local fixture · Failed: inspect · 1 nodes
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

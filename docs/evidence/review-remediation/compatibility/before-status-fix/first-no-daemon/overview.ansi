@@ -1,0 +1,24 @@
+[38;5;254m[48;5;234m [1m[38;5;74m[48;5;235mXRM [Overview][0m[38;5;109m[48;5;235m Profiles  Modules  Subscriptions  Nodes  Logs  Config [38;5;254m         [48;5;234m 
+ [1mOverview[0m[38;5;109m[48;5;234m  Runtime & saved configuration                                       [38;5;254m 
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [1mRuntime[0m[38;5;109m[48;5;234m  ACTUAL                                                               [38;5;254m 
+ [1m[38;5;179munknown[0m[38;5;254m[48;5;234m                                                                        
+ [38;5;109mRunning Profile   [38;5;254munavailable                                                  
+ [38;5;109mActual target     [38;5;254munavailable                                                  
+ [38;5;109mHealth            [38;5;254mUnknown                                                      
+                                                                                
+ [1mSaved configuration[0m[38;5;109m[48;5;234m  VIEW none                                                [38;5;254m 
+ [38;5;109mSaved target      [38;5;254mnone                                                         
+ [38;5;109mNext Connect      [38;5;254mNo Use Profile                                               
+ [38;5;109mSaved settings apply only on Connect / Apply                                  [38;5;254m 
+                                                                                
+ [1mStatistics[0m[38;5;109m[48;5;234m  OBSERVED                                                          [38;5;254m 
+ Traffic: unavailable · latency: unmeasured                                     
+                                                                                
+ Inventory  unavailable                                                         
+                                                                                
+                                                                                
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [38;5;109mView none · Use none · Edit none · Run unknown                                [38;5;254m 
+ No View Profile · open Help for available tasks                                
+ [38;5;109mxrmd unavailable · Content                                   [38;5;74mF1 Help & actions[38;5;254m 

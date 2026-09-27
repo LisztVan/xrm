@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Setting                      Value                                                 ╭Done─────────────────────────────╮
+─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│
+▸ argv                         []                                                    │started                          │
+                                                                                     ╰─────────────────────────────────╯
+
+
+
+
+
+
+          External editor
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          Editor arguments (one per line)
+
+
+
+
+
+            First line is the executable. No shell quoting. Empty text uses VISUAL / EDITOR. Blank argument li
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          ┌────┐┌──────┐
+          │Save││Cancel│
+          └────┘└──────┘
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+ ‹ [2m api  metrics  stats  policy  fakedns  geodata  env [0;1m version [0m        › [2m14/15[0m 
+ [1mversion[0;2m  SOURCE · EDIT · Visual                                               [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Xray version constraint                                                  [0;2m [0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [1;2mX[0m│ [1mXray version constraint[0;2m  EDIT · field 1/2                               [0m │[2m [0m 
+ [2mv[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m─[0m┤ [1m> Minimum Xray version    [7m[x] Set value[0m  [2mExplicit value[0m                  ├[2m─[0m 
+ [2mM[0m│ [1m                          [0m[ 26.9.9                                    ]  │[2m [0m 
+ [2mM[0m│ [2m  x.y.z; unset or empty imposes no limit                               [0m  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│   Maximum Xray version    [x] Set value  [2mExplicit value[0m                  │[2m [0m 
+ [2m [0m│                           [ Enter value                               ]  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Add to draft ]  [ Cancel ]                                            │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit Module revi… · Run none           [0m 
+ version · Source editable · Visual · excluded                                  
+ [2mxrmd ready · Content · modules/13_version.json               [0mF1 Help & actions 

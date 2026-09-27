@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  2 Profiles / independent runtime contexts                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core            ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ i Info · history in Help         ├─ 
+ ▸ Alpha                  Process fixture │ Refreshed Overview               │  
+   Beta                   Process fixture ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ xrmd ready · Page content (Content)                          F1 Help & actions 

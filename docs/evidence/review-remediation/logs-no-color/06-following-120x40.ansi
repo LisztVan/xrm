@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m                                                  
+ [1mLogs[0;2m  Core output                                                                                                     [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+                           [2m                      | [0m[tcp:127.0.0.1:33601]                                                
+ [2m01:15:49 stdout   Info    transport/internet/t…   [0m[3705423189] dialing TCP to tcp:127.0.0.1:33601                      
+ [2m01:15:49 stdout   Debug   transport/internet      [0m[3705423189] dialing to tcp:127.0.0.1:33601                          
+ [2m01:15:49 stdout   Info    proxy/freedom           [0m[3705423189] connection opened to tcp:127.0.0.1:33601, local         
+                           [2m                      | [0mendpoint 127.0.0.1:49062, remote endpoint 127.0.0.1:33601            
+ [2m01:15:49 stdout   Debug                           [0m[3705423189] proxy: CopyRawConn splice                               
+ [2m01:15:49 stdout   Debug   proxy/socks             [0m[390623698] Not Socks request, try to parse as HTTP request          
+ [2m01:15:49 stdout   Info    proxy/http              [0m[390623698] request to Method [GET] Host [] with URL                 
+                           [2m                      | [0m[/invalid-socks]                                                     
+ [2m01:15:49 stdout   Info    app/proxyman/inbound    [0m[390623698] connection ends > write tcp                              
+                           [2m                      | [0m127.0.0.1:36143->127.0.0.1:46018: write: broken pipe                 
+ [2m01:15:49 stdout                                   [0mfrom tcp:127.0.0.1:46030 accepted tcp:127.0.0.1:33601                
+                           [2m                      | [0m[review-socks -> review-direct]                                      
+ [2m01:15:49 stdout   Info    proxy/socks             [0m[2882636166] TCP Connect request to tcp:127.0.0.1:33601              
+ [2m01:15:49 stdout   Info    app/dispatcher          [0m[2882636166] taking detour [review-direct] for                       
+                           [2m                      | [0m[tcp:127.0.0.1:33601]                                                
+ [2m01:15:49 stdout   Info    transport/internet/t…   [0m[2882636166] dialing TCP to tcp:127.0.0.1:33601                      
+ [2m01:15:49 stdout   Debug   transport/internet      [0m[2882636166] dialing to tcp:127.0.0.1:33601                          
+ [2m01:15:49 stdout   Info    proxy/freedom           [0m[2882636166] connection opened to tcp:127.0.0.1:33601, local         
+                           [2m                      | [0mendpoint 127.0.0.1:49072, remote endpoint 127.0.0.1:33601          ┃ 
+ [2m01:15:49 stdout   Debug                           [0m[2882636166] proxy: CopyRawConn splice                             ┃ 
+ [2m01:15:52 stdout   Info    proxy/socks             [0m[123923259] TCP Connect request to tcp:127.0.0.1:33601             ┃ 
+ [2m01:15:52 stdout   Info    app/dispatcher          [0m[123923259] taking detour [review-direct] for                      ┃ 
+                           [2m                      | [0m[tcp:127.0.0.1:33601]                                              ┃ 
+ [2m01:15:52 stdout   Info    transport/internet/t…   [0m[123923259] dialing TCP to tcp:127.0.0.1:33601                     ┃ 
+ [2m01:15:52 stdout   Debug   transport/internet      [0m[123923259] dialing to tcp:127.0.0.1:33601                         ┃ 
+ [2m01:15:52 stdout                                   [0mfrom tcp:127.0.0.1:33204 accepted tcp:127.0.0.1:33601              ┃ 
+                           [2m                      | [0m[review-socks -> review-direct]                                    ┃ 
+ [2m01:15:52 stdout   Info    proxy/freedom           [0m[123923259] connection opened to tcp:127.0.0.1:33601, local        ┃ 
+                           [2m                      | [0mendpoint 127.0.0.1:33960, remote endpoint 127.0.0.1:33601          ┃ 
+ [2m01:15:52 stdout   Debug                           [0m[123923259] proxy: CopyRawConn splice                              ┃ 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Real log review · Use Real log review · Edit none · Run Real log review                                          [0m 
+ Following · 52 text lines                                  
+ [2mxrmd ready · Content                                                                                 [0mF1 Help & actions 

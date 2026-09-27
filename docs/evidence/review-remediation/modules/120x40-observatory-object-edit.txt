@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 6/15 
+ observatory  SOURCE · EDIT · Visual                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Connection observatory       Connection observatory  Draft                                                         
+                                  observatory                                                                           
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Connection observatory  EDIT · field 1/4                                                           │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ > subjectSelector                                                                                  │         
+         │   [x] Set value  Explicit value                                                                    │         
+         │     subjectSelector                                                                                │         
+         │   ───────────────────────────────────────────────────────────────────────────────────────────────  │         
+         │   > direct                                                                                         │         
+         │                                                                                                    │         
+         │   New subjectSelector: [ Enter value                                                            ]  │         
+         │    [ Add ]  [ Delete ]                                                                             │         
+         │   Outbound tag prefixes                                                                            │         
+         │                                                                                                    │         
+         │   Probe URL               [ ] Set value  Not set · field omitted                                   │         
+         │                           [ Enter value                                                         ]  │         
+         │                                                                                                    │         
+         │   Probe interval          [x] Set value  Explicit value                                            │         
+         │                           [ 30s                                                                 ]  │         
+         │   Duration, e.g. 10s, 2h45m                                                                        │         
+         │                                                                                                    │         
+         │   enableConcurrency       ‹ False ›                                                                │         
+         │                                                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Add to draft ]  [ Cancel ]                                                                      │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ observatory · Source editable · Visual · excluded          
+ xrmd ready · Content · modules/05_observatory.json                                                   F1 Help & actions 

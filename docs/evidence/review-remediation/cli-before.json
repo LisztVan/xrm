@@ -1,0 +1,20 @@
+[
+  {
+    "argv": [
+      "status"
+    ],
+    "code": 3,
+    "stdout": "",
+    "stderr": "Error: runtime.status: 连接xrmd失败: no such file or directory\nSocket: /tmp/xrm-r8-before-bm5g6p08/absent.sock\nCheck: xrm --socket '/tmp/xrm-r8-before-bm5g6p08/absent.sock' status\n"
+  },
+  {
+    "argv": [
+      "config",
+      "show",
+      "--help"
+    ],
+    "code": 0,
+    "stdout": "Show one source module or the generated runtime files\n\nUsage: xrm config show [OPTIONS] profile_id [module]\n\nPOSITIONALS:\n  profile_id TEXT REQUIRED\n                          Exact Profile name or UUID (saved configuration) \n  module TEXT             Native Xray module key, for example dns or routing \n\nOPTIONS:\n  -h,   --help            Show this help message \n        --module-key TEXT Native module key (avoids conflict with top-level \n                          commands) \n        --source TEXT:{source,runtime} [source]  \n\nGLOBAL OPTIONS (before the command):\n        --socket TEXT     xrmd Unix domain socket \n        --json            Write machine readable output \n\nExamples:\n  xrm config show Home dns\n  xrm config show Home --source runtime\n\nProfile accepts an exact saved name or UUID.\n\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions [0;1m[Nodes][0;2m Logs  Config [0m          
+   [1m Scope: All [0;2m Scope: Local  Scope: Groups [0m                                [2m1/3[0m 
+ [1mNodes[0;2m  Node inventory                                                         [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m─[0m┤ [1mHelp & actions[0;2m                                                          [0m ├[2m─[0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2mN[0m│ [1mNodes · View Compatibility                                              [0m │[2m [0m 
+ [2m [0m│ [2mActions · choose with arrows, Enter to execute                          [0m │[2m [0m 
+ [2m [0m│ [1;7m> a               Add node                                             [0m┃ │[2m [0m 
+ [2m [0m│   i               Import share URI / native outbound                   ┃ │[2m [0m 
+ [2m [0m│   k               Cancel active node tests                             ┃ │[2m [0m 
+ [2m [0m│   /               Filter nodes                                           │[2m [0m 
+ [2m [0m│   f               Show / hide missing nodes                              │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mNavigation and input                                                    [0m │[2m [0m 
+ [2m [0m│ Arrows / PgUp / PgDn    Browse rows; Home / End jump                     │[2m [0m 
+ [2m [0m│ Esc                     Return one level                                 │[2m [0m 
+ [2m [0m│ [2mEsc closes Help and restores your place                                 [0m │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Compatibili… · Use Compatibili… · Edit none · Run none                   [0m 
+ View Compatibility · all                                                       
+ [2mxrmd ready · Content                                         [0mF1 Help & actions 

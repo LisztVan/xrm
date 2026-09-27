@@ -1,0 +1,6 @@
+state: stopped
+health: traffic unverified
+running profile: none
+saved target: scope is running Profile only; inspect `profile show <ref>`
+applied target: no running target
+runtime override: none

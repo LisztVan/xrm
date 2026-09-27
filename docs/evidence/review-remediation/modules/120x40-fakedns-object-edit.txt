@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env     › 11/15 
+ fakedns  SOURCE · EDIT · Visual                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Fake DNS pools               Fake DNS pools  Draft                                                                 
+                                  fakedns                                                                               
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  1               198.18.0.0/15 · 65535                                                 
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Fake DNS pool  EDIT · field 1/2                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ > Fake IP pool (CIDR)     [x] Set value  Explicit value                                            │         
+         │                           [ 198.18.0.0/15                                                       ]  │         
+         │                                                                                                    │         
+         │   poolSize                [x] Set value  Explicit value                                            │         
+         │                           [ 65535                                                               ]  │         
+         │   Number of cached mappings                                                                        │         
+         │                                                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Add to draft ]  [ Cancel ]                                                                      │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ fakedns · Source editable · Visual · excluded              
+ xrmd ready · Content · modules/10_fakedns.json                                                       F1 Help & actions 

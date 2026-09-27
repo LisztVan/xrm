@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config                                                   
+    Scope: All  Scope: Local  Scope: Groups  Source: Local lab source                                               1/4 
+ Nodes  Node inventory                                                                                                  
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Node                   Protocol   Enabled  Support    Saved  Run                                                     
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ ▸ Loopback inventory     freedom    yes      raw-only   yes    yes                                                     
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha                                                      
+ Highlighted Loopback inventory · Saved Node · Loopback inventory · Running Node · Loopback inventory                   
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions 

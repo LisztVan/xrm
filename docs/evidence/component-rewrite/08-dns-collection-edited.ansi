@@ -1,0 +1,24 @@
+ Overview  Profiles [1m[Modules][0m Subscriptions  Nodes  Logs  Config
+ log [1;7m dns [0m inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+[7m>   DNS servers                           [0m╭[1mDone[0m────────────────────────────────╮
+    DNS query and cache settings          │Saved Alpha / dns; runtime unchanged│
+    DNS hosts                             │(2)                                 │
+                                          ╰────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+[1mView Alpha · Use Alpha · Edit Alpha · Run Alpha
+[0mdns · Source editable · Visual · included · modules/01_dns.json
+[2mxrmd ready · Content                                                     [0mF1 Help

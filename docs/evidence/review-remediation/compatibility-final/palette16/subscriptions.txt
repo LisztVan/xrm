@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  0 sources / node inventory                                      
+ ────────────────────────────────────────────────────────────────────────────── 
+   Source                   Nodes   Result          Auto    Bound               
+ ────────────────────────────────────────────────────────────────────────────── 
+                                                                                
+ No subscriptions                                                               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Compatibili… · Use Compatibili… · Edit none · Run none                    
+ View Compatibility                                                             
+ xrmd ready · Content                                         F1 Help & actions 

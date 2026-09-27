@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+ Subscriptions  1 sources  /  node inventory
+ ──────────────────────────────────────────────────────────────────────────────
+   Source                   Nodes   Result          Auto    Bound
+ ──────────────────────────────────────────────────────────────────────────────
+ ▸ Local lab source         0       Not refreshed   on      no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ Cursor Local lab source
+ xrmd ready · Content                                               ? / F1 Help

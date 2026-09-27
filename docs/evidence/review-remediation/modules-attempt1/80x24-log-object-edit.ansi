@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [1m log [0;2m dns  inbounds  outbounds  routing  observatory  api [0m            › [2m1/15[0m
+ [1mlog[0;2m  SOURCE · EDIT · Visual                                                   [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m
+ [2m [0m│ [1mXray logging[0;2m  EDIT                                                      [0m │[2m [0m
+ [1;2mX[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2ml[0m│ [1m> Access destination      [7m[x] Set value[0m  [2mExplicit value[0m                ┃ │[2m [0m
+ [2m─[0m┤ [1m                          [0m[ none                                      ]┃ ├[2m─[0m
+ [2mA[0m│ [2m  Path; empty = stdout; none disables                                  [0m┃ │[2m [0m
+ [2mE[0m│                                                                        ┃ │[2m [0m
+ [2ml[0m│   Error destination       [x] Set value  [2mExplicit value[0m                ┃ │[2m [0m
+ [2m [0m│                           [ none                                      ]┃ │[2m [0m
+ [2m [0m│                                                                        ╹ │[2m [0m
+ [2m [0m│   loglevel                ‹ warning ›                                    │[2m [0m
+ [2m [0m│ [2m  Unset: warning                                                       [0m  │[2m [0m
+ [2m [0m│                                                                          │[2m [0m
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m
+ [2m [0m│  [ Add to draft ]  [ Cancel ]                                            │[2m [0m
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Module revi… · Use Module revi… · Edit Module revi… · Run none           [0m
+ log · Source editable · Visual · excluded
+ [2mxrmd ready · Content · modules/00_log.json                   [0mF1 Help & actions

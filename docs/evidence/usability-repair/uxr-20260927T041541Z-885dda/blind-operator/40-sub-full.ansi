@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules [0;1m[Subscriptions][0;2m Nodes  Logs  Config [0m
+ [1mSubscriptions[0;2m  1 source / node inventory                                                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m  [1mSource                  [0;2m [1mNodes  [0;2m [1mResult         [0;2m [1mAuto   [0;2m [1mBound    [0;2m                                                  [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m▸ Local fixture            1       Updated         on      yes                                                       [0;2m [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mDetails[0;2m                                                                                           [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│   [2mSubscriptions                                                                                 [0m   │[2m        [0m
+ [2m        [0m│   [2mHighlighted Local fixture · Updated · 1 nodes                                                 [0m   │[2m        [0m
+ [2m        [0m│   [2mID: a482ac8d-ed74-4dca-a30f-0016ef9cfb65                                                      [0m   │[2m        [0m
+ [2m        [0m│   [2mLast attempt: 2026-09-27 04:49:32 UTC                                                         [0m   │[2m        [0m
+ [2m        [0m│   [2mLast success: 2026-09-27 04:49:32 UTC                                                         [0m   │[2m        [0m
+ [2m        [0m│   [2mView Profile binding (Lab Home): Included                                                     [0m   │[2m        [0m
+ [2m        [0m│   [2mOther Profile bindings: inspect each Profile's source selection.                              [0m   │[2m        [0m
+ [2m        [0m│   [2menabled: true                                                                                 [0m   │[2m        [0m
+ [2m        [0m│   [2mlast_result: success                                                                          [0m   │[2m        [0m
+ [2m        [0m│   [2munsupported_count: 0                                                                          [0m   │[2m        [0m
+ [2m        [0m│   [2mmalformed_count: 0                                                                            [0m   │[2m        [0m
+ [2m        [0m│   [2mSocket: /tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock                                         [0m   │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ Highlighted Local fixture · Updated · 1 nodes
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

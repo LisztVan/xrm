@@ -1,0 +1,92 @@
+ M AGENTS.md
+ M CMakeLists.txt
+ M docs/requirements.md
+ M docs/tui-manual-acceptance.md
+ M docs/usage.md
+ M src/cli/command_options.hpp
+ M src/cli/commands.cpp
+ M src/cli/geodata_commands.cpp
+ M src/cli/node_commands.cpp
+ M src/cli/print.cpp
+ M src/cli/profile_commands.cpp
+ M src/cli/routing_preset_commands.cpp
+ M src/cli/rpc_session.hpp
+ M src/cli/runtime_commands.cpp
+ M src/cli/subscription_commands.cpp
+ M src/contract/dtos.hpp
+ M src/infra/http.cpp
+ M src/infra/process.cpp
+ M src/infra/process.hpp
+ M src/infra/store.cpp
+ M src/model/json_models.cpp
+ M src/model/subscription.hpp
+ M src/profile/profile_service.cpp
+ M src/profile/profile_service.hpp
+ M src/server/api_router.cpp
+ M src/server/application.cpp
+ M src/server/log_buffer.cpp
+ M src/server/log_buffer.hpp
+ M src/subscription/parser.cpp
+ M src/subscription/subscription_service.cpp
+ M src/tui/app.cpp
+ D src/tui/table_view.hpp
+ M src/xray/core_manager.cpp
+ M src/xray/core_manager.hpp
+ M tests/CMakeLists.txt
+ M tests/contract/contract_tests.cpp
+ M tests/integration/gates/m1.cpp
+ M tests/integration/http/http_tests.cpp
+ M tests/integration/lifecycle/basic/lifecycle_tests.cpp
+ M tests/integration/logs/log_tests.cpp
+ M tests/integration/m1/m1_tests.cpp
+ M tests/integration/module_actions/module_actions_tests.cpp
+ M tests/integration/process/process_tests.cpp
+ M tests/integration/store/store_tests.cpp
+ M tests/integration/subscription/subscription_tests.cpp
+ M tests/support/fake_core.cpp
+ M tests/tui/acceptance/acceptance_tests.cpp
+ M tests/unit/subscription/parser_tests.cpp
+?? .agents/
+?? .codex/
+?? docs/cli-rewrite-evidence.md
+?? docs/cli-visual-polish.md
+?? docs/codex-iteration-prompt.md
+?? docs/codex-repair-task.md
+?? docs/component-rewrite-terminal.md
+?? docs/component-ui-rewrite-execution.md
+?? docs/design-review-remediation.md
+?? docs/evidence/
+?? docs/g5-rc-baseline.md
+?? docs/g5-rc-unresolved-watchlist.md
+?? docs/g5-usability-three-agent/
+?? docs/module-form-coverage.md
+?? docs/native-visual-polish.md
+?? docs/product-repair-spec.md
+?? docs/terminal/
+?? docs/tui-acceptance-migration.md
+?? docs/tui-visual-design.md
+?? docs/usability-repair-execution.md
+?? docs/xrm-interaction-execution.md
+?? docs/xrm-interaction-spec.md
+?? docs/xrm-tui-interaction-repair.md
+?? scripts/
+?? src/cli/help.hpp
+?? src/cli/presentation.hpp
+?? src/client/human_message.hpp
+?? src/client/rpc_session.hpp
+?? src/infra/pipe_write_scope.hpp
+?? src/tui/adapters/
+?? src/tui/components/
+?? src/tui/forms/
+?? src/tui/pages/
+?? src/tui/shell/
+?? tests/cli/
+?? tests/tui/components/
+?? tests/tui/forms/
+?? tests/tui/rewrite/
+?? xrm-component-ui-rewrite-prompt.md
+?? xrm-interaction-audit.md
+?? xrm-interaction-redesign-prompt.md
+?? xrm-review-remediation-prompt.md
+?? "\347\262\230\350\264\264\347\232\204\346\226\207\346\234\254 (1)(3).txt"
+?? "\347\262\230\350\264\264\347\232\204\346\226\207\346\234\254 (2).txt"

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log  dns  inbounds  outbounds  routing [0;1m observatory [0;2m api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m6/15[0m 
+ [1mobservatory[0;2m  SOURCE · READ ONLY · Visual                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Connection observatory    [0;2m   [1mConnection observatory[0;2m  Read only                                                    [0m 
+ [2m                                 observatory                                                                          [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 subjectSelector         direct                                                       [0m 
+ [2m                                 Probe interval          30s                                                          [0m 
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2m        [0m│ [1mConnection observatory[0;2m  READ ONLY · field 1/4                                                     [0m │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1m> subjectSelector                                                                                [0m  │[2m        [0m 
+ [2m        [0m│   [2mExplicit value                                                                                 [0m  │[2m        [0m 
+ [2m        [0m│     [1msubjectSelector                             [0m                                                   │[2m        [0m 
+ [2m        [0m│   [2m───────────────────────────────────────────────────────────────────────────────────────────────[0m  │[2m        [0m 
+ [2m        [0m│   [1m> direct                                                                                      [0m   │[2m        [0m 
+ [2m        [0m│ [2m  Outbound tag prefixes                                                                          [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   Probe URL               [2mNot set · field omitted                                                [0m  │[2m        [0m 
+ [2m        [0m│                           [2m  Not set (read only)                                                  [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   Probe interval          [2mExplicit value                                                         [0m  │[2m        [0m 
+ [2m        [0m│                             [2m30s                                                                [0m    │[2m        [0m 
+ [2m        [0m│ [2m  Duration, e.g. 10s, 2h45m                                                                      [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   enableConcurrency       (o) False                                                                │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│  [ Close ]                                                                                         │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit none · Run none                                                         [0m 
+ observatory · Source read-only · Visual · excluded         
+ [2mxrmd ready · Content · modules/05_observatory.json                                                   [0mF1 Help & actions 

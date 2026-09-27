@@ -1,0 +1,34 @@
+Filters: [UI-02],[UI-03],[product-repair] [UI-04],[E2E-06],[TUI-SUB-02],[TUI-SUB-03],[UI-07],[UI-05],[T25]
+RNG seed: 4292562095
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:567: failed: grid.find(text) != std::string::npos for: 18446744073709551615 (0xffffffffffffffff)
+!=
+18446744073709551615 (0xffffffffffffffff) with 2 messages: 'mode := "invalid"' and 'expected=draft retained
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+{ invalid JSON                            ╭Error───────────────────────────────╮
+                                          │Invalid JSON line 1, column 3:      │
+                                          │syntax error while parsing object   │
+                                          │key - invalid literal; last read: '{│
+                                          │i'; expected string literal; draft  │
+                                          │retained                            │
+                                          ╰────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+View editor · Use editor · Edit editor · Run none
+log · Source editable · JSON · unsaved · included · modules/00_log.json · Invali
+xrmd ready · Content                                                     F1 Help
+'
+test cases:  10 |   9 passed | 1 failed
+assertions: 866 | 865 passed | 1 failed
+
+

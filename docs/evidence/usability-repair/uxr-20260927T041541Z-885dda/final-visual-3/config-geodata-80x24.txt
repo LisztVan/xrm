@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]          
+    Core  Geodata  Tests  Appearance  Editor  General                       2/6 
+ Config / Geodata  Resource cache                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+   Resource                   Kind        ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ + Success · history in Help      ├─ 
+                                          │ Saved Alpha / dns; runtime       │  
+ No Geodata resources                     │ unchanged                        │  
+                                          ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ View Alpha · Geodata                                                           
+ xrmd ready · Page content (Content)                          F1 Help & actions 

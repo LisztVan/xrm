@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                         5/15 
+ routing  SOURCE · READ ONLY · Visual                                                                                                                                               
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Routing rules (ordered)      Routi╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+     Native balancers             routi│ Routing rule  READ ONLY · field 1/18                                                               │                                       
+     Domain strategy              ─────┤ ────────────────────────────────────────────────────────────────────────────────────────────────── ├────────────────────────────────────── 
+                                  1  Ro│ Match conditions -> Target                                                                       ┃ │                                       
+                                     ma│ > Rule label              Not set · field omitted                                                ┃ │                                       
+                                       │                             Not set (read only)                                                  ┃ │                                       
+                                       │   Optional native ruleTag; not a match condition                                                 ┃ │                                       
+                                       │                                                                                                  ┃ │                                       
+                                       │   domain                                                                                         ┃ │                                       
+                                       │   Explicit value                                                                                 ┃ │                                       
+                                       │     domain                                                                                       ┃ │                                       
+                                       │   ───────────────────────────────────────────────────────────────────────────────────────────────┃ │                                       
+                                       │   > domain:example.test                                                                          ┃ │                                       
+                                       │   Match: domains (any entry)                                                                     ┃ │                                       
+                                       │                                                                                                  ╹ │                                       
+                                       │   ip                                                                                               │                                       
+                                       │   Not set · field omitted                                                                          │                                       
+                                       │     ip                                                                                             │                                       
+                                       │   ───────────────────────────────────────────────────────────────────────────────────────────────  │                                       
+                                       │                                                                                                    │                                       
+                                       │   No entries                                                                                       │                                       
+                                       │   Match: destination IPs (any entry)                                                               │                                       
+                                       │                                                                                                    │                                       
+                                       │   network                 (o) Unset / use core default                                             │                                       
+                                       │                                                                                                    │                                       
+                                       │ Target - choose outbound or balancer                                                               │                                       
+                                       │   outboundTag             (o) direct                                                               │                                       
+                                       │   Target: choose an outbound or a balancer                                                         │                                       
+                                       │                                                                                                    │                                       
+                                       │   balancerTag             (o) Unset / use core default                                             │                                       
+                                       │   Alternative target; leave outboundTag unset                                                      │                                       
+                                       │                                                                                                    │                                       
+                                       │ Additional match conditions (AND)                                                                  │                                       
+                                       │   port                    Not set · field omitted                                                  │                                       
+                                       │                             Not set (read only)                                                    │                                       
+                                       │   Native number, port/range string or env:NAME; existing type preserved                            │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Close ]                                                                                         │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit none · Run none                                                                                                                      
+ routing · Source read-only · Visual · excluded                                           
+ xrmd ready · Content · modules/04_routing.json                                                                                                                   F1 Help & actions 

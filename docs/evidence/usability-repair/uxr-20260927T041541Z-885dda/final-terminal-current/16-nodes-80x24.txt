@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config           
+    Scope: All  Scope: Local  Scope: Groups                               › 1/4 
+ Nodes  Node inventory                                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+   Node                   Protocol   Enab ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ + Success                        ├─ 
+ ▸ Loopback inventory     freedom    yes  │ Subscription Local fixture       │  
+                                          │ updated draft saved              │  
+                                          ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alph?a · Next: Alph?a · Module Edit: none · Running: none             
+ Highlighted Loopback inventory · Saved Node · Loopback inventory · Running no… 
+ xrmd ready · Page content (Content)                          F1 Help & actions 

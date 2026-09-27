@@ -1,0 +1,821 @@
+{
+  "observed_at": "2026-09-26T18:16:09.088413+00:00",
+  "commit": "561dede3c2e8e9e38a39d07a52076c9f08e3eeb0",
+  "build": "build/component-rewrite",
+  "binaries": {
+    "build/component-rewrite/xrm": "2c8bb9dfc5e41d0e54eb9c15dacdca9d964daf98dd4565b65b95f2a91bb74df5",
+    "build/component-rewrite/xrmd": "251f3e1102b32a47e6bfe7e58b9481f7ea3c9fb23ae96ad4e42353c803ee210c"
+  },
+  "real_xray": {
+    "path": "/tmp/xrm-g1-xray-v26.9.9/xray",
+    "sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a"
+  },
+  "evidence_traces": {
+    "before/trace.json": {
+      "binary": "da2a19f6954b891a5042a82d93246f3a3f6720c2e6385d28fa5686fd75ebc503",
+      "verification": null,
+      "captures": 4
+    },
+    "iteration-1/trace.json": {
+      "binary": "df3eac50c6306f31072dd1e333f86e54f030ff7b4a2f64a63a6e72a93171599f",
+      "verification": null,
+      "captures": 6
+    },
+    "modules-attempt1/trace.json": {
+      "binary": "53c8e4386b12d184df73ff3a66cd73ae603043651053df37ae2d176bc0fb77f0",
+      "verification": null,
+      "captures": 32
+    },
+    "modules/trace.json": {
+      "binary": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03",
+      "verification": {
+        "status": "PASS",
+        "scope": "all 15 modules at 80/120/180 columns; Visual, readonly object, editable object, unchanged acceptance; source and runtime unchanged",
+        "core": "not started",
+        "limits": "No OS IME or native terminal pixel capture; no network validation"
+      },
+      "captures": 141
+    },
+    "cell-background-check/trace.json": {
+      "binary": "df3eac50c6306f31072dd1e333f86e54f030ff7b4a2f64a63a6e72a93171599f",
+      "verification": null,
+      "captures": 1
+    },
+    "logs/trace.json": {
+      "binary": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03",
+      "verification": {
+        "status": "PASS",
+        "xray_version": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\nA unified platform for anti-censorship.\n",
+        "xray_sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+        "xrmd_sha256": "251f3e1102b32a47e6bfe7e58b9481f7ea3c9fb23ae96ad4e42353c803ee210c",
+        "profile": "c3707f94-8991-4998-aa80-b579bd70926f",
+        "running_pid": 1542023,
+        "native_confdir": "/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1",
+        "native_files": [
+          "00_log.json",
+          "01_dns.json",
+          "02_inbounds.json",
+          "03_outbounds.json",
+          "04_routing.json"
+        ],
+        "screens": [
+          "80x24",
+          "120x40",
+          "180x48"
+        ],
+        "actions_via_help": [
+          "Connect saved",
+          "Pause / follow",
+          "Raw log details",
+          "Stop core"
+        ],
+        "logs_side_effects": "same PID and runtime file digests",
+        "limits": "Source fixture seeded by RPC; no OS IME or native emulator pixel capture; control/UTF8 chunk boundaries covered by unit and real-pipe tests, not fabricated in Xray output"
+      },
+      "captures": 11
+    },
+    "terminal-attempt1/trace.json": {
+      "binary": "df3eac50c6306f31072dd1e333f86e54f030ff7b4a2f64a63a6e72a93171599f",
+      "verification": null,
+      "captures": 3
+    },
+    "terminal-attempt2/trace.json": {
+      "binary": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03",
+      "verification": {
+        "status": "PASS",
+        "scenarios": "seven pages; form input/help/errors; Use/Edit/readonly; DNS/routing native collections; subscription toast; Logs; resize; RPC and runtime-file facts",
+        "real_xray": "SKIP: process fixture only; real core verification is a separate gate",
+        "G5": "PENDING user acceptance"
+      },
+      "captures": 23
+    },
+    "ui/trace.json": {
+      "binary": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03",
+      "verification": {
+        "status": "PASS",
+        "scope": "review navigation Help profiles URL themes palettes toast resize failed save",
+        "runtime": "fake process only; real Xray is separate logs/real-core evidence"
+      },
+      "captures": 203
+    },
+    "real-core/trace.json": {
+      "binary": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03",
+      "verification": null,
+      "captures": 6
+    },
+    "terminal/trace.json": {
+      "binary": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03",
+      "verification": {
+        "status": "PASS",
+        "scenarios": "seven pages; form input/help/errors; Use/Edit/readonly; DNS/routing native collections; subscription toast; Logs; resize; RPC and runtime-file facts",
+        "real_xray": "SKIP: process fixture only; real core verification is a separate gate",
+        "G5": "PENDING user acceptance"
+      },
+      "captures": 23
+    },
+    "logs-no-color/trace.json": {
+      "binary": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03",
+      "verification": {
+        "status": "PASS",
+        "xray_version": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\nA unified platform for anti-censorship.\n",
+        "xray_sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+        "xrmd_sha256": "251f3e1102b32a47e6bfe7e58b9481f7ea3c9fb23ae96ad4e42353c803ee210c",
+        "profile": "2ac1eb87-cd1e-404c-af9d-7516a61bcbde",
+        "running_pid": 1524101,
+        "native_confdir": "/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1",
+        "native_files": [
+          "00_log.json",
+          "01_dns.json",
+          "02_inbounds.json",
+          "03_outbounds.json",
+          "04_routing.json"
+        ],
+        "screens": [
+          "80x24",
+          "120x40",
+          "180x48"
+        ],
+        "actions_via_help": [
+          "Connect saved",
+          "Pause / follow",
+          "Raw log details",
+          "Stop core"
+        ],
+        "logs_side_effects": "same PID and runtime file digests",
+        "limits": "Source fixture seeded by RPC; no OS IME or native emulator pixel capture; control/UTF8 chunk boundaries covered by unit and real-pipe tests, not fabricated in Xray output"
+      },
+      "captures": 11
+    },
+    "modules-help-final/trace.json": {
+      "binary": "534fb547daa628d2848aa746dd332963b61972ee8a0f428b1e538b7cf67e9ab1",
+      "verification": {
+        "status": "PASS",
+        "scope": "DNS/routing Help at 80/120/180 columns; unchanged acceptance; source and runtime unchanged",
+        "core": "not started",
+        "limits": "No OS IME or native terminal pixel capture; no network validation"
+      },
+      "captures": 6
+    },
+    "terminal-final/trace.json": {
+      "binary": "534fb547daa628d2848aa746dd332963b61972ee8a0f428b1e538b7cf67e9ab1",
+      "verification": {
+        "status": "PASS",
+        "scenarios": "seven pages; form input/help/errors; Use/Edit/readonly; DNS/routing native collections; subscription toast; Logs; resize; RPC and runtime-file facts",
+        "real_xray": "SKIP: process fixture only; real core verification is a separate gate",
+        "G5": "PENDING user acceptance"
+      },
+      "captures": 23
+    },
+    "screens/trace.json": {
+      "binary": "534fb547daa628d2848aa746dd332963b61972ee8a0f428b1e538b7cf67e9ab1",
+      "verification": {
+        "status": "PASS",
+        "scope": "seven populated pages x three sizes x all three themes; modal/Toast/Help; current ANSI blank cells"
+      },
+      "captures": 84
+    },
+    "screens-final/trace.json": {
+      "binary": "2c8bb9dfc5e41d0e54eb9c15dacdca9d964daf98dd4565b65b95f2a91bb74df5",
+      "verification": {
+        "status": "PASS",
+        "scope": "seven populated pages x three sizes x all three themes; modal/Toast/Help; current ANSI blank cells"
+      },
+      "captures": 84
+    },
+    "editor/trace.json": {
+      "binary": "6640d8dc6b91c97d46ea61214c2759cba25a54e0ae9fa451a6f19afbe2b29aa5",
+      "verification": {
+        "status": "PASS",
+        "scope": "JSON validation stays inline; Help full validation; invalid source never saved; Toast deferred while typing; explicit source save leaves runtime untouched"
+      },
+      "captures": 5
+    },
+    "unconfirmed/trace.json": {
+      "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+      "verification": {
+        "status": "PASS",
+        "server": "real isolated xrmd",
+        "fault": "forward real module.save; read successful actual reply; close socket without forwarding receipt",
+        "writes_observed": 1,
+        "source_changed": true,
+        "TUI_draft_retained": true,
+        "automatic_retry": false,
+        "runtime": "stopped; no generated confdir"
+      },
+      "captures": 2
+    },
+    "unconfirmed-final/trace.json": {
+      "binary": "2c8bb9dfc5e41d0e54eb9c15dacdca9d964daf98dd4565b65b95f2a91bb74df5",
+      "verification": {
+        "status": "PASS",
+        "server": "real isolated xrmd",
+        "fault": "forward real module.save; read successful actual reply; close socket without forwarding receipt",
+        "writes_observed": 1,
+        "source_changed": true,
+        "TUI_draft_retained": true,
+        "automatic_retry": false,
+        "runtime": "stopped; no generated confdir"
+      },
+      "captures": 3
+    },
+    "compatibility-final/palette16/trace.json": {
+      "binary": "2c8bb9dfc5e41d0e54eb9c15dacdca9d964daf98dd4565b65b95f2a91bb74df5",
+      "verification": {
+        "status": "PASS",
+        "mode": "palette16",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            37
+          ],
+          [
+            40
+          ],
+          [
+            90
+          ],
+          [
+            93
+          ],
+          [
+            96
+          ],
+          [
+            97
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/palette16-attempt1/trace.json": {
+      "binary": "44bb2031260eb95aa888aa0ca7a283d2f3611ea10103c3013e412c18c22b1ebb",
+      "verification": null,
+      "captures": 17
+    },
+    "compatibility/xterm-attempt1/trace.json": {
+      "binary": "44bb2031260eb95aa888aa0ca7a283d2f3611ea10103c3013e412c18c22b1ebb",
+      "verification": {
+        "status": "PASS",
+        "mode": "xterm",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            38,
+            5,
+            74
+          ],
+          [
+            38,
+            5,
+            109
+          ],
+          [
+            38,
+            5,
+            179
+          ],
+          [
+            38,
+            5,
+            240
+          ],
+          [
+            38,
+            5,
+            254
+          ],
+          [
+            48,
+            5,
+            234
+          ],
+          [
+            48,
+            5,
+            235
+          ],
+          [
+            48,
+            5,
+            237
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/xterm/trace.json": {
+      "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+      "verification": {
+        "status": "PASS",
+        "mode": "xterm",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            38,
+            5,
+            74
+          ],
+          [
+            38,
+            5,
+            109
+          ],
+          [
+            38,
+            5,
+            179
+          ],
+          [
+            38,
+            5,
+            240
+          ],
+          [
+            38,
+            5,
+            254
+          ],
+          [
+            48,
+            5,
+            234
+          ],
+          [
+            48,
+            5,
+            235
+          ],
+          [
+            48,
+            5,
+            237
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/palette16/trace.json": {
+      "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+      "verification": {
+        "status": "PASS",
+        "mode": "palette16",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            37
+          ],
+          [
+            40
+          ],
+          [
+            90
+          ],
+          [
+            93
+          ],
+          [
+            96
+          ],
+          [
+            97
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/dumb/trace.json": {
+      "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+      "verification": {
+        "status": "PASS",
+        "mode": "dumb",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/no-color/trace.json": {
+      "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+      "verification": {
+        "status": "PASS",
+        "mode": "no-color",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/first-no-daemon/trace.json": {
+      "binary": "7ed03545b4ef69e4e566e451b601b624ff022795f7fe5b33e6b6c92449af40ef",
+      "verification": {
+        "status": "PASS",
+        "mode": "first-no-daemon",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            38,
+            5,
+            74
+          ],
+          [
+            38,
+            5,
+            109
+          ],
+          [
+            38,
+            5,
+            179
+          ],
+          [
+            38,
+            5,
+            240
+          ],
+          [
+            38,
+            5,
+            254
+          ],
+          [
+            48,
+            5,
+            234
+          ],
+          [
+            48,
+            5,
+            235
+          ],
+          [
+            48,
+            5,
+            237
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/before-status-fix/xterm/trace.json": {
+      "binary": "6640d8dc6b91c97d46ea61214c2759cba25a54e0ae9fa451a6f19afbe2b29aa5",
+      "verification": {
+        "status": "PASS",
+        "mode": "xterm",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            38,
+            5,
+            74
+          ],
+          [
+            38,
+            5,
+            109
+          ],
+          [
+            38,
+            5,
+            179
+          ],
+          [
+            38,
+            5,
+            240
+          ],
+          [
+            38,
+            5,
+            254
+          ],
+          [
+            48,
+            5,
+            234
+          ],
+          [
+            48,
+            5,
+            235
+          ],
+          [
+            48,
+            5,
+            237
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/before-status-fix/palette16/trace.json": {
+      "binary": "6640d8dc6b91c97d46ea61214c2759cba25a54e0ae9fa451a6f19afbe2b29aa5",
+      "verification": {
+        "status": "PASS",
+        "mode": "palette16",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            37
+          ],
+          [
+            40
+          ],
+          [
+            90
+          ],
+          [
+            93
+          ],
+          [
+            96
+          ],
+          [
+            97
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/before-status-fix/dumb/trace.json": {
+      "binary": "e40fc05699c09573420ea5492e4000339132c079c6978ac624661cbc349d9fd9",
+      "verification": {
+        "status": "PASS",
+        "mode": "dumb",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/before-status-fix/no-color/trace.json": {
+      "binary": "e40fc05699c09573420ea5492e4000339132c079c6978ac624661cbc349d9fd9",
+      "verification": {
+        "status": "PASS",
+        "mode": "no-color",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    },
+    "compatibility/before-status-fix/first-no-daemon/trace.json": {
+      "binary": "e40fc05699c09573420ea5492e4000339132c079c6978ac624661cbc349d9fd9",
+      "verification": {
+        "status": "PASS",
+        "mode": "first-no-daemon",
+        "pages": [
+          "Overview",
+          "Profiles",
+          "Modules",
+          "Subscriptions",
+          "Nodes",
+          "Logs",
+          "Config"
+        ],
+        "colour_codes": [
+          [
+            38,
+            5,
+            74
+          ],
+          [
+            38,
+            5,
+            109
+          ],
+          [
+            38,
+            5,
+            179
+          ],
+          [
+            38,
+            5,
+            240
+          ],
+          [
+            38,
+            5,
+            254
+          ],
+          [
+            48,
+            5,
+            234
+          ],
+          [
+            48,
+            5,
+            235
+          ],
+          [
+            48,
+            5,
+            237
+          ]
+        ],
+        "scope": "seven pages and contextual Help, empty Profile form and its Help; no submission",
+        "limits": "tmux VT host; terminal cells/ANSI not physical terminal pixels or OS IME"
+      },
+      "captures": 16
+    }
+  },
+  "source_sha256": {
+    "src/tui/app.cpp": "37dd2bf54272d47917f128d4fceb1862695d0380192aa11d5621c12034f6a88c",
+    "src/tui/components/widgets.hpp": "229c3e8c4571fecc767d14e7a5c4b1289f24f38454dfa407158970dc167281ab",
+    "src/tui/components/widgets.cpp": "2b3bd4ef0457f88bc6f7fb2157a63001e24a82f9e038b8def052c79a5ec9292f",
+    "src/tui/components/log_viewer.cpp": "71129bd47915d22d2e89f17fa126c4f86bf7c7f2ec1d7c2ee5b6c1cd35d68b3e",
+    "src/tui/components/style.hpp": "bacaa5f2dcde7cacdc5dc989ef9b64ff0402b76cc7addd5d43539a386d079c8a",
+    "src/tui/components/log_viewer.hpp": "25cfe9a5e50519b6ae1cbad167c87a3b988e2269dbab91935687ce75e316e57a",
+    "src/tui/forms/native_form.cpp": "e93bc84d438615f47f64ee15f0c5b318e7eb673ab22445d10f030c81817a8436",
+    "src/tui/forms/native_form.hpp": "4959c9ea78ebdb916bc4629cf892ca39b93b4c032642467745228b6e4f0baafb",
+    "src/tui/shell/workspace.hpp": "9bd20e87b0b44fc1e4808487de161ef2ffe08882e8e463acc8eb96608c1977fb",
+    "src/tui/shell/actions.cpp": "e5ebafa2d2af5293386a279ec21b14a29222977906d083280d39a17b2af937e8",
+    "src/tui/shell/workspace.cpp": "8a58d3c5dc56f3d3f114d3613cdca6f18cd8fa9f8a0d943436fcc9ed54777a1d",
+    "src/tui/pages/config.cpp": "821e9ffc557014ac6fbf63d47f42e62c8a7fdbe7fed57857f5ef9f8f8a4d9151",
+    "src/tui/pages/nodes.cpp": "1da145cd9a348b34ca28ae1a89169f77628152da435012d2b8f78fb23c87a3f0",
+    "src/tui/pages/profiles.cpp": "52ee6715f80a050c3482678e2aaa3ff7cb0b72b3735f537327ed342c747bd07c",
+    "src/tui/pages/modules.cpp": "c85c2ff58783db1b06a7a8432db0b846e1b5eaf498d878c64eeb0f04b9ceb0ef",
+    "src/tui/adapters/rpc.cpp": "1a1a432ffba76f6706b51a846e75643f871db72959126d0e464f63c25481857f",
+    "src/tui/adapters/rpc.hpp": "07d2f414b0b7b06c63e2b42d07e397558fbf54489d871006535ecd9ff7c28008",
+    "src/cli/commands.hpp": "af04d69144dd6ee3e5ad90058c649ac5fb30315abfc4c6a2fd59826ac69d030b",
+    "src/cli/command_options.hpp": "5f02cebb3d335fab0321ff1f8c400d5ea46ffd8da23124c6ee94228c4a064989",
+    "src/cli/node_commands.cpp": "6d032189a995dde67a4b900d1cf0322d66c2f72eced9bdec1cb52f2e88b7f1a4",
+    "src/cli/core_commands.cpp": "af4a535d3dad607acbb2bbf451e224e59975fd58370605378be3393e58bbb79e",
+    "src/cli/commands.cpp": "7e5162afa0cb144cdc4ac010f540d1a5ef484f2aaca6922258a47f2fc632e0a2",
+    "src/cli/print.cpp": "134b134da2e4669d770b7bb7d91c099dbb8ae1a072f0af7a8e531c2162d94612",
+    "src/cli/profile_commands.cpp": "f010258f97bb43022d58c266007ce3b5745e2a7daae2b44acc404ec92ac4fbe2",
+    "src/cli/runtime_commands.cpp": "79d1684326b70117098f1634f7e882eb161ce0bdcbee90049f1ee19a50ab505d",
+    "src/cli/subscription_commands.cpp": "eac15558d99f379580fa6f1f3d2f1aa03834bb146f79671024ddb84a15b9d98b",
+    "src/cli/rpc_session.hpp": "55541b7beb5d7fac29f7ea794a5f6a1b48af2db024f3e31aedaa5123b001aa98",
+    "src/cli/settings_commands.cpp": "fb038a5912b6aec5d9221cf684d855c9cbe8fed3809e5f73a304567c13da9282",
+    "src/cli/geodata_commands.cpp": "fa8dabeca83f409456badd64aa8dd74965d9ffceb0fc5276aac736a5d0d0069c",
+    "src/cli/routing_preset_commands.cpp": "cb01c5107af2f553831d6f6616f1b4584c0783cf435c755b4473a93aba033c1f",
+    "src/cli/help.hpp": "b304df7c670e5f82a5265fa3ffe5ae379872f8c08c9795103dbfc0da1c11a3a9",
+    "src/cli/presentation.hpp": "d34b8f5de1d633a38d333d4d8977689e78b208ce4f5cfa336246bcad5b312b0d",
+    "src/client/rpc_client.hpp": "a18223e19f2f2d1ee996bfe09faca4e0946b93f2a700083a708f1a3bbdd088f9",
+    "src/client/rpc_client.cpp": "085fcab58ec20e97b8521606222d67d63a5678cd90d18527ee1da206000e47dc",
+    "src/client/rpc_session.hpp": "6f311b8990e732251e18f1bdebde03f95d5995f70b86592fa221f0e66c79896a",
+    "src/client/human_message.hpp": "ef6932110e96e75fdc571099e51a41188be62ed89245e12e1c58d267d1302c0e",
+    "src/server/rpc_server.hpp": "53988c1b337cfd9d90d568837b4b8b484c7770905e983c798618e5a4ad2dc3c6",
+    "src/server/rpc_server.cpp": "5818a2fee3c3ecae054ad8a87046e14951264e0e5e8a709375b1a2f4325f1db8",
+    "src/server/application.hpp": "54a345d52600ba4ed0947c276a7e2f04b219fb3499cc201d22bbe7dbada0abc2",
+    "src/server/api_router.hpp": "b4c365911d4b7b788d8265555c404cd8c579c0b1bc0e06860d5cbe361fa0bdc8",
+    "src/server/application.cpp": "8f69fec2b86a1426d98a5871cd02f4e48e246346e1b71494a21ab6fb824e57d0",
+    "src/server/api_router.cpp": "05f9c7479a67327ed5f2b2ecb820e9c5216f841b388550173895a8c987394e0a",
+    "src/server/log_buffer.hpp": "f428393f666803bbf5d6f1aaebe8da6e4b5cef205b7f86fb520d7091269cdbd7",
+    "src/server/log_buffer.cpp": "cedd087e94f2be6a8a81a5706f621d094157a92b5c5f626cf568ca9ba10f1178",
+    "src/server/operations.hpp": "85f917ad4be585c8d62cfe3ea8796ba85cd701e1e6a66ee5d774285a83b30419",
+    "src/server/operations.cpp": "734db72b2674b4e283092f3d2eeed868c79c2bd3dab59acf0ddd0234f439d6f4",
+    "src/server/node_test_service.hpp": "9b9f024ade5c9bbddb7ca9c4ee0ca2058038c1a05a1815661593d75d93c46869",
+    "src/server/node_test_service.cpp": "84554c9f92e1ef92b608267a727e0201ec4bf0618ccfd2ae9eb24e6c6c5a8e1b",
+    "src/infra/store.hpp": "0d20a253741a25352732edb18b8a1fbd3e31b19a9a3b6d037993f04aed24e160",
+    "src/infra/process.hpp": "9091440812bee7daae7736d927d44090616bb41be056c01de77e1654459ab804",
+    "src/infra/store.cpp": "b94ddd0f5d756fc5ac8fbe12b0df31112071b2dfb68fcc9aee7b2337cf1d8db5",
+    "src/infra/process.cpp": "c95f8efe109c38d3a7cda737b04ed6b4bfa9275f20bc954a264d18c786035119",
+    "src/infra/files.cpp": "d1dfbfe5d5433439187b026a115ac020d123557b758ffaab02436a66801af153",
+    "src/infra/files.hpp": "c8a34505935e36aa7c79e26d75000bfa7df4894fc9307cc52e9d3cb7bed30b87",
+    "src/infra/http.hpp": "9c747a47f64620cffac05e3aaf81926ec193c21439778ece64654a7db5763205",
+    "src/infra/http.cpp": "c0e403bda6bfee8a1d8685ccb10e5d2b150726fa2a6bf8b374ddc87bd1f0abea",
+    "src/infra/pipe_write_scope.hpp": "45a9118d65aa1c9a5ba0ffc9ee4d8bfd8d91712fbd2aef43c89155154e06145a",
+    "src/xray/process_adapter.hpp": "f2cdbb141708908719dba3d7e250eda62fd77024beafa19c0eb04f92bc9d9014",
+    "src/xray/process_adapter.cpp": "d1cf3247bc1cd7f1fe957f45a39fb9315b9f7b0966142abef424686df0e3a6ed",
+    "src/xray/runtime_assembler.hpp": "60a5700bc7119736298b2ad4bf488908285d5e2aff889b45a559e2f59f18020f",
+    "src/xray/runtime_writer.hpp": "c389e9ddda01fdbb26364caa312b91cb4e2a4623e8295c67ce5b7c5e902db960",
+    "src/xray/core_manager.hpp": "226fbb969644c5ba5217e3a0fc74f32955a0f53a0de191a32a6897fee562f90a",
+    "src/xray/runtime_writer.cpp": "1327bf3a5cc44020fa9c86309cd0648809d77710f567657c87f97e76682d91f6",
+    "src/xray/control.hpp": "55d18650fb6623eec5ff4b836308fceb56e148b8360a3ec730874b475624056b",
+    "src/xray/metrics.hpp": "c8970ed6ba3073e1886e93743a423223e61085459820b9a9a7ed26ae0ac5b81a",
+    "src/xray/runtime_assembler.cpp": "6e473763aa7c6827c4adbe7835ccb29a8eb0d00ff948c19bfed9baa657c08899",
+    "src/xray/control.cpp": "000170b5f83982c7bb156ea7c45ba1854129fc46419548548cdf85c7a4b7dedc",
+    "src/xray/metrics.cpp": "e33b6f10633374c6bd34415116d6ffa8fa4ac173aee92086d59c4bc40c58d54f",
+    "src/xray/core_manager.cpp": "7c5a5245708411233b9af9d6602c434a034b1e0c279b3d21c0f374cb11a2ecd2",
+    "src/xray/installer.hpp": "a50168d37aaa33a13535c2b08359097bdeaa89e0f2e4f9393086c21c24f9e29f",
+    "src/xray/installer.cpp": "c4127001fbfa2c749ced1bd856cd060642655709d15ab177bafa23193744dee9",
+    "src/xray/codecs/codec.hpp": "057fe5b2811db46630b3971c9784fad5fb4fca26b70194b2d39924d81394109f",
+    "src/xray/codecs/codec.cpp": "0472d4db634ce91a947e750df04aac301a28d8bad845090b3c92a469101c2ed6",
+    "src/xray/codecs/stream.cpp": "2d86e72bd91945214f8f3a3a7a1b4510f31785d852f434d7637222b5f6cb3ccf",
+    "src/xray/codecs/vless.cpp": "da1a4dff0bf3fe637e2904696b860662dad0e5080932ca4314e50bac7cdbf2b0",
+    "src/xray/codecs/vmess.cpp": "c69976af30a4e738f1c700e4946d14f21a19f5e15e32e293cb16cb888b916105",
+    "src/xray/codecs/shadowsocks.cpp": "1350477dbfe63cfee1b5e34b8c9881a71ec336dfc5f28997de3427926e0fcef9",
+    "src/xray/codecs/trojan.cpp": "6a6d7a677375119769b5d82aea319b902bcb78abf1338fe5363d49813f2d8d59",
+    "src/xray/codecs/hysteria.cpp": "2db99b0bbe14d0b2274c25a1a9a6a34220b05e04c14612c882321e858b43301f"
+  },
+  "scope": "worktree retained; no commit/reset/production instance; each trace retains its actual build identity, not renamed to final build",
+  "final_regression": {
+    "artifact": "ctest-verification-final.txt",
+    "tests": 362,
+    "passed": 362,
+    "failed": 0,
+    "seconds": 709.21,
+    "native_forms_after_relink": "native-forms.txt",
+    "build_check": "ninja: no work to do.",
+    "G5": "PENDING user acceptance"
+  }
+}

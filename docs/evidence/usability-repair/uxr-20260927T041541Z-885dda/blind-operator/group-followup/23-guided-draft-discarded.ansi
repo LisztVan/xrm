@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log [0;1;7m dns [0;2m inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m2/15[0m
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                                                           [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1m>   DNS servers                [0m  [1mDNS servers[0;2m  Draft                                                                   [0m
+     DNS query and cache setting  [2mdns.servers                                                                          [0m
+     DNS hosts                    [2m─────────────────────────────────────────────────────────────────────────────────────[0m
+                                  [2m1  [0;1mlocalhost[0m
+                                  [2m   port [0mDefault[2m    strategy [0mInherit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ dns · Source editable · Visual · included
+ [2mxrmd ready · Section selection (SecondaryNav) · modules/01_dns.json                                  [0mF1 Help & actions

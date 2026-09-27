@@ -1,0 +1,327 @@
+[
+  {
+    "time": 223268.536,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-_n_b1r7o",
+      "pid": 1523919,
+      "xrm_sha256": "eb44f948cf3aae3d6ddbcd3d42fd9a6755f589a55d4ebc9041591b7acb3ade03"
+    }
+  },
+  {
+    "time": 223268.665,
+    "action": "tui_pid",
+    "value": "1523951"
+  },
+  {
+    "time": 223268.668,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223268.72,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223268.777,
+    "action": "capture",
+    "value": "01-overview-help-before-connect"
+  },
+  {
+    "time": 223268.779,
+    "action": "help_execute",
+    "value": "S│ > c               Connect saved · Real log review                      ┃ │"
+  },
+  {
+    "time": 223268.779,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223270.812,
+    "action": "loopback",
+    "value": {
+      "url": "http://127.0.0.1:33601/proof",
+      "response": "xrm-review-real-loopback\n"
+    }
+  },
+  {
+    "time": 223270.818,
+    "action": "loopback",
+    "value": {
+      "url": "http://127.0.0.1:33601/second",
+      "response": "xrm-review-real-loopback\n"
+    }
+  },
+  {
+    "time": 223270.821,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223270.962,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223271.011,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223271.059,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223271.107,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223271.155,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223271.208,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223273.824,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223273.884,
+    "action": "capture",
+    "value": "02-logs-help"
+  },
+  {
+    "time": 223273.887,
+    "action": "help_execute",
+    "value": "│ > p               Pause reading                                        ┃ │"
+  },
+  {
+    "time": 223273.888,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223273.944,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223274.006,
+    "action": "capture",
+    "value": "03-logs-80x24"
+  },
+  {
+    "time": 223274.062,
+    "action": "capture",
+    "value": "03-logs-120x40"
+  },
+  {
+    "time": 223274.292,
+    "action": "capture",
+    "value": "03-logs-180x48"
+  },
+  {
+    "time": 223274.566,
+    "action": "loopback",
+    "value": {
+      "url": "http://127.0.0.1:33601/while-paused",
+      "response": "xrm-review-real-loopback\n"
+    }
+  },
+  {
+    "time": 223274.969,
+    "action": "capture",
+    "value": "04-paused-with-new-output-80x24"
+  },
+  {
+    "time": 223275.017,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223275.07,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223275.121,
+    "action": "help_execute",
+    "value": "│ > i               Raw log details                                                                  │       ┃"
+  },
+  {
+    "time": 223275.121,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223275.184,
+    "action": "capture",
+    "value": "05-original-log-detail-120x40"
+  },
+  {
+    "time": 223275.184,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223275.32,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223275.376,
+    "action": "help_execute",
+    "value": "01:15:47│ > p               Resume following                                                                 │candi  ┃"
+  },
+  {
+    "time": 223275.376,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223275.437,
+    "action": "capture",
+    "value": "06-following-120x40"
+  },
+  {
+    "time": 223275.442,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223275.585,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223275.633,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223275.687,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223275.739,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223275.8,
+    "action": "capture",
+    "value": "07-overview-help-before-stop"
+  },
+  {
+    "time": 223275.804,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223275.858,
+    "action": "help_execute",
+    "value": "│ > d               Stop core                                                                        │"
+  },
+  {
+    "time": 223275.858,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223275.913,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223276.057,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223276.105,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223276.153,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223276.202,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223276.25,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223276.305,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223277.068,
+    "action": "capture",
+    "value": "08-cached-disconnected-80x24"
+  },
+  {
+    "time": 223278.069,
+    "action": "capture",
+    "value": "09-restored-80x24"
+  },
+  {
+    "time": 223278.13,
+    "action": "verification",
+    "value": {
+      "status": "PASS",
+      "xray_version": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\nA unified platform for anti-censorship.\n",
+      "xray_sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+      "xrmd_sha256": "251f3e1102b32a47e6bfe7e58b9481f7ea3c9fb23ae96ad4e42353c803ee210c",
+      "profile": "2ac1eb87-cd1e-404c-af9d-7516a61bcbde",
+      "running_pid": 1524101,
+      "native_confdir": "/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1",
+      "native_files": [
+        "00_log.json",
+        "01_dns.json",
+        "02_inbounds.json",
+        "03_outbounds.json",
+        "04_routing.json"
+      ],
+      "screens": [
+        "80x24",
+        "120x40",
+        "180x48"
+      ],
+      "actions_via_help": [
+        "Connect saved",
+        "Pause / follow",
+        "Raw log details",
+        "Stop core"
+      ],
+      "logs_side_effects": "same PID and runtime file digests",
+      "limits": "Source fixture seeded by RPC; no OS IME or native emulator pixel capture; control/UTF8 chunk boundaries covered by unit and real-pipe tests, not fabricated in Xray output"
+    }
+  },
+  {
+    "time": 223278.571,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-_n_b1r7o"
+    }
+  }
+]

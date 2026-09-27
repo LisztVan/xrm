@@ -1,0 +1,96 @@
+Actual configured FTXUI source: /home/lisztzy/Projects/xrm/build/dev/_deps/ftxui_dep-src/src/ftxui/screen/terminal.cpp
+SHA256 f6865e29bd33c0b795ac8413bd46ee52c0ea1ef7341ce7086489a0f19991ee41
+
+219: Color TerminalInfo::ComputeColorSupport() const {
+220:   // TODO(v8): Read NO_COLOR and WT_SESSION from ComputeColorSupportInternal()
+221:   // and pass them in as parameters, so that this function remains a pure
+222:   // function of its inputs. This requires extending the public
+223:   // Terminal::ComputeColorSupport() signature, i.e. an API-breaking change.
+224: 
+225:   // 0. User preference. See https://no-color.org.
+226:   const char* no_color = std::getenv("NO_COLOR");  // NOLINT
+227:   if (no_color != nullptr && no_color[0] != '\0') {
+228:     return Terminal::Color::Palette1;
+229:   }
+230: 
+231:   // 1. Platform specific overrides.
+232: #if defined(__EMSCRIPTEN__)
+233:   return Terminal::Color::TrueColor;
+234: #endif
+235: #if defined(_WIN32)
+236:   // Check if we are running in a console, and if that console supports VT processing.
+237:   auto stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+238:   DWORD out_mode = 0;
+239:   if (GetConsoleMode(stdout_handle, &out_mode)) {
+240:     const int enable_virtual_terminal_processing = 0x0004;
+241:     const int disable_newline_auto_return = 0x0008;
+242:     out_mode |= enable_virtual_terminal_processing;
+243:     out_mode |= disable_newline_auto_return;
+244:     if (!SetConsoleMode(stdout_handle, out_mode)) {
+245:       return Terminal::Color::Palette16;
+246:     }
+247:   }
+248:   return Terminal::Color::TrueColor;
+249: #endif
+250: 
+251:   // Check WT_SESSION for Windows Terminal (e.g. when running under WSL).
+252:   const char* wt_session = std::getenv("WT_SESSION");  // NOLINT
+253:   if (wt_session != nullptr && wt_session[0] != '\0') {
+254:     return Terminal::Color::TrueColor;
+255:   }
+256: 
+257:   // 2. term / colorterm environment variables.
+258:   if (ContainsAny(impl_->colorterm, {"24bit", "truecolor"})) {
+259:     return Terminal::Color::TrueColor;
+260:   }
+261:   if (ContainsAny(impl_->term,
+262:                   {"direct", "truecolor", "kitty", "alacritty", "foot"})) {
+263:     return Terminal::Color::TrueColor;
+264:   }
+265:   if (ContainsAny(impl_->colorterm, {"256"}) ||
+266:       ContainsAny(impl_->term, {"256", "xterm", "screen", "tmux"})) {
+267:     return Terminal::Color::Palette256;
+268:   }
+269: 
+270:   // 3. term_program
+271:   if (ContainsAny(impl_->term_program, {
+272:                                            "iterm",
+273:                                            "vscode",
+274:                                            "warp",
+275:                                            "ghostty",
+276:                                            "wezterm",
+277:                                        })) {
+278:     return Terminal::Color::TrueColor;
+279:   }
+280:   // Apple's Terminal.app (TERM_PROGRAM=Apple_Terminal) supports 256 colors,
+281:   // but not 24bit ones.
+282:   if (Contains(impl_->term_program, "apple_terminal")) {
+283:     return Terminal::Color::Palette256;
+284:   }
+285: 
+286:   // 4. terminal identification.
+287:   // An empty name means the terminal was not identified, the same as
+288:   // "unknown".
+289:   if (!impl_->terminal_emulator_name.empty() &&
+290:       impl_->terminal_emulator_name != "unknown") {
+291:     return Terminal::Color::TrueColor;
+292:   }
+293:   if (impl_->terminal_name == "xterm") {
+294:     return Terminal::Color::TrueColor;
+295:   }
+296:   for (const int x : impl_->capabilities) {
+297:     // The value 22 is the SGR capability for 256 colors. If the terminal
+298:     // supports it, it is a strong indication that the terminal supports 256
+299:     // colors. This is not a perfect detection method, but it is a reasonable
+300:     // heuristic in the absence of more specific information.
+301:     if (x == 22) {
+302:       return Terminal::Color::Palette256;
+303:     }
+304:   }
+305: 
+306:   return Terminal::Color::Palette16;
+307: }
+308: 
+309: /// @brief Get the terminal size.
+
+TERM=xterm matches Palette256 before terminal identification. TERM=vt100 with empty hints falls back to Palette16 unless terminal identification supplies stronger capabilities. NO_COLOR nonempty requests Palette1. XRM also explicitly renders TERM=dumb without colours.

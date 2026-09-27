@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+    Scope: All  Scope: Local  Scope: Groups  Source: Local fixture                                                  3/4
+ Nodes  Groups · selection bindings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Group ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ ────────┤ Add Group  UNSAVED * · field 8/12                                                                  ├────────
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+ No Group│   Strategy                ‹ Random ›                                                               │
+         │                                                                                                    │
+         │   Member scope            ‹ Explicit nodes ›                                                     ┃ │
+         │                                                                                                  ┃ │
+         │   Nodes *                                                                                        ┃ │
+         │   [x] Loopback direct                                                                            ┃ │
+         │                                                                                                  ┃ │
+         │   Sources                                                                                        ┃ │
+         │   [ ] Local fixture                                                                              ┃ │
+         │                                                                                                  ┃ │
+         │   Include local           [ ] Enabled                                                            ┃ │
+         │                                                                                                  ┃ │
+         │ > Manual member *         ‹ Loopback direct ›                                                    ┃ │
+         │                                                                                                  ┃ │
+         │   Native balancer tag     [ xrm-group-266209399881164                                           ]┃ │
+         │                                                                                                  ┃ │
+         │   Protocols                                                                                      ┃ │
+         │   [ ] VLESS                                                                                        │
+         │   [ ] VMess                                                                                        │
+         │   [ ] Trojan                                                                                       │
+         │   [ ] Shadowsocks                                                                                  │
+         │   [ ] Hysteria2                                                                                    │
+         │   [ ] Native                                                                                       │
+         │                                                                                                    │
+         │   Name filters                                                                                     │
+         │     Name filters                                                                                   │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Save ]  [ Cancel ]                                                                              │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ View Lab Home · groups
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

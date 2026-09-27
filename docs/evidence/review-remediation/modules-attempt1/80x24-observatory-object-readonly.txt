@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api             › 6/15
+ observatory  SOURCE · READ ONLY · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+ >╭──────────────────────────────────────────────────────────────────────────╮
+  │ Connection observatory  READ ONLY                                        │
+ C│ ──────────────────────────────────────────────────────────────────────── │
+ o│ > subjectSelector [read only]                                          ┃ │
+ ─┤   [x] Set value  Explicit value                                        ┃ ├─
+ s│     subjectSelector                                                    ┃ │
+ P│   ─────────────────────────────────────────────────────────────────────┃ │
+ e│   > direct                                                             ┃ │
+  │   Outbound tag prefixes                                                ┃ │
+  │                                                                        ╹ │
+  │   Probe URL [read only]   [ ] Set value  Not set · field omitted         │
+  │                             Not set (read only)                          │
+  │                                                                          │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │  [ Close ]                                                               │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Module revi… · Use Module revi… · Edit none · Run none
+ observatory · Source read-only · Visual · excluded
+ xrmd ready · Content · modules/05_observatory.json           F1 Help & actions

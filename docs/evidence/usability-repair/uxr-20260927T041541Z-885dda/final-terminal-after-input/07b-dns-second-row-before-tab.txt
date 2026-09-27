@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · Visual                                                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   DNS servers                                                                
+     DNS query and cache settings                                               
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+  │ DNS servers  DRAFT COLLECTION                                            │  
+ D│ Focus: rows · Up/Down choose · Tab for actions                           │  
+ d│   #   Address                       Port    Strategy                     │  
+ ─┤ ──────────────────────────────────────────────────────────────────────── ├─ 
+ 1│   1   1.1.1.1                       Default Inherit                      │  
+  │ > 2   9.9.9.9                       53      Inherit                      │  
+  │ Selected: 2 · 9.9.9.9 · 53 · Inherit                                     │  
+ 2│                                                                          │  
+  │  [ View ]  [ Add ]  [ Edit ]  [ Copy ]  [ Delete ]  [ Up ]               │  
+  │  [ Done ]                                                                │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: Alpha · Running: Alpha             
+ dns · Source editable · Visual · included                                      
+ xrmd ready · Page content (Content) · modules/01_dns.json    F1 Help & actions 

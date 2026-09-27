@@ -1,0 +1,30 @@
+[
+  {
+    "method": "module.save",
+    "profile_id": "2b173c44-6470-4dd0-ad51-bd36fb4f32fb",
+    "module": "api",
+    "expected_text": "{\n  \"api\": {\n    \"tag\": \"api\",\n    \"services\": [\"HandlerService\", \"StatsService\"]\n  }\n}\n",
+    "text": " {\n  \"api\": {\n    \"services\": [\n      \"HandlerService\",\n      \"StatsService\"\n    ],\n    \"tag\": \"api\"\n  }\n}\n",
+    "parsed_api": {
+      "services": [
+        "HandlerService",
+        "StatsService"
+      ],
+      "tag": "api"
+    }
+  },
+  {
+    "method": "module.save",
+    "profile_id": "2b173c44-6470-4dd0-ad51-bd36fb4f32fb",
+    "module": "api",
+    "expected_text": " {\n  \"api\": {\n    \"services\": [\n      \"HandlerService\",\n      \"StatsService\"\n    ],\n    \"tag\": \"api\"\n  }\n}\n",
+    "text": " {\n  \"api\": {\n    \"services\": [\n      \"HandlerService\",\n      \"StatsService\"\n    ],\n    \"tag\": \"api-g5\"\n  }\n}\n",
+    "parsed_api": {
+      "services": [
+        "HandlerService",
+        "StatsService"
+      ],
+      "tag": "api-g5"
+    }
+  }
+]

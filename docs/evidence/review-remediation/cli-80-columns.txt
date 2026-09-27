@@ -1,0 +1,150 @@
+$ xrm profile list
+Home
+  ID: 7b0b5006-54ef-4c44-a1a7-df11b275c484
+  Core ID: none
+
+$ xrm node list
+Nodes  1 total
+
+NAME      PROTOCOL  SUPPORT   STATE     ID
+Direct    freedom   raw-only  enabled   fe0dd1d9-c752-4c9b-a560-a19b042c06d7
+
+$ xrm config modules Home
+Source files are editable; runtime filenames are generated on Connect / Apply.
+MODULE            INCLUDE   SOURCE FILE / RUNTIME FILE
+log               included  modules/00_log.json
+                            00_log.json
+dns               included  modules/01_dns.json
+                            01_dns.json
+inbounds          included  modules/02_inbounds.json
+                            02_inbounds.json
+outbounds         included  modules/03_outbounds.json
+                            03_outbounds.json
+routing           included  modules/04_routing.json
+                            04_routing.json
+observatory       excluded  modules/05_observatory.json
+                            05_observatory.json
+api               excluded  modules/06_api.json
+                            06_api.json
+metrics           excluded  modules/07_metrics.json
+                            07_metrics.json
+stats             excluded  modules/08_stats.json
+                            08_stats.json
+policy            excluded  modules/09_policy.json
+                            09_policy.json
+fakedns           excluded  modules/10_fakedns.json
+                            10_fakedns.json
+geodata           excluded  modules/11_geodata.json
+                            11_geodata.json
+env               excluded  modules/12_env.json
+                            12_env.json
+version           excluded  modules/13_version.json (not saved)
+                            13_version.json
+burstObservatory  excluded  modules/14_burstObservatory.json
+                            14_burstObservatory.json
+
+$ xrm node test-results
+No node test results
+
+$ xrm 
+Manage Xray nodes, native configurations and the independent core
+
+Usage: xrm [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+        --version         Display program version information and exit 
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+
+Interactive:
+  tui                     Open the seven-page interactive terminal application 
+
+Saved configuration:
+  profile                 Manage saved Profiles 
+  config                  Inspect and edit native Xray modules 
+  group                   Manage saved dynamic Xray balancers 
+  select                  Persist a node selection without connecting 
+  routing                 Profile routing preset operations 
+
+Inventory and resources:
+  core                    Register and inspect Xray binaries 
+  node                    Manage the independent node inventory 
+  sub                     Manage subscription sources and refresh node 
+                          inventory 
+  geodata                 Manage shared GeoIP/GeoSite resources 
+
+Run and observe:
+  connect                 Apply saved Profile settings and connect 
+  disconnect              Stop the managed Xray process 
+  status                  Show expected/actual core runtime state 
+  logs                    Read the bounded server/core log buffer 
+  operation               Inspect an asynchronous operation 
+  stats                   Show server-sampled Xray traffic and observations 
+
+XRM settings and server:
+  server                  Server operations 
+  settings                Manage XRM appearance and Manager editor preferences 
+
+Examples:
+  xrm tui
+  xrm profile list
+  xrm profile create --name Home
+  xrm config modules Home
+  xrm connect Home
+
+Next: xrm <command> --help
+Help is local and never connects to xrmd.
+Saving and selecting never connect. Use connect to apply saved settings.
+Machine output: xrm --json <command>; errors use stderr.
+
+$ xrm profile
+Manage saved Profiles
+
+Usage: xrm profile [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+SUBCOMMANDS:
+  create                  Create a local Profile from the built-in preset 
+  list                    List Profiles 
+  show                    Show Profile settings 
+  clone                   Copy a saved Profile under a new name 
+  rename                  Rename a saved Profile 
+  remove                  Delete a saved Profile 
+  sources                 Set the subscription sources used by one Profile 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+
+Examples:
+  xrm profile list
+  xrm profile create --name Home
+  xrm profile show Home
+
+Next: xrm profile <command> --help
+
+$ xrm profile list
+Home
+  ID: 7b0b5006-54ef-4c44-a1a7-df11b275c484
+  Core ID: none
+
+$ xrm profile create --help
+Create a local Profile from the built-in preset
+
+Usage: xrm profile create [OPTIONS]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+        --name NAME (required) 
+                          Human-readable object name 
+        --core CORE       Registered core ID (may be selected later) 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+
+Examples:
+  xrm profile create --name Home

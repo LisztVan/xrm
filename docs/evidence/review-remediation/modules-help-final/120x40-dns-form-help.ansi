@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m2/15[0m 
+ [1mdns[0;2m  SOURCE · EDIT · Visual                                                                                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   DNS servers                [0;2m  [1mDNS servers[0;2m  Draft                                                                   [0m 
+ [2m    DNS query and cache setting  dns.servers                                                                          [0m 
+ [2m    DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 1  [1m1.1.1.1[0;2m                                                                           [0m 
+ [2m                                    port 53    strategy UseIP                                                         [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2m        [0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1mDNS server                                                                                        [0m │[2m        [0m 
+ [2m        [0m│ [2mAdd to draft: dns draft. Module Save: Source. Connect / Apply: runtime. Cancel: discard this      [0m │[2m        [0m 
+ [2m        [0m│ [2mobject's unsubmitted changes. Native path /dns/servers/0.                                         [0m │[2m        [0m 
+ [2m        [0m│ [2mActions · choose with arrows, Enter to execute                                                    [0m │[2m        [0m 
+ [2m        [0m│ [1;7m> Ctrl-S          Add to draft · DNS server                                                      [0m  │[2m        [0m 
+ [2m        [0m│   Esc             Cancel / close form · DNS server                                                 │[2m        [0m 
+ [2m        [0m│                   Editing scope and advanced fields · DNS server                                   │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1mNavigation and input                                                                              [0m │[2m        [0m 
+ [2m        [0m│ Tab / Shift-Tab         Move between fields and buttons                                            │[2m        [0m 
+ [2m        [0m│ Arrows / Home / End     Move cursor or choice                                                      │[2m        [0m 
+ [2m        [0m│ Ctrl-Home / Ctrl-End    Document start / end                                                       │[2m        [0m 
+ [2m        [0m│ Enter                   Insert newline in multiline text / activate button                         │[2m        [0m 
+ [2m        [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                [0m 
+ dns · Source editable · Visual · excluded                  
+ [2mxrmd ready · Content · modules/01_dns.json                                                           [0mF1 Help & actions 

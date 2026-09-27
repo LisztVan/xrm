@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1;7m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [1m log [0;2m dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m1/15[0m
+ [1mlog[0;2m  SOURCE · READ ONLY · Visual                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>   Xray logging              [0;2m   [1mXray logging[0;2m  Read only                                                              [0m
+ [2m                                 log                                                                                  [0m
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m                                 loglevel                warning                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mModules · View Lab Home · Page navigation                                                         [0m │[2m        [0m
+ [2m        [0m│ [2mRead only? In Profiles, View this Profile and allow its module Edit; return here. This does not   [0m │[2m        [0m
+ [2m        [0m│ [2mUse or run it.                                                                                    [0m │[2m        [0m
+ [2m        [0m│ [2mTasks · arrows choose; Enter executes available task                                              [0m │[2m        [0m
+ [2m        [0m│ [1;7m> Enter           Open Modules / log                                                             [0m  │[2m        [0m
+ [2m        [0m│   q               Exit TUI                                                                         │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mNavigation and input                                                                              [0m │[2m        [0m
+ [2m        [0m│ Tab / Shift-Tab         Choose a page                                                              │[2m        [0m
+ [2m        [0m│ Esc                     Return one level                                                           │[2m        [0m
+ [2m        [0m│ After Enter             Open JSON                                                                  │[2m        [0m
+ [2m        [0m│ After Enter             Save module source · Unavailable: Module is read-only                      │[2m        [0m
+ [2m        [0m│ After Enter             External editor · Unavailable: Module is read-only                         │[2m        [0m
+ [2m        [0m│ After Enter             Exclude module · Unavailable: Enable module Edit for Lab Home              │[2m        [0m
+ [2m        [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none                                                [0m
+ log · Source read-only · Visual · included
+ [2mxrmd ready · Page navigation (TopNav) · modules/00_log.json                                          [0mF1 Help & actions

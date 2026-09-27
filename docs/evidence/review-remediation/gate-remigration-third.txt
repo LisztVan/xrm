@@ -1,0 +1,2352 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 193: E2E-07
+1/2 Test #193: E2E-07 ...........................***Failed   96.27 sec
+Real-core binary: "/tmp/xrm-g1-xray-v26.9.9/xray"
+Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)
+A unified platform for anti-censorship.
+Filters: [E2E-07]
+Randomness seeded to: 3767538933
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_real_core_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+E2E-07 cold-start human flow begins in TUI and carries real VLESS traffic
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/integration/gates/m1.cpp:1196
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/integration/gates/m1.cpp:647: FAILED:
+  REQUIRE( screen.find("Success") != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with messages:
+  saved selection after TUI node action: {"id_or_tag":"06a52ff8-192c-4794-82bb-
+  779eba29cc18","kind":"node"}
+  running status: {"active":{"confdir":"/tmp/xrm-real-core-225245181609712/
+  runtime/candidate/run-1790444957702-1","core_id":"52c274bc-1d4f-466d-b3a2-
+  f42a8b0117f8","core_version":"Xray 26.9.9 (Xray, Penetrates Everything.)
+  52a412d (go1.27.1 linux/amd64)","profile_id":"d78179e0-696f-48d6-8dcb-
+  dcd6d4219c2e","run_id":"run-1790444957702-1","selection":{"id_or_tag":
+  "06a52ff8-192c-4794-82bb-779eba29cc18","kind":"node"},
+  "selection_display_name":"Cold-start-VLESS","selection_in_inventory":true},
+  "actual_target":{"id_or_tag":"06a52ff8-192c-4794-82bb-779eba29cc18","kind":
+  "node"},"desired_running":true,"error":null,"health":"process_only",
+  "override_state":"none","pid":1588715,"runtime_override":null,"saved_target":
+  {"id_or_tag":"06a52ff8-192c-4794-82bb-779eba29cc18","kind":"node"},"state":
+  "running"}
+  loopback VLESS response: HTTP/1.1 200 OK
+  Content-Length: 37
+  Connection: close
+  
+  XRM-E2E-07-TUI-COLD-START-MARKER-61f2
+  Local node connection status: {"active":{"confdir":"/tmp/xrm-real-core-
+  225245181609712/runtime/candidate/run-1790444968494-2","core_id":"52c274bc-
+  1d4f-466d-b3a2-f42a8b0117f8","core_version":"Xray 26.9.9 (Xray, Penetrates
+  Everything.) 52a412d (go1.27.1 linux/amd64)","profile_id":"d78179e0-696f-
+  48d6-8dcb-dcd6d4219c2e","run_id":"run-1790444968494-2","selection":
+  {"id_or_tag":"2fee5529-cb9e-4e0a-b0d5-b66b969d3451","kind":"node"},
+  "selection_display_name":"Local VLESS","selection_in_inventory":true},
+  "actual_target":{"id_or_tag":"2fee5529-cb9e-4e0a-b0d5-b66b969d3451","kind":
+  "node"},"desired_running":true,"error":null,"health":"process_only",
+  "override_state":"none","pid":1588832,"runtime_override":null,"saved_target":
+  {"id_or_tag":"2fee5529-cb9e-4e0a-b0d5-b66b969d3451","kind":"node"},"state":
+  "running"}
+  Local typed node loopback response: HTTP/1.1 200 OK
+  Content-Length: 37
+  Connection: close
+  
+  XRM-E2E-07-TUI-COLD-START-MARKER-61f2
+  Group connection status: {"active":{"confdir":"/tmp/xrm-real-core-
+  225245181609712/runtime/candidate/run-1790444975411-3","core_id":"52c274bc-
+  1d4f-466d-b3a2-f42a8b0117f8","core_version":"Xray 26.9.9 (Xray, Penetrates
+  Everything.) 52a412d (go1.27.1 linux/amd64)","profile_id":"d78179e0-696f-
+  48d6-8dcb-dcd6d4219c2e","run_id":"run-1790444975411-3","selection":
+  {"id_or_tag":"eda98170-d694-4da1-ae7f-fe3dc76a241f","kind":"group"}},
+  "actual_target":{"id_or_tag":"eda98170-d694-4da1-ae7f-fe3dc76a241f","kind":
+  "group"},"desired_running":true,"error":null,"health":"process_only",
+  "override_state":"none","pid":1588934,"runtime_override":null,"saved_target":
+  {"id_or_tag":"eda98170-d694-4da1-ae7f-fe3dc76a241f","kind":"group"},"state":
+  "running"}
+  Local Group loopback response: HTTP/1.1 200 OK
+  Content-Length: 37
+  Connection: close
+  
+  XRM-E2E-07-TUI-COLD-START-MARKER-61f2
+  native statistics action: {"changed_modules":["stats","policy","metrics"],
+  "failure":null,"notices":[{"code":"native_module_plan","message":
+  "将分别保存 stats、policy 与 metrics 原生模块；API
+  模块不会自动修改。"}],"planned_modules":["stats","policy","metrics"]
+  ,"saved":["stats","policy","metrics"]}
+  statistics connect: {"active":{"confdir":"/tmp/xrm-real-core-225245181609712/
+  runtime/candidate/run-1790444979530-4","profile_id":"d78179e0-696f-48d6-8dcb-
+  dcd6d4219c2e","run_id":"run-1790444979530-4"},"attempt_error":null,"effect":
+  "running_new"}
+  statistics modules: [{"editor_support":"native","included":true,"key":"log",
+  "label":"Log","runtime_file":"00_log.json","source_file":"modules/00_log.
+  json","text":"{\n  \"log\": {\n    \"loglevel\": \"warning\"\n  }\n}\n"},
+  {"editor_support":"native","included":true,"key":"dns","label":"DNS",
+  "runtime_file":"01_dns.json","source_file":"modules/01_dns.json","text":"{\n
+  \"dns\": {\n    \"servers\": [\"localhost\"]\n  }\n}\n"},{"editor_support":
+  "native","included":true,"key":"inbounds","label":"Inbounds","runtime_file":
+  "02_inbounds.json","source_file":"modules/02_inbounds.json","text":"{\
+  "inbounds\":[{\"listen\":\"127.0.0.1\",\"port\":41227,\"protocol\":\"socks\",
+  \"tag\":\"e2e07-socks\",\"settings\":{\"auth\":\"noauth\",\"udp\":false}}]}"}
+  ,{"editor_support":"native","included":true,"key":"outbounds","label":
+  "Outbounds","runtime_file":"03_outbounds.json","source_file":"modules/
+  03_outbounds.json","text":"{\n  \"outbounds\": [\n    {\n      \"protocol\":
+  \"freedom\",\n      \"tag\": \"direct\"\n    },\n    {\n      \"protocol\": \
+  "blackhole\",\n      \"tag\": \"block\"\n    }\n  ]\n}\n"},{"editor_support":
+  "native","included":true,"key":"routing","label":"Routing","runtime_file":
+  "04_routing.json","source_file":"modules/04_routing.json","text":"{\n  \
+  "routing\": {\n    \"domainStrategy\": \"AsIs\",\n    \"rules\": []\n  }\n}\
+  n"},{"editor_support":"native","included":false,"key":"observatory","label":
+  "Observatory","runtime_file":"05_observatory.json","source_file":"modules/
+  05_observatory.json","text":"{\n  \"observatory\": {\n    \"subjectSelector\
+  ": [],\n    \"probeUrl\": \"http://127.0.0.1/\",\n    \"probeInterval\": \
+  "10s\"\n  }\n}\n"},{"editor_support":"native","included":false,"key":"api",
+  "label":"API","runtime_file":"06_api.json","source_file":"modules/06_api.
+  json","text":"{\n  \"api\": {\n    \"tag\": \"api\",\n    \"services\": [\
+  "HandlerService\", \"StatsService\"]\n  }\n}\n"},{"editor_support":"native",
+  "included":true,"key":"metrics","label":"Metrics","runtime_file":"07_metrics.
+  json","source_file":"modules/07_metrics.json","text":"{\n  \"metrics\": {\n
+  \"listen\": \"127.0.0.1:42367\"\n  }\n}\n"},{"editor_support":"native",
+  "included":true,"key":"stats","label":"Stats","runtime_file":"08_stats.json",
+  "source_file":"modules/08_stats.json","text":"{\n  \"stats\": {}\n}\n"},
+  {"editor_support":"native","included":true,"key":"policy","label":"Policy",
+  "runtime_file":"09_policy.json","source_file":"modules/09_policy.json",
+  "text":"{\n  \"policy\": {\n    \"levels\": {},\n    \"system\": {\n      \
+  "statsInboundDownlink\": true,\n      \"statsInboundUplink\": true,\n      \
+  "statsOutboundDownlink\": true,\n      \"statsOutboundUplink\": true\n    }\n
+  }\n}\n"},{"editor_support":"native","included":false,"key":"fakedns","label":
+  "FakeDNS","runtime_file":"10_fakedns.json","source_file":"modules/10_fakedns.
+  json","text":"{\n  \"fakedns\": [\n    {\n      \"ipPool\": \"198.18.0.0/15\
+  ",\n      \"poolSize\": 65535\n    }\n  ]\n}\n"},{"editor_support":"native",
+  "included":false,"key":"geodata","label":"Geodata","runtime_file":
+  "11_geodata.json","source_file":"modules/11_geodata.json","text":"{\n  \
+  "geodata\": {}\n}\n"},{"editor_support":"native","included":false,"key":
+  "env","label":"Environment","runtime_file":"12_env.json","source_file":
+  "modules/12_env.json","text":"{\n  \"env\": {}\n}\n"},{"editor_support":
+  "native","included":false,"key":"version","label":"Version","runtime_file":
+  "13_version.json","source_file":"modules/13_version.json","text":"{\n  \
+  "version\": {}\n}\n"},{"editor_support":"native","included":false,"key":
+  "burstObservatory","label":"Burst Observatory","runtime_file":
+  "14_burstObservatory.json","source_file":"modules/14_burstObservatory.json",
+  "text":"{\n  \"burstObservatory\": {\n    \"subjectSelector\": [],\n    \
+  "pingConfig\": {\n      \"destination\": \"http://127.0.0.1/\",\n      \
+  "connectivity\": \"http://127.0.0.1/\",\n      \"interval\": \"10s\",\n
+  \"sampling\": 2,\n      \"timeout\": \"1s\",\n      \"httpMethod\": \"GET\"\n
+  }\n  }\n}\n"}]
+  statistics RPC: {"availability":"unavailable","missing_conditions":[],
+  "rates":[],"received_at":null,"run_id":null,"sample":null}
+  Overview real statistics screen:  XRM [Overview] Profiles  Modules
+  Subscriptions  Nodes  Logs  Config
+  Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configurat
+  ╭────────────────────────�-
+  ��─────────╮  
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  │ + Success                        │  
+   Running Profile   Cold Start                                    Next Connect
+  │ Connect Cold Start: completed    │  
+   Actual target     Group · Local group                           Saved
+  settings
+  ap╰───────────────────────�-
+  �──────────╯  
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Requires stats, policy, metrics
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configurat
+  ╭────────────────────────�-
+  ��─────────╮  
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  │ + Success                        │  
+   Running Profile   Cold Start                                    Next Connect
+  │ Connect Cold Start: completed    │  
+   Actual target     Group · Local group                           Saved
+  settings
+  ap╰───────────────────────�-
+  �──────────╯  
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Requires stats, policy, metrics
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configurat
+  ╭────────────────────────�-
+  ��─────────╮  
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  │ + Success                        │  
+   Running Profile   Cold Start                                    Next Connect
+  │ Connect Cold Start: completed    │  
+   Actual target     Group · Local group                           Saved
+  settings
+  ap╰───────────────────────�-
+  �──────────╯  
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Requires stats, policy, metrics
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: unavailable · latency: unmeasured
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: available · latency: unmeasured
+  e2e07-socks  total up 68 B · down 107 B
+  block  total up 0 B · down 0 B
+  direct  total up 0 B · down 0 B
+  xrm.node.2fee5529-cb9e-4e0a-b0d5-b66b969d3451  total up 0 B · down 97 B
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: available · latency: unmeasured
+  e2e07-socks  total up 68 B · down 107 B
+  block  total up 0 B · down 0 B
+  direct  total up 0 B · down 0 B
+  xrm.node.2fee5529-cb9e-4e0a-b0d5-b66b969d3451  total up 0 B · down 97 B
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: available · latency: unmeasured
+  e2e07-socks  total up 68 B · down 107 B
+  block  total up 0 B · down 0 B
+  direct  total up 0 B · down 0 B
+  xrm.node.2fee5529-cb9e-4e0a-b0d5-b66b969d3451  total up 0 B · down 97 B
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: available · latency: unmeasured
+  e2e07-socks  total up 68 B · down 107 B
+  block  total up 0 B · down 0 B
+  direct  total up 0 B · down 0 B
+  xrm.node.2fee5529-cb9e-4e0a-b0d5-b66b969d3451  total up 0 B · down 97 B
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: available · latency: unmeasured
+  e2e07-socks  total up 68 B · down 107 B
+  block  total up 0 B · down 0 B
+  direct  total up 0 B · down 0 B
+  xrm.node.2fee5529-cb9e-4e0a-b0d5-b66b969d3451  total up 0 B · down 97 B
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes
+  Logs  Config                                                   
+   Overview  Runtime & saved configuration
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   Runtime  ACTUAL                                                 Saved
+  configuration  VIEW Cold Start                   
+   running  Xray 26.9.9  PID 1589023                               Saved target
+  Group · Local group                  
+   Running Profile   Cold Start                                    Next Connect
+  Cold Start                           
+   Actual target     Group · Local group                           Saved
+  settings apply only on Connect / Apply           
+   Health            Process alive; traffic unverified
+  Statistics  OBSERVED
+  Traffic: available · latency: unmeasured
+  e2e07-socks  total up 68 B · down 107 B
+  block  total up 0 B · down 0 B
+  direct  total up 0 B · down 0 B
+  xrm.node.2fee5529-cb9e-4e0a-b0d5-b66b969d3451  total up 0 B · down 97 B
+  Inventory  3 nodes · 2 sources
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  View Cold Start
+  xrmd ready · Content
+  F1 Help & actions 
+
+  Expected receipt (may wrap): Saved Cold Start / api
+   XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+  log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes
+  Logs  Config                                                   
+      log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats
+  policy  fakedns  geodata  env      › 7/15 
+   api  SOURCE · EDIT · JSON
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   [  {
+  ] 
+       "api": {
+  "services": [
+  "HandlerService",
+  "StatsService"
+  ],
+  "tag": "api"
+  }
+  }
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��──────────────── 
+   View Cold Start · Use Cold Start · Edit Cold Start · Run Cold Start
+  api · Source editable · JSON · excluded
+  xrmd ready · Content · modules/06_api.json
+  F1 Help & actions 
+
+
+===============================================================================
+test cases:   1 |   0 passed | 1 failed
+assertions: 128 | 127 passed | 1 failed
+
+
+    Start 194: GROUP-TUI-E2E
+2/2 Test #194: GROUP-TUI-E2E ....................   Passed   38.98 sec
+
+50% tests passed, 1 tests failed out of 2
+
+Label Time Summary:
+integration       =  38.98 sec*proc (1 test)
+product_repair    =  96.27 sec*proc (1 test)
+real_core         = 135.25 sec*proc (2 tests)
+
+Total Test time (real) = 135.25 sec
+
+The following tests FAILED:
+	193 - E2E-07 (Failed)                                   product_repair real_core
+Errors while running CTest

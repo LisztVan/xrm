@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+ ‹ [2m inbounds  outbounds  routing  observatory  api  metrics [0;1m stats [0m      › [2m9/15[0m
+ [1mstats[0;2m  SOURCE · READ ONLY · Visual                                            [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1;7m>   Stats object (no native parameters)                                      [0m
+
+ [1mStats object (no native parameters)[0;2m  Read only                                [0m
+ [2mstats                                                                         [0m
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [1mStats object present                                                          [0m
+ [2mNo native parameters. Source inclusion is managed independently.              [0m
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────[0m
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m
+ stats · Source read-only · Visual · excluded
+ [2mxrmd ready · Content · modules/08_stats.json                 [0mF1 Help & actions

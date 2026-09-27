@@ -1,0 +1,26 @@
+Save a module's original JSON text
+
+Usage: xrm config edit [OPTIONS] PROFILE MODULE
+
+POSITIONALS:
+  PROFILE (required)      Exact Profile name or UUID (saved configuration) 
+  MODULE (required)       Native Xray module key, for example dns or routing 
+
+OPTIONS:
+  -h,   --help            Show this help message 
+        --text JSON_TEXT  Native module JSON passed as an argument Cannot 
+                          combine with --file. 
+        --file PATH       Read native module JSON from PATH, or - for stdin 
+                          Cannot combine with --text. 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm config edit Home dns --file ./dns.json
+  cat ./dns.json | xrm config edit Home dns --file -
+  xrm config edit Home dns --text '{"dns":{"servers":["localhost"]}}'
+
+Profile accepts an exact saved name or UUID.

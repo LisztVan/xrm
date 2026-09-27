@@ -1,0 +1,24 @@
+ Overview  Profiles [1m[Modules][0m Subscriptions  Nodes  Logs  Config
+ log [1;7m dns [0m inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+[2m{ [0m╭[1mHelp[0m─────────────────────────────────────────╭[1mDone[0m──────────────────────────╮
+[2m  [0m│[2;7mF2  Visual / JSON — Modules                  [0m│Saved Alpha / routing; runtime│
+[2m  [0m│[2;7mCtrl-S  Save module source — Modules [unavail[0m│unchanged (2)                 │
+[2m  [0m│[2;7mF6  External editor — Modules [unavailable: M[0m╰──────────────────────────────╯
+[2m  [0m│[2;7mI  Include / exclude — Modules [unavailable: [0m╭[1mInfo[0m──────────────────────────╮
+[2m  [0m│[2;7mi  Source / runtime paths — Modules          [0m│Module Edit ended             │
+[2m  [0m│[2;7mv  Source / Runtime — Modules                [0m╰────────────────────────────┬─╯
+[2m  [0m│[2;7ms  Save module source — Modules [unavailable: Enable module Edit for Alpha[0m│[2m
+  [0m│[2;7mN  Notification history — Modules                                         [0m│[2m
+  [0m│[2;7mr  Refresh — Modules                                                      [0m│[2m
+  [0m│[2;7mArrows / Home / End  Move cursor — Text                                   [0m│[2m
+  [0m│[2;7mCtrl-Home / Ctrl-End  Document start / end — Text                         [0m│[2m
+  [0m│[2;7mEsc  Close one layer — Editor                                             [0m│[2m
+} [0m│[2;7mEnter  View / activate — Focused object                                   [0m│[2m
+  [0m│[2;7mEsc  Return one layer — Current page                                      [0m│[2m
+  [0m╰──────────────────────────────────────────────────────────────────────────╯[2m
+
+[0m────────────────────────────────────────────────────────────────────────────────
+[1mView Alpha · Use Alpha · Edit none · Run Alpha
+[0mdns · Source read-only · JSON · included · modules/01_dns.json
+[2mxrmd ready · Content                                                     [0mF1 Help

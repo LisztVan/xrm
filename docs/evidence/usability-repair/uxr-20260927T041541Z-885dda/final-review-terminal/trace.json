@@ -1,0 +1,1805 @@
+[
+  {
+    "time": 264384.376,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-7vhmbtbc",
+      "pid": 1192752,
+      "xrm_sha256": "1ef7c6e24812e0a7b07cf42498c1c8f169fa4db067ae285f483459a2352b40f1"
+    }
+  },
+  {
+    "time": 264386.406,
+    "action": "fixture",
+    "value": {
+      "profile_a": "82631931-21e2-4f25-8757-a02a8d2497ad",
+      "profile_b": "18755a06-0400-44b8-b446-e194cc6c2396",
+      "node": "a12891fb-c572-43b2-af85-8e9876d12059",
+      "core": "97e52058-89cd-480f-a895-d3d54cc60e1f",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 264386.469,
+    "action": "tui_pid",
+    "value": "1192773"
+  },
+  {
+    "time": 264386.481,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264386.53,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264386.579,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264386.637,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264386.691,
+    "action": "key",
+    "value": "r"
+  },
+  {
+    "time": 264386.906,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264387.052,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.101,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.151,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.201,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.252,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.302,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.356,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264387.406,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.467,
+    "action": "capture",
+    "value": "nav-80-Tab-00-dns"
+  },
+  {
+    "time": 264387.467,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.528,
+    "action": "capture",
+    "value": "nav-80-Tab-01-inbounds"
+  },
+  {
+    "time": 264387.528,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.596,
+    "action": "capture",
+    "value": "nav-80-Tab-02-outbounds"
+  },
+  {
+    "time": 264387.596,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.662,
+    "action": "capture",
+    "value": "nav-80-Tab-03-routing"
+  },
+  {
+    "time": 264387.662,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.726,
+    "action": "capture",
+    "value": "nav-80-Tab-04-observatory"
+  },
+  {
+    "time": 264387.726,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.791,
+    "action": "capture",
+    "value": "nav-80-Tab-05-api"
+  },
+  {
+    "time": 264387.791,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.853,
+    "action": "capture",
+    "value": "nav-80-Tab-06-metrics"
+  },
+  {
+    "time": 264387.854,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.916,
+    "action": "capture",
+    "value": "nav-80-Tab-07-stats"
+  },
+  {
+    "time": 264387.916,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264387.979,
+    "action": "capture",
+    "value": "nav-80-Tab-08-policy"
+  },
+  {
+    "time": 264387.979,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264388.041,
+    "action": "capture",
+    "value": "nav-80-Tab-09-fakedns"
+  },
+  {
+    "time": 264388.041,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264388.103,
+    "action": "capture",
+    "value": "nav-80-Tab-10-geodata"
+  },
+  {
+    "time": 264388.103,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264388.166,
+    "action": "capture",
+    "value": "nav-80-Tab-11-env"
+  },
+  {
+    "time": 264388.167,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264388.23,
+    "action": "capture",
+    "value": "nav-80-Tab-12-version"
+  },
+  {
+    "time": 264388.23,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264388.295,
+    "action": "capture",
+    "value": "nav-80-Tab-13-burstObservatory"
+  },
+  {
+    "time": 264388.295,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264388.358,
+    "action": "capture",
+    "value": "nav-80-Tab-14-log"
+  },
+  {
+    "time": 264388.358,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.422,
+    "action": "capture",
+    "value": "nav-80-BTab-00-burstObservatory"
+  },
+  {
+    "time": 264388.422,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.483,
+    "action": "capture",
+    "value": "nav-80-BTab-01-version"
+  },
+  {
+    "time": 264388.483,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.545,
+    "action": "capture",
+    "value": "nav-80-BTab-02-env"
+  },
+  {
+    "time": 264388.545,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.61,
+    "action": "capture",
+    "value": "nav-80-BTab-03-geodata"
+  },
+  {
+    "time": 264388.61,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.674,
+    "action": "capture",
+    "value": "nav-80-BTab-04-fakedns"
+  },
+  {
+    "time": 264388.674,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.737,
+    "action": "capture",
+    "value": "nav-80-BTab-05-policy"
+  },
+  {
+    "time": 264388.737,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.801,
+    "action": "capture",
+    "value": "nav-80-BTab-06-stats"
+  },
+  {
+    "time": 264388.801,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.865,
+    "action": "capture",
+    "value": "nav-80-BTab-07-metrics"
+  },
+  {
+    "time": 264388.865,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264388.95,
+    "action": "capture",
+    "value": "nav-80-BTab-08-api"
+  },
+  {
+    "time": 264388.95,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264389.014,
+    "action": "capture",
+    "value": "nav-80-BTab-09-observatory"
+  },
+  {
+    "time": 264389.014,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264389.075,
+    "action": "capture",
+    "value": "nav-80-BTab-10-routing"
+  },
+  {
+    "time": 264389.076,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264389.136,
+    "action": "capture",
+    "value": "nav-80-BTab-11-outbounds"
+  },
+  {
+    "time": 264389.136,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264389.199,
+    "action": "capture",
+    "value": "nav-80-BTab-12-inbounds"
+  },
+  {
+    "time": 264389.199,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264389.263,
+    "action": "capture",
+    "value": "nav-80-BTab-13-dns"
+  },
+  {
+    "time": 264389.263,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264389.326,
+    "action": "capture",
+    "value": "nav-80-BTab-14-log"
+  },
+  {
+    "time": 264389.331,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264389.478,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264389.527,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264389.582,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264389.638,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264389.687,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264389.746,
+    "action": "capture",
+    "value": "nodes-local-scope-80"
+  },
+  {
+    "time": 264389.75,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264389.889,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264390.04,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264390.094,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264390.143,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264390.193,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264390.251,
+    "action": "capture",
+    "value": "nodes-local-source-80"
+  },
+  {
+    "time": 264390.417,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264390.555,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264390.703,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264390.752,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264390.802,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264390.851,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264390.9,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264390.954,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264391.004,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.066,
+    "action": "capture",
+    "value": "nav-120-Tab-00-dns"
+  },
+  {
+    "time": 264391.066,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.132,
+    "action": "capture",
+    "value": "nav-120-Tab-01-inbounds"
+  },
+  {
+    "time": 264391.133,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.197,
+    "action": "capture",
+    "value": "nav-120-Tab-02-outbounds"
+  },
+  {
+    "time": 264391.197,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.259,
+    "action": "capture",
+    "value": "nav-120-Tab-03-routing"
+  },
+  {
+    "time": 264391.259,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.325,
+    "action": "capture",
+    "value": "nav-120-Tab-04-observatory"
+  },
+  {
+    "time": 264391.325,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.387,
+    "action": "capture",
+    "value": "nav-120-Tab-05-api"
+  },
+  {
+    "time": 264391.388,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.451,
+    "action": "capture",
+    "value": "nav-120-Tab-06-metrics"
+  },
+  {
+    "time": 264391.452,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.518,
+    "action": "capture",
+    "value": "nav-120-Tab-07-stats"
+  },
+  {
+    "time": 264391.519,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.583,
+    "action": "capture",
+    "value": "nav-120-Tab-08-policy"
+  },
+  {
+    "time": 264391.583,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.645,
+    "action": "capture",
+    "value": "nav-120-Tab-09-fakedns"
+  },
+  {
+    "time": 264391.645,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.708,
+    "action": "capture",
+    "value": "nav-120-Tab-10-geodata"
+  },
+  {
+    "time": 264391.708,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.77,
+    "action": "capture",
+    "value": "nav-120-Tab-11-env"
+  },
+  {
+    "time": 264391.771,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.832,
+    "action": "capture",
+    "value": "nav-120-Tab-12-version"
+  },
+  {
+    "time": 264391.832,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.894,
+    "action": "capture",
+    "value": "nav-120-Tab-13-burstObservatory"
+  },
+  {
+    "time": 264391.895,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264391.957,
+    "action": "capture",
+    "value": "nav-120-Tab-14-log"
+  },
+  {
+    "time": 264391.958,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.022,
+    "action": "capture",
+    "value": "nav-120-BTab-00-burstObservatory"
+  },
+  {
+    "time": 264392.022,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.086,
+    "action": "capture",
+    "value": "nav-120-BTab-01-version"
+  },
+  {
+    "time": 264392.087,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.15,
+    "action": "capture",
+    "value": "nav-120-BTab-02-env"
+  },
+  {
+    "time": 264392.151,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.215,
+    "action": "capture",
+    "value": "nav-120-BTab-03-geodata"
+  },
+  {
+    "time": 264392.216,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.282,
+    "action": "capture",
+    "value": "nav-120-BTab-04-fakedns"
+  },
+  {
+    "time": 264392.282,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.343,
+    "action": "capture",
+    "value": "nav-120-BTab-05-policy"
+  },
+  {
+    "time": 264392.344,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.41,
+    "action": "capture",
+    "value": "nav-120-BTab-06-stats"
+  },
+  {
+    "time": 264392.41,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.476,
+    "action": "capture",
+    "value": "nav-120-BTab-07-metrics"
+  },
+  {
+    "time": 264392.476,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.54,
+    "action": "capture",
+    "value": "nav-120-BTab-08-api"
+  },
+  {
+    "time": 264392.54,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.606,
+    "action": "capture",
+    "value": "nav-120-BTab-09-observatory"
+  },
+  {
+    "time": 264392.606,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.67,
+    "action": "capture",
+    "value": "nav-120-BTab-10-routing"
+  },
+  {
+    "time": 264392.67,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.732,
+    "action": "capture",
+    "value": "nav-120-BTab-11-outbounds"
+  },
+  {
+    "time": 264392.733,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.798,
+    "action": "capture",
+    "value": "nav-120-BTab-12-inbounds"
+  },
+  {
+    "time": 264392.798,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.866,
+    "action": "capture",
+    "value": "nav-120-BTab-13-dns"
+  },
+  {
+    "time": 264392.866,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264392.932,
+    "action": "capture",
+    "value": "nav-120-BTab-14-log"
+  },
+  {
+    "time": 264392.937,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264393.083,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264393.133,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264393.187,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264393.242,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264393.29,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264393.34,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264393.399,
+    "action": "capture",
+    "value": "nodes-local-scope-120"
+  },
+  {
+    "time": 264393.404,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264393.543,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264393.695,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264393.748,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264393.808,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264393.858,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264393.919,
+    "action": "capture",
+    "value": "nodes-local-source-120"
+  },
+  {
+    "time": 264394.086,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264394.226,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264394.375,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.425,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.475,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.525,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.575,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.63,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264394.68,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.746,
+    "action": "capture",
+    "value": "nav-180-Tab-00-dns"
+  },
+  {
+    "time": 264394.746,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.814,
+    "action": "capture",
+    "value": "nav-180-Tab-01-inbounds"
+  },
+  {
+    "time": 264394.814,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.882,
+    "action": "capture",
+    "value": "nav-180-Tab-02-outbounds"
+  },
+  {
+    "time": 264394.883,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264394.951,
+    "action": "capture",
+    "value": "nav-180-Tab-03-routing"
+  },
+  {
+    "time": 264394.952,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.021,
+    "action": "capture",
+    "value": "nav-180-Tab-04-observatory"
+  },
+  {
+    "time": 264395.022,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.088,
+    "action": "capture",
+    "value": "nav-180-Tab-05-api"
+  },
+  {
+    "time": 264395.089,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.156,
+    "action": "capture",
+    "value": "nav-180-Tab-06-metrics"
+  },
+  {
+    "time": 264395.156,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.224,
+    "action": "capture",
+    "value": "nav-180-Tab-07-stats"
+  },
+  {
+    "time": 264395.224,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.291,
+    "action": "capture",
+    "value": "nav-180-Tab-08-policy"
+  },
+  {
+    "time": 264395.292,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.358,
+    "action": "capture",
+    "value": "nav-180-Tab-09-fakedns"
+  },
+  {
+    "time": 264395.359,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.425,
+    "action": "capture",
+    "value": "nav-180-Tab-10-geodata"
+  },
+  {
+    "time": 264395.426,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.492,
+    "action": "capture",
+    "value": "nav-180-Tab-11-env"
+  },
+  {
+    "time": 264395.492,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.559,
+    "action": "capture",
+    "value": "nav-180-Tab-12-version"
+  },
+  {
+    "time": 264395.56,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.626,
+    "action": "capture",
+    "value": "nav-180-Tab-13-burstObservatory"
+  },
+  {
+    "time": 264395.627,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264395.691,
+    "action": "capture",
+    "value": "nav-180-Tab-14-log"
+  },
+  {
+    "time": 264395.691,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264395.76,
+    "action": "capture",
+    "value": "nav-180-BTab-00-burstObservatory"
+  },
+  {
+    "time": 264395.761,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264395.828,
+    "action": "capture",
+    "value": "nav-180-BTab-01-version"
+  },
+  {
+    "time": 264395.829,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264395.895,
+    "action": "capture",
+    "value": "nav-180-BTab-02-env"
+  },
+  {
+    "time": 264395.896,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264395.963,
+    "action": "capture",
+    "value": "nav-180-BTab-03-geodata"
+  },
+  {
+    "time": 264395.963,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.03,
+    "action": "capture",
+    "value": "nav-180-BTab-04-fakedns"
+  },
+  {
+    "time": 264396.031,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.095,
+    "action": "capture",
+    "value": "nav-180-BTab-05-policy"
+  },
+  {
+    "time": 264396.096,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.161,
+    "action": "capture",
+    "value": "nav-180-BTab-06-stats"
+  },
+  {
+    "time": 264396.161,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.227,
+    "action": "capture",
+    "value": "nav-180-BTab-07-metrics"
+  },
+  {
+    "time": 264396.227,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.29,
+    "action": "capture",
+    "value": "nav-180-BTab-08-api"
+  },
+  {
+    "time": 264396.29,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.353,
+    "action": "capture",
+    "value": "nav-180-BTab-09-observatory"
+  },
+  {
+    "time": 264396.353,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.418,
+    "action": "capture",
+    "value": "nav-180-BTab-10-routing"
+  },
+  {
+    "time": 264396.418,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.482,
+    "action": "capture",
+    "value": "nav-180-BTab-11-outbounds"
+  },
+  {
+    "time": 264396.482,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.546,
+    "action": "capture",
+    "value": "nav-180-BTab-12-inbounds"
+  },
+  {
+    "time": 264396.546,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.612,
+    "action": "capture",
+    "value": "nav-180-BTab-13-dns"
+  },
+  {
+    "time": 264396.612,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 264396.676,
+    "action": "capture",
+    "value": "nav-180-BTab-14-log"
+  },
+  {
+    "time": 264396.68,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264396.827,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264396.877,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264396.931,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264396.987,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264397.037,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264397.087,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264397.148,
+    "action": "capture",
+    "value": "nodes-local-scope-180"
+  },
+  {
+    "time": 264397.153,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264397.293,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264397.446,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264397.501,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264397.551,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264397.602,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264397.662,
+    "action": "capture",
+    "value": "nodes-local-source-180"
+  },
+  {
+    "time": 264397.877,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264398.017,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264398.165,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264398.215,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264398.265,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264398.324,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264398.38,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264398.444,
+    "action": "capture",
+    "value": "help-overview"
+  },
+  {
+    "time": 264398.445,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264398.586,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264398.731,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264398.79,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264398.845,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264398.91,
+    "action": "capture",
+    "value": "help-profiles"
+  },
+  {
+    "time": 264398.91,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264399.05,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264399.198,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264399.256,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264399.311,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264399.367,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264399.43,
+    "action": "capture",
+    "value": "help-modules"
+  },
+  {
+    "time": 264399.431,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264399.571,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264399.709,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264399.857,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264399.915,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264399.97,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264400.034,
+    "action": "capture",
+    "value": "help-subscriptions"
+  },
+  {
+    "time": 264400.034,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264400.175,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264400.323,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264400.382,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264400.437,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264400.492,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264400.557,
+    "action": "capture",
+    "value": "help-nodes"
+  },
+  {
+    "time": 264400.558,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264400.699,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264400.837,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264400.986,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264401.045,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264401.101,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264401.165,
+    "action": "capture",
+    "value": "help-logs"
+  },
+  {
+    "time": 264401.165,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264401.305,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264401.453,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264401.511,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264401.565,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264401.622,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264401.682,
+    "action": "capture",
+    "value": "help-config"
+  },
+  {
+    "time": 264401.683,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264401.822,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264401.961,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264402.109,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264402.159,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264402.219,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264402.274,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264402.324,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264402.375,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264402.43,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264402.485,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264402.54,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264402.605,
+    "action": "capture",
+    "value": "help-new-profile"
+  },
+  {
+    "time": 264402.606,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264402.67,
+    "action": "capture",
+    "value": "form-empty"
+  },
+  {
+    "time": 264402.67,
+    "action": "text",
+    "value": "Review 中文 é qe?u"
+  },
+  {
+    "time": 264402.735,
+    "action": "key",
+    "value": "Left"
+  },
+  {
+    "time": 264402.785,
+    "action": "key",
+    "value": "BSpace"
+  },
+  {
+    "time": 264402.835,
+    "action": "text",
+    "value": "e"
+  },
+  {
+    "time": 264402.899,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264402.949,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 264402.999,
+    "action": "text",
+    "value": "R"
+  },
+  {
+    "time": 264403.074,
+    "action": "capture",
+    "value": "form-cjk-edited"
+  },
+  {
+    "time": 264403.075,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264403.131,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264403.198,
+    "action": "capture",
+    "value": "help-form-save"
+  },
+  {
+    "time": 264403.198,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264403.251,
+    "action": "created_profile",
+    "value": {
+      "core_id": "",
+      "id": "b22e0532-5cc7-470d-a515-bf1c59f89de0",
+      "name": "Review 中文 é qeeu"
+    }
+  },
+  {
+    "time": 264403.252,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264403.303,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.353,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.404,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264403.459,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264403.514,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.569,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.624,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.678,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.732,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.787,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.843,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.898,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264403.953,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264404.008,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264404.063,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264404.118,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264404.174,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264404.229,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264404.28,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264404.335,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264404.389,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264410.475,
+    "action": "capture",
+    "value": "failure"
+  },
+  {
+    "time": 264410.482,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-7vhmbtbc"
+    }
+  }
+]

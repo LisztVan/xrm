@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api [0m            › [2m5/15[0m 
+ [1mrouting[0;2m  SOURCE · EDIT · JSON · UNSAVED *                                     [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [ {                                                                          ] 
+     "routing": {                                                               
+       "rules": [                                                               
+         {                                                                      
+           "domain": [                                                          
+             "example.test"                                                     
+           ],                                                                   
+           "futureNative": 42,                                                  
+           "outboundTag": "direct",                                             
+           "ruleTag": "Initial rule edited copy",                               
+           "type": "field"                                                      
+         },                                                                     
+         {                                                                      
+           "domain": [                                                          
+             "example.test"                                                     
+           ],                                                                   
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Alpha · Use Alpha · Edit Alpha · Run Alpha                               [0m 
+ routing · Source editable · JSON · Unsaved * · included                        
+ [2mxrmd ready · Content · modules/04_routing.json               [0mF1 Help & actions 

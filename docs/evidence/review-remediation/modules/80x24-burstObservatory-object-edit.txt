@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  stats  policy  fakedns  geodata  env  version  burstObservatory       15/15 
+ burstObservatory  SOURCE · EDIT · Visual                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Burst observatory  EDIT · field 1/7                                      │  
+ B│ ──────────────────────────────────────────────────────────────────────── │  
+ b│ > subjectSelector                                                      ┃ │  
+ ─┤   [x] Set value  Explicit value                                        ┃ ├─ 
+ s│     subjectSelector                                                    ┃ │  
+ P│   ─────────────────────────────────────────────────────────────────────╹ │  
+ M│   > direct                                                               │  
+ p│                                                                          │  
+ T│   New subjectSelector: [ Enter value                                  ]  │  
+  │    [ Add ]  [ Delete ]                                                   │  
+  │   Outbound tag prefixes                                                  │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Add to draft ]  [ Cancel ]                                            │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit Module revi… · Run none            
+ burstObservatory · Source editable · Visual · excluded                         
+ xrmd ready · Content · modules/14_burstObservatory.json      F1 Help & actions 

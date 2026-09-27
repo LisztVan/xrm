@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config                     
+ Logs  Core output                                                                                                                                                                  
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                                                                                          
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0201                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0202                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0203                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0204                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0205                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0206                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0207                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0208                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0209                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0210                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0211                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0212                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0213                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0214                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0215                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0216                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0217                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0218                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0219                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0220                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0221                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0222                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0223                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0224                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0225                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0226                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0227                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0228                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0229                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0230                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0231                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0232                                                                                                           
+ -        stdout                                   XRM_FAKE_CORE_LOG_0233                                                                                                         ╻ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0234                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0235                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0236                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0237                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0238                                                                                                         ┃ 
+ -        stdout                                   XRM_FAKE_CORE_LOG_0239                                                                                                         ┃ 
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                                                                                     
+ Following · 244 text lines                                                                                                                                                         
+ xrmd ready · Content                                                                                                                                             F1 Help & actions 

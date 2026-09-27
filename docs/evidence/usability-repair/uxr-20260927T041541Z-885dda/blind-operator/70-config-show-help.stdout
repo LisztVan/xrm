@@ -1,0 +1,24 @@
+Show one source module or the generated runtime files
+
+Usage: xrm config show [OPTIONS] PROFILE [MODULE]
+
+POSITIONALS:
+  PROFILE (required)      Exact Profile name or UUID (saved configuration) 
+  MODULE                  Native Xray module key, for example dns or routing 
+
+OPTIONS:
+  -h,   --help            Show this help message 
+        --module-key MODULE 
+                          Native Xray module key, for example dns or routing 
+        --source SOURCE   Choices: source, runtime. Default: source. 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm config show Home dns
+  xrm config show Home --source runtime
+
+Profile accepts an exact saved name or UUID.

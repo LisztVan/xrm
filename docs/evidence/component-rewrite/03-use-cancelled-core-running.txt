@@ -1,0 +1,24 @@
+ Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config
+────────────────────────────────────────────────────────────────────────────────
+  Profile                      Core                     Session
+────────────────────────────────────────────────────────────────────────────────
+  Beta                         Process fixture
+▸ Alpha                        Process fixture          Run
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+View Alpha · Use none · Edit none · Run Alpha
+Profile Alpha · Core Process fixture · sources 0 · ID cef3f28a-7912-42f9-85ed-55
+xrmd ready · Content                                                     F1 Help

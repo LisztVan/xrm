@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15
+ dns  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   DNS servers                  DNS servers  Draft
+     DNS query and cache setting  dns.servers
+     DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────
+                                  1  127.0.0.1
+                                     port Default    strategy Inherit
+
+                                  2  localhost
+                                     port Default    strategy Inherit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ dns · Source editable · Visual · included
+ xrmd ready · Page content (Content) · modules/01_dns.json                                            F1 Help & actions

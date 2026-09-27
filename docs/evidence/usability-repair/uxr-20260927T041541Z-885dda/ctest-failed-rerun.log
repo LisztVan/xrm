@@ -1,0 +1,51 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 173: CLI human Profile and runtime receipts preserve machine results and saved scope
+    Start 203: P1 node table header and cells share display columns
+1/9 Test #173: CLI human Profile and runtime receipts preserve machine results and saved scope ..........   Passed    2.43 sec
+    Start 219: TUI local-use entry keeps an existing custom inbound intact
+2/9 Test #203: P1 node table header and cells share display columns .....................................   Passed    3.88 sec
+    Start 225: first use from xrm tui needs no Profile ID and completes local subscription to connect
+3/9 Test #225: first use from xrm tui needs no Profile ID and completes local subscription to connect ...   Passed   25.11 sec
+    Start 227: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts
+4/9 Test #227: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts ..............   Passed    1.66 sec
+    Start 228: UI-06/UI-07 zero-profile startup and Profile management use names
+5/9 Test #228: UI-06/UI-07 zero-profile startup and Profile management use names ........................   Passed    2.53 sec
+    Start 229: UI-07 Profile management is name-oriented and browsing keeps the running Profile
+6/9 Test #229: UI-07 Profile management is name-oriented and browsing keeps the running Profile .........   Passed    5.43 sec
+    Start 232: UX-02/03/04/05/06 focus layers route only the current keyboard scope
+7/9 Test #232: UX-02/03/04/05/06 focus layers route only the current keyboard scope .....................   Passed   10.27 sec
+8/9 Test #219: TUI local-use entry keeps an existing custom inbound intact ..............................***Timeout  90.04 sec
+xrm_tui_acceptance_tests: /home/lisztzy/Projects/xrm/build/dev/_deps/nlohmann_json-src/include/nlohmann/json.hpp:2174: const nlohmann::json_abi_v3_12_0::basic_json<ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass>::value_type& nlohmann::json_abi_v3_12_0::basic_json<ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass>::operator[](const typename object_t::key_type&) const [with ObjectType = std::map; ArrayType = std::vector; StringType = std::__cxx11::basic_string<char>; BooleanType = bool; NumberIntegerType = long int; NumberUnsignedType = long unsigned int; NumberFloatType = double; AllocatorType = std::allocator; JSONSerializer = nlohmann::json_abi_v3_12_0::adl_serializer; BinaryType = std::vector<unsigned char>; CustomBaseClass = void; const_reference = const nlohmann::json_abi_v3_12_0::basic_json<>&; typename object_t::key_type = std::__cxx11::basic_string<char>; object_t = std::map<std::__cxx11::basic_string<char>, nlohmann::json_abi_v3_12_0::basic_json<>, std::less<void>, std::allocator<std::pair<const std::__cxx11::basic_string<char>, nlohmann::json_abi_v3_12_0::basic_json<> > > >]: Assertion `it != m_data.m_value.object->end()' failed.
+Filters: "TUI local-use entry keeps an existing custom inbound intact"
+Randomness seeded to: 94844400
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+TUI local-use entry keeps an existing custom inbound intact
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1090
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1090: FAILED:
+  {Unknown expression after the reported line}
+due to a fatal error condition:
+  SIGABRT - Abort (abnormal termination) signal
+
+===============================================================================
+test cases:  1 |  0 passed | 1 failed
+assertions: 49 | 48 passed | 1 failed
+
+
+    Start 241: TUI native inbound Add requires Edit and preserves a disabled module
+9/9 Test #241: TUI native inbound Add requires Edit and preserves a disabled module .....................   Passed   11.33 sec
+
+89% tests passed, 1 tests failed out of 9
+
+Total Test time (real) = 103.80 sec
+
+The following tests FAILED:
+	219 - TUI local-use entry keeps an existing custom inbound intact (Timeout)
+Errors while running CTest

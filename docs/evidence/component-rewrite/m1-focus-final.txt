@@ -1,0 +1,5 @@
+Filters: [UI-01],[UI-04],[stats-view]
+RNG seed: 2724173842
+All tests passed (119 assertions in 4 test cases)
+
+

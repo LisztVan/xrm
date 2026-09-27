@@ -1,0 +1,40 @@
+Manage the independent node inventory
+
+Usage: xrm node [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+SUBCOMMANDS:
+  add                     Save a manual node from typed settings, a share URI 
+                          or native outbound JSON 
+  list                    List saved nodes without connection secrets 
+  show                    Show a node summary; --json includes editable 
+                          connection settings 
+  edit                    Edit one typed 
+                          transport/security/sockopt/finalmask/mux subobject 
+  replace                 Replace a manual node's name and typed/native 
+                          settings 
+  copy                    Copy a node as an independent manual node 
+  remove                  Remove an unreferenced manual node 
+  enable                  Enable a node 
+  disable                 Disable a node 
+  alias                   Set or clear a node display alias 
+  labels                  Set node labels as comma-separated values 
+  history                 Preview and confirm source-local redundant history 
+                          cleanup 
+  test                    Explicit ICMP, TCP, proxy URL or bounded download 
+                          test 
+  test-results            Show this Server session's observed node tests 
+  test-cancel             Cancel one in-flight node test 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm node list
+  xrm node add --name Direct --outbound-json '{"protocol":"freedom","settings":{}}'
+
+Next: xrm node <command> --help

@@ -1,0 +1,1 @@
+{"balancer":{"strategy":{"type":"random"},"tag":"xrm-group-266209399881164"},"id":"69fb5656-0494-4a80-a1d1-f7f0ed5a0e5e","members":{"kind":"explicit","node_ids":["bbd903b5-935e-40a6-ab70-d5614fa078c1"]},"name":"Lab Local Group","selected_node_id":"bbd903b5-935e-40a6-ab70-d5614fa078c1","selection_mode":"manual"}

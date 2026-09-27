@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               2/6
+ Config / Geodata  Resource cache
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Resource                   Kind         Result             Auto                ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ + Success                        ├─
+ ▸ Geo Fixture edited         geoip        success            off                 │ Update resource: completed       │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ + Success                        │
+                                                                                  │ Geodata bindings saved for Home; │
+                                                                                  │ runtime unchanged · repeated 2   │
+                                                                                  │ times                            │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ ! Error                          │
+                                                                                  │ Resource removal: The operation  │
+                                                                                  │ conflicts with the current saved │
+                                                                                  │ state. Inspect the current       │
+                                                                                  │ object and its references before │
+                                                                                  │ retrying.                        │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Home · Next: Home · Module Edit: none · Running: none
+ Highlighted Geo Fixture edited · geoip.dat
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

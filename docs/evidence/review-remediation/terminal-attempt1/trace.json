@@ -1,0 +1,81 @@
+[
+  {
+    "time": 223047.653,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-ark5gubc",
+      "pid": 1519888,
+      "xrm_sha256": "df3eac50c6306f31072dd1e333f86e54f030ff7b4a2f64a63a6e72a93171599f"
+    }
+  },
+  {
+    "time": 223049.677,
+    "action": "fixture",
+    "value": {
+      "profile_a": "f6206ce3-2fbc-442a-848b-80060195a1b7",
+      "profile_b": "75f4f812-8ff2-4310-99cc-25b5cd6fcccd",
+      "node": "5a5be0ae-3748-4ebc-8d96-1a042833b166",
+      "core": "ad4a7914-d485-4594-95bb-00c123bc2539",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 223049.734,
+    "action": "tui_pid",
+    "value": "1519910"
+  },
+  {
+    "time": 223049.739,
+    "action": "capture",
+    "value": "01-overview-80x24"
+  },
+  {
+    "time": 223049.745,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223049.798,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223049.85,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223049.898,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 223049.946,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223050.0,
+    "action": "capture",
+    "value": "02-profiles-details-bottom"
+  },
+  {
+    "time": 223050.005,
+    "action": "capture",
+    "value": "failure-final"
+  },
+  {
+    "time": 223050.006,
+    "action": "failure",
+    "value": "Traceback (most recent call last):\n  File \"/home/lisztzy/Projects/xrm/tests/tui/rewrite/terminal_regression.py\", line 421, in main\n    harness.run()\n    ~~~~~~~~~~~^^\n  File \"/home/lisztzy/Projects/xrm/tests/tui/rewrite/terminal_regression.py\", line 276, in run\n    assert 'Profile Alpha' in '\\n'.join(screen.splitlines()[-4:]), screen\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError:  XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           \n Profiles  2 Profiles / independent runtime contexts                            \n ────────────────────────────────────────────────────────────────────────────── \n   Profile                Core                 Use    Edit   Run                \n ────────────────────────────────────────────────────────────────────────────── \n   Beta                   Process fixture      —      —      —                  \n ▸ Alpha                  Process fixture      yes    —      running            \n                                                                                \n\n                                                                                \n                                                                                \n                                        \n                                                                                \n\n                                                                                \n                                                                                \n\n                                        \n\n\n ────────────────────────────────────────────────────────────────────────────── \n View Alpha · Use Alpha · Edit none · Run Alpha                                 \n View Alpha · Core Process fixture · Saved Node · Loopback inventory            \n xrmd ready · Content                                         F1 Help & actions \n\n"
+  },
+  {
+    "time": 223050.012,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-ark5gubc"
+    }
+  }
+]

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]          
+    Core  Geodata  Tests  Appearance  Editor  General                       1/6 
+ Config / Core  Installed & registered Xray binaries                            
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+ ▸│ ──────────────────────────────────────────────────────────────────────── │  
+  │ Config · View Alpha                                                      │  
+  │  XRM settings and core registration are here. Xray native configuration  │  
+  │ is in Modules.                                                           │  
+  │ Tasks · arrows choose; Enter executes available task                     │  
+  │ > a               Register core                                        ┃ │  
+  │   u               Use core in viewed Profile                           ┃ │  
+  │   D               Remove managed core                                  ╹ │  
+  │   l               Official releases                                      │  
+  │   p               Include prereleases                                    │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ Highlighted Process fixture · /home/lisztzy/Projects/xrm/build/component-rewr… 
+ xrmd ready · Page content (Content)                          F1 Help & actions 

@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               2/6
+ Config / Geodata  Resource cache
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Resource                   Kind         Result             Auto                ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ + Success                        ├─
+                                                                                  │ Geodata bindings saved for Home; │
+ No Geodata resources                                                             │ runtime unchanged · repeated 2   │
+                                                                                  │ times                            │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ ! Error                          │
+                                                                                  │ Resource removal: The operation  │
+                                                                                  │ conflicts with the current saved │
+                                                                                  │ state. Inspect the current       │
+                                                                                  │ object and its references before │
+                                                                                  │ retrying.                        │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ + Success                        │
+                                                                                  │ Resource removal saved; runtime  │
+                                                                                  │ unchanged                        │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ View Home · Use Home · Edit none · Run none
+ View Home · Geodata
+ xrmd ready · Content                                                                                 F1 Help & actions

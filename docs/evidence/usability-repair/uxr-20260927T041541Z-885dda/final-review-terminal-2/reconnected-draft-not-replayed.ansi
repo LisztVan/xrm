@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview [0;1m[Profiles][0;2m Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mProfiles[0;2m  2 Profiles / independent runtime contexts                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m  [1mProfile               [0;2m [1mCore                [0;2m [1mUse   [0;2m [1mEdit  [0;2m [1mRun      [0;2m         [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m▸ Alpha                  Process fixture      —      yes    —                [0;2m [0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mrename Profile[0;2m  UNSAVED * · field 1/1                                   [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1m> Name *                  [0m[ Alpha OFFLINE-DRAFT                       ]  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ ! The xrmd endpoint is unavailable or the connection was interrupted.    │[2m [0m 
+ [2m [0m│ Check the socket path and the server serving that endpoint. Confirm the  │[2m [0m 
+ [2m [0m│ result before retrying a write.                                          │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Save ]  [ Cancel ]                                                    │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alpha · Next: Beta · Module Edit: Alpha · Running: none              [0m 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

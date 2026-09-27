@@ -1,0 +1,251 @@
+[
+  {
+    "time": 263905.616,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-67u_0xzl",
+      "pid": 1185984,
+      "xrm_sha256": "8b404f16e725baf1ce00101f4c1b9eb2ac236b4448bb128c1fc3cbf9bfdd3027"
+    }
+  },
+  {
+    "time": 263907.638,
+    "action": "fixture",
+    "value": {
+      "profile_a": "38341f96-a295-4390-81d4-3977125caf07",
+      "profile_b": "70990eec-ffde-4504-960c-741651bdafb2",
+      "node": "ee9babde-8572-4f35-80e7-1814297ff329",
+      "core": "b5a57b17-a58e-4d1b-9970-f8d4dfaeecbf",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 263907.696,
+    "action": "tui_pid",
+    "value": "1186018"
+  },
+  {
+    "time": 263907.702,
+    "action": "capture",
+    "value": "01-overview-80x24"
+  },
+  {
+    "time": 263907.71,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 263907.764,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 263907.816,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 263907.864,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 263907.918,
+    "action": "capture",
+    "value": "02-profiles-details-bottom"
+  },
+  {
+    "time": 263907.918,
+    "action": "key",
+    "value": "u"
+  },
+  {
+    "time": 263907.977,
+    "action": "capture",
+    "value": "03-use-cancelled-core-running"
+  },
+  {
+    "time": 263907.978,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 263908.029,
+    "action": "key",
+    "value": "u"
+  },
+  {
+    "time": 263908.084,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 263908.226,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 263908.278,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 263908.333,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 263908.381,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 263908.442,
+    "action": "capture",
+    "value": "04-dns-visual-sections"
+  },
+  {
+    "time": 263908.442,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 263908.494,
+    "action": "key",
+    "value": "a"
+  },
+  {
+    "time": 263908.546,
+    "action": "text",
+    "value": "9.9.9.9"
+  },
+  {
+    "time": 263908.609,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 263908.658,
+    "action": "key",
+    "value": "Space"
+  },
+  {
+    "time": 263908.706,
+    "action": "text",
+    "value": "oops"
+  },
+  {
+    "time": 263908.77,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 263908.828,
+    "action": "capture",
+    "value": "05-dns-invalid-form-keeps-values"
+  },
+  {
+    "time": 263908.828,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 263908.877,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 263908.926,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 263908.975,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 263909.024,
+    "action": "key",
+    "value": "Delete"
+  },
+  {
+    "time": 263909.073,
+    "action": "text",
+    "value": "53"
+  },
+  {
+    "time": 263909.137,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 263909.186,
+    "action": "key",
+    "value": "BTab"
+  },
+  {
+    "time": 263909.234,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 263909.282,
+    "action": "key",
+    "value": "Left"
+  },
+  {
+    "time": 263909.33,
+    "action": "text",
+    "value": "0"
+  },
+  {
+    "time": 263909.394,
+    "action": "key",
+    "value": "BSpace"
+  },
+  {
+    "time": 263909.443,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 263909.502,
+    "action": "capture",
+    "value": "06-help-over-form"
+  },
+  {
+    "time": 263909.502,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 263909.636,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 263915.705,
+    "action": "capture",
+    "value": "failure"
+  },
+  {
+    "time": 263915.712,
+    "action": "capture",
+    "value": "failure-final"
+  },
+  {
+    "time": 263915.713,
+    "action": "failure",
+    "value": "Traceback (most recent call last):\n  File \"/home/lisztzy/Projects/xrm/tests/tui/rewrite/terminal_regression.py\", line 424, in main\n    harness.run()\n    ~~~~~~~~~~~^^\n  File \"/home/lisztzy/Projects/xrm/tests/tui/rewrite/terminal_regression.py\", line 299, in run\n    self.wait(lambda: 'DRAFT COLLECTION' in self.grid() and 'Add to draft' not in self.grid(), 'DNS form accepted')\n    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lisztzy/Projects/xrm/tests/tui/rewrite/terminal_regression.py\", line 110, in wait\n    raise AssertionError('Timed out: ' + description)\nAssertionError: Timed out: DNS form accepted\n"
+  },
+  {
+    "time": 263915.719,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-67u_0xzl"
+    }
+  }
+]

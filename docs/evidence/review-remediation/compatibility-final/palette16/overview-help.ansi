@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [Overview][0m[37m[40m Profiles  Modules  Subscriptions  Nodes  Logs  Config [97m          
+ [1mOverview[0m[37m[40m  Runtime & saved configuration                                       [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [1;2mR[0m[97m[40m╭──────────────────────────────────────────────────────────────────────────╮[2m[37m [0m[97m[40m 
+ [1;2m[93ms[0m[97m[40m│ [1mHelp & actions[0m[37m[40m                                                          [97m │[2m [0m[97m[40m 
+ [2m[37mR[0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m[37mA[0m[97m[40m│ [1mOverview · View Compatibility · Connect uses Compatibility              [0m[97m[40m │[2m [0m[97m[40m 
+ [2m[37mH[0m[97m[40m│ [37mConnect publishes saved settings only. Statistics need saved stats,     [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mpolicy and metrics settings plus a running core. Configure in Modul…    [97m │[2m [0m[97m[40m 
+ [1;2mS[0m[97m[40m│ [37mActions · choose with arrows, Enter to execute                          [97m │[2m[37m [0m[97m[40m 
+ [2m[37mS[0m[97m[40m│ [1m[96m> c               Connect saved · Compatibility                        [0m[97m[40m┃ │[2m [0m[97m[40m 
+ [2m[37mN[0m[97m[40m│   [96md               [97mStop core                                            ┃ │[2m [0m[97m[40m 
+ [2m[37mS[0m[97m[40m│   [96mf               [97mRuntime paths                                        ┃ │[2m[37m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mi               [97mInspect local entry                                  ╹ │[2m [0m[97m[40m 
+ [1;2mS[0m[97m[40m│   [96mN               [97mNotification history                                   │[2m[37m [0m[97m[40m 
+ [2mT[0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m[37mU[0m[97m[40m│ [1mNavigation and input                                                    [0m[97m[40m │[2m[37m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mEsc                     [97mReturn one level                                 │[2m [0m[97m[40m 
+ [2mI[0m[97m[40m│ [37mEsc closes Help and restores your place                                 [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m[97m[40m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ View Compatibility                                                             
+ [37mxrmd ready · Content                                         [96mF1 Help & actions[97m 

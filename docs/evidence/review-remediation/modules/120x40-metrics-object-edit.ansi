@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log  dns  inbounds  outbounds  routing  observatory  api [0;1m metrics [0;2m stats  policy  fakedns  geodata  env [0m     › [2m8/15[0m 
+ [1mmetrics[0;2m  SOURCE · EDIT · Visual                                                                                       [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Metrics endpoint          [0;2m   [1mMetrics endpoint[0;2m  Draft                                                              [0m 
+ [2m                                 metrics                                                                              [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 Listen address:port     127.0.0.1:19092                                              [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2m        [0m│ [1mMetrics endpoint[0;2m  EDIT · field 1/2                                                                [0m │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1m> tag                     [7m[ ] Set value[0m  [2mNot set · field omitted[0m                                   │[2m        [0m 
+ [2m        [0m│ [1m                          [0;2m[ Enter value                                                         ][0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   Listen address:port     [x] Set value  [2mExplicit value[0m                                            │[2m        [0m 
+ [2m        [0m│                           [ 127.0.0.1:19092                                                     ]  │[2m        [0m 
+ [2m        [0m│ [2m  Either tag or listen is needed by Xray                                                         [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                [0m 
+ metrics · Source editable · Visual · excluded              
+ [2mxrmd ready · Content · modules/07_metrics.json                                                       [0mF1 Help & actions 

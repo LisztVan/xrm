@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+    Scope: All  Scope: Local  Scope: Groups  Source: Local fixture                                                  1/4
+ Nodes  Node inventory
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Node                   Protocol   Enabled  Support    Saved  Run
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Loopback direct        freedom    yes      raw-only   yes    —
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ Highlighted Loopback direct · Saved Node · Loopback direct · Running none
+ xrmd ready · Page navigation (TopNav)                                                                F1 Help & actions

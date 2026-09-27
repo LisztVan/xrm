@@ -1,0 +1,7 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 362: xrm_component_rewrite_terminal
+1/1 Test #362: xrm_component_rewrite_terminal ...   Passed   28.41 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =  28.41 sec

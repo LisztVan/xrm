@@ -1,0 +1,19 @@
+Inspect an asynchronous operation
+
+Usage: xrm operation [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+SUBCOMMANDS:
+  get                     Read an operation's final result 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm operation get --help
+
+Next: xrm operation <command> --help

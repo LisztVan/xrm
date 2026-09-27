@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 1/15
+ log  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   Xray logging                 Xray logging  Draft
+                                  log
+                                  ─────────────────────────────────────────────────────────────────────────────────────
+                                  loglevel                warning
+
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Modules · View Lab Home · Module selection                                                         │
+         │ Read only? In Profiles, View this Profile and allow its module Edit; return here. This does not    │
+         │ Use or run it.                                                                                     │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > Enter           Open Modules / log                                                               │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Tab / Shift-Tab         Choose a module or section                                                 │
+         │ Esc                     Return one level                                                           │
+         │ After Enter             Open JSON                                                                  │
+         │ After Enter             Save module source                                                         │
+         │ After Enter             External editor                                                            │
+         │ After Enter             Exclude module                                                             │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ log · Source editable · Visual · included
+ xrmd ready · Section selection (SecondaryNav) · modules/00_log.json                                  F1 Help & actions

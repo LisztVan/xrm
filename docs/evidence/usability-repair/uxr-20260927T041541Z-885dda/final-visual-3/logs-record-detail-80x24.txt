@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL     MESSAGE                                            
+ ─╭──────────────────────────────────────────────────────────────────────────╮─ 
+ -│ Details                                                                  │┃ 
+ -│ ──────────────────────────────────────────────────────────────────────── │┃ 
+ -│   Log text line                                                          │┃ 
+ -│   Time    not supplied                                                   │┃ 
+ -│   Transport chunk  1                                                     │╹ 
+ -│   Source  core_stdout                                                    │  
+ -│   Level   Info                                                           │  
+ -│   Subsystem                                                              │  
+ -│                                                                          │  
+ -│   Line within chunk  1                                                   │  
+ -│                                                                          │  
+ -│   [Info] UI process fixture                                              │  
+ -│   Socket: /tmp/xrm-rewrite-ui-sgnbx3io/xrmd.sock                         │  
+ -╰──────────────────────────────────────────────────────────────────────────╯  
+ -        stdout             XRM_FAKE_CORE_LOG_0010                             
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: none · Module Edit: Alpha · Running: Alpha              
+ Paused · 41 text lines                                                         
+ xrmd ready · Page content (Content)                          F1 Help & actions 

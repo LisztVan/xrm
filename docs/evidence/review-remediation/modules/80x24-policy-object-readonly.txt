@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+ ‹  outbounds  routing  observatory  api  metrics  stats  policy        › 10/15 
+ policy  SOURCE · READ ONLY · Visual                                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ User levels  READ ONLY · field 1/9                                       │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ U│ > User level                0                                          ┃ │  
+ p│                                                                        ┃ │  
+ ─┤   handshake               Explicit value                               ┃ ├─ 
+ 0│                             0                                          ┃ │  
+  │   Seconds; default 60                                                    │  
+  │                                                                          │  
+  │   connIdle                Not set · field omitted                        │  
+  │                             Not set (read only)                          │  
+  │   Seconds; default 300                                                   │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Close ]                                                               │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit none · Run none                    
+ policy · Source read-only · Visual · excluded                                  
+ xrmd ready · Content · modules/09_policy.json                F1 Help & actions 

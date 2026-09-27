@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  1 source / node inventory                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Edit subscription  UNSAVED * · field 1/7                                 ├─ 
+ ▸│ ──────────────────────────────────────────────────────────────────────── │  
+  │ > Name *                  [ Local fixture updated draft               ]┃ │  
+  │                                                                        ┃ │  
+  │   URL                     [ ••••••••••••••••••••••••••••••            ]┃ │  
+  │                                                                        ┃ │  
+  │   User-Agent              [ Enter value                               ]  │  
+  │                                                                          │  
+  │   Auto refresh            [x] Enabled                                    │  
+  │                                                                          │  
+  │ ! The xrmd endpoint is unavailable or the connection was interrupted.    │  
+  │ Check the socket path and the server serving that endpoint. Confirm the  │  
+  │ result before retrying a write.                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alph?a · Use Alph?a · Edit none · Run unknown                             
+ Highlighted Local fixture updated · success · 1 nodes                          
+ xrmd disconnected · cached data · Content                    F1 Help & actions 

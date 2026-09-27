@@ -1,0 +1,14 @@
+module: dns
+enabled: yes
+source: modules/01_dns.json
+runtime: 01_dns.json
+{
+  "dns": {
+    "servers": [
+      {
+        "address": "127.0.0.1"
+      },
+      "localhost"
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "entries": [
+    {
+      "cursor": 1,
+      "stream": "core_stdout",
+      "text": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\nA unified platform for anti-censorship.\n2026/09/27 01:15:47.020232 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/00_log.json Format:json}\n2026/09/27 01:15:47.020324 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/01_dns.json Format:json}\n2026/09/27 01:15:47.020327 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/02_inbounds.json Format:json}\n2026/09/27 01:15:47.020329 [Info] infra/conf: [/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/02_inbounds.json] appended inbound with tag: review-socks\n2026/09/27 01:15:47.020331 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/03_outbounds.json Format:json}\n2026/09/27 01:15:47.020349 [Info] infra/conf: [/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/03_outbounds.json] prepend outbound with tag: review-direct\n2026/09/27 01:15:47.020351 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/04_routing.json Format:json}\n2026/09/27 01:15:47.020803 [Debug] app/log: Logger started\n2026/09/27 01:15:47.020807 [Info] app/dns: DNS: created localhost client\nConfiguration OK.\n"
+    },
+    {
+      "cursor": 2,
+      "stream": "core_stderr",
+      "text": "2026/09/27 01:15:47.020139 Using confdir from arg: /tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1\n"
+    },
+    {
+      "cursor": 3,
+      "stream": "core_stdout",
+      "text": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\nA unified platform for anti-censorship.\n"
+    },
+    {
+      "cursor": 4,
+      "stream": "core_stderr",
+      "text": "2026/09/27 01:15:47.030752 Using confdir from arg: /tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1\n"
+    },
+    {
+      "cursor": 5,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:47.030932 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/00_log.json Format:json}\n2026/09/27 01:15:47.030944 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/01_dns.json Format:json}\n2026/09/27 01:15:47.030948 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/02_inbounds.json Format:json}\n"
+    },
+    {
+      "cursor": 6,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:47.030952 [Info] infra/conf: [/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/02_inbounds.json] appended inbound with tag: review-socks\n2026/09/27 01:15:47.030956 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/03_outbounds.json Format:json}\n2026/09/27 01:15:47.030958 [Info] infra/conf: [/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/03_outbounds.json] prepend outbound with tag: review-direct\n2026/09/27 01:15:47.030962 [Info] infra/conf/serial: Reading config: &{Name:/tmp/xrm-rewrite-ui-_n_b1r7o/runtime/candidate/run-1790442947012-1/04_routing.json Format:json}\n"
+    },
+    {
+      "cursor": 7,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:47.031401 [Debug] app/log: Logger started\n"
+    },
+    {
+      "cursor": 8,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:47.031447 [Info] app/dns: DNS: created localhost client\n"
+    },
+    {
+      "cursor": 9,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:47.033215 [Debug] app/proxyman/inbound: creating stream worker on 127.0.0.1:36143\n"
+    },
+    {
+      "cursor": 10,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:47.033346 [Info] transport/internet/tcp: listening TCP on 127.0.0.1:36143\n"
+    },
+    {
+      "cursor": 11,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:47.033395 [Warning] core: Xray 26.9.9 started\n"
+    },
+    {
+      "cursor": 12,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.034683 [Info] [3705423189] proxy/socks: TCP Connect request to tcp:127.0.0.1:33601\n2026/09/27 01:15:49.034696 from tcp:127.0.0.1:46016 accepted tcp:127.0.0.1:33601 [review-socks -> review-direct]\n2026/09/27 01:15:49.034707 [Info] [3705423189] app/dispatcher: taking detour [review-direct] for [tcp:127.0.0.1:33601]\n2026/09/27 01:15:49.034714 [Info] [3705423189] transport/internet/tcp: dialing TCP to tcp:127.0.0.1:33601\n2026/09/27 01:15:49.034717 [Debug] [3705423189] transport/internet: dialing to tcp:127.0.0.1:33601\n"
+    },
+    {
+      "cursor": 13,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.034777 [Info] [3705423189] proxy/freedom: connection opened to tcp:127.0.0.1:33601, local endpoint 127.0.0.1:49062, remote endpoint 127.0.0.1:33601\n2026/09/27 01:15:49.034783 [Debug] [3705423189] proxy: CopyRawConn splice\n"
+    },
+    {
+      "cursor": 14,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.036336 [Debug] [390623698] proxy/socks: Not Socks request, try to parse as HTTP request\n"
+    },
+    {
+      "cursor": 15,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.036349 [Info] [390623698] proxy/http: request to Method [GET] Host [] with URL [/invalid-socks]\n"
+    },
+    {
+      "cursor": 16,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.036359 [Info] [390623698] app/proxyman/inbound: connection ends > write tcp 127.0.0.1:36143->127.0.0.1:46018: write: broken pipe\n"
+    },
+    {
+      "cursor": 17,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.040249 from tcp:127.0.0.1:46030 accepted tcp:127.0.0.1:33601 [review-socks -> review-direct]\n2026/09/27 01:15:49.040260 [Info] [2882636166] proxy/socks: TCP Connect request to tcp:127.0.0.1:33601\n2026/09/27 01:15:49.040265 [Info] [2882636166] app/dispatcher: taking detour [review-direct] for [tcp:127.0.0.1:33601]\n2026/09/27 01:15:49.040267 [Info] [2882636166] transport/internet/tcp: dialing TCP to tcp:127.0.0.1:33601\n"
+    },
+    {
+      "cursor": 18,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.040269 [Debug] [2882636166] transport/internet: dialing to tcp:127.0.0.1:33601\n"
+    },
+    {
+      "cursor": 19,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:49.040320 [Info] [2882636166] proxy/freedom: connection opened to tcp:127.0.0.1:33601, local endpoint 127.0.0.1:49072, remote endpoint 127.0.0.1:33601\n2026/09/27 01:15:49.040325 [Debug] [2882636166] proxy: CopyRawConn splice\n"
+    },
+    {
+      "cursor": 20,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:52.788155 [Info] [123923259] proxy/socks: TCP Connect request to tcp:127.0.0.1:33601\n2026/09/27 01:15:52.788162 [Info] [123923259] app/dispatcher: taking detour [review-direct] for [tcp:127.0.0.1:33601]\n2026/09/27 01:15:52.788164 [Info] [123923259] transport/internet/tcp: dialing TCP to tcp:127.0.0.1:33601\n2026/09/27 01:15:52.788166 [Debug] [123923259] transport/internet: dialing to tcp:127.0.0.1:33601\n"
+    },
+    {
+      "cursor": 21,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:52.788170 from tcp:127.0.0.1:33204 accepted tcp:127.0.0.1:33601 [review-socks -> review-direct]\n"
+    },
+    {
+      "cursor": 22,
+      "stream": "core_stdout",
+      "text": "2026/09/27 01:15:52.788249 [Info] [123923259] proxy/freedom: connection opened to tcp:127.0.0.1:33601, local endpoint 127.0.0.1:33960, remote endpoint 127.0.0.1:33601\n2026/09/27 01:15:52.788257 [Debug] [123923259] proxy: CopyRawConn splice\n"
+    }
+  ],
+  "next_cursor": 22,
+  "truncated": false
+}

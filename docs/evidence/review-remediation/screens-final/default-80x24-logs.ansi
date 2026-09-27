@@ -1,0 +1,24 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview  Profiles  Modules  Subscriptions  Nodes [1m[38;2;115;194;230m[Logs][0m[38;2;146;163;183m Config [39m          
+ [1mLogs[0m[38;2;146;163;183m  Core output                                                             [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mTIME     SOURCE   LEVEL     MESSAGE                                           [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0204                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0205                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0206                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0207                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0208                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0209                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0210                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0211                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0212                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0213                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0214                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0215                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0216                             
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0217                           ╻ 
+ [38;2;146;163;183m-        stdout             [39mXRM_FAKE_CORE_LOG_0218                           ┃ 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Alpha · Edit none · Run Alpha                                [39m 
+ Following · 223 text lines                                                     
+ [38;2;146;163;183mxrmd ready · Content                                         [38;2;115;194;230mF1 Help & actions[39m 

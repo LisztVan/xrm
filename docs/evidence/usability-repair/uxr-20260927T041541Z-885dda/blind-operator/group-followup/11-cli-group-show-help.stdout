@@ -1,0 +1,20 @@
+Show one saved group
+
+Usage: xrm group show [OPTIONS] PROFILE GROUP_ID
+
+POSITIONALS:
+  PROFILE (required)      Exact Profile name or UUID (saved configuration) 
+  GROUP_ID (required)     Stable group ID from group list 
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm group show Home GROUP_ID
+
+Profile accepts an exact saved name or UUID.

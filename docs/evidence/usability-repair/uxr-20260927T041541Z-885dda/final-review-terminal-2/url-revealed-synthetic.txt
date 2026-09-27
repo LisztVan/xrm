@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  1 source / node inventory                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Edit subscription  FORM · field 2/7                                      ├─ 
+ ▸│ ──────────────────────────────────────────────────────────────────────── │  
+  │   Name                    [ Local                                     ]┃ │  
+  │                                                                        ┃ │  
+  │ > URL                     [ http://127.0.0.1:9/review?synthetic=1     ]┃ │  
+  │    Hidden · Ctrl-R reveals/hides the real value without changing it.   ┃ │  
+  │                                                                        ┃ │  
+  │   User-Agent              [ Xray                                      ]┃ │  
+  │                                                                        ╹ │  
+  │   Auto refresh            [x] Enabled                                    │  
+  │                                                                          │  
+  │   Interval seconds        [ 21600                                     ]  │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Save ]  [ Cancel ]                                                    │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Beta · Module Edit: Alpha · Running: Alpha              
+ Highlighted Local · Not refreshed · 0 nodes                                    
+ xrmd ready · Page content (Content)                          F1 Help & actions 

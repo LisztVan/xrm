@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 1/15
+ log  SOURCE · READ ONLY · Visual
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   Xray logging                 Xray logging  Read only
+                                  log
+                                  ─────────────────────────────────────────────────────────────────────────────────────
+                                  loglevel                warning
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Modules · View Lab Home · Page navigation                                                          │
+         │ Read only? In Profiles, View this Profile and allow its module Edit; return here. This does not    │
+         │ Use or run it.                                                                                     │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > Enter           Open Modules / log                                                               │
+         │   q               Exit TUI                                                                         │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Tab / Shift-Tab         Choose a page                                                              │
+         │ Esc                     Return one level                                                           │
+         │ After Enter             Open JSON                                                                  │
+         │ After Enter             Save module source · Unavailable: Module is read-only                      │
+         │ After Enter             External editor · Unavailable: Module is read-only                         │
+         │ After Enter             Exclude module · Unavailable: Enable module Edit for Lab Home              │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ log · Source read-only · Visual · included
+ xrmd ready · Page navigation (TopNav) · modules/00_log.json                                          F1 Help & actions

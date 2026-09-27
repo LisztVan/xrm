@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+  Core  Geodata  Tests  Appearance  Editor  General
+ Config / Geodata  Resource cache
+ ──────────────────────────────────────────────────────────────────────────────
+   Resource                   Kind         Result             Auto
+ ──────────────────────────────────────────────────────────────────────────────
+
+ No Geodata resources
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit Alpha · Run Alpha
+
+ xrmd ready · Content                                               ? / F1 Help

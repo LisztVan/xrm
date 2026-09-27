@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+  log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  pol
+ dns  SOURCE · EDIT · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ Help                                                                     │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │ Actions                                                                ┃ │
+  │ Ctrl-Home / Ctrl-End  Document start / end · Multiline text            ┃ │
+  │ Ctrl-S                Save / accept form · Current draft               ┃ │
+  │                                                                        ┃ │
+  │ Navigation                                                             ┃ │
+  │ Tab / Shift-Tab       Move between fields and buttons                  ┃ │
+  │ Esc                   Cancel / close form                              ┃ │
+  │ F1                    Context help                                     ┃ │
+  │                                                                        ┃ │
+  │ Input                                                                    │
+  │ Arrows / Home / End   Move cursor or choice                              │
+  │ Scroll with Up / Down     Esc closes Help                                │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit Alpha · Run Alpha
+ dns · Source editable · Visual · included
+ xrmd ready · Content · modules/01_dns.json                         ? / F1 Help

@@ -1,0 +1,24 @@
+ [1mXRM [7m[Overview][0;2m Profiles  Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mOverview[0;2m  Runtime & saved configuration                                       [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1mRuntime[0;2m  ACTUAL                                                               [0m 
+ [1mrunning[0;2m  Xray 26.9.9  PID 1556817[0m      
+ [2mRunning Profile   [0mAlpha                
+ [2mActual target     [0mNode · Loopback inventory                                    
+ [2mHealth            [0mProcess alive; traffic unverified                            
+
+ [1mSaved configuration[0;2m  VIEW Alpha                                               [0m 
+ [2mSaved target      [0mNode · Loopback inventory                                    
+ [2mNext Connect      [0mAlpha                
+ [2mSaved settings apply only on Connect / Apply                                  [0m 
+
+ [1mStatistics[0;2m  OBSERVED                                                          [0m 
+ Traffic: unavailable · latency: unmeasured                                     
+
+ Inventory  1 node · 0 sources          
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Alpha · Use Alpha · Edit none · Run Alpha                                [0m 
+ View Alpha         
+ [2mxrmd ready · TopNav                                          [0mF1 Help & actions 

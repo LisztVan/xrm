@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+  All  Local  Groups  Local lab source
+ Nodes  Node inventory
+ ──────────────────────────────────────────────────────────────────────────────
+   Node                         Protocol     State            Target
+ ──────────────────────────────────────────────────────────────────────────────
+ ▸ Loopback inventory           freedom      available        Saved Run
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ Cursor Loopback inventory
+ xrmd ready · Content                                               ? / F1 Help

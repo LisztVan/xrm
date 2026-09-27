@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+  Core  Geodata  Tests  Appearance  Editor  General
+ Config / Appearance  XRM program settings
+ ──────────────────────────────────────────────────────────────────────────────
+   Setting                  Value
+ ──────────────────────────────────────────────────────────────────────────────
+ ▸ CLI color                auto
+   Color capability         auto
+   Content density          comfortable
+   Symbols                  unicode
+   Reduce motion            Off
+   Theme                    XRM Slate
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit Alpha · Run Alpha
+ Appearance
+ xrmd ready · Content                                               ? / F1 Help

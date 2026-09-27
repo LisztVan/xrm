@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 5/15 
+ routing  SOURCE · EDIT · Visual                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Routing rule  UNSAVED * · field 1/18                                     │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ ch conditions -> Target                                                ┃ │  
+ R│ ule label *            [x] Set value  Explicit value                   ╹ │  
+ r│                        [ TUI loopback                                    │  
+ ─┤ ptional native ruleTag; not a match condition                            ├─ 
+ 1│                                                                          │  
+  │ omain                                                                    │  
+  │  ] Set value  Not set · field omitted                                    │  
+  │  Enable Set value to edit; draft value retained                          │  
+  │ atch: domains (any entry)                                                │  
+  │                                                                          │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Add to draft ]  [ Cancel ]                                            │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn… 
+ routing · Source editable · Visual · included                                  
+ xrmd ready · Page content (Content) · modules/04_routing.…   F1 Help & actions 

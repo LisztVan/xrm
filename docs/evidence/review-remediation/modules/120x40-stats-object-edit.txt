@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 9/15 
+ stats  SOURCE · EDIT · Visual                                                                                          
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Stats object (no native paramet  Stats object (no native parameters)  Draft                                            
+                                  stats                                                                                 
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  Stats object present                                                                  
+                                  No native parameters. Source inclusion is managed independently.                      
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ stats has no native parameters.                                                                    │         
+         │ Source inclusion is managed separately.                                                            │         
+         │  [ Keep empty stats object in draft ]                                                              │         
+         │  [ Close ]                                                                                         │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ stats · Source editable · Visual · excluded                
+ xrmd ready · Content · modules/08_stats.json                                                         F1 Help & actions 

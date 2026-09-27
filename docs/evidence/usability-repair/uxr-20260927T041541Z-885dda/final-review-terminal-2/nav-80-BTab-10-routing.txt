@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 5/15 
+ routing  SOURCE · READ ONLY · Visual                                           
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Routing rules (ordered)              ╭──────────────────────────────────╮  
+     Native balancers                     │ i Info · history in Help         │  
+     Domain strategy                      │ Refreshed Subscriptions          │  
+                                          ╰──────────────────────────────────╯  
+ Routing rules (ordered)  Read only                                             
+ routing.rules                                                                  
+ ────────────────────────────────────────────────────────────────────────────── 
+ 1  Initial rule   to direct                                                    
+    match domain example.test                                                   
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ routing · Source read-only · Visual · included                                 
+ xrmd ready · Section selection (SecondaryNav) · modules/0…   F1 Help & actions 

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · READ ONLY · Visual                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   DNS servers                                                                
+     DNS query and cache settings                                               
+     DNS hosts                                                                  
+                                                                                
+ DNS servers  Read only                                                         
+ dns.servers                                                                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ 1  1.1.1.1                                                                     
+    port Default    strategy Inherit                                            
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                 
+ dns · Source read-only · Visual · included                                     
+ xrmd ready · SecondaryNav · modules/01_dns.json              F1 Help & actions 

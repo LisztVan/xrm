@@ -1,0 +1,94 @@
+[
+  {
+    "time": 271083.71,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-wvswgirs",
+      "pid": 1313174,
+      "xrm_sha256": "2e0f59c44d5534e7e3feb676be7e561c328a204ad325fd6b83a3c501d3606179"
+    }
+  },
+  {
+    "time": 271083.812,
+    "action": "tui_pid",
+    "value": "1313178"
+  },
+  {
+    "time": 271083.823,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 271083.871,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 271083.92,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 271083.97,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 271084.026,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 271084.08,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 271084.143,
+    "action": "capture",
+    "value": "before-enter-80x24"
+  },
+  {
+    "time": 271084.143,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 271084.199,
+    "action": "capture",
+    "value": "after-enter-80x24"
+  },
+  {
+    "time": 271084.199,
+    "action": "enter_result",
+    "value": {
+      "node_id": "527b0b6f-499c-4934-ba28-b4610300bcf3",
+      "details_open": true,
+      "runtime_unchanged": true
+    }
+  },
+  {
+    "time": 271084.199,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 271084.34,
+    "action": "capture",
+    "value": "after-esc-80x24"
+  },
+  {
+    "time": 271084.344,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-wvswgirs"
+    }
+  },
+  {
+    "time": 271084.344,
+    "action": "fixture_removed",
+    "value": "/tmp/xrm-rewrite-ui-wvswgirs"
+  }
+]

@@ -1,0 +1,24 @@
+[38;5;254m[48;5;234m [1m[38;5;74m[48;5;235mXRM [0m[38;5;109m[48;5;235m Overview  Profiles  Modules  Subscriptions  Nodes [1m[38;5;74m[Logs][0m[38;5;109m[48;5;235m Config [38;5;254m         [48;5;234m 
+ [1mLogs[0m[38;5;109m[48;5;234m  Core output                                                             [38;5;254m 
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [38;5;109mTIME     SOURCE   LEVEL     MESSAGE      [38;5;254m[48;5;235m╭──────────────────────────────────╮[38;5;109m[48;5;234m [38;5;254m 
+ [38;5;240m─────────────────────────────────────────[38;5;254m[48;5;235m┤ [1m[38;5;74mi Info · history in Help        [0m[38;5;254m[48;5;235m ├[38;5;240m[48;5;234m─[38;5;254m 
+ [1m[38;5;109m[48;5;237m-        stdout   Info      [38;5;254mUI process fi[0m[38;5;254m[48;5;235m│ Refreshed Logs                   │[48;5;234m┃ 
+ [38;5;109m-        stdout             [38;5;254mcontinued lin[48;5;235m╰──────────────────────────────────╯[48;5;234m┃ 
+ [38;5;109m-        stdout   Info      [38;5;254mUI process fixture                               ┃ 
+ [38;5;109m-        stdout             [38;5;254mcontinued line                                   ┃ 
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0000                           ╹ 
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0001                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0002                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0003                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0004                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0005                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0006                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0007                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0008                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0009                             
+ [38;5;109m-        stdout             [38;5;254mXRM_FAKE_CORE_LOG_0010                             
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [38;5;109mViewing: Alpha · Next: none · Module Edit: Alpha · Running: Alpha             [38;5;254m 
+ Paused · 41 text lines                                                         
+ [38;5;109mxrmd ready · Page content (Content)                          [38;5;74mF1 Help & actions[38;5;254m 

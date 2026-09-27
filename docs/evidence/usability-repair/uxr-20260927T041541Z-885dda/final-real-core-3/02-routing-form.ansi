@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api [0m            › [2m5/15[0m 
+ [1mrouting[0;2m  SOURCE · EDIT · Visual                                               [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mRouting rule[0;2m  UNSAVED * · field 1/18                                    [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mch conditions -> Target                                                ┃[0m │[2m [0m 
+ [1;2mR[0m│ [1mule label *            [0m[x] Set value  [2mExplicit value[0m                   ╹ │[2m [0m 
+ [2mr[0m│ [1m                       [0m[ TUI loopback                                    │[2m [0m 
+ [2m─[0m┤ [2mptional native ruleTag; not a match condition                           [0m ├[2m─[0m 
+ [2m1[0m│                                                                          │[2m [0m 
+ [2m [0m│ omain                                                                    │[2m [0m 
+ [2m [0m│  ] Set value  [2mNot set · field omitted[0m                                    │[2m [0m 
+ [2m [0m│ [2m Enable Set value to edit; draft value retained                         [0m │[2m [0m 
+ [2m [0m│ [2match: domains (any entry)                                               [0m │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Add to draft ]  [ Cancel ]                                            │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn…[0m 
+ routing · Source editable · Visual · included                                  
+ [2mxrmd ready · Page content (Content) · modules/04_routing.…   [0mF1 Help & actions 

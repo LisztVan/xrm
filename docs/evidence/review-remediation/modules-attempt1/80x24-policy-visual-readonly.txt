@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ ‹  outbounds  routing  observatory  api  metrics  stats  policy        › 10/15
+ policy  SOURCE · READ ONLY · Visual
+ ──────────────────────────────────────────────────────────────────────────────
+ >   User levels
+     System traffic counters
+
+ User levels  Read only
+ policy.levels
+ ──────────────────────────────────────────────────────────────────────────────
+ 0               0 · Default · Default
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Module revi… · Use Module revi… · Edit none · Run none
+ policy · Source read-only · Visual · excluded
+ xrmd ready · Content · modules/09_policy.json                F1 Help & actions

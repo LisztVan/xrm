@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ R╭──────────────────────────────────────────────────────────────────────────╮  
+ r│ Help & actions                                                           │  
+ R│ ──────────────────────────────────────────────────────────────────────── │  
+ A│ Overview · View Alpha · Connect uses Alpha                               │  
+ H│ Connect publishes saved settings only. Statistics need saved stats,      │  
+  │ policy and metrics settings plus a running core. Configure in Modul…     │  
+ S│ Tasks · arrows choose; Enter executes available task                     │  
+ S│ > c               Connect saved · Alpha                                ┃ │  
+ N│   d               Stop core                                            ┃ │  
+ S│   f               Runtime paths                                        ┃ │  
+  │   i               Inspect local entry                                  ┃ │  
+ S│   N               Notification history                                 ┃ │  
+ T│   r               Refresh                                                │  
+ U│ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+ I│ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ View Alpha                                                                     
+ xrmd ready · Page content (Content)                          F1 Help & actions 

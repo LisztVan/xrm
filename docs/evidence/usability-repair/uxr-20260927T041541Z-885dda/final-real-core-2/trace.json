@@ -1,0 +1,405 @@
+[
+  {
+    "time": 264191.801,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-2ms8b39p",
+      "pid": 1190074,
+      "xrm_sha256": "1ef7c6e24812e0a7b07cf42498c1c8f169fa4db067ae285f483459a2352b40f1"
+    }
+  },
+  {
+    "time": 264191.917,
+    "action": "tui_pid",
+    "value": "1190106"
+  },
+  {
+    "time": 264191.925,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264191.98,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264192.032,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264192.086,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264192.137,
+    "action": "help_execute",
+    "value": "│ > e               Allow module Edit · Real Loopback                    ┃ │"
+  },
+  {
+    "time": 264192.137,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264192.195,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264192.349,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264192.401,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264192.454,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264192.502,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264192.557,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264192.605,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264192.66,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264192.711,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264192.762,
+    "action": "help_execute",
+    "value": "1│ > e               Edit entry · DNS servers                             ┃ │"
+  },
+  {
+    "time": 264192.762,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264192.816,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264192.869,
+    "action": "text",
+    "value": "localhost"
+  },
+  {
+    "time": 264192.939,
+    "action": "capture",
+    "value": "01-dns-form"
+  },
+  {
+    "time": 264192.939,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264192.999,
+    "action": "help_execute",
+    "value": "1│ > Ctrl-S          Add to draft · DNS server                            ┃ │"
+  },
+  {
+    "time": 264192.999,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264193.05,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264193.186,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264193.242,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264193.293,
+    "action": "help_execute",
+    "value": "│ > Ctrl-S / s      Save module source                                   ┃ │"
+  },
+  {
+    "time": 264193.293,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264193.35,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264193.488,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264193.632,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264193.681,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264193.73,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264193.778,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264193.826,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264193.874,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264193.936,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264193.988,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264194.04,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264194.089,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264194.137,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264194.186,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264194.235,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264194.292,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264194.341,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 264194.396,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.448,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.499,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.552,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.604,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.655,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.706,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.758,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.81,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.862,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.914,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264194.966,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.019,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.07,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.122,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.174,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.226,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.277,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.33,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.383,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.435,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.487,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.54,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.592,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.645,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.697,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.748,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.8,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.852,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.905,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264195.96,
+    "action": "capture",
+    "value": "failure-help-edit-entry"
+  },
+  {
+    "time": 264196.308,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-2ms8b39p"
+    }
+  }
+]

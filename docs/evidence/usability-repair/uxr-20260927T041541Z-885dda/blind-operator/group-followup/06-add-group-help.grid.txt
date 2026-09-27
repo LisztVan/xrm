@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+    Scope: All  Scope: Local  Scope: Groups  Source: Local fixture                                                  3/4
+ Nodes  Groups · selection bindings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Group                      Mode           Strategy        Members
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+ No Groups
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Help & actions                                                                                     │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Add Group                                                                                          │
+         │ Save this object to its saved settings; runtime remains unchanged.                                 │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > Ctrl-S          Save · Add Group                                                                 │
+         │   Esc             Cancel / close form · Add Group                                                  │
+         │                   Editing scope and advanced fields · Add Group                                    │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Tab / Shift-Tab         Move between fields and buttons                                            │
+         │ Arrows / Home / End     Move cursor or choose visible option immediately                           │
+         │ Ctrl-Home / Ctrl-End    Document start / end                                                       │
+         │ Space                   Toggle focused checkbox or presence                                        │
+         │ Enter                   Insert newline in multiline text / activate button; no checkbox change     │
+         │ q e u p ? Space         Text in input fields                                                       │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none
+ View Lab Home · groups
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

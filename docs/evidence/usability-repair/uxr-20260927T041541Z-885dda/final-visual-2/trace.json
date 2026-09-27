@@ -1,0 +1,681 @@
+[
+  {
+    "time": 264191.773,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-pzbuetn7",
+      "pid": 1190059,
+      "xrm_sha256": "1ef7c6e24812e0a7b07cf42498c1c8f169fa4db067ae285f483459a2352b40f1"
+    }
+  },
+  {
+    "time": 264193.804,
+    "action": "fixture",
+    "value": {
+      "profile_a": "b0a2d766-c927-46b8-8fed-c45a6a06d4d9",
+      "profile_b": "9abaefc3-d9f9-4847-8f24-44f4a0875dd6",
+      "node": "8e3b31a9-2199-4ebf-897e-d4fa2ca23ff1",
+      "core": "d1b50c41-2b6b-4d50-a8b1-4188cbf03f9e",
+      "verification_scope": "fake core for process/log behavior, not real Xray traffic"
+    }
+  },
+  {
+    "time": 264193.907,
+    "action": "tui_pid",
+    "value": "1190200"
+  },
+  {
+    "time": 264195.924,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264195.972,
+    "action": "key",
+    "value": "r"
+  },
+  {
+    "time": 264196.021,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264196.475,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264196.684,
+    "action": "capture",
+    "value": "80x24-overview"
+  },
+  {
+    "time": 264196.687,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264196.831,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264196.886,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264197.096,
+    "action": "capture",
+    "value": "80x24-profiles"
+  },
+  {
+    "time": 264197.099,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264197.243,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264197.296,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264197.35,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264197.398,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264197.606,
+    "action": "capture",
+    "value": "80x24-modules"
+  },
+  {
+    "time": 264197.609,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264197.746,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264197.889,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264197.945,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264198.154,
+    "action": "capture",
+    "value": "80x24-subscriptions"
+  },
+  {
+    "time": 264198.157,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264198.3,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264198.356,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264198.408,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264198.618,
+    "action": "capture",
+    "value": "80x24-nodes"
+  },
+  {
+    "time": 264198.621,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264198.758,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264198.9,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264198.956,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264199.009,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264199.058,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 264199.307,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264199.513,
+    "action": "capture",
+    "value": "80x24-logs"
+  },
+  {
+    "time": 264199.516,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264199.66,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264199.716,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264199.768,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264199.978,
+    "action": "capture",
+    "value": "80x24-config"
+  },
+  {
+    "time": 264200.286,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264200.424,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264200.569,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264200.625,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264200.837,
+    "action": "capture",
+    "value": "120x40-overview"
+  },
+  {
+    "time": 264200.841,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264201.16,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264201.215,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264201.268,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264201.331,
+    "action": "capture",
+    "value": "120x40-profile-other-cursor"
+  },
+  {
+    "time": 264201.332,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264201.38,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264201.593,
+    "action": "capture",
+    "value": "120x40-profiles"
+  },
+  {
+    "time": 264201.596,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264201.81,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264201.861,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264201.916,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264202.125,
+    "action": "capture",
+    "value": "120x40-modules"
+  },
+  {
+    "time": 264202.129,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264202.269,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264202.414,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264202.47,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264202.679,
+    "action": "capture",
+    "value": "120x40-subscriptions"
+  },
+  {
+    "time": 264202.683,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264202.906,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264202.961,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264203.014,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264203.222,
+    "action": "capture",
+    "value": "120x40-nodes"
+  },
+  {
+    "time": 264203.225,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264203.435,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264203.578,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264203.632,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264203.684,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264203.732,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 264203.981,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264204.189,
+    "action": "capture",
+    "value": "120x40-logs"
+  },
+  {
+    "time": 264204.192,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264204.338,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264204.393,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264204.487,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264204.698,
+    "action": "capture",
+    "value": "120x40-config"
+  },
+  {
+    "time": 264205.004,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264205.448,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264205.595,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264205.65,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264205.861,
+    "action": "capture",
+    "value": "180x48-overview"
+  },
+  {
+    "time": 264205.865,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264206.01,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264206.064,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264206.117,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264206.182,
+    "action": "capture",
+    "value": "180x48-profile-other-cursor"
+  },
+  {
+    "time": 264206.183,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264206.231,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264206.445,
+    "action": "capture",
+    "value": "180x48-profiles"
+  },
+  {
+    "time": 264206.448,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264206.593,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264206.645,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264206.7,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264206.91,
+    "action": "capture",
+    "value": "180x48-modules"
+  },
+  {
+    "time": 264206.913,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264207.052,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264207.196,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264207.251,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264207.461,
+    "action": "capture",
+    "value": "180x48-subscriptions"
+  },
+  {
+    "time": 264207.465,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264207.611,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264207.665,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264207.717,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264207.926,
+    "action": "capture",
+    "value": "180x48-nodes"
+  },
+  {
+    "time": 264207.93,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264208.067,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264208.211,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264208.266,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264208.317,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264208.366,
+    "action": "key",
+    "value": "End"
+  },
+  {
+    "time": 264208.614,
+    "action": "key",
+    "value": "p"
+  },
+  {
+    "time": 264208.821,
+    "action": "capture",
+    "value": "180x48-logs"
+  },
+  {
+    "time": 264208.824,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264208.969,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264209.025,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264209.078,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264209.288,
+    "action": "capture",
+    "value": "180x48-config"
+  },
+  {
+    "time": 264209.594,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264209.732,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 264209.877,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264209.925,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 264209.98,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 264210.033,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 264210.081,
+    "action": "key",
+    "value": "Down"
+  },
+  {
+    "time": 264210.129,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 264216.187,
+    "action": "capture",
+    "value": "failure"
+  },
+  {
+    "time": 264216.193,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-pzbuetn7"
+    }
+  }
+]

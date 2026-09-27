@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config
+ Logs  Core output
+ ──────────────────────────────────────────────────────────────────────────────
+ TIME     CURSOR SOURCE   LEVEL   MESSAGE
+ ──────────────────────────────────────────────────────────────────────────────
+                                  configured fallback order
+ 12:41:04 #25    stdout   Error   proxy/vless: loopback fixture rejected a
+                                  deliberately invalid request; this long
+                                  message must remain aligned when wrapped
+                                  at 80 columns
+          #25    stdout           native output without severity or
+                                  timestamp
+          #26    stdout           XRM_FAKE_CORE_LOG_0000
+          #27    stdout           XRM_FAKE_CORE_LOG_0001
+          #28    stdout           XRM_FAKE_CORE_LOG_0002
+          #29    stdout           XRM_FAKE_CORE_LOG_0003                      ╻
+          #30    stdout           XRM_FAKE_CORE_LOG_0004                      ┃
+          #31    stdout           XRM_FAKE_CORE_LOG_0005                      ┃
+          #32    stdout           XRM_FAKE_CORE_LOG_0006                      ┃
+          #33    stdout           XRM_FAKE_CORE_LOG_0007                      ┃
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ PAUSED · 42 lines · new 0 · dropped no · truncated no
+ xrmd ready · Content · cursor 33                                   ? / F1 Help

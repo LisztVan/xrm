@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m5/15[0m
+ [1mrouting[0;2m  SOURCE · EDIT · Visual                                                                                       [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>   Rout[0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m    Nati[0m│ [1mRouting rule[0;2m  UNSAVED * · field 5/18                                                              [0m │[2m        [0m
+ [2m    Doma[0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m ├[2m────────[0m
+ [2m        [0m│    [ Add ]                                                                                         │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│ [2m  Match: domains (any entry)                                                                     [0m  │[2m        [0m
+ [2m        [0m│                                                                                                  ╻ │[2m        [0m
+ [2m        [0m│   ip                                                                                             ┃ │[2m        [0m
+ [2m        [0m│   [ ] Set value  [2mNot set · field omitted[0m                                                         ┃ │[2m        [0m
+ [2m        [0m│   [2m  Enable Set value to edit; draft value retained                                               [0m┃ │[2m        [0m
+ [2m        [0m│ [2m  Match: destination IPs (any entry)                                                             [0m┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│   network                 ‹ Unset / use core default ›                                           ┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│ [1mTarget - choose outbound or balancer                                                             [0m╹ │[2m        [0m
+ [2m        [0m│ [1m> outboundTag             [7m‹ Unset / use core default ›                                           [0m  │[2m        [0m
+ [2m        [0m│   ! outboundTag: Choose an outbound or balancer                                                    │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   balancerTag               Unset / use core default (only option)                                 │[2m        [0m
+ [2m        [0m│ [2m  Alternative target; leave outboundTag unset                                                    [0m  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│ [1mAdditional match conditions (AND)                                                                [0m  │[2m        [0m
+ [2m        [0m│   port                    [ ] Set value  [2mNot set · field omitted[0m                                   │[2m        [0m
+ [2m        [0m│                           [2m  Enable Set value to edit; draft value retained                       [0m  │[2m        [0m
+ [2m        [0m│ [2m  Native number, port/range string or env:NAME; existing type preserved                          [0m  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   sourceIP                                                                                         │[2m        [0m
+ [2m        [0m│   [ ] Set value  [2mNot set · field omitted[0m                                                           │[2m        [0m
+ [2m        [0m│   [2m  Enable Set value to edit; draft value retained                                               [0m  │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ routing · Source editable · Visual · included
+ [2mxrmd ready · Page content (Content) · modules/04_routing.json                                        [0mF1 Help & actions

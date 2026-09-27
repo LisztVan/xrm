@@ -1,0 +1,5 @@
+Error: xrm status
+Reason: The xrmd endpoint is unavailable or the connection was interrupted.
+Recovery: Check the socket path and the server serving that endpoint. Confirm the result before retrying a write.
+Next: xrm --socket '/tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock' server info
+Socket: /tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock

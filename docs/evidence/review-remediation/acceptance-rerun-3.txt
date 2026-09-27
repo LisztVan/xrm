@@ -1,0 +1,178 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 218: TUI node viewport follows the selected row across a 1205-node subscription
+1/5 Test #218: TUI node viewport follows the selected row across a 1205-node subscription ...............   Passed   12.00 sec
+    Start 220: UI-02/T25 logs expose pause and resume actions on the actual TUI
+2/5 Test #220: UI-02/T25 logs expose pause and resume actions on the actual TUI .........................   Passed    5.96 sec
+    Start 223: first use from xrm tui needs no Profile ID and completes local subscription to connect
+3/5 Test #223: first use from xrm tui needs no Profile ID and completes local subscription to connect ...***Failed   30.53 sec
+Filters: "first use from xrm tui needs no Profile ID and completes local subscription to connect"
+Randomness seeded to: 1561521160
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+first use from xrm tui needs no Profile ID and completes local subscription to
+connect
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1268
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:570: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with message:
+  expected=Stop core: completed
+   XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+   Overview  Runtime & saved configuration
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   R╭───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+   s│ Details
+  │
+   R│
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �───────────────────── │
+   A│   Notifications
+  │
+   H│   Subscription local fixture saved
+  │
+    │   Update local fixture started
+  │
+   S│   Update local fixture: completed
+  │
+   S│   Registered fixture; no core started
+  │
+   N│   Profile first profile saved; runtime unchanged
+  │
+   S│   Use set to first profile; runtime unchanged
+  │
+   !│   Source bindings saved
+  │
+    │   Target saved for first profile; runtime unchanged
+  │
+   S│   Connect first profile started
+  │
+   T│   Connect first profile: completed
+  │
+   R│   Stop core started
+  │
+    │
+  │
+   I╰───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   View first profi… · Use first profi… · Edit none · Run none
+   View first profile
+   xrmd ready · Content                                         F1 Help &
+  actions
+
+===============================================================================
+test cases:   1 |   0 passed | 1 failed
+assertions: 115 | 114 passed | 1 failed
+
+
+    Start 225: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts
+4/5 Test #225: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts ..............   Passed    1.70 sec
+    Start 228: UI-05 opens a configured external editor from the native module draft
+5/5 Test #228: UI-05 opens a configured external editor from the native module draft ....................***Failed   15.08 sec
+Filters: "UI-05 opens a configured external editor from the native module draft"
+Randomness seeded to: 1332197471
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+UI-05 opens a configured external editor from the native module draft
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1320
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:570: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with messages:
+  mode := "invalid"
+  expected=draft retained
+   XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+      log  dns  inbounds  outbounds  routing  observatory  api             ›
+  1/15
+   log  SOURCE · EDIT · JSON · UNSAVED *
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   ! Invalid JSON line 1, column 3: syntax error while parsing object key -
+   invalid literal; last read: '{ i'; expected string literal
+   [ { invalid JSON
+  ]
+    ╭───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+    │ Details
+  │
+    │
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �───────────────────── │
+    │   Notifications
+  │
+    │   Module Edit enabled for editor; runtime unchanged
+  │
+    │   Invalid JSON line 1, column 3: syntax error while parsing object key
+  │
+    │
+  │
+    │   Socket: /tmp/xrm-i52-tui-225057803625595/xrmd.sock
+  │
+    ╰───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+  
+
+  
+
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   View editor · Use editor · Edit editor · Run none
+   log · Source editable · JSON · Unsaved * · included
+   xrmd ready · Content · modules/00_log.json                   F1 Help &
+  actions
+
+===============================================================================
+test cases:   1 |   0 passed | 1 failed
+assertions: 172 | 171 passed | 1 failed
+
+
+
+60% tests passed, 2 tests failed out of 5
+
+Total Test time (real) =  65.28 sec
+
+The following tests FAILED:
+	223 - first use from xrm tui needs no Profile ID and completes local subscription to connect (Failed)
+	228 - UI-05 opens a configured external editor from the native module draft (Failed)
+Errors while running CTest

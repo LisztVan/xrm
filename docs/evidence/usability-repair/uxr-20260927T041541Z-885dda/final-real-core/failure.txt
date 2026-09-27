@@ -1,0 +1,24 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config           
+ Profiles  1 Profile / independent runtime contexts                             
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+ ▸│ ──────────────────────────────────────────────────────────────────────── │  
+  │ Profiles · View Real Loopback                                            │  
+  │ Use selects the next connection Profile; Cancel Use and module Edit do   │  
+  │ not change the running core. Metadata is independent of Edit. Us…        │  
+  │ Tasks · arrows choose; Enter executes available task                     │  
+  │ > u               Cancel Use · Real Loopback                           ┃ │  
+  │   e               Allow module Edit · Real Loopback                    ┃ │  
+  │   n               New Profile                                          ┃ │  
+  │   R               Rename Profile                                       ╹ │  
+  │   m               Profile metadata                                       │  
+  │   c               Copy Profile                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Real Loopba… · Next: Real Loopba… · Module Edit: none · Running: none 
+ View Real Loopback · Core Fixed Xray · Saved none                              
+ xrmd ready · Page content (Content)                          F1 Help & actions 

@@ -1,0 +1,24 @@
+ Overview  Profiles [1m[Modules][0m Subscriptions  Nodes  Logs  Config
+ log [1;7m dns [0m inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+[1m> dns-server [unsaved]                           [0m╭[1mInfo[0m─────────────────────────╮
+  ───────────────────────────────────────────────┤Module Edit enabled for Alpha│
+  [1mAddress                [0m9.9.9.9                 ╰─────────────────────────────╯
+  ╭[1mHelp[0m──────────────────────────────────────────────────────────────────────╮
+  │[2;7mTab / Shift-Tab  Move between fields and buttons — Current form           [0m│
+  │[2;7mArrows / Home / End  Move cursor or choice — Focused control              [0m│
+  │[2;7mCtrl-Home / Ctrl-End  Document start / end — Multiline text               [0m│
+  │[2;7mEnter  Insert newline in multiline text / activate button — Focused contro[0m│
+  │[2;7mCtrl-S  Save / accept form — Current draft                                [0m│
+  │[2;7mEsc  Cancel / close form — Current draft                                  [0m│
+  │[2;7mq e u p ? Space  Text in input fields — No background action              [0m│
+  │[2;7mF1  Context help — All contexts                                           [0m│
+  │[2;7m                                                                          [0m│
+  ╰────────────┬┬──────┬─────────────────────────────────────────────────────╯
+  │Add to draft││Cancel│
+  └────────────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+[1mView Alpha · Use Alpha · Edit Alpha · Run Alpha
+[0mdns · Source editable · Visual · included · modules/01_dns.json
+[2mxrmd ready · Content                                                     [0mF1 Help

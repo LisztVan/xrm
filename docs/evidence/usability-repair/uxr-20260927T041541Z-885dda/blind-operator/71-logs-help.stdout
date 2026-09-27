@@ -1,0 +1,18 @@
+Read the bounded server/core log buffer
+
+Usage: xrm logs [OPTIONS]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+        --cursor CURSOR   Transport buffer cursor, not a log record number; 0 
+                          starts at the oldest available chunk Default: 0. 
+        --limit LIMIT     Maximum log text bytes returned by this read 
+                          (default 65536) Default: 65536. 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm logs --limit 100

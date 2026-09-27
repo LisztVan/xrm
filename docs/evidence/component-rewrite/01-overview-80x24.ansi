@@ -1,0 +1,24 @@
+[1;7m[Overview][0m Profiles  Modules  Subscriptions  Nodes  Logs  Config
+────────────────────────────────────────────────────────────────────────────────
+[1mCORE  running
+[0mXray 26.9.9 (Xray, Penetrates Everything.) · PID 1442900
+Running Profile  Alpha
+Actual target    Node · Loopback inventory
+────────────────────────────────────────────────────────────────────────────────
+Saved (Alpha)  Node · Loopback inventory
+[2mHealth  process_only · process state; remote traffic unverified
+[0m────────────────────────────────────────────────────────────────────────────────
+[1mStatistics
+[0mTraffic: unavailable · latency: unmeasured
+────────────────────────────────────────────────────────────────────────────────
+Inventory  1 nodes · 0 sources
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+[1mView Alpha · Use Alpha · Edit none · Run Alpha
+
+[0;2mxrmd ready · TopNav                                                      [0mF1 Help

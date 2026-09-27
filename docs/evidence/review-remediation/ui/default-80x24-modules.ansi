@@ -1,0 +1,24 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview  Profiles [1m[38;2;115;194;230m[Modules][0m[38;2;146;163;183m Subscriptions  Nodes  Logs  Config [39m          
+ [38;2;115;194;230m  [1m log [0m[38;2;146;163;183m dns  inbounds  outbounds  routing  observatory  api [39m           [38;2;115;194;230m › [38;2;146;163;183m1/15[39m 
+ [1mlog[0m[38;2;146;163;183m  SOURCE · EDIT · Visual                                                   [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [1;7m>   Xray logging                                                             [0m  
+                                                                                
+ [1mXray logging[0m[38;2;146;163;183m  Draft                                                           [39m 
+ [38;2;146;163;183mlog                                                                           [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mloglevel                [39mwarning                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Beta · Edit Alpha · Run Alpha                                [39m 
+ log · Source editable · Visual · excluded                                      
+ [38;2;146;163;183mxrmd ready · Content · modules/00_log.json                   [38;2;115;194;230mF1 Help & actions[39m 

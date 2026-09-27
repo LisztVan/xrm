@@ -1,0 +1,9 @@
+git HEAD: 561dede3c2e8e9e38a39d07a52076c9f08e3eeb0
+working tree: dirty before this repair; no commit or push
+build: out/real-core (Debug, /usr/bin/c++)
+source manifest: 9cc82638101224b2c24f5f49408cf0a0548a5e4c0efec25ed123fc35978b5406  docs/evidence/tui-crash-fix/source-sha256.txt
+
+2e3f5ff4480eca1c68aeb6c8ca512cbf69fe80e506097c587a41b460616fbd68  out/real-core/xrm
+b2953a34cfe9131e766c758fee94772a21ebae62c372222232f2a659bdcdbe97  out/real-core/xrmd
+1a5a177ce006ff65f4ff22b43d96eacefb053818ea7a3eeae90fc3e527b5ca9b  out/real-core/tests/tui/acceptance/xrm_tui_acceptance_tests
+c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a  .deps/tools/xray-26.9.9/xray

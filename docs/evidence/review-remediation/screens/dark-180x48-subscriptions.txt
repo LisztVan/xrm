@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config                                                                                                               
+ Subscriptions  12 sources / node inventory                                                                                                                                         
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Source                   Nodes   Result          Auto    Bound                                                                                                                   
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ ▸ Local fixture 06 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 02 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 08 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 07 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 01 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 11 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 03 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 00 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 10 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 09 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 04 / sour… 0       Not refreshed   off     no                                                                                                                      
+   Local fixture 05 / sour… 0       Not refreshed   off     no                                                                                                                      
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                                                                                     
+ Highlighted Local fixture 06 / source name · Not refreshed · 0 nodes                                                                                                               
+ xrmd ready · Content                                                                                                                                             F1 Help & actions 

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]          
+    Core  Geodata  Tests  Appearance  Editor  General                       1/6 
+ Config / Core  Installed & registered Xray binaries                            
+ ────────────────────────────────────────────────────────────────────────────── 
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+ ─┤ Help & actions                                                           ├─ 
+  │ ──────────────────────────────────────────────────────────────────────── │  
+ C│ Config · View none                                                       │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > a               Register core                                        ┃ │  
+  │   l               Official releases                                    ┃ │  
+  │   p               Include prereleases                                  ┃ │  
+  │   o               Installed cores                                        │  
+  │   N               Notification history                                   │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                     │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View none · Use none · Edit none · Run unknown                                 
+ No View Profile · open Help for available tasks                                
+ xrmd unavailable · Content                                   F1 Help & actions 

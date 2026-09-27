@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m
+   [2m log [0;1m dns [0;2m inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m2/15[0m
+ [1mdns[0;2m  SOURCE · EDIT · Visual · UNSAVED *                                                                               [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m>   DNS [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m    DNS [0m│ [1mDNS server[0;2m  READ ONLY · field 1/15                                                                [0m │[2m        [0m
+ [2m    DNS [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m ├[2m────────[0m
+ [2m        [0m│ [1mServer address                                                                                   [0m┃ │[2m        [0m
+ [2m        [0m│ [1m> Address                 [0m  [2m127.0.0.1                                                          [0m  ┃ │[2m        [0m
+ [2m        [0m│ [2m  IP, DNS URL, localhost or fakedns                                                              [0m┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│   port                    [2mNot set · field omitted                                                [0m┃ │[2m        [0m
+ [2m        [0m│                           [2m  Enable Set value to edit; draft value retained                       [0m┃ │[2m        [0m
+ [2m        [0m│ [2m  Default 53; URL port applies for DOH/DOQL                                                      [0m┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ┃ │[2m        [0m
+ [2m        [0m│ [1mMatching and response filters                                                                    [0m┃ │[2m        [0m
+ [2m        [0m│   domains                                                                                        ┃ │[2m        [0m
+ [2m        [0m│   [2mNot set · field omitted                                                                        [0m┃ │[2m        [0m
+ [2m        [0m│   [2m  Enable Set value to edit; draft value retained                                               [0m┃ │[2m        [0m
+ [2m        [0m│ [2m  Priority domain matches                                                                        [0m┃ │[2m        [0m
+ [2m        [0m│                                                                                                  ╹ │[2m        [0m
+ [2m        [0m│   expectedIPs                                                                                      │[2m        [0m
+ [2m        [0m│   [2mNot set · field omitted                                                                        [0m  │[2m        [0m
+ [2m        [0m│   [2m  Enable Set value to edit; draft value retained                                               [0m  │[2m        [0m
+ [2m        [0m│ [2m  Keep matching responses                                                                        [0m  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   unexpectedIPs                                                                                    │[2m        [0m
+ [2m        [0m│   [2mNot set · field omitted                                                                        [0m  │[2m        [0m
+ [2m        [0m│   [2m  Enable Set value to edit; draft value retained                                               [0m  │[2m        [0m
+ [2m        [0m│ [2m  Exclude matching responses                                                                     [0m  │[2m        [0m
+ [2m        [0m│                                                                                                    │[2m        [0m
+ [2m        [0m│   queryStrategy             Unset / use core default                                               │[2m        [0m
+ [2m        [0m│ [2m  Unset: inherit DNS strategy                                                                    [0m  │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│  [ Close ]                                                                                         │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ dns · Source editable · Visual · Unsaved * · included
+ [2mxrmd ready · Page content (Content) · modules/01_dns.json                                            [0mF1 Help & actions

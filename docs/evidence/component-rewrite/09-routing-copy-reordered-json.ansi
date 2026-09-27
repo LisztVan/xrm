@@ -1,0 +1,24 @@
+ Overview  Profiles [1m[Modules][0m Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds [1;7m routing [0m observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+[7m{                                         [0m╭[1mDone[0m────────────────────────────────╮
+[7m  "routing": {                            [0m│Saved Alpha / dns; runtime unchanged│
+[7m    "rules": [                            [0m│(2)                                 │
+[7m      {                                   [0m╰────────────────────────────────────╯
+[7m        "domain": [
+          "example.test"
+        ],
+        "futureNative": 42,
+        "outboundTag": "direct",
+        "ruleTag": "Initial rule edited copy",
+        "type": "field"
+      },
+      {
+        "domain": [
+          "example.test"
+        ],
+        "futureNative": 42,
+[0m────────────────────────────────────────────────────────────────────────────────
+[1mView Alpha · Use Alpha · Edit Alpha · Run Alpha
+[0mrouting · Source editable · JSON · unsaved · included · modules/04_routing.json
+[2mxrmd ready · Content                                                     [0mF1 Help

@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+ Subscriptions  1 source / node inventory
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Source                   Nodes   Result          Auto    Bound
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Local fixture            1       Updated         on      yes
+
+
+
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Details                                                                                            │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │   Subscriptions                                                                                    │
+         │   Highlighted Local fixture · Updated · 1 nodes                                                    │
+         │   ID: a482ac8d-ed74-4dca-a30f-0016ef9cfb65                                                         │
+         │   Last attempt: 2026-09-27 04:49:32 UTC                                                            │
+         │   Last success: 2026-09-27 04:49:32 UTC                                                            │
+         │   View Profile binding (Lab Home): Included                                                        │
+         │   Other Profile bindings: inspect each Profile's source selection.                                 │
+         │   enabled: true                                                                                    │
+         │   last_result: success                                                                             │
+         │   unsupported_count: 0                                                                             │
+         │   malformed_count: 0                                                                               │
+         │   Socket: /tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ Highlighted Local fixture · Updated · 1 nodes
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

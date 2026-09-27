@@ -1,0 +1,24 @@
+ [1mXRM [7m[Overview][0;2m Profiles  Modules  Subscriptions  Nodes  Logs  Config [0m          
+ [1mOverview[0;2m  Runtime & saved configuration                                       [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1mRuntime[0;2m  ACTUAL                                                               [0m 
+ [1mrunning[0;2m  Xray 26.9.9  PID 1277348[0m      
+ [2mRunning Profile   [0mG5 Stats             
+ [2mActual target     [0mNode · G5 loopback direct                                    
+ [2mHealth            [0mProcess alive; traffic unverified                            
+
+ [1mSaved configuration[0;2m  VIEW G5 Stats                                            [0m 
+ [2mSaved target      [0mNode · G5 loopback direct                                    
+ [2mNext Connect      [0mG5 Stats             
+ [2mSaved settings apply only on Connect / Apply                                  [0m 
+
+ [1mStatistics[0;2m  OBSERVED                                                          [0m 
+ Traffic: available · latency: unmeasured                                       
+ g5-socks  total up 784 B · down 1168 B 
+ block  total up 0 B · down 0 B         
+ direct  total up 0 B · down 0 B        
+ xrm.node.05d3f5f1-56bc-484f-834a-bb19170d3f35  total up 672 B · down 1072 B    
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: G5 Stats · Next: G5 Stats · Module Edit: none · Running: G5 Stats    [0m 
+ View G5 Stats      
+ [2mxrmd ready · Page navigation (TopNav)                        [0mF1 Help & actions 

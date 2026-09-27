@@ -1,0 +1,48 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config                                                                                                               
+ Profiles  18 Profiles / independent runtime contexts                                                                                                                               
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Lab region 14 / long … Process fixture      —      —      —                                                                                                                      
+   Lab region 02 / long … Process fixture      —      —      —                                                                                                                      
+   Lab region 10 / long … Process fixture      —      —      —                                                                                                                      
+   Lab region 00 / long … Process fixture      —      —      —                                                                                                                      
+   Lab region 03 / long … Process fixture      —      —      —                                                                                                                      
+ ▸ Beta                   Process fixture      —      —      —                                                                                                                      
+   Lab region 15 / long … Process fixtu╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+   Lab region 12 / long … Process fixtu│ Help & actions                                                                                     │                                       
+   Lab region 08 / long … Process fixtu│ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+   Alpha                  Process fixtu│ Profiles · View Alpha                                                                              │                                       
+   Lab region 11 / long … Process fixtu│ Use selects the next connection Profile; Cancel Use and module Edit do not change the running      │                                       
+   Lab region 09 / long … Process fixtu│ core. Metadata is independent of Edit.                                                             │                                       
+   Lab region 06 / long … Process fixtu│ Actions · choose with arrows, Enter to execute                                                     │                                       
+   Lab region 04 / long … Process fixtu│ > u               Use Profile · Beta                                                               │                                       
+   Lab region 05 / long … Process fixtu│   e               Allow module Edit · Beta                                                         │                                       
+   Lab region 01 / long … Process fixtu│   n               New Profile                                                                      │                                       
+   Lab region 13 / long … Process fixtu│   R               Rename Profile                                                                   │                                       
+   Lab region 07 / long … Process fixtu│   m               Profile metadata                                                                 │                                       
+                                       │   c               Copy Profile                                                                     │                                       
+                                       │   D               Delete Profile                                                                   │                                       
+                                       │   N               Notification history                                                             │                                       
+                                       │   r               Refresh                                                                          │                                       
+                                       │   F               Full object details                                                              │                                       
+                                       │   Enter           View highlighted object                                                          │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ Navigation and input                                                                               │                                       
+                                       │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                                               │                                       
+                                       │ Esc                     Return one level                                                           │                                       
+                                       │ Esc closes Help and restores your place                                                            │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                                                                                     
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory                                                                                                                
+ xrmd ready · Content                                                                                                                                             F1 Help & actions 

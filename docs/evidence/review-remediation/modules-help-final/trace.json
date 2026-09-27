@@ -1,0 +1,796 @@
+[
+  {
+    "time": 223938.783,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-_r3oca2p",
+      "pid": 1556749,
+      "xrm_sha256": "534fb547daa628d2848aa746dd332963b61972ee8a0f428b1e538b7cf67e9ab1"
+    }
+  },
+  {
+    "time": 223938.86,
+    "action": "tui_pid",
+    "value": "1556753"
+  },
+  {
+    "time": 223938.86,
+    "action": "fixture",
+    "value": {
+      "profile": "8eac657a-c19f-4796-9acc-9dabf5ccb990",
+      "modules": [
+        "log",
+        "dns",
+        "inbounds",
+        "outbounds",
+        "routing",
+        "observatory",
+        "api",
+        "metrics",
+        "stats",
+        "policy",
+        "fakedns",
+        "geodata",
+        "env",
+        "version",
+        "burstObservatory"
+      ],
+      "included": false,
+      "core": "not registered or started"
+    }
+  },
+  {
+    "time": 223938.875,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223938.93,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223938.982,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223939.031,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223939.082,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223939.239,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223939.291,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223939.343,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223939.391,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223939.445,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223939.494,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223939.546,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223939.604,
+    "action": "capture",
+    "value": "80x24-dns-form-help"
+  },
+  {
+    "time": 223939.604,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223939.738,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 223939.794,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223939.932,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223940.07,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223940.213,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.261,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.31,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.358,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.407,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.455,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.517,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.569,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223940.62,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.669,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.717,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.766,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223940.815,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223940.869,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223940.918,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223940.97,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223941.029,
+    "action": "capture",
+    "value": "80x24-routing-form-help"
+  },
+  {
+    "time": 223941.029,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223941.164,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 223941.22,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223941.357,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223941.495,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223941.638,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223941.687,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223941.735,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223941.783,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223941.831,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223941.88,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223941.935,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223941.987,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223942.036,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223942.102,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223942.25,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223942.303,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223942.352,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223942.404,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223942.561,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223942.613,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223942.665,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223942.714,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223942.769,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223942.818,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223942.87,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223942.93,
+    "action": "capture",
+    "value": "120x40-dns-form-help"
+  },
+  {
+    "time": 223942.93,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223943.066,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 223943.122,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223943.26,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223943.398,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223943.54,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.588,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.637,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.686,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.734,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.782,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.844,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.896,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223943.948,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223943.996,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223944.045,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223944.094,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223944.143,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223944.198,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223944.247,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223944.298,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223944.358,
+    "action": "capture",
+    "value": "120x40-routing-form-help"
+  },
+  {
+    "time": 223944.358,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223944.492,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 223944.547,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223944.684,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223944.821,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223944.965,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223945.014,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223945.062,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223945.111,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223945.159,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223945.207,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223945.262,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223945.314,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223945.363,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223945.43,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223945.58,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223945.632,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223945.681,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223945.733,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223945.889,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223945.942,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223945.993,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223946.044,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223946.099,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223946.147,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223946.2,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223946.26,
+    "action": "capture",
+    "value": "180x48-dns-form-help"
+  },
+  {
+    "time": 223946.26,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223946.394,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 223946.45,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223946.587,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223946.724,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223946.869,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223946.917,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223946.966,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.014,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.063,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.111,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.171,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.223,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223947.275,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.325,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.374,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.422,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223947.47,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223947.527,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223947.576,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223947.63,
+    "action": "key",
+    "value": "F1"
+  },
+  {
+    "time": 223947.69,
+    "action": "capture",
+    "value": "180x48-routing-form-help"
+  },
+  {
+    "time": 223947.69,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223947.824,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 223947.88,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223948.017,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223948.153,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 223948.297,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223948.345,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223948.394,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223948.443,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223948.492,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223948.54,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 223948.597,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 223948.65,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 223948.699,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 223948.752,
+    "action": "verification",
+    "value": {
+      "status": "PASS",
+      "scope": "DNS/routing Help at 80/120/180 columns; unchanged acceptance; source and runtime unchanged",
+      "core": "not started",
+      "limits": "No OS IME or native terminal pixel capture; no network validation"
+    }
+  },
+  {
+    "time": 223948.757,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-_r3oca2p"
+    }
+  }
+]

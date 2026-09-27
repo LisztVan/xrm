@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+  Core  Geodata  Tests  Appearance  Editor  General
+ Config / General  XRM program settings
+ ──────────────────────────────────────────────────────────────────────────────
+   Setting                  Value
+ ──────────────────────────────────────────────────────────────────────────────
+ ▸ Configuration            Native modules are in Modules
+   Socket                   /tmp/xrm-rewrite-ui-432hav42/xrmd.sock
+   Version                  XRM 0.1.0
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit Alpha · Run Alpha
+ General
+ xrmd ready · Content                                               ? / F1 Help

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log  dns [0;1m inbounds [0;2m outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env [0m     › [2m3/15[0m 
+ [1minbounds[0;2m  SOURCE · EDIT · Visual                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Inbound listeners         [0;2m   [1mInbound listeners[0;2m  Draft                                                             [0m 
+ [2m                                 inbounds                                                                             [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 1               local-socks · socks · 127.0.0.1:19091                                [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2m        [0m│ [1mInbound listener[0;2m  EDIT · field 1/4                                                                [0m │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1m> tag                     [7m[x] Set value[0m  [2mExplicit value[0m                                            │[2m        [0m 
+ [2m        [0m│ [1m                          [0m[ local-socks                                                         ]  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   protocol                ‹ socks ›                                                                │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   listen                  [x] Set value  [2mExplicit value[0m                                            │[2m        [0m 
+ [2m        [0m│                           [ 127.0.0.1                                                           ]  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   port                    [x] Set value  [2mExplicit value[0m                                            │[2m        [0m 
+ [2m        [0m│                           [ 19091                                                               ]  │[2m        [0m 
+ [2m        [0m│ [2m  Native number, port/range string or env:NAME; existing type preserved                          [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                [0m 
+ inbounds · Source editable · Visual · excluded             
+ [2mxrmd ready · Content · modules/02_inbounds.json                                                      [0mF1 Help & actions 

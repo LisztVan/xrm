@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]          
+    Core  Geodata  Tests  Appearance  Editor  General                       1/6 
+ Config / Core  Installed & registered Xray binaries                            
+ ────────────────────────────────────────────────────────────────────────────── 
+   Core / release                 Version              State                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ ▸ G5 isolated core               26.9.9               registered               
+  ╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Details                                                                  │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │   G5 isolated core                                                       │  
+  │   Highlighted G5 isolated core · /home/lisztzy/Projects/xrm/build/comp   │  
+  │   ID: 4d667480-b29e-402c-a8c9-feae287fa8d7                               │  
+  │   reported_version: Xray 26.9.9 (Xray, Penetrates Everything.)           │  
+  │   path: /home/lisztzy/Projects/xrm/build/component-rewrite/tests/xrm_f   │  
+  │   Socket: /tmp/xrm-rewrite-ui-9ue6vuyq/xrmd.sock                         │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: G5 Core Ent… · Next: G5 Core Ent… · Module Edit: none · Running: none 
+ Highlighted G5 isolated core · /home/lisztzy/Projects/xrm/build/component-rew… 
+ xrmd ready · Page content (Content)                          F1 Help & actions 

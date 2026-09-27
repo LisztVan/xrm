@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 8/15 
+ metrics  SOURCE · EDIT · Visual                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Metrics endpoint             Metrics endpoint  Draft                                                               
+                                  metrics                                                                               
+                                  ───────────────────────────────────────────────────────────────────────────────────── 
+                                  Listen address:port     127.0.0.1:19092                                               
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Metrics endpoint  EDIT · field 1/2                                                                 │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ > tag                     [ ] Set value  Not set · field omitted                                   │         
+         │                           [ Enter value                                                         ]  │         
+         │                                                                                                    │         
+         │   Listen address:port     [x] Set value  Explicit value                                            │         
+         │                           [ 127.0.0.1:19092                                                     ]  │         
+         │   Either tag or listen is needed by Xray                                                           │         
+         │                                                                                                    │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │  [ Add to draft ]  [ Cancel ]                                                                      │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ metrics · Source editable · Visual · excluded              
+ xrmd ready · Content · modules/07_metrics.json                                                       F1 Help & actions 

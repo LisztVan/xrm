@@ -1,0 +1,24 @@
+ Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+────────────────────────────────────────────────────────────────────────────────
+  Name                      Nodes    Result      ╭Done─────────────────────────╮
+──Add subscription [unsaved]                     │Profile Alph?a saved; runtime│
+No───────────────────────────────────────────────┤unchanged                    │
+  Name                   Local fixture updated   ╰─────────────────────────────╯
+  URL                    ••••••••••••••••••••••••••••••                      ┃
+  User-Agent                                                                 ┃
+  Auto refresh           ▣                                                   ┃
+  Interval seconds       21600                                               ┃
+  Proxy URL                                                                  ┃
+  Headers (advanced JSON)                                                    ┃
+  {}                                                                         ┃
+                                                                             ╹
+
+  ────────────────────────────────────────────────────────────────────────────
+  ┌────┐┌──────┐
+  │Save││Cancel│
+  └────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+View Alph?a · Use Alph?a · Edit none · Run Alph?a
+Profile Alpha · Core Process fixture · sources 0 · ID cef3f28a-7912-42f9-85ed-55
+xrmd ready · Content                                                     F1 Help

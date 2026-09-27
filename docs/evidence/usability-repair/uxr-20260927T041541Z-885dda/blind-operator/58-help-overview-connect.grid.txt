@@ -1,0 +1,40 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+ Overview  Runtime & saved configuration
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Runtime  ACTUAL                                      Saved configuration  VIEW Lab Home
+ stopped                                              Saved target      Node · Loopback direct
+ Running Profile   none                               Next Connect      Lab Home
+ Actual target     none                               Saved settings apply only on Connect / Apply
+ Health            Not running
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ Statisti│ Help & actions                                                                                     │
+ Traffic:│ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+ Unavaila│ Overview · View Lab Home · Connect uses Lab Home                                                   │
+         │ Connect publishes saved settings only. Statistics need saved stats, policy and metrics settings    │
+ Inventor│ plus a running core. Configure in Modules, then explicitly Connect. Add nodes in Nodes; choose the │
+         │ next Profile in Prof…                                                                              │
+         │ Tasks · arrows choose; Enter executes available task                                               │
+         │ > c               Connect saved · Lab Home                                                         │
+         │   d               Stop core                                                                        │
+         │   f               Runtime paths                                                                    │
+         │   i               Inspect local entry                                                              │
+         │   N               Notification history                                                             │
+         │   r               Refresh                                                                          │
+         │   F               Full object details                                                              │
+         │   Enter           View highlighted object                                                          │
+         │                   Last error diagnostic                                                            │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │ Navigation and input                                                                               │
+         │ Esc                     Return one level                                                           │
+         │ Esc closes Help and restores your place                                                            │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ View Lab Home
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

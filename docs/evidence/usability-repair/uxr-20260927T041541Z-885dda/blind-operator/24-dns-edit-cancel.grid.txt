@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 2/15
+ dns  SOURCE · EDIT · Visual · UNSAVED *
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ >   DNS servers                  DNS servers  Draft
+     DNS query and cache setting  dns.servers
+     DNS hosts                    ─────────────────────────────────────────────────────────────────────────────────────
+                                  1  localhost
+                                     port Default    strategy Inherit
+
+                                  2  127.0.0.1
+                                     port Default    strategy Inherit
+
+
+
+
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Unsaved DNS server                                                                                 │
+         │ Add to draft keeps these object changes in the module draft. Discard closes this form without      │
+         │ changing the parent draft. Source and runtime files remain unchanged.                              │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Add to draft ]  [ Discard ]  [ Continue editing ]                                               │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ dns · Source editable · Visual · Unsaved * · included
+ xrmd ready · Page content (Content) · modules/01_dns.json                                            F1 Help & actions

@@ -1,0 +1,60 @@
+[
+  {
+    "time": 222288.148,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-k0y02j1x",
+      "pid": 1513199,
+      "xrm_sha256": "df3eac50c6306f31072dd1e333f86e54f030ff7b4a2f64a63a6e72a93171599f"
+    }
+  },
+  {
+    "time": 222288.248,
+    "action": "tui_pid",
+    "value": "1513206"
+  },
+  {
+    "time": 222288.256,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222288.303,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222288.351,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222288.398,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222288.445,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 222288.497,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 222288.553,
+    "action": "capture",
+    "value": "paper-padded"
+  },
+  {
+    "time": 222288.559,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-k0y02j1x"
+    }
+  }
+]

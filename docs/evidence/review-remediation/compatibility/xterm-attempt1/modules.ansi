@@ -1,0 +1,24 @@
+[38;5;254m[48;5;234m [1m[38;5;74m[48;5;235mXRM [0m[38;5;109m[48;5;235m Overview  Profiles [1m[38;5;74m[Modules][0m[38;5;109m[48;5;235m Subscriptions  Nodes  Logs  Config [38;5;254m         [48;5;234m 
+ [38;5;74m  [1m log [0m[38;5;109m[48;5;234m dns  inbounds  outbounds  routing  observatory  api [38;5;254m           [38;5;74m › [38;5;109m1/15[38;5;254m 
+ [1mlog[0m[38;5;109m[48;5;234m  SOURCE · READ ONLY · Visual                                              [38;5;254m 
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [1m[38;5;74m[48;5;237m>   Xray logging                                                             [0m[38;5;254m[48;5;234m  
+                                                                                
+ [1mXray logging[0m[38;5;109m[48;5;234m  Read only                                                       [38;5;254m 
+ [38;5;109mlog                                                                           [38;5;254m 
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [38;5;109mloglevel                [38;5;254mwarning                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [38;5;240m──────────────────────────────────────────────────────────────────────────────[38;5;254m 
+ [38;5;109mView Compatibili… · Use Compatibili… · Edit none · Run none                   [38;5;254m 
+ log · Source read-only · Visual · excluded                                     
+ [38;5;109mxrmd ready · Content · modules/00_log.json                   [38;5;74mF1 Help & actions[38;5;254m 

@@ -1,0 +1,71 @@
+Randomness seeded to: 940312853
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+P3 semantic module form changes the same unsaved native draft
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:785
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:570: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with message:
+  expected=Saved Desk / log
+   XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+      log  dns  inbounds  outbounds  routing  observatory  api             ›
+  1/15
+   log  SOURCE · EDIT · JSON
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   [ {
+  ]
+       "log": {
+         "iterationFlag": true,
+         "loglevel": "info"
+       }
+     }
+  
+
+  
+
+  
+
+  
+
+  
+
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   View Desk · Use Desk · Edit Desk · Run none
+   log · Source editable · JSON · included
+   xrmd ready · Content · modules/00_log.json                   F1 Help &
+  actions
+
+{"error":{"code":"conflict","message":"Xray 仍被 Profile 使用","subject":"uses-core"}}
+xrm_tui_acceptance_tests: /home/lisztzy/Projects/xrm/build/dev/_deps/nlohmann_json-src/include/nlohmann/json.hpp:2174: const nlohmann::json_abi_v3_12_0::basic_json<ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass>::value_type& nlohmann::json_abi_v3_12_0::basic_json<ObjectType, ArrayType, StringType, BooleanType, NumberIntegerType, NumberUnsignedType, NumberFloatType, AllocatorType, JSONSerializer, BinaryType, CustomBaseClass>::operator[](const typename object_t::key_type&) const [with ObjectType = std::map; ArrayType = std::vector; StringType = std::__cxx11::basic_string<char>; BooleanType = bool; NumberIntegerType = long int; NumberUnsignedType = long unsigned int; NumberFloatType = double; AllocatorType = std::allocator; JSONSerializer = nlohmann::json_abi_v3_12_0::adl_serializer; BinaryType = std::vector<unsigned char>; CustomBaseClass = void; const_reference = const nlohmann::json_abi_v3_12_0::basic_json<>&; typename object_t::key_type = std::__cxx11::basic_string<char>; object_t = std::map<std::__cxx11::basic_string<char>, nlohmann::json_abi_v3_12_0::basic_json<>, std::less<void>, std::allocator<std::pair<const std::__cxx11::basic_string<char>, nlohmann::json_abi_v3_12_0::basic_json<> > > >]: Assertion `it != m_data.m_value.object->end()' failed.
+-------------------------------------------------------------------------------
+TUI native inbound Add requires Edit and preserves a disabled module
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1045
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1045: FAILED:
+  {Unknown expression after the reported line}
+due to a fatal error condition:
+  SIGABRT - Abort (abnormal termination) signal
+
+===============================================================================
+test cases:  20 |  18 passed | 2 failed
+assertions: 444 | 442 passed | 2 failed
+

@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview [0;1m[Profiles][0;2m Modules  Subscriptions  Nodes  Logs  Config [0m
+ [1mProfiles[0;2m  1 Profile / independent runtime contexts                                                                    [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2m  [1mProfile               [0;2m [1mCore                [0;2m [1mUse   [0;2m [1mEdit  [0;2m [1mRun      [0;2m                                                 [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [1;2m▸ Lab Home               Lab Xray             yes    —      —                                                        [0;2m [0m
+ [2m                                                                                                                      [0m
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m
+ [2m        [0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mProfiles · View Lab Home                                                                          [0m │[2m        [0m
+ [2m        [0m│ [2mUse selects the next connection Profile; Cancel Use and module Edit do not change the running     [0m │[2m        [0m
+ [2m        [0m│ [2mcore. Metadata is independent of Edit. Use chooses the next connection; module Edit grants writes [0m │[2m        [0m
+ [2m        [0m│ [2min Modules. Connect and…                                                                          [0m │[2m        [0m
+ [2m        [0m│ [2mTasks · arrows choose; Enter executes available task                                              [0m │[2m        [0m
+ [2m        [0m│ [1;7m> u               Cancel Use · Lab Home                                                          [0m  │[2m        [0m
+ [2m        [0m│   e               Allow module Edit · Lab Home                                                     │[2m        [0m
+ [2m        [0m│   n               New Profile                                                                      │[2m        [0m
+ [2m        [0m│   R               Rename Profile                                                                   │[2m        [0m
+ [2m        [0m│   m               Profile metadata                                                                 │[2m        [0m
+ [2m        [0m│   c               Copy Profile                                                                     │[2m        [0m
+ [2m        [0m│   D               Delete Profile                                                                   │[2m        [0m
+ [2m        [0m│   N               Notification history                                                             │[2m        [0m
+ [2m        [0m│   r               Refresh                                                                          │[2m        [0m
+ [2m        [0m│   F               Full object details                                                              │[2m        [0m
+ [2m        [0m│   Enter           View highlighted object                                                          │[2m        [0m
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m
+ [2m        [0m│ [1mNavigation and input                                                                              [0m │[2m        [0m
+ [2m        [0m│ Arrows / PgUp / PgDn    Browse rows; Home / End jump                                               │[2m        [0m
+ [2m        [0m│ Esc                     Return one level                                                           │[2m        [0m
+ [2m        [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m        [0m
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m                                                                                                                      [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: none · Running: none                                                [0m
+ View Lab Home · Core Lab Xray · Saved Node · Loopback direct
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

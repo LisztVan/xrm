@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes [0;1m[Logs][0;2m Config [0m          
+ [1mLogs[0;2m  Core output                                                             [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mTIME     SOURCE   LEVEL     MESSAGE                                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2;7m-        stdout   Info      [0;1;7mUI process fixture                               [0m┃ 
+ [2m-        stdout             [0mcontinued line                                   ┃ 
+ [2m-        stdout   Info      [0mUI process fixture                               ┃ 
+ [2m-        stdout             [0mcontinued line                                   ┃ 
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0000                           ┃ 
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0001                           ┃ 
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0002                           ┃ 
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0003                             
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0004                             
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0005                             
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0006                             
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0007                             
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0008                             
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0009                             
+ [2m-        stdout             [0mXRM_FAKE_CORE_LOG_0010                             
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: Alph?a · Next: Alph?a · Module Edit: none · Running: Alph?a          [0m 
+ Paused · 34 text lines                                                         
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

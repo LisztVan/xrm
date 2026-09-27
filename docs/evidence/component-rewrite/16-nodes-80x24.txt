@@ -1,0 +1,24 @@
+ Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+ All  Local  Groups  Local fixture updated draft
+────────────────────────────────────────────────────────────────────────────────
+  Node                           Protocol   ╭Done──────────────────────────────╮
+────────────────────────────────────────────┤Subscription Local fixture updated│
+▸ Loopback inventory             freedom    │draft saved                       │
+                                            ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+View Alph?a · Use Alph?a · Edit none · Run none
+Profile Alpha · Core Process fixture · sources 0 · ID cef3f28a-7912-42f9-85ed-55
+xrmd ready · Content                                                     F1 Help

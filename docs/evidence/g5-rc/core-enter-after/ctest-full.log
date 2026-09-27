@@ -1,0 +1,761 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+        Start 224: disabled native modules without source open safely and remain disabled
+        Start 189: RC-06
+        Start 225: first use from xrm tui needs no Profile ID and completes local subscription to connect
+        Start 186: RC-03
+  1/375 Test #186: RC-03 ........................................................................................................   Passed   21.57 sec
+        Start 216: Config appearance and editor preferences persist across Manager sessions without Xray edits
+  2/375 Test #225: first use from xrm tui needs no Profile ID and completes local subscription to connect .......................   Passed   25.71 sec
+        Start 300: P5 fixed Xray routes preset direct, proxy and block through native multi-file confdir
+  3/375 Test #189: RC-06 ........................................................................................................   Passed   27.83 sec
+        Start 242: PERF-02 1000-node inventory, group expansion, rendering and bounded buffers
+  4/375 Test #216: Config appearance and editor preferences persist across Manager sessions without Xray edits ..................   Passed   19.11 sec
+        Start 223: UI-03 overview distinguishes the saved target from the running target
+  5/375 Test #300: P5 fixed Xray routes preset direct, proxy and block through native multi-file confdir ........................   Passed   19.44 sec
+        Start 220: TUI node viewport follows the selected row across a 1205-node subscription
+  6/375 Test #242: PERF-02 1000-node inventory, group expansion, rendering and bounded buffers ..................................   Passed   17.31 sec
+        Start 178: UI-01 text keys do not fire global actions and TUI exit leaves core running
+  7/375 Test #223: UI-03 overview distinguishes the saved target from the running target ........................................   Passed   14.24 sec
+        Start 221: 80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter input
+  8/375 Test #178: UI-01 text keys do not fire global actions and TUI exit leaves core running ..................................   Passed   11.52 sec
+        Start 200: TUI navigation shows one matching selected tab in the current terminal grid
+  9/375 Test #220: TUI node viewport follows the selected row across a 1205-node subscription ...................................   Passed   11.96 sec
+        Start 217: UI-12 local VLESS form saves a manual node and Group as a Profile outlet
+ 10/375 Test #221: 80x24 TUI keyboard flow retains UTF-8 names and q is ordinary filter input ...................................   Passed   10.66 sec
+        Start 230: UI-05 opens a configured external editor from the native module draft
+ 11/375 Test #200: TUI navigation shows one matching selected tab in the current terminal grid ..................................   Passed    9.76 sec
+        Start 232: UX-02/03/04/05/06 focus layers route only the current keyboard scope
+ 12/375 Test #217: UI-12 local VLESS form saves a manual node and Group as a Profile outlet .....................................   Passed   10.75 sec
+        Start 214: Nodes Add exposes a real Local form and Group action
+ 13/375 Test #230: UI-05 opens a configured external editor from the native module draft ........................................   Passed    9.45 sec
+        Start 215: Config Core removes only an unused managed install
+ 14/375 Test #232: UX-02/03/04/05/06 focus layers route only the current keyboard scope .........................................   Passed   10.35 sec
+        Start 194: VLESS-WS-XHTTP
+ 15/375 Test #214: Nodes Add exposes a real Local form and Group action .........................................................   Passed    9.25 sec
+        Start 317: cli_rewrite_r10_r11
+ 16/375 Test #194: VLESS-WS-XHTTP ...............................................................................................   Passed    6.74 sec
+        Start  90: MetricsClient shares one timer across viewers and stops without viewers
+ 17/375 Test #215: Config Core removes only an unused managed install ...........................................................   Passed    8.53 sec
+        Start 193: RC-10
+ 18/375 Test #317: cli_rewrite_r10_r11 ..........................................................................................   Passed    9.59 sec
+        Start 222: UI-02/T25 logs expose pause and resume actions on the actual TUI
+ 19/375 Test  #90: MetricsClient shares one timer across viewers and stops without viewers ......................................   Passed    6.21 sec
+        Start 183: G2/E2E-03 refresh changes inventory only until an explicit connect
+ 20/375 Test #193: RC-10 ........................................................................................................   Passed    6.49 sec
+        Start 199: E2E-06
+ 21/375 Test #222: UI-02/T25 logs expose pause and resume actions on the actual TUI .............................................   Passed    5.87 sec
+        Start 177: UI-04 TUI module page renders all native module keys and UI-03 exposes saved Groups
+ 22/375 Test #183: G2/E2E-03 refresh changes inventory only until an explicit connect ...........................................   Passed    5.19 sec
+        Start 229: UI-07 Profile management is name-oriented and browsing keeps the running Profile
+ 23/375 Test #199: E2E-06 .......................................................................................................   Passed    6.35 sec
+        Start 187: RC-04
+ 24/375 Test #177: UI-04 TUI module page renders all native module keys and UI-03 exposes saved Groups ..........................   Passed    5.02 sec
+        Start 176: E2E-04 managed manual group is saved, selected, and assembled through CLI
+ 25/375 Test #229: UI-07 Profile management is name-oriented and browsing keeps the running Profile .............................   Passed    5.34 sec
+        Start 174: E2E-05 installing/using a registered core stays separate from applying module edits
+ 26/375 Test #176: E2E-04 managed manual group is saved, selected, and assembled through CLI ....................................   Passed    4.46 sec
+        Start 233: UX-07/09 module views use one full-width draft and F2 never saves
+ 27/375 Test #187: RC-04 ........................................................................................................   Passed    6.12 sec
+        Start 184: RC-01
+ 28/375 Test #174: E2E-05 installing/using a registered core stays separate from applying module edits ..........................   Passed    4.28 sec
+        Start 168: stats --watch keeps a UDS session alive until it sends an explicit stop
+ 29/375 Test #233: UX-07/09 module views use one full-width draft and F2 never saves ............................................   Passed    4.12 sec
+        Start 185: RC-02
+ 30/375 Test #184: RC-01 ........................................................................................................   Passed    4.38 sec
+        Start 167: Overview statistics keep missing metrics and latency explicitly unavailable
+ 31/375 Test #168: stats --watch keeps a UDS session alive until it sends an explicit stop ......................................   Passed    4.05 sec
+        Start 166: runtime stats CLI and TUI report unavailable without fabricating zero counters
+ 32/375 Test #167: Overview statistics keep missing metrics and latency explicitly unavailable ..................................   Passed    3.57 sec
+        Start 203: P1 node table header and cells share display columns
+ 33/375 Test #185: RC-02 ........................................................................................................   Passed    4.38 sec
+        Start 238: UX-INT Profile and Subscription editors save their own sources
+ 34/375 Test #166: runtime stats CLI and TUI report unavailable without fabricating zero counters ...............................   Passed    3.58 sec
+        Start 236: UX-09 formatting compact Source and switching read-only Runtime never saves
+ 35/375 Test #238: UX-INT Profile and Subscription editors save their own sources ...............................................   Passed    3.28 sec
+        Start 173: CLI human Profile and runtime receipts preserve machine results and saved scope
+ 36/375 Test #203: P1 node table header and cells share display columns .........................................................   Passed    3.92 sec
+        Start 231: T25 pause keeps a bounded log viewport and reports server buffer truncation
+ 37/375 Test #236: UX-09 formatting compact Source and switching read-only Runtime never saves ..................................   Passed    2.76 sec
+        Start 171: E2E-02 manual node through Profile, modules, connect, logs, and stop
+ 38/375 Test #173: CLI human Profile and runtime receipts preserve machine results and saved scope ..............................   Passed    2.43 sec
+        Start 188: RC-05
+ 39/375 Test #231: T25 pause keeps a bounded log viewport and reports server buffer truncation ..................................   Passed    2.57 sec
+        Start 165: historical node preview is read-only and confirmation removes only selected safe rows
+ 40/375 Test #171: E2E-02 manual node through Profile, modules, connect, logs, and stop .........................................   Passed    2.50 sec
+        Start 228: UI-06/UI-07 zero-profile startup and Profile management use names
+ 41/375 Test #188: RC-05 ........................................................................................................   Passed    3.06 sec
+        Start 219: TUI local-use entry keeps an existing custom inbound intact
+ 42/375 Test #165: historical node preview is read-only and confirmation removes only selected safe rows ........................   Passed    2.39 sec
+        Start  91: a late response from a previous core run cannot replace the current sample
+ 43/375 Test #228: UI-06/UI-07 zero-profile startup and Profile management use names ............................................   Passed    2.52 sec
+        Start 198: LIFE-10 xrmd shutdown reaps only its managed Xray child, not an independent Xray
+ 44/375 Test  #91: a late response from a previous core run cannot replace the current sample ...................................   Passed    2.11 sec
+        Start 169: stats --watch emits JSON before exit and reports daemon loss
+ 45/375 Test #224: disabled native modules without source open safely and remain disabled .......................................   Passed  121.73 sec
+        Start 240: UX-INT a dirty native draft survives same-session resize and exposes full paths
+ 46/375 Test #219: TUI local-use entry keeps an existing custom inbound intact ..................................................   Passed    2.54 sec
+        Start 237: UX-INT node JSON and Group field errors keep the bound PTY draft
+ 47/375 Test #198: LIFE-10 xrmd shutdown reaps only its managed Xray child, not an independent Xray .............................   Passed    2.11 sec
+        Start 208: P3 semantic module form changes the same unsaved native draft
+ 48/375 Test #169: stats --watch emits JSON before exit and reports daemon loss .................................................   Passed    2.03 sec
+        Start 209: P5 routing preset is previewed before saving native routing source
+ 49/375 Test #240: UX-INT a dirty native draft survives same-session resize and exposes full paths ..............................   Passed    1.99 sec
+        Start 179: UI-04 advanced node form preserves typed subobjects and core selection
+ 50/375 Test #237: UX-INT node JSON and Group field errors keep the bound PTY draft .............................................   Passed    1.97 sec
+        Start 235: UX-07 leaving an unsaved module draft requires an explicit choice
+ 51/375 Test #208: P3 semantic module form changes the same unsaved native draft ................................................   Passed    1.77 sec
+        Start 211: P5 Config Geodata validates and binds a local asset from the real TUI
+ 52/375 Test #235: UX-07 leaving an unsaved module draft requires an explicit choice ............................................   Passed    1.29 sec
+        Start 182: TUI exposes separate Subscriptions and Nodes views with missing source state
+ 53/375 Test #209: P5 routing preset is previewed before saving native routing source ...........................................   Passed    1.66 sec
+        Start 227: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts
+ 54/375 Test #211: P5 Config Geodata validates and binds a local asset from the real TUI ........................................   Passed    1.49 sec
+        Start 206: P3 module key selector keeps a far-right native tab visible at 80 columns
+ 55/375 Test #182: TUI exposes separate Subscriptions and Nodes views with missing source state .................................   Passed    1.16 sec
+        Start 218: TUI history preview cancels and confirms selected safe records
+ 56/375 Test #206: P3 module key selector keeps a far-right native tab visible at 80 columns ....................................   Passed    1.10 sec
+        Start 226: TUI-SUB-02 failed refresh is visible and keeps the prior node inventory
+ 57/375 Test #227: TUI-SUB-03 partial refresh shows imported, unsupported and malformed counts ..................................   Passed    1.66 sec
+        Start 210: P5 Config Geodata adds a shared resource without changing the running core
+ 58/375 Test #218: TUI history preview cancels and confirms selected safe records ...............................................   Passed    1.07 sec
+        Start 245: HTTP-02 enforces timeout, size, cancellation, concurrency, and shutdown
+ 59/375 Test #226: TUI-SUB-02 failed refresh is visible and keeps the prior node inventory ......................................   Passed    1.00 sec
+        Start 201: P1 layered Tab enters secondary navigation and keeps both bars at the top
+ 60/375 Test #210: P5 Config Geodata adds a shared resource without changing the running core ...................................   Passed    0.90 sec
+        Start 234: UX-08 invalid JSON stays in the same draft until repaired
+ 61/375 Test #245: HTTP-02 enforces timeout, size, cancellation, concurrency, and shutdown ......................................   Passed    0.71 sec
+        Start 204: P3 Profile creation edits name core and preset in one form
+ 62/375 Test #201: P1 layered Tab enters secondary navigation and keeps both bars at the top ....................................   Passed    0.73 sec
+        Start 239: UX-INT offline inventory is unknown and cached data recovers in place
+ 63/375 Test #234: UX-08 invalid JSON stays in the same draft until repaired ....................................................   Passed    0.94 sec
+        Start 161: LIFE-04 stop deterministically preempts every lifecycle phase
+ 64/375 Test #204: P3 Profile creation edits name core and preset in one form ...................................................   Passed    0.67 sec
+        Start 202: P1 terminal below 80x24 protects and restores the current session
+ 65/375 Test #239: UX-INT offline inventory is unknown and cached data recovers in place ........................................   Passed    0.61 sec
+        Start 153: P2 failed replacement preserves rollback confdir and discards the failed candidate
+ 66/375 Test #161: LIFE-04 stop deterministically preempts every lifecycle phase ................................................   Passed    0.54 sec
+        Start 154: P2 failed same-directory core replay cannot discard its rollback input
+ 67/375 Test #153: P2 failed replacement preserves rollback confdir and discards the failed candidate ...........................   Passed    0.51 sec
+        Start 151: LIFE-03 a failed replacement restores the previous input once
+ 68/375 Test #202: P1 terminal below 80x24 protects and restores the current session ............................................   Passed    0.58 sec
+        Start 101: NODE-TEST cancelling an active proxied download reaps the test core and files
+ 69/375 Test #154: P2 failed same-directory core replay cannot discard its rollback input .......................................   Passed    0.51 sec
+        Start 243: PERF-01 slow HTTP and core check do not block other UDS clients
+ 70/375 Test #151: LIFE-03 a failed replacement restores the previous input once ................................................   Passed    0.51 sec
+        Start 190: RC-07
+ 71/375 Test #101: NODE-TEST cancelling an active proxied download reaps the test core and files ................................   Passed    0.55 sec
+        Start 207: P3 Modules runtime toggle does not silently render or start a stopped Profile
+ 72/375 Test #243: PERF-01 slow HTTP and core check do not block other UDS clients ..............................................   Passed    0.41 sec
+        Start 205: P3 Modules secondary tabs show the selected native source without opening an editor
+ 73/375 Test #207: P3 Modules runtime toggle does not silently render or start a stopped Profile ................................   Passed    0.40 sec
+        Start 213: P4 and P5 resources live in Config secondary navigation
+ 74/375 Test #190: RC-07 ........................................................................................................   Passed    0.52 sec
+        Start 162: LIFE-05 replay uses the previously successful runtime directory unchanged
+ 75/375 Test #205: P3 Modules secondary tabs show the selected native source without opening an editor ..........................   Passed    0.36 sec
+        Start 164: LIFE-10 server recovery replays the persisted confdir and normal stop clears run intent
+ 76/375 Test #162: LIFE-05 replay uses the previously successful runtime directory unchanged ....................................   Passed    0.27 sec
+        Start 163: LIFE-11 failed candidate and unusable old runtime report failure without replacing old files
+ 77/375 Test #213: P4 and P5 resources live in Config secondary navigation ......................................................   Passed    0.40 sec
+        Start 299: P5 CLI geodata update validates with fixed Xray and binds by exact names
+ 78/375 Test #164: LIFE-10 server recovery replays the persisted confdir and normal stop clears run intent ......................   Passed    0.27 sec
+        Start  99: NODE-TEST independent Xray SOCKS route carries loopback URL and bounded download
+ 79/375 Test #163: LIFE-11 failed candidate and unusable old runtime report failure without replacing old files .................   Passed    0.26 sec
+        Start 175: CLI-03 dedicated advanced module forms save their own native source files
+ 80/375 Test #299: P5 CLI geodata update validates with fixed Xray and binds by exact names .....................................   Passed    0.22 sec
+        Start 100: NODE-TEST typed VLESS travels through an independent test Xray without changing production
+ 81/375 Test  #99: NODE-TEST independent Xray SOCKS route carries loopback URL and bounded download .............................   Passed    0.18 sec
+        Start 180: CLI-01 subscription add/list/show/edit/remove and node ownership actions
+ 82/375 Test #175: CLI-03 dedicated advanced module forms save their own native source files ....................................   Passed    0.17 sec
+        Start  29: E2E-01 xrm to xrmd persists a core and manual node over restart
+ 83/375 Test #100: NODE-TEST typed VLESS travels through an independent test Xray without changing production ...................   Passed    0.16 sec
+        Start 170: FORM-03 traffic statistics convenience action saves only its native modules
+ 84/375 Test #180: CLI-01 subscription add/list/show/edit/remove and node ownership actions .....................................   Passed    0.12 sec
+        Start  31: LOCAL-01 CLI creates typed and imported manual nodes without exposing credentials in list
+ 85/375 Test  #29: E2E-01 xrm to xrmd persists a core and manual node over restart ..............................................   Passed    0.13 sec
+        Start 172: UI-09 CLI Profile references resolve exact names and UUIDs without guessing
+ 86/375 Test #170: FORM-03 traffic statistics convenience action saves only its native modules ..................................   Passed    0.12 sec
+        Start 191: RC-08
+ 87/375 Test  #31: LOCAL-01 CLI creates typed and imported manual nodes without exposing credentials in list ....................   Passed    0.11 sec
+        Start 244: HTTP-01 direct requests, headers, and explicit proxy
+ 88/375 Test #172: UI-09 CLI Profile references resolve exact names and UUIDs without guessing ..................................   Passed    0.11 sec
+        Start 298: P5 CLI routing preset plans native JSON and saves only source modules
+ 89/375 Test #191: RC-08 ........................................................................................................   Passed    0.10 sec
+        Start  74: MOD-02 each of the fifteen module files saves its original text independently
+ 90/375 Test #244: HTTP-01 direct requests, headers, and explicit proxy .........................................................   Passed    0.11 sec
+        Start 258: SUB-04 a source with repeated connection rows retains one identity across ten refreshes
+ 91/375 Test #298: P5 CLI routing preset plans native JSON and saves only source modules ........................................   Passed    0.09 sec
+        Start 181: RPC-04 an accepted subscription refresh is queried, never replayed
+ 92/375 Test  #74: MOD-02 each of the fifteen module files saves its original text independently ................................   Passed    0.07 sec
+        Start 212: P4 TCP test is an explicit RPC operation and leaves runtime stopped
+ 93/375 Test #258: SUB-04 a source with repeated connection rows retains one identity across ten refreshes ......................   Passed    0.07 sec
+        Start 297: P5 CLI geodata records use exact name or ID and JSON stays undecorated
+ 94/375 Test #181: RPC-04 an accepted subscription refresh is queried, never replayed ...........................................   Passed    0.08 sec
+        Start  21: PROC-02 returns nonzero exit and reports execution deadlines
+ 95/375 Test #212: P4 TCP test is an explicit RPC operation and leaves runtime stopped ..........................................   Passed    0.07 sec
+        Start 113: control timeout reports unknown and performs at most one confirmation query
+ 96/375 Test #297: P5 CLI geodata records use exact name or ID and JSON stays undecorated .......................................   Passed    0.07 sec
+        Start 156: LOG-01 preserves stream and cursor while bounding retained chunks
+ 97/375 Test  #21: PROC-02 returns nonzero exit and reports execution deadlines .................................................   Passed    0.06 sec
+        Start 296: P5 application geodata update uses real Xray then publishes only validated version
+ 98/375 Test #113: control timeout reports unknown and performs at most one confirmation query ..................................   Passed    0.06 sec
+        Start  98: NODE-TEST URL never falls back to direct when isolated Xray is unavailable
+ 99/375 Test #156: LOG-01 preserves stream and cursor while bounding retained chunks ............................................   Passed    0.06 sec
+        Start 109: P5 shared cache keeps immutable last-good on bad content and HTTP failure
+100/375 Test  #98: NODE-TEST URL never falls back to direct when isolated Xray is unavailable ...................................   Passed    0.05 sec
+        Start 192: RC-09
+101/375 Test #296: P5 application geodata update uses real Xray then publishes only validated version ...........................   Passed    0.06 sec
+        Start 152: P2 inventory removal retains the active confdir until a successful switch releases it
+102/375 Test #109: P5 shared cache keeps immutable last-good on bad content and HTTP failure ....................................   Passed    0.06 sec
+        Start  28: LOG-02 slow UDS client is bounded without delaying other RPC clients
+103/375 Test #152: P2 inventory removal retains the active confdir until a successful switch releases it ........................   Passed    0.05 sec
+        Start 273: SUB-04 identical HTTP payload is idempotent across ten refreshes and a service restart
+104/375 Test  #28: LOG-02 slow UDS client is bounded without delaying other RPC clients .........................................   Passed    0.04 sec
+        Start 108: P5 real Xray validates matching geodata kind and label, rejects missing labels
+105/375 Test #273: SUB-04 identical HTTP payload is idempotent across ten refreshes and a service restart .......................   Passed    0.04 sec
+        Start 158: LIFE-07 failed RunRecord persistence stops candidate and restores previous input
+106/375 Test #108: P5 real Xray validates matching geodata kind and label, rejects missing labels ...............................   Passed    0.04 sec
+        Start 295: P5 geodata auto-update runs only for an explicitly configured interval
+107/375 Test #158: LIFE-07 failed RunRecord persistence stops candidate and restores previous input .............................   Passed    0.04 sec
+        Start 274: SUB-03 partial input updates valid nodes, while empty, unsupported-only and HTML retain inventory
+108/375 Test #192: RC-09 ........................................................................................................   Passed    0.13 sec
+        Start 150: LIFE-02 a failed candidate check leaves the previous core untouched
+109/375 Test #274: SUB-03 partial input updates valid nodes, while empty, unsupported-only and HTML retain inventory ............   Passed    0.03 sec
+        Start 148: core output EOF finishes incomplete log tails after check and run
+110/375 Test #150: LIFE-02 a failed candidate check leaves the previous core untouched ..........................................   Passed    0.03 sec
+        Start 149: LIFE-01 checks and starts the same candidate and persists active RunRecord
+111/375 Test #295: P5 geodata auto-update runs only for an explicitly configured interval .......................................   Passed    0.04 sec
+        Start 157: PROC-04 stopping the managed core leaves an unrelated process untouched
+112/375 Test #148: core output EOF finishes incomplete log tails after check and run ............................................   Passed    0.02 sec
+        Start 155: LIFE-06 process-only health never claims remote readiness
+113/375 Test #149: LIFE-01 checks and starts the same candidate and persists active RunRecord ...................................   Passed    0.03 sec
+        Start  27: RPC-01 stream framing accepts fragments and combined frames and bounds size
+114/375 Test #157: PROC-04 stopping the managed core leaves an unrelated process untouched ......................................   Passed    0.02 sec
+        Start 357: Native semantic forms preserve unknown fields and absent defaults
+115/375 Test  #27: RPC-01 stream framing accepts fragments and combined frames and bounds size ..................................   Passed    0.02 sec
+        Start 246: HTTP-03 preserves HTTP status and handles redirects
+116/375 Test #155: LIFE-06 process-only health never claims remote readiness ....................................................   Passed    0.02 sec
+        Start  94: NODE-TEST TCP measures a loopback listener without launching a core
+117/375 Test #357: Native semantic forms preserve unknown fields and absent defaults ............................................   Passed    0.02 sec
+        Start 159: LIFE-07 a failed persisted stop intent is reported while the owned core still stops
+118/375 Test  #94: NODE-TEST TCP measures a loopback listener without launching a core ..........................................   Passed    0.01 sec
+        Start 130: Profile source binding scopes connection inputs without copying the global inventory
+119/375 Test #246: HTTP-03 preserves HTTP status and handles redirects ..........................................................   Passed    0.02 sec
+        Start 282: SUB-06 a cached 304 is not modified; an uncached 304 gets one unconditional retry
+120/375 Test #159: LIFE-07 a failed persisted stop intent is reported while the owned core still stops ..........................   Passed    0.02 sec
+        Start  66: P3 Desktop and Custom create separate one-time native samples
+121/375 Test #130: Profile source binding scopes connection inputs without copying the global inventory .........................   Passed    0.02 sec
+122/375 Test #282: SUB-06 a cached 304 is not modified; an uncached 304 gets one unconditional retry ............................   Passed    0.02 sec
+        Start 278: P2 source-level information rules can be disabled or configured explicitly
+        Start  30: CLI-01 server unavailable is an error on stderr, not false success
+123/375 Test  #66: P3 Desktop and Custom create separate one-time native samples ................................................   Passed    0.01 sec
+        Start  97: NODE-TEST ICMP uses a direct argv ping with distinct failure status
+124/375 Test #278: P2 source-level information rules can be disabled or configured explicitly ...................................   Passed    0.01 sec
+        Start 368: Unnamed routing rule has a discoverable target and retains native paths
+125/375 Test  #97: NODE-TEST ICMP uses a direct argv ping with distinct failure status ..........................................   Passed    0.01 sec
+        Start 133: FORM-03 Application RPC enables native traffic statistics and preserves unrelated settings
+126/375 Test  #30: CLI-01 server unavailable is an error on stderr, not false success ...........................................   Passed    0.01 sec
+        Start 276: P2 inventory removal does not mutate the immutable active run record
+127/375 Test #368: Unnamed routing rule has a discoverable target and retains native paths ......................................   Passed    0.01 sec
+        Start 280: SUB-05 an old response cannot commit after its source changes or is deleted
+128/375 Test #276: P2 inventory removal does not mutate the immutable active run record .........................................   Passed    0.01 sec
+        Start 132: FORM-03 failed later native write reports exactly the saved prefix
+129/375 Test #133: FORM-03 Application RPC enables native traffic statistics and preserves unrelated settings ...................   Passed    0.01 sec
+        Start 131: FORM-03 traffic-statistics plan is explicit, native, and preserves policy data
+130/375 Test #131: FORM-03 traffic-statistics plan is explicit, native, and preserves policy data ...............................   Passed    0.01 sec
+        Start  96: NODE-TEST cancellation and concurrency cap are bounded
+131/375 Test #132: FORM-03 failed later native write reports exactly the saved prefix ...........................................   Passed    0.01 sec
+        Start 294: P5 preset RPC previews native JSON and saves only after explicit confirmation
+132/375 Test #280: SUB-05 an old response cannot commit after its source changes or is deleted ..................................   Passed    0.01 sec
+        Start 275: P2 source usage metadata comes from HTTP response header without becoming a node
+133/375 Test  #96: NODE-TEST cancellation and concurrency cap are bounded .......................................................   Passed    0.01 sec
+        Start 277: P2 conservative source information rows are descriptions, not exits
+134/375 Test #275: P2 source usage metadata comes from HTTP response header without becoming a node .............................   Passed    0.01 sec
+        Start 272: SUB-02 refresh updates inventory only and same-source requests coalesce
+135/375 Test #294: P5 preset RPC previews native JSON and saves only after explicit confirmation ................................   Passed    0.01 sec
+        Start 293: P5 explicit Profile resource binding snapshots validated cache bytes on render
+136/375 Test #277: P2 conservative source information rows are descriptions, not exits ..........................................   Passed    0.01 sec
+        Start 288: INS-02 bad digest, wrong architecture, missing asset and traversal clean staging
+137/375 Test #272: SUB-02 refresh updates inventory only and same-source requests coalesce ......................................   Passed    0.01 sec
+        Start  95: NODE-TEST pure UDP transport is not misreported as TCP failure
+138/375 Test #293: P5 explicit Profile resource binding snapshots validated cache bytes on render ...............................   Passed    0.01 sec
+        Start 283: SUB-06 batch refresh returns per-source success and failure
+139/375 Test  #95: NODE-TEST pure UDP transport is not misreported as TCP failure ...............................................   Passed    0.01 sec
+        Start 285: INS-02 verified selected release installs only xray and returns its real version
+140/375 Test #288: INS-02 bad digest, wrong architecture, missing asset and traversal clean staging .............................   Passed    0.01 sec
+        Start 286: INS-02 checksum policy, architecture and exact selected asset are enforced
+141/375 Test #283: SUB-06 batch refresh returns per-source success and failure ..................................................   Passed    0.01 sec
+        Start 110: P5 geodata cache cancellation and body limit never publish a version
+142/375 Test #285: INS-02 verified selected release installs only xray and returns its real version .............................   Passed    0.01 sec
+        Start 279: P2 partial parse cannot erase old information rows
+143/375 Test #286: INS-02 checksum policy, architecture and exact selected asset are enforced ...................................   Passed    0.01 sec
+        Start 270: DB-02 source commits atomically and rejects stale settings revisions
+144/375 Test #110: P5 geodata cache cancellation and body limit never publish a version .........................................   Passed    0.01 sec
+        Start 281: SUB-06 timers honor pause and refresh only node inventory
+145/375 Test #270: DB-02 source commits atomically and rejects stale settings revisions .........................................   Passed    0.01 sec
+        Start 289: INS-03 invalid core version output fails and removes staging
+146/375 Test #279: P2 partial parse cannot erase old information rows ...........................................................   Passed    0.01 sec
+        Start 365: All fifteen module forms open without generating source content
+147/375 Test #281: SUB-06 timers honor pause and refresh only node inventory ....................................................   Passed    0.01 sec
+        Start  65: UI-11 local template can be saved before a core is registered and offers all native examples
+148/375 Test #289: INS-03 invalid core version output fails and removes staging .................................................   Passed    0.01 sec
+        Start 284: INS-01 release metadata distinguishes stable and prerelease releases
+149/375 Test #365: All fifteen module forms open without generating source content ..............................................   Passed    0.01 sec
+        Start  83: BIND-01 group definitions and manual selection persist independently of routing
+150/375 Test  #83: BIND-01 group definitions and manual selection persist independently of routing ..............................   Passed    0.01 sec
+        Start 372: Native object collections preserve order through copy move remove and add
+151/375 Test #284: INS-01 release metadata distinguishes stable and prerelease releases .........................................   Passed    0.01 sec
+        Start 287: INS-02 release asset URL must be the selected official Xray download
+152/375 Test  #65: UI-11 local template can be saved before a core is registered and offers all native examples .................   Passed    0.01 sec
+        Start 111: P5 geodata cache bounds concurrent queued acquisitions
+153/375 Test #372: Native object collections preserve order through copy move remove and add ....................................   Passed    0.01 sec
+        Start 128: A confirmed Stop with a stale run identity never changes core intent
+154/375 Test #287: INS-02 release asset URL must be the selected official Xray download .........................................   Passed    0.01 sec
+        Start 129: Subscription URL syntax is checked before storing a source
+155/375 Test #111: P5 geodata cache bounds concurrent queued acquisitions .......................................................   Passed    0.01 sec
+        Start 290: P5 geodata metadata persists separately from binary with revision-safe publish
+156/375 Test #128: A confirmed Stop with a stale run identity never changes core intent .........................................   Passed    0.01 sec
+        Start 112: Xray API override uses argv and does not shell-escape user tags
+157/375 Test #129: Subscription URL syntax is checked before storing a source ...................................................   Passed    0.01 sec
+        Start 271: P2 removing a source erases its inventory unless explicitly detached as Local
+158/375 Test #290: P5 geodata metadata persists separately from binary with revision-safe publish ...............................   Passed    0.01 sec
+        Start  87: FORM-04 choosing observatory kind preserves both native source documents
+159/375 Test #112: Xray API override uses argv and does not shell-escape user tags ..............................................   Passed    0.01 sec
+        Start 114: clearing a runtime override uses the official remove flag
+160/375 Test #271: P2 removing a source erases its inventory unless explicitly detached as Local ................................   Passed    0.01 sec
+        Start  70: an existing empty-inbounds Profile needs an explicit source edit and include
+161/375 Test  #87: FORM-04 choosing observatory kind preserves both native source documents .....................................   Passed    0.01 sec
+        Start  85: BIND-01 dynamic source selector unions local and explicit members without copying inventory
+162/375 Test #114: clearing a runtime override uses the official remove flag ....................................................   Passed    0.01 sec
+        Start 257: SUB-04 a repeated source payload allocates one ID and is stable for ten refreshes
+163/375 Test  #70: an existing empty-inbounds Profile needs an explicit source edit and include .................................   Passed    0.01 sec
+164/375 Test  #85: BIND-01 dynamic source selector unions local and explicit members without copying inventory ..................   Passed    0.01 sec
+        Start  77: MOD-08 module filenames cannot collide, escape profile or use node tail slot
+        Start  73: MOD-02/03 all native modules can be independently read, edited and toggled
+165/375 Test  #77: MOD-08 module filenames cannot collide, escape profile or use node tail slot .................................   Passed    0.00 sec
+        Start  88: metrics parser preserves absence and parses Xray expvar counters and observations
+166/375 Test #257: SUB-04 a repeated source payload allocates one ID and is stable for ten refreshes ............................   Passed    0.01 sec
+        Start  71: an included legacy empty-inbounds Profile remains empty until the user saves
+167/375 Test  #73: MOD-02/03 all native modules can be independently read, edited and toggled ...................................   Passed    0.01 sec
+        Start  84: BIND-01 manual selection rejects non-candidates and unavailable nodes
+168/375 Test  #88: metrics parser preserves absence and parses Xray expvar counters and observations ............................   Passed    0.00 sec
+        Start 291: P5 runtime snapshot owns asset bytes independent of cache and exports them
+169/375 Test  #71: an included legacy empty-inbounds Profile remains empty until the user saves .................................   Passed    0.01 sec
+        Start  79: MOD-07 Xray env and version modules remain native files and are not synthesized
+170/375 Test #291: P5 runtime snapshot owns asset bytes independent of cache and exports them ...................................   Passed    0.01 sec
+        Start  82: DB-05 Profile and source module text live in files, not SQLite mirrors
+171/375 Test  #84: BIND-01 manual selection rejects non-candidates and unavailable nodes ........................................   Passed    0.01 sec
+        Start  92: MetricsClient shutdown closes its libuv timer before the server loop closes
+172/375 Test  #79: MOD-07 Xray env and version modules remain native files and are not synthesized ..............................   Passed    0.00 sec
+        Start  68: UI-11 legacy Profile without source binding remains all-sources and new binding round trips
+173/375 Test  #92: MetricsClient shutdown closes its libuv timer before the server loop closes ..................................   Passed    0.00 sec
+        Start  76: MOD-05 module conflict checks only the edited file
+174/375 Test  #82: DB-05 Profile and source module text live in files, not SQLite mirrors .......................................   Passed    0.01 sec
+        Start   1: C0 headers are independently usable
+175/375 Test   #1: C0 headers are independently usable ..........................................................................   Passed    0.00 sec
+        Start  93: metrics without a running run or configured endpoint are not zero-valued samples
+176/375 Test  #68: UI-11 legacy Profile without source binding remains all-sources and new binding round trips ..................   Passed    0.01 sec
+        Start  72: custom inbound is preserved while inspecting a Profile for a local entrance
+177/375 Test  #76: MOD-05 module conflict checks only the edited file ...........................................................   Passed    0.01 sec
+        Start 345: navigation keeps selected identity and explicit overflow
+178/375 Test  #72: custom inbound is preserved while inspecting a Profile for a local entrance ..................................   Passed    0.00 sec
+        Start 292: P5 runtime snapshot rejects missing, linked and colliding assets atomically
+179/375 Test  #93: metrics without a running run or configured endpoint are not zero-valued samples .............................   Passed    0.01 sec
+        Start  69: P5 geodata resource bindings are explicit Profile references and survive clone
+180/375 Test #345: navigation keeps selected identity and explicit overflow .....................................................   Passed    0.00 sec
+        Start  80: Profile clone copies source modules without copying database inventory
+181/375 Test #292: P5 runtime snapshot rejects missing, linked and colliding assets atomically ..................................   Passed    0.00 sec
+        Start  22: PROC-03 bounds captured output while preserving stream identity
+182/375 Test  #69: P5 geodata resource bindings are explicit Profile references and survive clone ...............................   Passed    0.01 sec
+        Start 335: component renders mixed Unicode and survives constrained widths
+183/375 Test  #80: Profile clone copies source modules without copying database inventory .......................................   Passed    0.01 sec
+        Start  89: traffic rates reject reset counters, run changes, and nonpositive elapsed
+184/375 Test  #22: PROC-03 bounds captured output while preserving stream identity ..............................................   Passed    0.00 sec
+        Start  75: MOD-04 raw edits preserve malformed JSONC bytes
+185/375 Test #335: component renders mixed Unicode and survives constrained widths ..............................................   Passed    0.00 sec
+        Start  86: observation binding persists only manager-owned supplement settings
+186/375 Test  #89: traffic rates reject reset counters, run changes, and nonpositive elapsed ....................................   Passed    0.00 sec
+        Start 350: logs align wrapped messages at compact and wide sizes
+187/375 Test  #75: MOD-04 raw edits preserve malformed JSONC bytes ..............................................................   Passed    0.00 sec
+        Start  78: MOD-07 Profile environment persists separately from Xray env module
+188/375 Test  #86: observation binding persists only manager-owned supplement settings ..........................................   Passed    0.00 sec
+        Start  64: local first-use Profile provides a loopback SOCKS entrance
+189/375 Test #350: logs align wrapped messages at compact and wide sizes ........................................................   Passed    0.00 sec
+        Start 371: Native scalar modules accept basic edits while preserving unknown fields
+190/375 Test  #78: MOD-07 Profile environment persists separately from Xray env module ..........................................   Passed    0.00 sec
+        Start  67: P3 TUN template is an explicit disabled native draft with no host route automation
+191/375 Test  #64: local first-use Profile provides a loopback SOCKS entrance ...................................................   Passed    0.00 sec
+        Start  81: Profile create/list/show/remove lifecycle uses the registered file path
+192/375 Test #371: Native scalar modules accept basic edits while preserving unknown fields .....................................   Passed    0.00 sec
+        Start 346: wide tables use available cells for long object identity
+193/375 Test  #67: P3 TUN template is an explicit disabled native draft with no host route automation ...........................   Passed    0.00 sec
+194/375 Test #346: wide tables use available cells for long object identity .....................................................   Passed    0.00 sec
+        Start  12: DB-01 manual node inventory survives reopening SQLite
+        Start 160: LIFE-09 concurrent activation is rejected as busy rather than queued
+195/375 Test  #81: Profile create/list/show/remove lifecycle uses the registered file path ......................................   Passed    0.01 sec
+        Start 344: theme and overlay clear all background cells
+196/375 Test  #12: DB-01 manual node inventory survives reopening SQLite ........................................................   Passed    0.00 sec
+        Start 370: All native module entry points stay nonmutating in readonly mode
+197/375 Test #160: LIFE-09 concurrent activation is rejected as busy rather than queued .........................................   Passed    0.00 sec
+        Start  20: PROC-01 preserves argv, cwd, and the child environment
+198/375 Test #344: theme and overlay clear all background cells .................................................................   Passed    0.00 sec
+        Start 363: DNS visual collection modifies only the shared draft in native order
+199/375 Test #370: All native module entry points stay nonmutating in readonly mode .............................................   Passed    0.00 sec
+        Start 341: review Help owns labels and executes exactly the selected action
+200/375 Test  #20: PROC-01 preserves argv, cwd, and the child environment .......................................................   Passed    0.00 sec
+        Start 115: log chunks are bounded and old cursors are explicitly truncated
+201/375 Test #363: DNS visual collection modifies only the shared draft in native order .........................................   Passed    0.00 sec
+        Start 121: FORM-01 common forms update only owned native fields
+202/375 Test #341: review Help owns labels and executes exactly the selected action .............................................   Passed    0.00 sec
+        Start  19: output close callbacks follow the final bytes on each real pipe
+203/375 Test #115: log chunks are bounded and old cursors are explicitly truncated ..............................................   Passed    0.00 sec
+        Start  15: DB-01 core registrations and Profile paths are persistent indexes
+204/375 Test #121: FORM-01 common forms update only owned native fields .........................................................   Passed    0.00 sec
+        Start 324: optional input visibly omits absent value and accepts the next normal Tab
+205/375 Test  #19: output close callbacks follow the final bytes on each real pipe ..............................................   Passed    0.00 sec
+        Start 102: P5 preset plan replaces rules but preserves API route, balancers and unknown fields
+206/375 Test  #15: DB-01 core registrations and Profile paths are persistent indexes ............................................   Passed    0.00 sec
+        Start  36: CODEC-01 VLESS URI maps typed streams into native Xray outbound fields
+207/375 Test #324: optional input visibly omits absent value and accepts the next normal Tab ....................................   Passed    0.00 sec
+        Start 334: log pause retains history and strips terminal controls
+208/375 Test #102: P5 preset plan replaces rules but preserves API route, balancers and unknown fields ..........................   Passed    0.00 sec
+        Start 364: Collection view and readonly controls cannot mutate modules
+209/375 Test  #36: CODEC-01 VLESS URI maps typed streams into native Xray outbound fields .......................................   Passed    0.00 sec
+        Start  16: XRM program settings persist without touching Profile or core state
+210/375 Test #334: log pause retains history and strips terminal controls .......................................................   Passed    0.00 sec
+        Start  32: WRITE-01 materializes every FileSet into a fresh directory
+211/375 Test #364: Collection view and readonly controls cannot mutate modules ..................................................   Passed    0.00 sec
+        Start 118: log chunk and read limits never split a UTF8 codepoint
+212/375 Test  #32: WRITE-01 materializes every FileSet into a fresh directory ...................................................   Passed    0.00 sec
+        Start 360: Legal alternative native types and aliases survive another field edit
+213/375 Test  #16: XRM program settings persist without touching Profile or core state ..........................................   Passed    0.00 sec
+        Start 323: select keeps displayed option equal to form draft immediately
+214/375 Test #118: log chunk and read limits never split a UTF8 codepoint .......................................................   Passed    0.00 sec
+        Start 301: FORM-01 advanced module fields update only native-owned keys
+215/375 Test #360: Legal alternative native types and aliases survive another field edit ........................................   Passed    0.00 sec
+        Start  17: Program settings reject unknown and malformed patches without partial writes
+216/375 Test #323: select keeps displayed option equal to form draft immediately ................................................   Passed    0.00 sec
+217/375 Test #301: FORM-01 advanced module fields update only native-owned keys .................................................   Passed    0.00 sec
+        Start 361: Routing semantic fields use selectors and preserve unknown legacy targets
+        Start 358: DNS string and object representations are deliberate
+218/375 Test  #17: Program settings reject unknown and malformed patches without partial writes .................................   Passed    0.00 sec
+        Start 247: SUB-01 recognizes URI lists and one standard or URL-safe Base64 wrapper
+219/375 Test #361: Routing semantic fields use selectors and preserve unknown legacy targets ....................................   Passed    0.00 sec
+        Start  18: P4 test defaults persist separately from Xray native modules
+220/375 Test #358: DNS string and object representations are deliberate .........................................................   Passed    0.00 sec
+        Start 318: component input owns cursor and printable shortcuts
+221/375 Test #247: SUB-01 recognizes URI lists and one standard or URL-safe Base64 wrapper ......................................   Passed    0.00 sec
+        Start 306: CODEC-08 all frozen typed URI codecs compose into pinned Xray outbound shapes
+222/375 Test #318: component input owns cursor and printable shortcuts ..........................................................   Passed    0.00 sec
+        Start  24: RPC-01 client and server exchange independent correlated replies
+223/375 Test  #18: P4 test defaults persist separately from Xray native modules .................................................   Passed    0.00 sec
+        Start 328: collection keeps second object when Tab moves to its actions
+224/375 Test #306: CODEC-08 all frozen typed URI codecs compose into pinned Xray outbound shapes ................................   Passed    0.00 sec
+        Start 327: table retains selection by identity across reordering
+225/375 Test  #24: RPC-01 client and server exchange independent correlated replies .............................................   Passed    0.00 sec
+        Start 369: Native map edits preserve zero and allow explicit field removal
+226/375 Test #328: collection keeps second object when Tab moves to its actions .................................................   Passed    0.00 sec
+        Start  13: Store reports missing IDs and applies bounded inventory filters
+227/375 Test #327: table retains selection by identity across reordering ........................................................   Passed    0.00 sec
+        Start 356: wide log subsystem truncation is explicit and raw detail remains complete
+228/375 Test #369: Native map edits preserve zero and allow explicit field removal ..............................................   Passed    0.00 sec
+        Start 256: SUB-04 equivalent entries and historical duplicate records do not generate new identities
+229/375 Test  #13: Store reports missing IDs and applies bounded inventory filters ..............................................   Passed    0.00 sec
+        Start 321: form cycles all fields and buttons; invalid save preserves draft
+230/375 Test #356: wide log subsystem truncation is explicit and raw detail remains complete ....................................   Passed    0.00 sec
+        Start 259: SUB-04 equivalent missing history rows retain one and remove redundant records
+231/375 Test #256: SUB-04 equivalent entries and historical duplicate records do not generate new identities ....................   Passed    0.00 sec
+        Start 265: SUB-04 same endpoint and credential with changed transport or security is not the same connection identity
+232/375 Test #321: form cycles all fields and buttons; invalid save preserves draft .............................................   Passed    0.00 sec
+        Start 331: destructive confirmation defaults to Cancel
+233/375 Test #259: SUB-04 equivalent missing history rows retain one and remove redundant records ...............................   Passed    0.00 sec
+        Start  40: VLESS imports tolerate known neutral defaults across RAW, WS and XHTTP
+234/375 Test #265: SUB-04 same endpoint and credential with changed transport or security is not the same connection identity ...   Passed    0.00 sec
+235/375 Test #331: destructive confirmation defaults to Cancel ..................................................................   Passed    0.00 sec
+        Start 141: GROUP-01 selectors combine fields with AND and values within a field with OR
+        Start 123: FORM-07 list operations retain complete inbound and outbound objects
+236/375 Test  #40: VLESS imports tolerate known neutral defaults across RAW, WS and XHTTP .......................................   Passed    0.00 sec
+        Start 319: editing an existing scalar starts at its end
+237/375 Test #141: GROUP-01 selectors combine fields with AND and values within a field with OR .................................   Passed    0.00 sec
+        Start 367: Native optional scalar and collection presence is independent of value
+238/375 Test #123: FORM-07 list operations retain complete inbound and outbound objects .........................................   Passed    0.00 sec
+        Start 330: string list supports edits and ordering in a single form
+239/375 Test #319: editing an existing scalar starts at its end .................................................................   Passed    0.00 sec
+        Start   8: M4 every protocol variant round-trips its credentials without changing kind
+240/375 Test #367: Native optional scalar and collection presence is independent of value .......................................   Passed    0.00 sec
+        Start 352: log metadata has gutters and compact wrapped rows align
+241/375 Test #330: string list supports edits and ordering in a single form .....................................................   Passed    0.00 sec
+        Start 197: PKG-01 systemd unit owns xrmd's cgroup and states service paths explicitly
+242/375 Test   #8: M4 every protocol variant round-trips its credentials without changing kind ..................................   Passed    0.00 sec
+        Start 362: Readonly native forms block submit and keep text
+243/375 Test #352: log metadata has gutters and compact wrapped rows align ......................................................   Passed    0.00 sec
+        Start 337: tree collapse is separate from activation
+244/375 Test #197: PKG-01 systemd unit owns xrmd's cgroup and states service paths explicitly ...................................   Passed    0.00 sec
+        Start 325: checkbox Enter is inert and Space changes only its draft value
+245/375 Test #362: Readonly native forms block submit and keep text .............................................................   Passed    0.00 sec
+        Start 126: P3 structured array actions keep route order and reject invalid drafts
+246/375 Test #337: tree collapse is separate from activation ....................................................................   Passed    0.00 sec
+        Start 351: logs display controls without executing terminal sequences
+247/375 Test #325: checkbox Enter is inert and Space changes only its draft value ...............................................   Passed    0.00 sec
+        Start 340: select starts keyboard focus on the saved choice
+248/375 Test #126: P3 structured array actions keep route order and reject invalid drafts .......................................   Passed    0.00 sec
+        Start 373: Native environment and hosts maps retain values on rename collision
+249/375 Test #351: logs display controls without executing terminal sequences ...................................................   Passed    0.00 sec
+        Start 261: SUB-04 URI syntax changes do not change canonical connection identity
+250/375 Test #340: select starts keyboard focus on the saved choice .............................................................   Passed    0.00 sec
+        Start 134: each native module emits its own original wrapper
+251/375 Test #261: SUB-04 URI syntax changes do not change canonical connection identity ........................................   Passed    0.00 sec
+        Start 374: Fake DNS native object form keeps object representation and zero
+252/375 Test #373: Native environment and hosts maps retain values on rename collision ..........................................   Passed    0.00 sec
+        Start 267: P2 equivalent source rows with different names collapse to one connection
+253/375 Test #134: each native module emits its own original wrapper ............................................................   Passed    0.00 sec
+        Start 307: CODEC-08 subscription import dispatches supported M4 schemes and reports unsupported explicitly
+254/375 Test #374: Fake DNS native object form keeps object representation and zero .............................................   Passed    0.00 sec
+        Start 105: P5 blacklist and global keep their first-match policy explicit
+255/375 Test #267: P2 equivalent source rows with different names collapse to one connection ....................................   Passed    0.00 sec
+        Start 312: Core registration and saved config checks have different recoveries
+256/375 Test #307: CODEC-08 subscription import dispatches supported M4 schemes and reports unsupported explicitly ..............   Passed    0.00 sec
+        Start 250: subscription diagnostics never echo arbitrary URI parameter keys
+257/375 Test #105: P5 blacklist and global keep their first-match policy explicit ...............................................   Passed    0.00 sec
+258/375 Test #312: Core registration and saved config checks have different recoveries ..........................................   Passed    0.00 sec
+        Start 145: GROUP-05 default selection preserves rule order and only appends when requested
+        Start 263: SUB-03 partial parse accepts valid entries without marking absent nodes missing
+259/375 Test #250: subscription diagnostics never echo arbitrary URI parameter keys .............................................   Passed    0.00 sec
+        Start  49: CODEC-03 VMess share formats map to native Xray outbound fields
+260/375 Test #145: GROUP-05 default selection preserves rule order and only appends when requested ..............................   Passed    0.00 sec
+        Start 254: SUB-04 source reconciliation is stable across reordering and display rename
+261/375 Test #263: SUB-03 partial parse accepts valid entries without marking absent nodes missing ..............................   Passed    0.00 sec
+        Start 359: Native optional booleans preserve unset and explicit defaults
+262/375 Test  #49: CODEC-03 VMess share formats map to native Xray outbound fields ..............................................   Passed    0.00 sec
+        Start 260: SUB-04 exact source-missing identity is restored instead of replaced
+263/375 Test #254: SUB-04 source reconciliation is stable across reordering and display rename ..................................   Passed    0.00 sec
+        Start  53: CODEC-04 Trojan URI preserves credentials, IPv6, TLS, transport and name
+264/375 Test #359: Native optional booleans preserve unset and explicit defaults ................................................   Passed    0.00 sec
+        Start 314: Subscription download failure is not presented as missing source
+265/375 Test #260: SUB-04 exact source-missing identity is restored instead of replaced .........................................   Passed    0.00 sec
+        Start  14: Node storage JSON preserves nullable and unknown native values
+266/375 Test  #53: CODEC-04 Trojan URI preserves credentials, IPv6, TLS, transport and name .....................................   Passed    0.00 sec
+267/375 Test #314: Subscription download failure is not presented as missing source .............................................   Passed    0.00 sec
+        Start 342: optional scalar presence is independent of empty and zero
+        Start 332: dialog consumes Escape once and preserves underlying input
+268/375 Test  #14: Node storage JSON preserves nullable and unknown native values ...............................................   Passed    0.00 sec
+        Start   9: M4 release metadata and install request have stable JSON DTOs
+269/375 Test #342: optional scalar presence is independent of empty and zero ....................................................   Passed    0.00 sec
+        Start 143: GROUP-03 dynamic balancers coexist with native balancers and conflict by exact tag
+270/375 Test #332: dialog consumes Escape once and preserves underlying input ...................................................   Passed    0.00 sec
+        Start 135: observability roots are mutually exclusive native modules
+271/375 Test   #9: M4 release metadata and install request have stable JSON DTOs ................................................   Passed    0.00 sec
+        Start 329: collection readonly prevents all mutation shortcuts
+272/375 Test #143: GROUP-03 dynamic balancers coexist with native balancers and conflict by exact tag ...........................   Passed    0.00 sec
+        Start 366: Unsupported existing field types remain readonly and do not block unrelated edits
+273/375 Test #135: observability roots are mutually exclusive native modules ....................................................   Passed    0.00 sec
+        Start  42: VLESS gRPC mode is preserved as native multiMode
+274/375 Test #329: collection readonly prevents all mutation shortcuts ..........................................................   Passed    0.00 sec
+        Start  38: CODEC-02 duplicate parameters produce a notice and ambiguous values fail
+275/375 Test #366: Unsupported existing field types remain readonly and do not block unrelated edits ............................   Passed    0.00 sec
+        Start  57: CODEC-05 legacy whole-authority Base64 form is decoded once
+276/375 Test  #42: VLESS gRPC mode is preserved as native multiMode .............................................................   Passed    0.00 sec
+277/375 Test  #38: CODEC-02 duplicate parameters produce a notice and ambiguous values fail .....................................   Passed    0.00 sec
+        Start 138: native JSON types and nested outbound fields are retained
+        Start 104: P5 direct preset needs no proxy or geodata and custom leaves source untouched
+278/375 Test  #57: CODEC-05 legacy whole-authority Base64 form is decoded once ..................................................   Passed    0.00 sec
+        Start 139: required disabled module prerequisites fail without enabling them
+279/375 Test #138: native JSON types and nested outbound fields are retained ....................................................   Passed    0.00 sec
+        Start 326: multi select uses stable identities and keeps unknown members
+280/375 Test #104: P5 direct preset needs no proxy or geodata and custom leaves source untouched ................................   Passed    0.00 sec
+        Start 348: logs keep partial lines and unknown prefixes literal
+281/375 Test #139: required disabled module prerequisites fail without enabling them ............................................   Passed    0.00 sec
+        Start 347: log chunks preserve stream boundaries and native facts
+282/375 Test #326: multi select uses stable identities and keeps unknown members ................................................   Passed    0.00 sec
+        Start  52: CODEC-03 VMess malformed JSON and invalid values are rejected
+283/375 Test #348: logs keep partial lines and unknown prefixes literal .........................................................   Passed    0.00 sec
+284/375 Test #347: log chunks preserve stream boundaries and native facts .......................................................   Passed    0.00 sec
+        Start 355: log display escapes ANSI OSC C1 and malformed byte tails
+        Start 315: Ambiguous subscription names retain the available IDs in human output
+285/375 Test  #52: CODEC-03 VMess malformed JSON and invalid values are rejected ................................................   Passed    0.00 sec
+        Start  44: CODEC-07 native outbound import preserves complete unknown nested values
+286/375 Test #355: log display escapes ANSI OSC C1 and malformed byte tails .....................................................   Passed    0.00 sec
+        Start 304: UI-04 typed node sub-editors preserve identity and write fields to Xray native paths
+287/375 Test #315: Ambiguous subscription names retain the available IDs in human output ........................................   Passed    0.00 sec
+        Start 125: P3 structured native edits keep one module draft and native types
+288/375 Test  #44: CODEC-07 native outbound import preserves complete unknown nested values .....................................   Passed    0.00 sec
+        Start 322: form survives being closed by its save callback
+289/375 Test #304: UI-04 typed node sub-editors preserve identity and write fields to Xray native paths .........................   Passed    0.00 sec
+        Start 320: multiline input keeps line navigation and newline semantics
+290/375 Test #125: P3 structured native edits keep one module draft and native types ............................................   Passed    0.00 sec
+        Start 333: toast expiration deduplication and queue are bounded
+291/375 Test #322: form survives being closed by its save callback ..............................................................   Passed    0.00 sec
+        Start 255: SUB-04 same-name identity changes and cross-source nodes are never merged
+292/375 Test #320: multiline input keeps line navigation and newline semantics ..................................................   Passed    0.00 sec
+        Start  26: RPC-02 unavailable UDS is reported through the open callback
+293/375 Test #333: toast expiration deduplication and queue are bounded .........................................................   Passed    0.00 sec
+        Start 266: P2 complete refresh physically removes absent source rows; partial refresh does not
+294/375 Test #255: SUB-04 same-name identity changes and cross-source nodes are never merged ....................................   Passed    0.00 sec
+295/375 Test  #26: RPC-02 unavailable UDS is reported through the open callback .................................................   Passed    0.00 sec
+        Start  41: VLESS TLS insecure=true is not silently converted to trust bypass
+        Start 142: GROUP-02 manual group has a stable singleton selector while loading candidates
+296/375 Test #266: P2 complete refresh physically removes absent source rows; partial refresh does not ..........................   Passed    0.00 sec
+        Start 116: an old log cursor does not block another bounded buffer read
+297/375 Test  #41: VLESS TLS insecure=true is not silently converted to trust bypass ............................................   Passed    0.00 sec
+        Start 316: Safe native JSON position stays visible without printing the source
+298/375 Test #142: GROUP-02 manual group has a stable singleton selector while loading candidates ...............................   Passed    0.00 sec
+        Start 147: ASM-05 burst observatory keeps ping config and two enabled observers conflict
+299/375 Test #116: an old log cursor does not block another bounded buffer read .................................................   Passed    0.00 sec
+        Start  63: MOD-01 native catalog has all fixed keys and filenames
+300/375 Test #316: Safe native JSON position stays visible without printing the source ..........................................   Passed    0.00 sec
+        Start   4: C1 freezes current M1 profile and runtime surfaces
+301/375 Test #147: ASM-05 burst observatory keeps ping config and two enabled observers conflict ................................   Passed    0.00 sec
+        Start 253: CODEC-07 subscription accepts complete native outbound objects and collections only
+302/375 Test  #63: MOD-01 native catalog has all fixed keys and filenames .......................................................   Passed    0.00 sec
+        Start 336: optional checkbox distinguishes unset false and true
+303/375 Test   #4: C1 freezes current M1 profile and runtime surfaces ...........................................................   Passed    0.00 sec
+        Start  43: VLESS security aliases and non-neutral legacy fields keep explicit semantics
+304/375 Test #253: CODEC-07 subscription accepts complete native outbound objects and collections only ..........................   Passed    0.00 sec
+        Start 302: MOD-07 env and version stay as native modules without changing process defaults
+305/375 Test #336: optional checkbox distinguishes unset false and true .........................................................   Passed    0.00 sec
+306/375 Test  #43: VLESS security aliases and non-neutral legacy fields keep explicit semantics .................................   Passed    0.00 sec
+        Start  25: RPC-02 unsupported wire versions have structured errors
+        Start 146: ASM-03 and ASM-05 observation supplement deduplicates group and explicit tags
+307/375 Test #302: MOD-07 env and version stay as native modules without changing process defaults ..............................   Passed    0.00 sec
+        Start 339: collection Help derives available actions through overlay wrappers
+308/375 Test  #25: RPC-02 unsupported wire versions have structured errors ......................................................   Passed    0.00 sec
+        Start   6: M3 manager bindings have frozen selector and observation document shapes
+309/375 Test #146: ASM-03 and ASM-05 observation supplement deduplicates group and explicit tags ................................   Passed    0.00 sec
+        Start 117: split UTF8 logs remain valid through the JSON response boundary
+310/375 Test #339: collection Help derives available actions through overlay wrappers ...........................................   Passed    0.00 sec
+        Start 313: Stopped runtime lookup does not claim the Profile is missing
+311/375 Test   #6: M3 manager bindings have frozen selector and observation document shapes .....................................   Passed    0.00 sec
+        Start  34: WRITE-03 invalid FileSet leaves active input intact and removes partial output
+312/375 Test #117: split UTF8 logs remain valid through the JSON response boundary ..............................................   Passed    0.00 sec
+313/375 Test #313: Stopped runtime lookup does not claim the Profile is missing .................................................   Passed    0.00 sec
+        Start 338: line values retain empty entries where representation is unambiguous
+        Start 269: P2 equivalent historical rows with conflicting user attributes require review
+314/375 Test  #34: WRITE-03 invalid FileSet leaves active input intact and removes partial output ...............................   Passed    0.00 sec
+        Start 262: SUB-04 a shared credential or upstream row does not merge distinct exits
+315/375 Test #338: line values retain empty entries where representation is unambiguous .........................................   Passed    0.00 sec
+        Start 343: toast modal suspension preserves lifetime and repeat history
+316/375 Test #269: P2 equivalent historical rows with conflicting user attributes require review ................................   Passed    0.00 sec
+        Start  59: CODEC-05 malformed Shadowsocks encodings and endpoints fail explicitly
+317/375 Test #262: SUB-04 a shared credential or upstream row does not merge distinct exits .....................................   Passed    0.00 sec
+        Start  11: M4 typed node form RPC keeps each native subobject distinct
+318/375 Test #343: toast modal suspension preserves lifetime and repeat history .................................................   Passed    0.00 sec
+319/375 Test  #59: CODEC-05 malformed Shadowsocks encodings and endpoints fail explicitly .......................................   Passed    0.00 sec
+        Start  62: CODEC-06 Hysteria2 URI encoding and explicit Xray transport settings are checked
+        Start 264: SUB-04 upstream row ID cannot overwrite changed connection identity
+320/375 Test  #11: M4 typed node form RPC keeps each native subobject distinct ..................................................   Passed    0.00 sec
+        Start  35: WRITE-04 exports exact multi-file contents without overwriting a destination
+321/375 Test  #62: CODEC-06 Hysteria2 URI encoding and explicit Xray transport settings are checked .............................   Passed    0.00 sec
+        Start 122: FORM-06 native target edit and list move preserve route matching fields
+322/375 Test #264: SUB-04 upstream row ID cannot overwrite changed connection identity ..........................................   Passed    0.00 sec
+        Start 308: CLI-03 protocol summaries distinguish typed URI codecs from native raw-only nodes
+323/375 Test  #35: WRITE-04 exports exact multi-file contents without overwriting a destination .................................   Passed    0.00 sec
+        Start 103: P5 preset plan refuses missing proxy and geodata dependencies
+324/375 Test #122: FORM-06 native target edit and list move preserve route matching fields ......................................   Passed    0.00 sec
+        Start 120: stream EOF exposes incomplete UTF8 bytes once without joining the next run
+325/375 Test #308: CLI-03 protocol summaries distinguish typed URI codecs from native raw-only nodes ............................   Passed    0.00 sec
+        Start 349: paused log records remain stable across completion and ring rotation
+326/375 Test #103: P5 preset plan refuses missing proxy and geodata dependencies ................................................   Passed    0.00 sec
+        Start 144: GROUP-04 unused empty groups are inert but referenced and invalid manual groups fail
+327/375 Test #120: stream EOF exposes incomplete UTF8 bytes once without joining the next run ...................................   Passed    0.00 sec
+        Start  10: M4 core use RPC binds an explicit Profile and registered core
+328/375 Test #349: paused log records remain stable across completion and ring rotation .........................................   Passed    0.00 sec
+        Start 309: Human endpoint errors retain diagnostics without guessing server state
+329/375 Test #144: GROUP-04 unused empty groups are inert but referenced and invalid manual groups fail .........................   Passed    0.00 sec
+        Start 354: lost log transport spans do not invent joined records
+330/375 Test  #10: M4 core use RPC binds an explicit Profile and registered core ................................................   Passed    0.00 sec
+331/375 Test #309: Human endpoint errors retain diagnostics without guessing server state .......................................   Passed    0.00 sec
+        Start  55: CODEC-04 Trojan rejects unknown connection parameters and malformed authorities
+        Start 251: real VLESS TCP subscription shape tolerates an inapplicable gRPC mode parameter
+332/375 Test #354: lost log transport spans do not invent joined records ........................................................   Passed    0.00 sec
+        Start  47: CODEC-08 old top-level reverse and global transport modules are not outbounds
+333/375 Test  #55: CODEC-04 Trojan rejects unknown connection parameters and malformed authorities ..............................   Passed    0.00 sec
+        Start  37: CODEC-02 URI components are decoded once and malformed input is located
+334/375 Test #251: real VLESS TCP subscription shape tolerates an inapplicable gRPC mode parameter ..............................   Passed    0.00 sec
+        Start 124: FORM-01 safe structured forms reject comments and malformed JSON with native editor guidance
+335/375 Test  #47: CODEC-08 old top-level reverse and global transport modules are not outbounds ................................   Passed    0.00 sec
+        Start 252: CODEC-02 subscription share URI boundary keeps IPv6 and decodes URI components once
+336/375 Test  #37: CODEC-02 URI components are decoded once and malformed input is located ......................................   Passed    0.00 sec
+337/375 Test #124: FORM-01 safe structured forms reject comments and malformed JSON with native editor guidance .................   Passed    0.00 sec
+        Start 353: log UTF8 and CRLF survive chunk boundaries with exact raw text
+        Start 127: P3 structured array scalar replacement keeps its position and JSON type
+338/375 Test #252: CODEC-02 subscription share URI boundary keeps IPv6 and decodes URI components once ..........................   Passed    0.00 sec
+        Start 106: P5 geodata validation fixture is type-specific and rejects traversal
+339/375 Test #353: log UTF8 and CRLF survive chunk boundaries with exact raw text ...............................................   Passed    0.00 sec
+        Start 248: SUB-01 separates malformed, unsupported, HTML, and deep Base64 input
+340/375 Test #127: P3 structured array scalar replacement keeps its position and JSON type ......................................   Passed    0.00 sec
+        Start  58: CODEC-05 Shadowsocks unsupported plugins and methods never become usable nodes
+341/375 Test #106: P5 geodata validation fixture is type-specific and rejects traversal .........................................   Passed    0.00 sec
+        Start  45: CODEC-07 a config collection is not mistaken for one native outbound
+342/375 Test #248: SUB-01 separates malformed, unsupported, HTML, and deep Base64 input .........................................   Passed    0.00 sec
+        Start 136: a module edit only changes that module output
+343/375 Test  #58: CODEC-05 Shadowsocks unsupported plugins and methods never become usable nodes ...............................   Passed    0.00 sec
+        Start   5: C2 subscription DTO summary does not disclose its URL
+344/375 Test  #45: CODEC-07 a config collection is not mistaken for one native outbound .........................................   Passed    0.00 sec
+        Start 303: FORM-05 geodata forms edit resource references only
+345/375 Test #136: a module edit only changes that module output ................................................................   Passed    0.00 sec
+        Start   7: M4 protocol settings preserve a tagged typed model through Node JSON
+346/375 Test   #5: C2 subscription DTO summary does not disclose its URL ........................................................   Passed    0.00 sec
+        Start 268: P2 raw outbound display tag does not trigger a connection update
+347/375 Test #303: FORM-05 geodata forms edit resource references only ..........................................................   Passed    0.00 sec
+348/375 Test   #7: M4 protocol settings preserve a tagged typed model through Node JSON .........................................   Passed    0.00 sec
+        Start   2: C0 DTOs and errors have stable JSON representations
+        Start  23: Xray version adapter constructs argv and rejects unsuccessful output
+349/375 Test #268: P2 raw outbound display tag does not trigger a connection update .............................................   Passed    0.00 sec
+        Start  39: CODEC-08 unknown connection semantics are not silently discarded
+350/375 Test   #2: C0 DTOs and errors have stable JSON representations ..........................................................   Passed    0.00 sec
+        Start  48: CODEC-07 typed security options cannot duplicate strongly typed fields
+351/375 Test  #23: Xray version adapter constructs argv and rejects unsuccessful output .........................................   Passed    0.00 sec
+        Start  50: CODEC-03 VMess base64 accepts URL-safe alphabet and omitted padding
+352/375 Test  #39: CODEC-08 unknown connection semantics are not silently discarded .............................................   Passed    0.00 sec
+        Start  56: CODEC-05 SIP002 URL-safe Base64 userinfo preserves method, password and endpoint
+353/375 Test  #48: CODEC-07 typed security options cannot duplicate strongly typed fields .......................................   Passed    0.00 sec
+        Start  51: CODEC-03 VMess rejects altered legacy semantics and unknown fields
+354/375 Test  #50: CODEC-03 VMess base64 accepts URL-safe alphabet and omitted padding ..........................................   Passed    0.00 sec
+        Start  46: CODEC-07 standalone import rejects a dangling outbound proxy reference
+355/375 Test  #56: CODEC-05 SIP002 URL-safe Base64 userinfo preserves method, password and endpoint .............................   Passed    0.00 sec
+        Start 249: subscription malformed VLESS items retain a safe field-level diagnostic
+356/375 Test  #51: CODEC-03 VMess rejects altered legacy semantics and unknown fields ...........................................   Passed    0.00 sec
+        Start  54: CODEC-04 Trojan supports approved transport forms and rejects Trojan flow
+357/375 Test  #46: CODEC-07 standalone import rejects a dangling outbound proxy reference .......................................   Passed    0.00 sec
+        Start  61: CODEC-06 unsupported Hysteria2 share options are explicit
+358/375 Test #249: subscription malformed VLESS items retain a safe field-level diagnostic ......................................   Passed    0.00 sec
+359/375 Test  #54: CODEC-04 Trojan supports approved transport forms and rejects Trojan flow ....................................   Passed    0.00 sec
+        Start  33: WRITE-02 candidate files are isolated from active files
+        Start 310: Human errors distinguish missing core and source conflict
+360/375 Test  #61: CODEC-06 unsupported Hysteria2 share options are explicit ....................................................   Passed    0.00 sec
+        Start 137: only selected and explicitly additional nodes enter the nodes tail
+361/375 Test  #33: WRITE-02 candidate files are isolated from active files ......................................................   Passed    0.00 sec
+        Start 305: FORM-02 typed sub-editors reject raw nodes and wrong native object shapes
+362/375 Test #310: Human errors distinguish missing core and source conflict ....................................................   Passed    0.00 sec
+        Start 107: P5 geodata inspection rejects empty and wrong-type bytes
+363/375 Test #137: only selected and explicitly additional nodes enter the nodes tail ...........................................   Passed    0.00 sec
+364/375 Test #305: FORM-02 typed sub-editors reject raw nodes and wrong native object shapes ....................................   Passed    0.00 sec
+        Start 119: malformed log bytes have visible transport spelling without crashing JSON
+        Start 140: assembly is deterministic, in-memory, and does not mutate inputs
+365/375 Test #107: P5 geodata inspection rejects empty and wrong-type bytes .....................................................   Passed    0.00 sec
+        Start  60: CODEC-06 Hysteria2 URI maps only the pinned Xray Hysteria fields
+366/375 Test #119: malformed log bytes have visible transport spelling without crashing JSON ....................................   Passed    0.00 sec
+        Start   3: C0 request decoder validates the M0 JSON line envelope
+367/375 Test #140: assembly is deterministic, in-memory, and does not mutate inputs .............................................   Passed    0.00 sec
+        Start 311: Unknown diagnostic detail is preserved and not translated into invented cause
+368/375 Test  #60: CODEC-06 Hysteria2 URI maps only the pinned Xray Hysteria fields .............................................   Passed    0.00 sec
+369/375 Test   #3: C0 request decoder validates the M0 JSON line envelope .......................................................   Passed    0.00 sec
+370/375 Test #311: Unknown diagnostic detail is preserved and not translated into invented cause ................................   Passed    0.00 sec
+371/375 Test #179: UI-04 advanced node form preserves typed subobjects and core selection .......................................   Passed   12.69 sec
+        Start 195: E2E-07
+372/375 Test #195: E2E-07 .......................................................................................................   Passed  116.35 sec
+        Start 196: GROUP-TUI-E2E
+373/375 Test #196: GROUP-TUI-E2E ................................................................................................   Passed   38.89 sec
+        Start 375: xrm_component_rewrite_terminal
+374/375 Test #375: xrm_component_rewrite_terminal ...............................................................................   Passed   29.39 sec
+        Start 241: TUI native inbound Add requires Edit and preserves a disabled module
+375/375 Test #241: TUI native inbound Add requires Edit and preserves a disabled module .........................................   Passed   11.36 sec
+
+100% tests passed, 0 tests failed out of 375
+
+Label Time Summary:
+cli               =   9.59 sec*proc (1 test)
+integration       =  50.58 sec*proc (4 tests)
+product_repair    = 123.09 sec*proc (2 tests)
+real_core         = 262.53 sec*proc (20 tests)
+
+Total Test time (real) = 332.41 sec

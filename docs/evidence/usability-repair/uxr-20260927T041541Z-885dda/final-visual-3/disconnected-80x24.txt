@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL     MESSAGE      ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ ! Warning · history in Help      ├─ 
+ -        stdout   Info      UI process fi│ Refresh incomplete; cached data  │┃ 
+ -        stdout             continued lin│ retained. Check the connection   │┃ 
+ -        stdout   Info      UI process fi│ in Help.                         │┃ 
+ -        stdout             continued lin╰──────────────────────────────────╯┃ 
+ -        stdout             XRM_FAKE_CORE_LOG_0000                           ╹ 
+ -        stdout             XRM_FAKE_CORE_LOG_0001                             
+ -        stdout             XRM_FAKE_CORE_LOG_0002                             
+ -        stdout             XRM_FAKE_CORE_LOG_0003                             
+ -        stdout             XRM_FAKE_CORE_LOG_0004                             
+ -        stdout             XRM_FAKE_CORE_LOG_0005                             
+ -        stdout             XRM_FAKE_CORE_LOG_0006                             
+ -        stdout             XRM_FAKE_CORE_LOG_0007                             
+ -        stdout             XRM_FAKE_CORE_LOG_0008                             
+ -        stdout             XRM_FAKE_CORE_LOG_0009                             
+ -        stdout             XRM_FAKE_CORE_LOG_0010                             
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: none · Module Edit: Alpha · Running: unknown            
+ Cached · disconnected · 41 text lines                                          
+ xrmd disconnected · cached data · Page content (Content)     F1 Help & actions 

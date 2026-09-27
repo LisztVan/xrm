@@ -1,0 +1,94 @@
+[
+  {
+    "time": 273557.356,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-__y2yuiz",
+      "pid": 1378240,
+      "xrm_sha256": "2e0f59c44d5534e7e3feb676be7e561c328a204ad325fd6b83a3c501d3606179"
+    }
+  },
+  {
+    "time": 273557.417,
+    "action": "tui_pid",
+    "value": "1378245"
+  },
+  {
+    "time": 273557.425,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273557.474,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273557.523,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273557.571,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273557.62,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273557.67,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 273557.726,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 273557.777,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 273557.839,
+    "action": "capture",
+    "value": "before-enter-80x24"
+  },
+  {
+    "time": 273557.839,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 273557.896,
+    "action": "capture",
+    "value": "after-enter-80x24"
+  },
+  {
+    "time": 273557.897,
+    "action": "enter_result",
+    "value": {
+      "core_id": "03df22a6-cbff-406b-8402-a63cc53e88e4",
+      "details_open": false,
+      "runtime_unchanged": true
+    }
+  },
+  {
+    "time": 273557.903,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-__y2yuiz"
+    }
+  },
+  {
+    "time": 273557.904,
+    "action": "fixture_removed",
+    "value": "/tmp/xrm-rewrite-ui-__y2yuiz"
+  }
+]

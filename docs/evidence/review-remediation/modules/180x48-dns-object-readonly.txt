@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                         2/15 
+ dns  SOURCE · READ ONLY · Visual                                                                                                                                                   
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   DNS servers                  DNS s╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+     DNS query and cache setting  dns.s│ DNS server  READ ONLY · field 1/15                                                                 │                                       
+     DNS hosts                    ─────┤ ────────────────────────────────────────────────────────────────────────────────────────────────── ├────────────────────────────────────── 
+                                  1  1.│ > Address                   1.1.1.1                                                              ┃ │                                       
+                                     po│   IP, DNS URL, localhost or fakedns                                                              ┃ │                                       
+                                       │                                                                                                  ┃ │                                       
+                                       │   port                    Explicit value                                                         ┃ │                                       
+                                       │                             53                                                                   ┃ │                                       
+                                       │   Default 53; URL port applies for DOH/DOQL                                                      ┃ │                                       
+                                       │                                                                                                  ┃ │                                       
+                                       │   domains                                                                                        ┃ │                                       
+                                       │   Not set · field omitted                                                                        ┃ │                                       
+                                       │     domains                                                                                      ┃ │                                       
+                                       │   ───────────────────────────────────────────────────────────────────────────────────────────────┃ │                                       
+                                       │                                                                                                  ┃ │                                       
+                                       │   No entries                                                                                     ┃ │                                       
+                                       │   Priority domain matches                                                                        ┃ │                                       
+                                       │                                                                                                  ┃ │                                       
+                                       │   expectedIPs                                                                                    ┃ │                                       
+                                       │   Not set · field omitted                                                                        ┃ │                                       
+                                       │     expectedIPs                                                                                  ┃ │                                       
+                                       │   ───────────────────────────────────────────────────────────────────────────────────────────────┃ │                                       
+                                       │                                                                                                  ┃ │                                       
+                                       │   No entries                                                                                     ╹ │                                       
+                                       │   Keep matching responses                                                                          │                                       
+                                       │                                                                                                    │                                       
+                                       │   unexpectedIPs                                                                                    │                                       
+                                       │   Not set · field omitted                                                                          │                                       
+                                       │     unexpectedIPs                                                                                  │                                       
+                                       │   ───────────────────────────────────────────────────────────────────────────────────────────────  │                                       
+                                       │                                                                                                    │                                       
+                                       │   No entries                                                                                       │                                       
+                                       │   Exclude matching responses                                                                       │                                       
+                                       │                                                                                                    │                                       
+                                       │   queryStrategy           (o) UseIP                                                                │                                       
+                                       │   Unset: inherit DNS strategy                                                                      │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Close ]                                                                                         │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit none · Run none                                                                                                                      
+ dns · Source read-only · Visual · excluded                                               
+ xrmd ready · Content · modules/01_dns.json                                                                                                                       F1 Help & actions 

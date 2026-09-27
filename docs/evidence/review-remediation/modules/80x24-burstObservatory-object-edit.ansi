@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+ ‹ [2m stats  policy  fakedns  geodata  env  version [0;1m burstObservatory [0m      [2m15/15[0m 
+ [1mburstObservatory[0;2m  SOURCE · EDIT · Visual                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mBurst observatory[0;2m  EDIT · field 1/7                                     [0m │[2m [0m 
+ [1;2mB[0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2mb[0m│ [1m> subjectSelector                                                      [0m┃ │[2m [0m 
+ [2m─[0m┤   [1;7m[x] Set value[0m  [2mExplicit value[0m                                        ┃ ├[2m─[0m 
+ [2ms[0m│     [1msubjectSelector                             [0m                       ┃ │[2m [0m 
+ [2mP[0m│   [2m─────────────────────────────────────────────────────────────────────[0m╹ │[2m [0m 
+ [2mM[0m│   [1m> direct                                                            [0m   │[2m [0m 
+ [2mp[0m│                                                                          │[2m [0m 
+ [2mT[0m│   New subjectSelector: [ Enter value                                  ]  │[2m [0m 
+ [2m [0m│    [ Add ]  [ Delete ]                                                   │[2m [0m 
+ [2m [0m│ [2m  Outbound tag prefixes                                                [0m  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Add to draft ]  [ Cancel ]                                            │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit Module revi… · Run none           [0m 
+ burstObservatory · Source editable · Visual · excluded                         
+ [2mxrmd ready · Content · modules/14_burstObservatory.json      [0mF1 Help & actions 

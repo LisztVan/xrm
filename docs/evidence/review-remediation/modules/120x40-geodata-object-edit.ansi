@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m                                                  
+   [2m log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns [0;1m geodata [0;2m env [0m    › [2m12/15[0m 
+ [1mgeodata[0;2m  SOURCE · EDIT · Visual                                                                                       [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>   Core reload schedule      [0;2m   [1mCore reload schedule[0;2m  Draft                                                          [0m 
+ [2m    Core download assets         geodata                                                                              [0m 
+ [2m                                 ─────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2m                                 Reload schedule         0 0 * * *                                                    [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m        [0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2m        [0m│ [1mGeodata reload[0;2m  EDIT · field 1/2                                                                  [0m │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1m> Reload schedule         [7m[x] Set value[0m  [2mExplicit value[0m                                            │[2m        [0m 
+ [2m        [0m│ [1m                          [0m[ 0 0 * * *                                                           ]  │[2m        [0m 
+ [2m        [0m│ [2m  Five-part cron; unset disables schedule                                                        [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│   outbound                ‹ Unset / use core default ›                                             │[2m        [0m 
+ [2m        [0m│ [2m  Unset follows routing                                                                          [0m  │[2m        [0m 
+ [2m        [0m│                                                                                                    │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│  [ Add to draft ]  [ Cancel ]                                                                      │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module review · Use Module review · Edit Module review · Run none                                                [0m 
+ geodata · Source editable · Visual · excluded              
+ [2mxrmd ready · Content · modules/11_geodata.json                                                       [0mF1 Help & actions 

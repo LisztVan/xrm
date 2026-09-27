@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 3/15 
+ inbounds  SOURCE · READ ONLY · Visual                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Inbound listeners                                                          
+                                                                                
+ Inbound listeners  Read only                                                   
+ inbounds                                                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+ 1               local-socks · socks · 127.0.0.1:19091                          
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit none · Run none                    
+ inbounds · Source read-only · Visual · excluded                                
+ xrmd ready · Content · modules/02_inbounds.json              F1 Help & actions 

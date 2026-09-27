@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+ Subscriptions  1 source / node inventory
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Source                   Nodes   Result          Auto    Bound
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ▸ Local fixture            1       Updated         on      yes
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮
+         │ Edit subscription  FORM · field 2/7                                                                │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │   Name                    [ Local fixture                                                       ]  │
+         │                                                                                                    │
+         │ > URL                     [ http://127.0.0.1:32903/nodes                                        ]  │
+         │    Hidden · Ctrl-R reveals/hides the real value without changing it.                               │
+         │                                                                                                    │
+         │   User-Agent              [ Xray                                                                ]  │
+         │                                                                                                    │
+         │   Auto refresh            [x] Enabled                                                              │
+         │                                                                                                    │
+         │   Interval seconds        [ 21600                                                               ]  │
+         │                                                                                                    │
+         │   Proxy URL               [ Enter value                                                         ]  │
+         │    Hidden · Ctrl-R reveals/hides the real value without changing it.                               │
+         │                                                                                                    │
+         │   Headers (advanced JSON)                                                                          │
+         │   [ {}                                                                                          ]  │
+         │                                                                                                    │
+         │                                                                                                    │
+         │                                                                                                    │
+         │                                                                                                    │
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │
+         │  [ Save ]  [ Cancel ]                                                                              │
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none
+ Highlighted Local fixture · Updated · 1 nodes
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions

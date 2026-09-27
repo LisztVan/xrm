@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [0m[37m[40m Overview [1m[96m[Profiles][0m[37m[40m Modules  Subscriptions  Nodes  Logs  Config [97m          
+ [1mProfiles[0m[37m[40m  1 Profile / independent runtime contexts                            [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [2m [0m[97m[40m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m[97m[40m 
+ [2m[90m─[0m[97m[40m┤ [1mHelp & actions[0m[37m[40m                                                          [97m ├[2m[90m─[0m[97m[40m 
+ [1;2m[96m▸[0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1mProfiles · View Compatibility                                           [0m[97m[40m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mUse selects the next connection Profile; Cancel Use and module Edit do  [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mnot change the running core. Metadata is independent of Edit.           [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mActions · choose with arrows, Enter to execute                          [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1m[96m> u               Cancel Use · Compatibility                           [0m[97m[40m┃ │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96me               [97mAllow module Edit · Compatibility                    ╹ │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mn               [97mNew Profile                                            │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│   [96mR               [97mRename Profile                                         │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [90m────────────────────────────────────────────────────────────────────────[97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [1mNavigation and input                                                    [0m[97m[40m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mArrows / PgUp / PgDn    [97mBrowse rows; Home / End jump                     │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [96mEsc                     [97mReturn one level                                 │[2m [0m[97m[40m 
+ [2m [0m[97m[40m│ [37mEsc closes Help and restores your place                                 [97m │[2m [0m[97m[40m 
+ [2m [0m[97m[40m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m[97m[40m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ View Compatibility · Core not set · Saved none                                 
+ [37mxrmd ready · Content                                         [96mF1 Help & actions[97m 

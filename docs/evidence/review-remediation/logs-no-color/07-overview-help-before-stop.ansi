@@ -1,0 +1,40 @@
+ [1mXRM [Overview][0;2m Profiles  Modules  Subscriptions  Nodes  Logs  Config [0m                                                  
+ [1mOverview[0;2m  Runtime & saved configuration                                                                               [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2mRuntime[0;2m  ACTUAL                                                 [1mSaved configuration[0;2m  VIEW Real log review             [0m 
+ [1;2mrunning[0;2m  Xray 26.9.9  PID 1524101                               Saved target      none                                [0m 
+ [2mRunning Profile   Real log review                               Next Connect      Real log review                     [0m 
+ [2mActual target     none                                          Saved settings apply only on Connect / Apply          [0m 
+ [2mHealth            Process alive; traffic unverified                                                                   [0m 
+ [2m                                                                                                                      [0m 
+ [1;2mStatisti[0m╭────────────────────────────────────────────────────────────────────────────────────────────────────╮[2m        [0m 
+ [2mTraffic:[0m│ [1mHelp & actions[0;2m                                                                                    [0m │[2m        [0m 
+ [2mRequires[0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1mOverview · View Real log review · Connect uses Real log review                                    [0m │[2m        [0m 
+ [2mInventor[0m│ [2mConnect publishes saved settings only. Statistics need saved stats, policy and metrics settings   [0m │[2m        [0m 
+ [2m        [0m│ [2mplus a running core. Configure in Modules, then explicitly Connect.                               [0m │[2m        [0m 
+ [2m        [0m│ [2mActions · choose with arrows, Enter to execute                                                    [0m │[2m        [0m 
+ [2m        [0m│ [1;7m> c               Connect saved · Real log review                                                [0m  │[2m        [0m 
+ [2m        [0m│   d               Stop core                                                                        │[2m        [0m 
+ [2m        [0m│   f               Runtime paths                                                                    │[2m        [0m 
+ [2m        [0m│   i               Inspect local entry                                                              │[2m        [0m 
+ [2m        [0m│   N               Notification history                                                             │[2m        [0m 
+ [2m        [0m│   r               Refresh                                                                          │[2m        [0m 
+ [2m        [0m│   F               Full object details                                                              │[2m        [0m 
+ [2m        [0m│   Enter           View highlighted object                                                          │[2m        [0m 
+ [2m        [0m│ [2m──────────────────────────────────────────────────────────────────────────────────────────────────[0m │[2m        [0m 
+ [2m        [0m│ [1mNavigation and input                                                                              [0m │[2m        [0m 
+ [2m        [0m│ Esc                     Return one level                                                           │[2m        [0m 
+ [2m        [0m│ [2mEsc closes Help and restores your place                                                           [0m │[2m        [0m 
+ [2m        [0m╰────────────────────────────────────────────────────────────────────────────────────────────────────╯[2m        [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m                                                                                                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Real log review · Use Real log review · Edit none · Run Real log review                                          [0m 
+ View Real log review ·                                                                                                 
+ [2mxrmd ready · Content                                                                                 [0mF1 Help & actions 

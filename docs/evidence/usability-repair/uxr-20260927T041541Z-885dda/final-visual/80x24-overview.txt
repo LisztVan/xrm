@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ Runtime  ACTUAL                          ╭──────────────────────────────────╮  
+ running  Xray 26.9.9  PID 1188521        │ i Info · history in Help         │  
+ Running Profile   Alpha                  │ Refreshed Overview               │  
+ Actual target     Node · Loopback invento╰──────────────────────────────────╯  
+ Health            Process alive; traffic unverified                            
+                                                                                
+ Saved configuration  VIEW Alpha                                                
+ Saved target      Node · Loopback inventory                                    
+ Next Connect      Alpha                                                        
+ Saved settings apply only on Connect / Apply                                   
+                                                                                
+ Statistics  OBSERVED                                                           
+ Traffic: unavailable · latency: unmeasured                                     
+ Unavailable reason: stats, policy, metrics                                     
+                                                                                
+ Inventory  1 node · 1 source                                                   
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ View Alpha                                                                     
+ xrmd ready · Page content (Content)                          F1 Help & actions 

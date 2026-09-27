@@ -1,0 +1,134 @@
+{
+  "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+  "xrm_sha256": "4e4fb1c523be27ef3090d154c350bca763ddd343bb99926c7c26ffa87625e9f9",
+  "xrmd_sha256": "103af026302ada08e53507f631ade1ebd4f3394f0d03432d059a662cbc0f7c16",
+  "xray": "/tmp/xrm-g1-xray-v26.9.9/xray",
+  "xray_version": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)",
+  "xray_sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+  "isolated_root": "/tmp/xrm-g5-stats-vmn_2lvn",
+  "socket": "/tmp/xrm-g5-stats-vmn_2lvn/run/xrmd.sock",
+  "database": "/tmp/xrm-g5-stats-vmn_2lvn/state/xrmd.sqlite",
+  "daemon_pid": 1297331,
+  "profile_id": "51280b9a-d906-43ff-a772-529b57396078",
+  "socks_port": 49451,
+  "metrics_port": 50051,
+  "http_port": 35141,
+  "source": {
+    "inbounds": {
+      "editor_support": "native",
+      "included": true,
+      "key": "inbounds",
+      "label": "Inbounds",
+      "runtime_file": "02_inbounds.json",
+      "source_file": "modules/02_inbounds.json",
+      "text": "{\"inbounds\": [{\"tag\": \"g5-socks\", \"listen\": \"127.0.0.1\", \"port\": 49451, \"protocol\": \"socks\", \"settings\": {\"auth\": \"noauth\", \"udp\": false}}]}"
+    },
+    "stats": {
+      "editor_support": "native",
+      "included": true,
+      "key": "stats",
+      "label": "Stats",
+      "runtime_file": "08_stats.json",
+      "source_file": "modules/08_stats.json",
+      "text": "{\n  \"stats\": {}\n}\n"
+    },
+    "policy": {
+      "editor_support": "native",
+      "included": true,
+      "key": "policy",
+      "label": "Policy",
+      "runtime_file": "09_policy.json",
+      "source_file": "modules/09_policy.json",
+      "text": "{\n  \"policy\": {\n    \"levels\": {},\n    \"system\": {\n      \"statsInboundDownlink\": true,\n      \"statsInboundUplink\": true,\n      \"statsOutboundDownlink\": true,\n      \"statsOutboundUplink\": true\n    }\n  }\n}\n"
+    },
+    "metrics": {
+      "editor_support": "native",
+      "included": true,
+      "key": "metrics",
+      "label": "Metrics",
+      "runtime_file": "07_metrics.json",
+      "source_file": "modules/07_metrics.json",
+      "text": "{\n  \"metrics\": {\n    \"listen\": \"127.0.0.1:50051\"\n  }\n}\n"
+    }
+  },
+  "status": {
+    "active": {
+      "confdir": "/tmp/xrm-g5-stats-vmn_2lvn/state/runtime/candidate/run-1790488497790-1",
+      "core_id": "2d268e9f-b030-42dc-9544-3a46f74bcf41",
+      "core_version": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)",
+      "profile_id": "51280b9a-d906-43ff-a772-529b57396078",
+      "run_id": "run-1790488497790-1",
+      "selection": {
+        "id_or_tag": "d87239c6-5385-405c-99b9-2bb488a9d702",
+        "kind": "node"
+      },
+      "selection_display_name": "G5 loopback direct",
+      "selection_in_inventory": true
+    },
+    "actual_target": {
+      "id_or_tag": "d87239c6-5385-405c-99b9-2bb488a9d702",
+      "kind": "node"
+    },
+    "desired_running": true,
+    "error": null,
+    "health": "process_only",
+    "override_state": "none",
+    "pid": 1297377,
+    "runtime_override": null,
+    "saved_target": {
+      "id_or_tag": "d87239c6-5385-405c-99b9-2bb488a9d702",
+      "kind": "node"
+    },
+    "state": "running"
+  },
+  "runtime_files": [
+    "00_log.json",
+    "01_dns.json",
+    "02_inbounds.json",
+    "03_outbounds.json",
+    "04_routing.json",
+    "07_metrics.json",
+    "08_stats.json",
+    "09_policy.json",
+    "90_nodes_tail.json"
+  ],
+  "stats": {
+    "availability": "available",
+    "missing_conditions": [],
+    "rates": [],
+    "received_at": 1790488499917,
+    "run_id": "run-1790488497790-1",
+    "sample": {
+      "observations": [],
+      "received_at": 1790488499917,
+      "run_id": "run-1790488497790-1",
+      "traffic": [
+        {
+          "downlink": 146,
+          "scope": "inbound",
+          "tag": "g5-socks",
+          "uplink": 98
+        },
+        {
+          "downlink": 0,
+          "scope": "outbound",
+          "tag": "block",
+          "uplink": 0
+        },
+        {
+          "downlink": 0,
+          "scope": "outbound",
+          "tag": "direct",
+          "uplink": 0
+        },
+        {
+          "downlink": 134,
+          "scope": "outbound",
+          "tag": "xrm.node.d87239c6-5385-405c-99b9-2bb488a9d702",
+          "uplink": 84
+        }
+      ]
+    }
+  },
+  "loopback_response": "xrm-g5-stats-loopback"
+}

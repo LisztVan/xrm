@@ -1,0 +1,27 @@
+$ xrm profile list
+NAME      ID                                    CORE ID
+Home      cb7c2b12-91b5-414e-b9f3-c4ae6c57b94a  none
+
+$ xrm node list
+Nodes  1 total
+
+NAME      PROTOCOL  SUPPORT   STATE     ID
+Direct    freedom   raw-only  enabled   cb176eab-621e-4cd3-be00-c3676ce3738f
+
+$ xrm config modules Home
+MODULE            STATE     SOURCE FILE                       RUNTIME FILE
+log               enabled   modules/00_log.json               00_log.json
+dns               enabled   modules/01_dns.json               01_dns.json
+inbounds          enabled   modules/02_inbounds.json          02_inbounds.json
+outbounds         enabled   modules/03_outbounds.json         03_outbounds.json
+routing           enabled   modules/04_routing.json           04_routing.json
+observatory       disabled  modules/05_observatory.json       05_observatory.json
+api               disabled  modules/06_api.json               06_api.json
+metrics           disabled  modules/07_metrics.json           07_metrics.json
+stats             disabled  modules/08_stats.json             08_stats.json
+policy            disabled  modules/09_policy.json            09_policy.json
+fakedns           disabled  modules/10_fakedns.json           10_fakedns.json
+geodata           disabled  modules/11_geodata.json           11_geodata.json
+env               disabled  modules/12_env.json               12_env.json
+version           disabled  modules/13_version.json           13_version.json
+burstObservatory  disabled  modules/14_burstObservatory.json  14_burstObservatory.json

@@ -1,0 +1,48 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config                                                                                                               
+ Profiles  2 Profiles / independent runtime contexts                                                                                                                                
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ ▸ Beta                   Process fixture      yes    —      —                                                                                                                      
+   Alpha                  Process fixture      —      yes    running                                                                                                                
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                       ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+                                       │ Help & actions                                                                                     │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ Profiles · View Alpha                                                                              │                                       
+                                       │ Use selects the next connection Profile; Cancel Use and module Edit do not change the running      │                                       
+                                       │ core. Metadata is independent of Edit.                                                             │                                       
+                                       │ Actions · choose with arrows, Enter to execute                                                     │                                       
+                                       │ > u               Cancel Use · Beta                                                                │                                       
+                                       │   e               Allow module Edit · Beta                                                         │                                       
+                                       │   n               New Profile                                                                      │                                       
+                                       │   R               Rename Profile                                                                   │                                       
+                                       │   m               Profile metadata                                                                 │                                       
+                                       │   c               Copy Profile                                                                     │                                       
+                                       │   D               Delete Profile                                                                   │                                       
+                                       │   N               Notification history                                                             │                                       
+                                       │   r               Refresh                                                                          │                                       
+                                       │   F               Full object details                                                              │                                       
+                                       │   Enter           View highlighted object                                                          │                                       
+                                       │                   Last error diagnostic                                                            │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ Navigation and input                                                                               │                                       
+                                       │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                                               │                                       
+                                       │ Esc                     Return one level                                                           │                                       
+                                       │ Esc closes Help and restores your place                                                            │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Beta · Edit Alpha · Run Alpha                                                                                                                                     
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory                                                                                                                
+ xrmd ready · Content                                                                                                                                             F1 Help & actions 

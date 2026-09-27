@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config                                                                                                               
+ Logs  Core output                                                                                                                                                                  
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL   SUBSYSTEM               MESSAGE                                                                                                                          
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ -        stdout                                   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)                                                      ┃ 
+ -        stdout                                   A unified platform for anti-censorship.                                                                                        ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/00_log.json Format:json}             ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/01_dns.json Format:json}             ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/02_inbounds.json Format:json}        ┃ 
+ 01:21:26 stdout   Info    infra/conf              [/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/02_inbounds.json] appended inbound with tag: review-socks  ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/03_outbounds.json Format:json}       ┃ 
+ 01:21:26 stdout   Info    infra/conf              [/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/03_outbounds.json] prepend outbound with tag:              ┃ 
+                                                 | review-direct                                                                                                                  ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/04_routing.json Format:json}         ┃ 
+ 01:21:26 stdout   Debug   app/log                 Logger started                                                                                                                 ┃ 
+ 01:21:26 stdout   Info    app/dns                 DNS: created localhost client                                                                                                  ┃ 
+ -        stdout                                   Configuration OK.                                                                                                              ┃ 
+ 01:21:26 stderr                                   Using confdir from arg: /tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1                                     ┃ 
+ -        stdout                                   Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)                                                      ┃ 
+ -        stdout                                   A unified platform for anti-censorship.                                                                                        ┃ 
+ 01:21:26 stderr                                   Using confdir from arg: /tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1                                     ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/00_log.json Format:json}             ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/01_dns.json Format:json}             ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/02_inbounds.json Format:json}        ┃ 
+ 01:21:26 stdout   Info    infra/conf              [/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/02_inbounds.json] appended inbound with tag: review-socks  ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/03_outbounds.json Format:json}       ┃ 
+ 01:21:26 stdout   Info    infra/conf              [/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/03_outbounds.json] prepend outbound with tag:              ┃ 
+                                                 | review-direct                                                                                                                  ┃ 
+ 01:21:26 stdout   Info    infra/conf/serial       Reading config: &{Name:/tmp/xrm-rewrite-ui-dmf5gpzp/runtime/candidate/run-1790443286055-1/04_routing.json Format:json}         ┃ 
+ 01:21:26 stdout   Debug   app/log                 Logger started                                                                                                                 ┃ 
+ 01:21:26 stdout   Info    app/dns                 DNS: created localhost client                                                                                                  ┃ 
+ 01:21:26 stdout   Debug   app/proxyman/inbound    creating stream worker on 127.0.0.1:53999                                                                                      ┃ 
+ 01:21:26 stdout   Info    transport/internet/t…   listening TCP on 127.0.0.1:53999                                                                                               ┃ 
+ 01:21:26 stdout   Warning                         core: Xray 26.9.9 started                                                                                                      ┃ 
+ 01:21:28 stdout   Info    proxy/socks             [4185443301] TCP Connect request to tcp:127.0.0.1:42961                                                                        ┃ 
+ 01:21:28 stdout   Info    app/dispatcher          [4185443301] taking detour [review-direct] for [tcp:127.0.0.1:42961]                                                           ┃ 
+ 01:21:28 stdout   Info    transport/internet/t…   [4185443301] dialing TCP to tcp:127.0.0.1:42961                                                                                ╹ 
+ 01:21:28 stdout   Debug   transport/internet      [4185443301] dialing to tcp:127.0.0.1:42961                                                                                      
+ 01:21:28 stdout   Info    proxy/freedom           [4185443301] connection opened to tcp:127.0.0.1:42961, local endpoint 127.0.0.1:50730, remote endpoint 127.0.0.1:42961           
+ 01:21:28 stdout   Debug                           [4185443301] proxy: CopyRawConn splice                                                                                           
+ 01:21:28 stdout                                   from tcp:127.0.0.1:51162 accepted tcp:127.0.0.1:42961 [review-socks -> review-direct]                                            
+ 01:21:28 stdout   Debug   proxy/socks             [3221330419] Not Socks request, try to parse as HTTP request                                                                     
+ 01:21:28 stdout   Info    proxy/http              [3221330419] request to Method [GET] Host [] with URL [/invalid-socks]                                                           
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Real log review · Use Real log review · Edit none · Run Real log review                                                                                                       
+ Paused · 45 text lines                                                                                                                                                             
+ xrmd ready · Content                                                                                                                                             F1 Help & actions 

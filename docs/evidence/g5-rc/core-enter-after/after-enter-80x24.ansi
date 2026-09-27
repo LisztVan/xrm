@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules  Subscriptions  Nodes  Logs [0;1m[Config][0m          
+   [1m Core [0;2m Geodata  Tests  Appearance  Editor  General [0m                      [2m1/6[0m 
+ [1mConfig / Core[0;2m  Installed & registered Xray binaries                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m  [1mCore / release                [0;2m [1mVersion             [0;2m [1mState               [0;2m    [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m▸ G5 isolated core               26.9.9               registered             [0;2m [0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mDetails[0;2m                                                                 [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│   [2mG5 isolated core                                                    [0m   │[2m [0m 
+ [2m [0m│   [2mHighlighted G5 isolated core · /home/lisztzy/Projects/xrm/build/comp[0m   │[2m [0m 
+ [2m [0m│   [2mID: 4d667480-b29e-402c-a8c9-feae287fa8d7                            [0m   │[2m [0m 
+ [2m [0m│   [2mreported_version: Xray 26.9.9 (Xray, Penetrates Everything.)        [0m   │[2m [0m 
+ [2m [0m│   [2mpath: /home/lisztzy/Projects/xrm/build/component-rewrite/tests/xrm_f[0m   │[2m [0m 
+ [2m [0m│   [2mSocket: /tmp/xrm-rewrite-ui-9ue6vuyq/xrmd.sock                      [0m   │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m                                                                              [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mViewing: G5 Core Ent… · Next: G5 Core Ent… · Module Edit: none · Running: none[0m 
+ Highlighted G5 isolated core · /home/lisztzy/Projects/xrm/build/component-rew… 
+ [2mxrmd ready · Page content (Content)                          [0mF1 Help & actions 

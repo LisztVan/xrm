@@ -1,0 +1,13 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 230: UI-05 opens a configured external editor from the native module draft
+    Start 233: UX-07/09 module views use one full-width draft and F2 never saves
+    Start 234: UX-08 invalid JSON stays in the same draft until repaired
+    Start 320: multiline input keeps line navigation and newline semantics
+1/4 Test #320: multiline input keeps line navigation and newline semantics .............   Passed    0.00 sec
+2/4 Test #234: UX-08 invalid JSON stays in the same draft until repaired ...............   Passed    0.94 sec
+3/4 Test #233: UX-07/09 module views use one full-width draft and F2 never saves .......   Passed    4.12 sec
+4/4 Test #230: UI-05 opens a configured external editor from the native module draft ...   Passed    9.38 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   9.38 sec

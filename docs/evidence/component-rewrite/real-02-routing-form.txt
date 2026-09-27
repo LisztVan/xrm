@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+> routing-rule [unsaved]                    ╭Info──────────────────────────────╮
+  ──────────────────────────────────────────┤Module Edit enabled for Real      │
+  Rule label             TUI loopback       │Loopback                          │
+  domain                                    ╰──────────────────────────────────╯
+    Entries                                 ╭Done──────────────────────────────╮
+  ──────────────────────────────────────────┤Saved Real Loopback / dns; runtime│
+  No entries                                │unchanged                         │
+                                            ╰──────────────────────────────────╯
+  Value:
+  ┌───┐┌──────┐┌──────┐┌──┐┌────┐
+  │Add││Update││Delete││Up││Down│
+  └───┘└──────┘└──────┘└──┘└────┘
+  ────────────────────────────────────────────────────────────────────────────
+  ┌────────────┐┌──────┐
+  │Add to draft││Cancel│
+  └────────────┘└──────┘
+
+────────────────────────────────────────────────────────────────────────────────
+View Real Loopback · Use Real Loopback · Edit Real Loopback · Run none
+routing · Source editable · Visual · included · modules/04_routing.json
+xrmd ready · Content                                                     F1 Help

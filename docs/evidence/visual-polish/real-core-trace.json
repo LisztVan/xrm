@@ -1,0 +1,279 @@
+[
+  {
+    "time": 216365.897,
+    "action": "baseline",
+    "value": {
+      "build": "/home/lisztzy/Projects/xrm/build/component-rewrite",
+      "root": "/tmp/xrm-rewrite-ui-mj7pza95",
+      "pid": 1466949,
+      "xrm_sha256": "2ae5100fafb2b9c3e4bca9926825017573f5f1773aaf28fed8161d6a14f68ede"
+    }
+  },
+  {
+    "time": 216366.022,
+    "action": "tui_pid",
+    "value": "1466970"
+  },
+  {
+    "time": 216366.032,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216366.088,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216366.141,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 216366.197,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216366.34,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216366.393,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216366.448,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216366.495,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216366.548,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216366.596,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 216366.649,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 216366.702,
+    "action": "text",
+    "value": "localhost"
+  },
+  {
+    "time": 216366.773,
+    "action": "capture",
+    "value": "01-dns-form"
+  },
+  {
+    "time": 216366.773,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 216366.82,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216366.955,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 216367.009,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216367.146,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216367.295,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216367.35,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216367.399,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216367.447,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216367.495,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216367.548,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216367.596,
+    "action": "key",
+    "value": "e"
+  },
+  {
+    "time": 216367.648,
+    "action": "key",
+    "value": "Home"
+  },
+  {
+    "time": 216367.699,
+    "action": "text",
+    "value": "TUI loopback"
+  },
+  {
+    "time": 216367.769,
+    "action": "capture",
+    "value": "02-routing-form"
+  },
+  {
+    "time": 216367.769,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 216367.824,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216367.958,
+    "action": "key",
+    "value": "C-s"
+  },
+  {
+    "time": 216368.012,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216368.148,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216368.291,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216368.339,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216368.387,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216368.436,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216368.485,
+    "action": "key",
+    "value": "Tab"
+  },
+  {
+    "time": 216368.539,
+    "action": "key",
+    "value": "Enter"
+  },
+  {
+    "time": 216368.592,
+    "action": "key",
+    "value": "c"
+  },
+  {
+    "time": 216371.198,
+    "action": "capture",
+    "value": "03-real-xray-running"
+  },
+  {
+    "time": 216371.23,
+    "action": "real_core_proof",
+    "value": {
+      "version": "Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1 linux/amd64)\nA unified platform for anti-censorship.\n",
+      "sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a",
+      "profile": "07b2f425-ed78-405a-b198-b9c064569f9d",
+      "pid": 1467078,
+      "confdir": "/tmp/xrm-rewrite-ui-mj7pza95/runtime/candidate/run-1790436046832-1",
+      "files": [
+        "00_log.json",
+        "01_dns.json",
+        "02_inbounds.json",
+        "03_outbounds.json",
+        "04_routing.json"
+      ],
+      "curl_stdout": "xrm-real-component-loopback\n",
+      "route": "http://127.0.0.1:34211/proof",
+      "socks_port": 43131,
+      "dns": {
+        "dns": {
+          "servers": [
+            "localhost"
+          ]
+        }
+      },
+      "routing": {
+        "routing": {
+          "rules": [
+            {
+              "network": "tcp",
+              "outboundTag": "direct",
+              "ruleTag": "TUI loopback"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "time": 216371.233,
+    "action": "key",
+    "value": "Escape"
+  },
+  {
+    "time": 216371.38,
+    "action": "key",
+    "value": "q"
+  },
+  {
+    "time": 216371.704,
+    "action": "cleanup",
+    "value": {
+      "daemon_returncode": 0,
+      "isolated_fixture_retained": "/tmp/xrm-rewrite-ui-mj7pza95"
+    }
+  }
+]

@@ -1,0 +1,40 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+ Overview  Runtime & saved configuration
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Runtime  ACTUAL                                                 Saved configuration  VIEW Home
+ stopped                                                         Saved target      none
+ Running Profile   none                                          Next Connect      Home
+ Actual target     none                                          Saved settings apply only on Connect / Apply
+ Health            Process alive; traffic unverified
+
+ Statistics  OBSERVED
+ Traffic: unavailable · latency: unmeasured
+ Requires core not running
+
+ Inventory  0 nodes · 0 sources
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ View Home · Use Home · Edit none · Run none
+ View Home
+ xrmd ready · TopNav                                                                                  F1 Help & actions

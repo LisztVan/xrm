@@ -1,0 +1,12 @@
+{
+  "directory": "/tmp/xrm-component-lab-e6ojxmpm",
+  "socket": "/tmp/xrm-component-lab-e6ojxmpm/run/xrmd.sock",
+  "daemon_pid": 1197715,
+  "database": "/tmp/xrm-component-lab-e6ojxmpm/state/server.sqlite",
+  "profile": "b4e0a614-ced6-456a-a2aa-c15686035c85",
+  "source": "a482ac8d-ed74-4dca-a30f-0016ef9cfb65",
+  "subscription_url": "http://127.0.0.1:32903/nodes",
+  "loopback_node": "Loopback direct",
+  "core": "/tmp/xrm-g1-xray-v26.9.9/xray",
+  "build": "/home/lisztzy/Projects/xrm/build/component-rewrite"
+}

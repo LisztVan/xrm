@@ -1,0 +1,29 @@
+{
+  "build/component-rewrite/xrm": {
+    "sha256": "da2a19f6954b891a5042a82d93246f3a3f6720c2e6385d28fa5686fd75ebc503",
+    "mtime": "2026-09-26T23:50:15.911650"
+  },
+  "build/component-rewrite/xrmd": {
+    "sha256": "d2fbce7df7746bb5c1d28f9a3548e7cb3ec9050a762cf57f3fc45b281c9e7549",
+    "mtime": "2026-09-26T23:03:54.983501"
+  },
+  "docs/evidence/visual-polish/trace.json": {
+    "sha256": "49f003ac4774a93e352f0be95ac4c31af9ab9a4f731981827448411e63eab685",
+    "mtime": "2026-09-26T23:31:50.461289"
+  },
+  "粘贴的文本 (1)(3).txt": {
+    "sha256": "5d19a79c24e914ac61cba28670a84087777dee58189f2f467777ec1970c961f9",
+    "mtime": "2026-09-27T00:30:10.499882"
+  },
+  "粘贴的文本 (2).txt": {
+    "sha256": "25b59c7d3adf7695838448db179658a5d2a331135f078925eac877f3e4fc7b14",
+    "mtime": "2026-09-27T00:30:15.516357"
+  },
+  "xrm-review-remediation-prompt.md": {
+    "sha256": "87452d9a70408c2f22308a18d46f7eaca8f53c7cce70f292f5e687e062ddbf88",
+    "mtime": "2026-09-27T00:29:33.278860"
+  },
+  "branch": "master",
+  "commit": "561dede3c2e8e9e38a39d07a52076c9f08e3eeb0",
+  "captured": "2026-09-27T00:31:44.611594"
+}

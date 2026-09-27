@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 1/15 
+ log  SOURCE · EDIT · Visual                                                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Xray logging                         ╭──────────────────────────────────╮  
+                                          │ + Success · history in Help      │  
+ Xray logging  Draft                      │ Subscription Local saved         │  
+ log                                      ╰──────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ loglevel                warning                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Beta · Edit Alpha · Run Alpha                                 
+ log · Source editable · Visual · excluded                                      
+ xrmd ready · Content · modules/00_log.json                   F1 Help & actions 

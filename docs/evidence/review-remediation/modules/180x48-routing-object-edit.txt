@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                         5/15 
+ routing  SOURCE · EDIT · Visual                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Routing rules (ordered)      Routi╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+     Native balancers             routi│ Routing rule  EDIT · field 1/18                                                                    │                                       
+     Domain strategy              ─────┤ ────────────────────────────────────────────────────────────────────────────────────────────────── ├────────────────────────────────────── 
+                                  1  Ro│ Match conditions -> Target                                                                       ┃ │                                       
+                                     ma│ > Rule label              [ ] Set value  Not set · field omitted                                 ┃ │                                       
+                                       │                           [ Enter value                                                         ]┃ │                                       
+                                       │   Optional native ruleTag; not a match condition                                                 ┃ │                                       
+                                       │                                                                                                  ┃ │                                       
+                                       │   domain                                                                                         ┃ │                                       
+                                       │   [x] Set value  Explicit value                                                                  ┃ │                                       
+                                       │     domain                                                                                       ┃ │                                       
+                                       │   ───────────────────────────────────────────────────────────────────────────────────────────────┃ │                                       
+                                       │   > domain:example.test                                                                          ┃ │                                       
+                                       │                                                                                                  ╹ │                                       
+                                       │   New domain: [ Enter value                                                                     ]  │                                       
+                                       │    [ Add ]  [ Delete ]                                                                             │                                       
+                                       │   Match: domains (any entry)                                                                       │                                       
+                                       │                                                                                                    │                                       
+                                       │   ip                                                                                               │                                       
+                                       │   [ ] Set value  Not set · field omitted                                                           │                                       
+                                       │     ip                                                                                             │                                       
+                                       │   ───────────────────────────────────────────────────────────────────────────────────────────────  │                                       
+                                       │                                                                                                    │                                       
+                                       │   No entries                                                                                       │                                       
+                                       │   New ip: [ Enter value                                                                         ]  │                                       
+                                       │    [ Add ]                                                                                         │                                       
+                                       │   Match: destination IPs (any entry)                                                               │                                       
+                                       │                                                                                                    │                                       
+                                       │   network                 ‹ Unset / use core default ›                                             │                                       
+                                       │                                                                                                    │                                       
+                                       │ Target - choose outbound or balancer                                                               │                                       
+                                       │   outboundTag             ‹ direct ›                                                               │                                       
+                                       │   Target: choose an outbound or a balancer                                                         │                                       
+                                       │                                                                                                    │                                       
+                                       │   balancerTag             ‹ Unset / use core default ›                                             │                                       
+                                       │   Alternative target; leave outboundTag unset                                                      │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Add to draft ]  [ Cancel ]                                                                      │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                                                                             
+ routing · Source editable · Visual · excluded                                            
+ xrmd ready · Content · modules/04_routing.json                                                                                                                   F1 Help & actions 

@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                                                   
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env      › 5/15 
+ routing  SOURCE · EDIT · Visual                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Routing rules (ordered)      Routing rules (ordered)  Draft                                                        
+     Native balancers             routing.rules                                                                         
+     Domain strategy              ───────────────────────────────────────────────────────────────────────────────────── 
+                                  1  Routing rule   to direct                                                           
+                                     match domain domain:example.test                                                   
+                                                                                                                        
+         ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+         │ Help & actions                                                                                     │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ Routing rule                                                                                       │         
+         │ Native path /routing/rules/0. Matches combine with AND. Tab to Target: outboundTag / balancerTag.  │         
+         │ ruleTag is optional. Add to draft: routing draft. Module Save: Source. Connect / Apply: runtime.   │         
+         │ Cancel: discard this…                                                                              │         
+         │ Actions · choose with arrows, Enter to execute                                                     │         
+         │ > Ctrl-S          Add to draft · Routing rule                                                      │         
+         │   Esc             Cancel / close form · Routing rule                                               │         
+         │                   Editing scope and advanced fields · Routing rule                                 │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ Navigation and input                                                                               │         
+         │ Tab / Shift-Tab         Move between fields and buttons                                            │         
+         │ Arrows / Home / End     Move cursor or choice                                                      │         
+         │ Ctrl-Home / Ctrl-End    Document start / end                                                       │         
+         │ Enter                   Insert newline in multiline text / activate button                         │         
+         │ Esc closes Help and restores your place                                                            │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                 
+ routing · Source editable · Visual · excluded              
+ xrmd ready · Content · modules/04_routing.json                                                       F1 Help & actions 

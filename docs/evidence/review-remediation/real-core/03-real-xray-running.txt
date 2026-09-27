@@ -1,0 +1,24 @@
+ XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config           
+ Overview  Runtime & saved configuration                                        
+ ────────────────────────────────────────────────────────────────────────────── 
+ Runtime  ACTUAL                          ╭──────────────────────────────────╮  
+ running  Xray 26.9.9  PID 1546762        │ + Success · history in Help      │  
+ Running Profile   Real Loopback          │ Connect Real Loopback: completed │  
+ Actual target     none                   ╰──────────────────────────────────╯  
+ Health            Process alive; traffic unverified                            
+                                                                                
+ Saved configuration  VIEW Real Loopback                                        
+ Saved target      none                                                         
+ Next Connect      Real Loopback                                                
+ Saved settings apply only on Connect / Apply                                   
+                                                                                
+ Statistics  OBSERVED                                                           
+ Traffic: unavailable · latency: unmeasured                                     
+ Requires stats, policy, metrics                                                
+                                                                                
+ Inventory  0 nodes · 0 sources                                                 
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Real Loopba… · Use Real Loopba… · Edit Real Loopba… · Run Real Loopba…    
+ View Real Loopback ·                                                           
+ xrmd ready · Content                                         F1 Help & actions 

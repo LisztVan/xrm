@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+    Core  Geodata  Tests  Appearance  Editor  General                                                               3/6
+ Config / Tests  XRM program settings
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Setting                  Value                                                 ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ i Info                           ├─
+ ▸ Parallel tests           2                                                     │ Use core started                 │
+   Test URL                 http://127.0.0.1/fixture?quep                         ╰──────────────────────────────────╯
+   Response limit (bytes)   8388608                                               ╭──────────────────────────────────╮
+   Timeout (ms)             4500                                                  │ + Success                        │
+                                                                                  │ Use core: completed              │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ + Success                        │
+                                                                                  │ Node test defaults saved; no     │
+                                                                                  │ test started                     │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ View Home · Use Home · Edit none · Run none
+ XRM / Tests · preferences do not modify native Xray modules
+ xrmd ready · Content                                                                                 F1 Help & actions

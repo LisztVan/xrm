@@ -1,0 +1,24 @@
+ [1m[38;2;115;194;230mXRM [0m[38;2;146;163;183m Overview [1m[38;2;115;194;230m[Profiles][0m[38;2;146;163;183m Modules  Subscriptions  Nodes  Logs  Config [39m          
+ [1mProfiles[0m[38;2;146;163;183m  18 Profiles / independent runtime contexts                          [39m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [2m  [1mProfile                      [0;2m [1mCore                [0;2m [1mUse   [0;2m [1mEdit  [0;2m [1mRun      [0;2m  [0m 
+ [2m[38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2m  Lab region 08 / long descrip… Process fixture      —      —      —          [0m 
+ [2m  Lab region 15 / long descrip… Process fixture      —      —      —         ╻[0m 
+ [2m [0m╭──────────────────────────────────────────────────────────────────────────╮[2m┃[0m 
+ [2m [0m│ [1mrename Profile[0m[38;2;146;163;183m  EDIT · field 1/1                                        [39m │[2m┃[0m 
+ [2m [0m│ [38;2;66;83;104m────────────────────────────────────────────────────────────────────────[39m │[2m┃[0m 
+ [2m [0m│ [1m> Name                    [0m[ [38;2;115;194;230mAlpha                                    [39m ]  │[2m┃[0m 
+ [2m [0m│                                                                          │[2m┃[0m 
+ [1;2m[38;2;115;194;230m▸[0m│ [38;2;66;83;104m────────────────────────────────────────────────────────────────────────[39m │[1;2m[38;2;115;194;230m┃[0m 
+ [2m [0m│ [38;2;115;194;230m [ Save ]  [ Cancel ] [39m                                                   │[2m┃[0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m┃[0m 
+ [2m  Lab region 03 / long descrip… Process fixture      —      —      —         ┃[0m 
+ [2m  Beta                          Process fixture      —      —      —         ┃[0m 
+ [2m  Lab region 02 / long descrip… Process fixture      —      —      —         ┃[0m 
+ [2m  Lab region 00 / long descrip… Process fixture      —      —      —         ┃[0m 
+ [2m  Lab region 12 / long descrip… Process fixture      —      —      —         ╹[0m 
+ [38;2;66;83;104m──────────────────────────────────────────────────────────────────────────────[39m 
+ [38;2;146;163;183mView Alpha · Use Alpha · Edit none · Run Alpha                                [39m 
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory            
+ [38;2;146;163;183mxrmd ready · Content                                         [38;2;115;194;230mF1 Help & actions[39m 

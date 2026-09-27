@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Resource                   Kind         Result             Auto                    ╭Done─────────────────────────────╮
+─────────────────────────────────────────────────────────────────────────────────────┤Node test defaults saved; no test│
+No Geodata resources                                                                 │started                          │
+                                                                                     ╰─────────────────────────────────╯
+                                                                                     ╭Done─────────────────────────────╮
+                                                                                     │External editor saved            │
+                                                                                     ╰─────────────────────────────────╯
+          Add Geodata resource                                                       ╭Done─────────────────────────────╮
+          ───────────────────────────────────────────────────────────────────────────┤XRM appearance saved             │
+          Name                                                                       ╰─────────────────────────────────╯
+          Resource type          ◉ GeoIP
+                                 ○ GeoSite
+          Runtime filename       geoip.dat
+          Source type            ◉ HTTP(S) URL
+                                 ○ Local file on server
+          Source URL or local pat
+            Source type determines whether this is a URL or a server-local .dat file.
+          Automatic updates      ☐
+          Interval (seconds)     0
+            0 disables the schedule. Positive automatic updates require a validator core.
+          Validator Xray         ◉ No validator selected
+                                 ○ Fixture Xray · Xray 26.9.9 (Xray, Penetrates Everything.) 52a412d (go1.27.1
+          ────────────────────────────────────────────────────────────────────────────────────────────────────
+          ┌────┐┌──────┐
+          │Save││Cancel│
+          └────┘└──────┘
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · Visual                                                    
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ DNS server  UNSAVED * · field 1/15                                       │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ rver address                                                           ┃ │  
+ D│ Address *               [ localhost                                    ┃ │  
+ d│ IP, DNS URL, localhost or fakedns                                        │  
+ ─┤                                                                          ├─ 
+ 1│ port                    [ ] Set value  Not set · field omitted           │  
+  │                           Enable Set value to edit; draft value retaine  │  
+  │ Default 53; URL port applies for DOH/DOQL                                │  
+  │                                                                          │  
+  │ tching and response filters                                              │  
+  │ domains                                                                  │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │  [ Add to draft ]  [ Cancel ]                                            │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Real Loopba… · Next: Real Loopba… · Module Edit: Real Loopba… · Runn… 
+ dns · Source editable · Visual · included                                      
+ xrmd ready · Page content (Content) · modules/01_dns.json    F1 Help & actions 

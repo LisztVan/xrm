@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 1/15 
+ log  SOURCE · READ ONLY · Visual                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Help & actions                                                           │  
+ X│ ──────────────────────────────────────────────────────────────────────── │  
+ l│ Alpha / log · Source                                                     │  
+ ─┤ Read only: in Profiles allow module Edit for Alpha. Visual edits listed  ├─ 
+ l│ native fields; other fields/types remain in JSON (F2). Read onl…         │  
+  │ Tasks · arrows choose; Enter executes available task                     │  
+  │ > F2              Open JSON                                            ┃ │  
+  │   Ctrl-S / s      Save module source                                   ┃ │  
+  │   F6              External editor                                      ┃ │  
+  │   I               Include module                                         │  
+  │   i               Source / runtime paths                                 │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Tab moves · Space toggles · Enter activates · Esc closes                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha              
+ log · Source read-only · Visual · excluded                                     
+ xrmd ready · Page content (Content) · modules/00_log.json    F1 Help & actions 

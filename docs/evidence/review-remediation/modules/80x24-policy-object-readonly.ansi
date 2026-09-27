@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+ ‹ [2m outbounds  routing  observatory  api  metrics  stats [0;1m policy [0m       › [2m10/15[0m 
+ [1mpolicy[0;2m  SOURCE · READ ONLY · Visual                                           [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mUser levels[0;2m  READ ONLY · field 1/9                                      [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [1;2mU[0m│ [1m> User level              [0m  [2m0                                        [0m  ┃ │[2m [0m 
+ [2mp[0m│                                                                        ┃ │[2m [0m 
+ [2m─[0m┤   handshake               [2mExplicit value                               [0m┃ ├[2m─[0m 
+ [2m0[0m│                             [2m0                                        [0m  ┃ │[2m [0m 
+ [2m [0m│ [2m  Seconds; default 60                                                  [0m  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│   connIdle                [2mNot set · field omitted                      [0m  │[2m [0m 
+ [2m [0m│                           [2m  Not set (read only)                        [0m  │[2m [0m 
+ [2m [0m│ [2m  Seconds; default 300                                                 [0m  │[2m [0m 
+ [2m [0m│                                                                          │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│  [ Close ]                                                               │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit none · Run none                   [0m 
+ policy · Source read-only · Visual · excluded                                  
+ [2mxrmd ready · Content · modules/09_policy.json                [0mF1 Help & actions 

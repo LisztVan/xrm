@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config           
+ Logs  Core output                                                              
+ ────────────────────────────────────────────────────────────────────────────── 
+ TIME     SOURCE   LEVEL     MESSAGE                                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ -        stdout             XRM_FAKE_CORE_LOG_0112                             
+ -        stdout             XRM_FAKE_CORE_LOG_0113                             
+ -        stdout             XRM_FAKE_CORE_LOG_0114                             
+ -        stdout             XRM_FAKE_CORE_LOG_0115                             
+ -        stdout             XRM_FAKE_CORE_LOG_0116                             
+ -        stdout             XRM_FAKE_CORE_LOG_0117                             
+ -        stdout             XRM_FAKE_CORE_LOG_0118                             
+ -        stdout             XRM_FAKE_CORE_LOG_0119                             
+ -        stdout             XRM_FAKE_CORE_LOG_0120                             
+ -        stdout             XRM_FAKE_CORE_LOG_0121                             
+ -        stdout             XRM_FAKE_CORE_LOG_0122                             
+ -        stdout             XRM_FAKE_CORE_LOG_0123                             
+ -        stdout             XRM_FAKE_CORE_LOG_0124                             
+ -        stdout             XRM_FAKE_CORE_LOG_0125                           ┃ 
+ -        stdout             XRM_FAKE_CORE_LOG_0126                           ┃ 
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use none · Edit none · Run Alpha                                  
+ Following · 131 text lines                                                     
+ xrmd ready · Content                                         F1 Help & actions 

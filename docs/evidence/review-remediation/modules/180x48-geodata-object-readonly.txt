@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                        12/15 
+ geodata  SOURCE · READ ONLY · Visual                                                                                                                                               
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Core reload schedule         Core reload schedule  Read only                                                                                                                   
+     Core download assets         geodata                                                                                                                                           
+                                  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                  Reload schedule         0 0 * * *                                                                                                                 
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                       ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+                                       │ Geodata reload  READ ONLY · field 1/2                                                              │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ > Reload schedule         Explicit value                                                           │                                       
+                                       │                             0 0 * * *                                                              │                                       
+                                       │   Five-part cron; unset disables schedule                                                          │                                       
+                                       │                                                                                                    │                                       
+                                       │   outbound                (o) Unset / use core default                                             │                                       
+                                       │   Unset follows routing                                                                            │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Close ]                                                                                         │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit none · Run none                                                                                                                      
+ geodata · Source read-only · Visual · excluded                                           
+ xrmd ready · Content · modules/11_geodata.json                                                                                                                   F1 Help & actions 

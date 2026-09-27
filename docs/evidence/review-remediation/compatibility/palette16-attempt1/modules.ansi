@@ -1,0 +1,24 @@
+[97m[40m [1m[96mXRM [0m[37m[40m Overview  Profiles [1m[96m[Modules][0m[37m[40m Subscriptions  Nodes  Logs  Config [97m          
+ [96m  [1m log [0m[37m[40m dns  inbounds  outbounds  routing  observatory  api [97m           [96m › [37m1/15[97m 
+ [1mlog[0m[37m[40m  SOURCE · READ ONLY · Visual                                              [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [1m[96m>   Xray logging                                                             [0m[97m[40m  
+                                                                                
+ [1mXray logging[0m[37m[40m  Read only                                                       [97m 
+ [37mlog                                                                           [97m 
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mloglevel                [97mwarning                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [90m──────────────────────────────────────────────────────────────────────────────[97m 
+ [37mView Compatibili… · Use Compatibili… · Edit none · Run none                   [97m 
+ log · Source read-only · Visual · excluded                                     
+ [37mxrmd ready · Content · modules/00_log.json                   [96mF1 Help & actions[97m 

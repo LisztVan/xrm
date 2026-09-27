@@ -1,0 +1,26 @@
+Manage saved dynamic Xray balancers
+
+Usage: xrm group [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+  -h,   --help            Show this help message 
+
+SUBCOMMANDS:
+  add                     Create a managed group with explicit node candidates 
+  list                    List groups in a Profile 
+  show                    Show one saved group 
+  edit                    Replace one group from its complete JSON object 
+  remove                  Remove a saved group 
+  select                  Persist a manual group's chosen candidate 
+  override                Temporarily override a running Xray balancer 
+                          selection 
+
+GLOBAL OPTIONS (before the command):
+        --socket PATH     xrmd Unix domain socket 
+        --json            Write machine readable output 
+        --verbose         Include original diagnostics in human errors 
+
+Examples:
+  xrm group list Home
+
+Next: xrm group <command> --help

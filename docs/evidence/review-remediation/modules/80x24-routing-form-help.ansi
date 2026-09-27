@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles [0;1m[Modules][0;2m Subscriptions  Nodes  Logs  Config [0m          
+   [2m log  dns  inbounds  outbounds [0;1m routing [0;2m observatory  api [0m            › [2m5/15[0m 
+ [1mrouting[0;2m  SOURCE · EDIT · Visual                                               [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [1;2m>[0m╭──────────────────────────────────────────────────────────────────────────╮[2m [0m 
+ [2m [0m│ [1mHelp & actions[0;2m                                                          [0m │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mRouting rule                                                            [0m │[2m [0m 
+ [1;2mR[0m│ [2mNative path /routing/rules/0. Matches combine with AND. Tab to Target:  [0m │[2m [0m 
+ [2mr[0m│ [2moutboundTag / balancerTag. ruleTag is optional. Add to draft: ro…       [0m │[2m [0m 
+ [2m─[0m┤ [2mActions · choose with arrows, Enter to execute                          [0m ├[2m─[0m 
+ [2m1[0m│ [1;7m> Ctrl-S          Add to draft · Routing rule                          [0m┃ │[2m [0m 
+ [2m [0m│ [2m────────────────────────────────────────────────────────────────────────[0m │[2m [0m 
+ [2m [0m│ [1mNavigation and input                                                    [0m │[2m [0m 
+ [2m [0m│ Tab / Shift-Tab         Move between fields and buttons                  │[2m [0m 
+ [2m [0m│ Arrows / Home / End     Move cursor or choice                            │[2m [0m 
+ [2m [0m│ Ctrl-Home / Ctrl-End    Document start / end                             │[2m [0m 
+ [2m [0m│ Enter                   Insert newline in multiline text / activate      │[2m [0m 
+ [2m [0m│ [2mEsc closes Help and restores your place                                 [0m │[2m [0m 
+ [2m [0m╰──────────────────────────────────────────────────────────────────────────╯[2m [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Module revi… · Use Module revi… · Edit Module revi… · Run none           [0m 
+ routing · Source editable · Visual · excluded                                  
+ [2mxrmd ready · Content · modules/04_routing.json               [0mF1 Help & actions 

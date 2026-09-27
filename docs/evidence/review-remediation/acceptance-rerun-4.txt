@@ -1,0 +1,95 @@
+Test project /home/lisztzy/Projects/xrm/build/component-rewrite
+    Start 223: first use from xrm tui needs no Profile ID and completes local subscription to connect
+1/2 Test #223: first use from xrm tui needs no Profile ID and completes local subscription to connect ...***Failed   30.55 sec
+Filters: "first use from xrm tui needs no Profile ID and completes local subscription to connect"
+Randomness seeded to: 1264357422
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xrm_tui_acceptance_tests is a Catch2 v3.7.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+first use from xrm tui needs no Profile ID and completes local subscription to
+connect
+-------------------------------------------------------------------------------
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:1269
+...............................................................................
+
+/home/lisztzy/Projects/xrm/tests/tui/acceptance/acceptance_tests.cpp:570: FAILED:
+  REQUIRE( grid.find(text) != std::string::npos )
+with expansion:
+  18446744073709551615 (0xffffffffffffffff)
+  !=
+  18446744073709551615 (0xffffffffffffffff)
+with message:
+  expected=Stop core: completed
+   XRM [Overview] Profiles  Modules  Subscriptions  Nodes  Logs  Config
+   Overview  Runtime & saved configuration
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   R╭───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+   s│ Details
+  │
+   R│
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �───────────────────── │
+   A│   Notifications
+  │
+   H│   Subscription local fixture saved
+  │
+    │   Update local fixture started
+  │
+   S│   Update local fixture: completed
+  │
+   S│   Registered fixture; no core started
+  │
+   N│   Profile first profile saved; runtime unchanged
+  │
+   S│   Use set to first profile; runtime unchanged
+  │
+   !│   Source bindings saved
+  │
+    │   Target saved for first profile; runtime unchanged
+  │
+   S│   Connect first profile started
+  │
+   T│   Connect first profile: completed
+  │
+   R│   Stop core started
+  │
+    │
+  │
+   I╰───────────────────────�-
+  �─────────────────────────-
+  ─────────────────────────�-
+  ��
+   ─────────────────────────-
+  ─────────────────────────�-
+  ��────────────────────────�-
+  �──
+   View first profi… · Use first profi… · Edit none · Run none
+   View first profile
+   xrmd ready · Content                                         F1 Help &
+  actions
+
+===============================================================================
+test cases:   1 |   0 passed | 1 failed
+assertions: 116 | 115 passed | 1 failed
+
+
+    Start 228: UI-05 opens a configured external editor from the native module draft
+2/2 Test #228: UI-05 opens a configured external editor from the native module draft ....................   Passed    9.35 sec
+
+50% tests passed, 1 tests failed out of 2
+
+Total Test time (real) =  39.91 sec
+
+The following tests FAILED:
+	223 - first use from xrm tui needs no Profile ID and completes local subscription to connect (Failed)
+Errors while running CTest

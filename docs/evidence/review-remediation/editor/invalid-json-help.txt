@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 2/15 
+ dns  SOURCE · EDIT · JSON · UNSAVED *                                          
+ ────────────────────────────────────────────────────────────────────────────── 
+ !╭──────────────────────────────────────────────────────────────────────────╮  
+ l│ Help & actions                                                           │  
+ [│ ──────────────────────────────────────────────────────────────────────── │] 
+  │ Alpha / dns · Source                                                     │  
+  │ Child forms change this draft; Save writes Source; Connect publishes     │  
+  │ saved settings. Visual edits listed native fields; other fields/ty…      │  
+  │ Actions · choose with arrows, Enter to execute                           │  
+  │ > F2              Open Visual                                          ┃ │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Arrows / Home / End     Move cursor                                      │  
+  │ Ctrl-Home / Ctrl-End    Document start / end                             │  
+  │ Esc                     Close one layer                                  │  
+  │ Esc                     Return one level                                 │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit Alpha · Run Alpha                                
+ dns · Source editable · JSON · Unsaved * · included                            
+ xrmd ready · Content · modules/01_dns.json                   F1 Help & actions 

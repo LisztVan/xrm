@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config           
+ Subscriptions  1 source / node inventory                                       
+ ────────────────────────────────────────────────────────────────────────────── 
+   Source                   Nodes   Resul ╭──────────────────────────────────╮  
+ ─────────────────────────────────────────┤ ! Warning · history in Help      ├─ 
+ ▸ Loopback failed update   0       Failed│ Update Loopback failed update:   │  
+                                          │ partially completed; inspect     │  
+                                          │ source result                    │  
+                                          ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Unconfirmed… · Use Unconfirmed… · Edit Unconfirmed… · Run none            
+ Highlighted Loopback failed update · Failed · 0 nodes                          
+ xrmd ready · Content                                         F1 Help & actions 

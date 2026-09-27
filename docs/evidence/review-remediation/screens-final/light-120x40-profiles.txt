@@ -1,0 +1,40 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config                                                   
+ Profiles  18 Profiles / independent runtime contexts                                                                   
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Profile                                       Core                 Use    Edit   Run                                 
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Lab region 05 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 11 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 08 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 15 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 09 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 10 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 01 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 14 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 07 / long descriptive Profile name Process fixture      —      —      —                                   
+ ▸ Alpha                                         Process fixture      —      —      running                             
+   Lab region 06 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 13 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 03 / long descriptive Profile name Process fixture      —      —      —                                   
+   Beta                                          Process fixture      —      —      —                                   
+   Lab region 02 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 00 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 12 / long descriptive Profile name Process fixture      —      —      —                                   
+   Lab region 04 / long descriptive Profile name Process fixture      —      —      —                                   
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use none · Edit none · Run Alpha                                                                          
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory                                                    
+ xrmd ready · Content                                                                                 F1 Help & actions 

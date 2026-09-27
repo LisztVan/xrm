@@ -1,0 +1,40 @@
+ [1mXRM [0;2m Overview  Profiles  Modules [0;1m[Subscriptions][0;2m Nodes  Logs  Config [0m
+ [1mSubscriptions[0;2m  1 source / node inventory                                                                              [0m
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+   [1mSource                  [0m [1mNodes  [0m [1mResult         [0m [1mAuto   [0m [1mBound    [0m             ╭──────────────────────────────────╮
+ [2m─────────────────────────────────────────────────────────────────────────────────[0m┤ [1mi Info                          [0m ├[2m─[0m
+ [1;7m▸ Local fixture            1       Updated         on      yes                   [0m│ Update Local fixture started     │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ [1m+ Success                       [0m │
+                                                                                  │ Update Local fixture: completed  │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [2m──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[0m
+ [2mViewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: none                                            [0m
+ Highlighted Local fixture · Updated · 1 nodes
+ [2mxrmd ready · Page content (Content)                                                                  [0mF1 Help & actions

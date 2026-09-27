@@ -1,0 +1,24 @@
+[1m[Overview][0m Profiles  Modules  Subscriptions  Nodes  Logs  Config
+────────────────────────────────────────────────────────────────────────────────
+[1mCORE  running                                 [0m╭[1mInfo[0m────────────────────────────╮
+Xray 26.9.9 (Xray, Penetrates Everything.) 52a│Connect Real Loopback started   │
+Running Profile  Real Loopback                ╰────────────────────────────────╯
+Actual target    none                         ╭[1mDone[0m────────────────────────────╮
+──────────────────────────────────────────────┤Connect Real Loopback: completed│
+Saved (Real Loopback)  none                   ╰────────────────────────────────╯
+[2mHealth  process_only · process state; remote traffic unverified
+[0m────────────────────────────────────────────────────────────────────────────────
+[1mStatistics
+[0mTraffic: unavailable · latency: unmeasured
+[2m  stats
+  policy
+  metrics
+[0m────────────────────────────────────────────────────────────────────────────────
+Inventory  0 nodes · 0 sources
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+[1mView Real Loopback · Use Real Loopback · Edit Real Loopback · Run Real Loopback
+[0m
+[2mxrmd ready · Content                                                     [0mF1 Help

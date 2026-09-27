@@ -1,0 +1,17 @@
+{
+  "run": "uxr-20260927T041541Z-885dda",
+  "timestamp": "2026-09-27T04:15:41.625576+00:00",
+  "commit": "561dede3c2e8e9e38a39d07a52076c9f08e3eeb0",
+  "build": "build/component-rewrite",
+  "binaries": {
+    "build/component-rewrite/xrm": "2c8bb9dfc5e41d0e54eb9c15dacdca9d964daf98dd4565b65b95f2a91bb74df5",
+    "build/component-rewrite/xrmd": "251f3e1102b32a47e6bfe7e58b9481f7ea3c9fb23ae96ad4e42353c803ee210c"
+  },
+  "real_xray": {
+    "path": "/tmp/xrm-g1-xray-v26.9.9/xray",
+    "sha256": "c4ae6798c38e0e5343b192406746333cd0ba7ff3eb984f8c4b9939dcb68c3f8a"
+  },
+  "README_name": "README.md exists; README(1).md absent",
+  "tmux_server": "unique socket per Harness instance",
+  "fixture": "isolated temp root per test, loopback only"
+}

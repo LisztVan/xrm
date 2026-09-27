@@ -1,0 +1,40 @@
+ Overview  Profiles  Modules  Subscriptions  Nodes  Logs [Config]
+ Core  Geodata  Tests  Appearance  Editor  General
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Resource                   Kind         Result             Auto                   ╭Done──────────────────────────────╮
+────────────────────────────────────────────────────────────────────────────────────┤XRM appearance saved              │
+▸ Geo Fixture                geoip                           off                    ╰──────────────────────────────────╯
+                                                                                    ╭Done──────────────────────────────╮
+                                                                                    │Geodata Geo Fixture saved; runtime│
+                                                                                    │unchanged                         │
+                                                                                    ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+View Home · Use Home · Edit none · Run none
+
+xrmd ready · Content                                                                                             F1 Help

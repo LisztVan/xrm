@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles  Modules  Subscriptions [Nodes] Logs  Config
+  All  Local  Groups  Local lab source
+ Nodes  Node inventory
+ ────────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────
+   Node                         Protocol     State            Target                 │  Inspection  CURSOR
+ ──────────────────────────────────────────────────────────────────────────────────  │
+ ▸ Loopback inventory           freedom      available        Saved Run              │  Loopback inventory
+                                                                                     │
+                                                                                     │  Source    Local
+                                                                                     │  Editor    Native JSON
+                                                                                     │  Protocol  freedom
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+                                                                                     │
+ ────────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use Alpha · Edit none · Run Alpha
+ Cursor Loopback inventory
+ xrmd ready · Content                                                                                                                                                   ? / F1 Help

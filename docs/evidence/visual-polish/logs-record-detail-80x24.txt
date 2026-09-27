@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles  Modules  Subscriptions  Nodes [Logs] Config
+ Logs  Core output
+ ──────────────────────────────────────────────────────────────────────────────
+ TIME     CURSOR SOURCE   LEVEL   MESSAGE
+ ──────────────────────────────────────────────────────────────────────────────
+  ╭──────────────────────────────────────────────────────────────────────────╮
+  │ Details                                                                  │
+  │ ──────────────────────────────────────────────────────────────────────── │
+  │ Log record                                                               │
+  │ Time    not supplied                                                     │
+  │ Cursor  1                                                                │
+  │ Source  core_stdout                                                      │
+  │ Level   Info                                                             │
+  │ Subsystem                                                                │
+  │                                                                          │
+  │ [Info] UI process fixture                                                │
+  │ Socket: /tmp/xrm-rewrite-ui-432hav42/xrmd.sock                           │
+  ╰──────────────────────────────────────────────────────────────────────────╯
+          #11    stdout           XRM_FAKE_CORE_LOG_0009
+          #12    stdout           XRM_FAKE_CORE_LOG_0010
+ ──────────────────────────────────────────────────────────────────────────────
+ View Alpha · Use none · Edit Alpha · Run Alpha
+ PAUSED · 42 lines · new 0 · dropped no · truncated no
+ xrmd ready · Content · cursor 33                                   ? / F1 Help

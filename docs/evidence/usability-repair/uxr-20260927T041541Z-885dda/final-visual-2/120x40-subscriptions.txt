@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config                                                   
+ Subscriptions  1 source / node inventory                                                                               
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Source                   Nodes   Result          Auto    Bound                                                       
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ ▸ Local lab source         0       Not refreshed   on      no                                                          
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ Viewing: Alpha · Next: Alpha · Module Edit: none · Running: Alpha                                                      
+ Highlighted Local lab source · Not refreshed · 0 nodes                                                                 
+ xrmd ready · Page content (Content)                                                                  F1 Help & actions 

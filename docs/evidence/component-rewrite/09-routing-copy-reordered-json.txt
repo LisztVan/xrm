@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+ log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  polic
+────────────────────────────────────────────────────────────────────────────────
+{                                         ╭Done────────────────────────────────╮
+  "routing": {                            │Saved Alpha / dns; runtime unchanged│
+    "rules": [                            │(2)                                 │
+      {                                   ╰────────────────────────────────────╯
+        "domain": [
+          "example.test"
+        ],
+        "futureNative": 42,
+        "outboundTag": "direct",
+        "ruleTag": "Initial rule edited copy",
+        "type": "field"
+      },
+      {
+        "domain": [
+          "example.test"
+        ],
+        "futureNative": 42,
+────────────────────────────────────────────────────────────────────────────────
+View Alpha · Use Alpha · Edit Alpha · Run Alpha
+routing · Source editable · JSON · unsaved · included · modules/04_routing.json
+xrmd ready · Content                                                     F1 Help

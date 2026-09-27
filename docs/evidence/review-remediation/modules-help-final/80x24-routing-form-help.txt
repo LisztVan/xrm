@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 5/15 
+ routing  SOURCE · EDIT · Visual                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ >╭──────────────────────────────────────────────────────────────────────────╮  
+  │ Help & actions                                                           │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Routing rule                                                             │  
+ R│ Add to draft: routing draft. Module Save: Source. Connect / Apply:       │  
+ r│ runtime. Cancel: discard this object's unsubmitted changes. Addition…    │  
+ ─┤ Actions · choose with arrows, Enter to execute                           ├─ 
+ 1│ > Ctrl-S          Add to draft · Routing rule                          ┃ │  
+  │ ──────────────────────────────────────────────────────────────────────── │  
+  │ Navigation and input                                                     │  
+  │ Tab / Shift-Tab         Move between fields and buttons                  │  
+  │ Arrows / Home / End     Move cursor or choice                            │  
+  │ Ctrl-Home / Ctrl-End    Document start / end                             │  
+  │ Enter                   Insert newline in multiline text / activate      │  
+  │ Esc closes Help and restores your place                                  │  
+  ╰──────────────────────────────────────────────────────────────────────────╯  
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Module revi… · Use Module revi… · Edit Module revi… · Run none            
+ routing · Source editable · Visual · excluded                                  
+ xrmd ready · Content · modules/04_routing.json               F1 Help & actions 

@@ -1,0 +1,24 @@
+ Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config
+  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory
+────────────────────────────────────────────────────────────────────────────────
+>   burstObservatory settings
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+View Alpha · Use Alpha · Edit none · Run Alpha
+burstObservatory · Source read-only · Visual · excluded · modules/14_burstObserv
+xrmd ready · Content                                                     F1 Help

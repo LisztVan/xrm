@@ -1,0 +1,40 @@
+ XRM  Overview [Profiles] Modules  Subscriptions  Nodes  Logs  Config                                                   
+ Profiles  18 Profiles / independent runtime contexts                                                                   
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Profile                Core                 Use    Edit   Run                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+   Lab region 14 / long … Process fixture      —      —      —                                                          
+   Lab region 02 / long … Process fixture      —      —      —                                                          
+   Lab re╭────────────────────────────────────────────────────────────────────────────────────────────────────╮         
+   Lab re│ Help & actions                                                                                     │         
+   Lab re│ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+ ▸ Beta  │ Profiles · View Alpha                                                                              │         
+   Lab re│ Use selects the next connection Profile; Cancel Use and module Edit do not change the running      │         
+   Lab re│ core. Metadata is independent of Edit.                                                             │         
+   Lab re│ Actions · choose with arrows, Enter to execute                                                     │         
+   Alpha │ > u               Use Profile · Beta                                                               │         
+   Lab re│   e               Allow module Edit · Beta                                                         │         
+   Lab re│   n               New Profile                                                                      │         
+   Lab re│   R               Rename Profile                                                                   │         
+   Lab re│   m               Profile metadata                                                                 │         
+   Lab re│   c               Copy Profile                                                                     │         
+   Lab re│   D               Delete Profile                                                                   │         
+   Lab re│   N               Notification history                                                             │         
+   Lab re│   r               Refresh                                                                          │         
+         │   F               Full object details                                                              │         
+         │   Enter           View highlighted object                                                          │         
+         │ ────────────────────────────────────────────────────────────────────────────────────────────────── │         
+         │ Navigation and input                                                                               │         
+         │ Arrows / PgUp / PgDn    Browse rows; Home / End jump                                               │         
+         │ Esc                     Return one level                                                           │         
+         │ Esc closes Help and restores your place                                                            │         
+         ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                                                         
+ View Alpha · Core Process fixture · Saved Node · Loopback inventory                                                    
+ xrmd ready · Content                                                                                 F1 Help & actions 

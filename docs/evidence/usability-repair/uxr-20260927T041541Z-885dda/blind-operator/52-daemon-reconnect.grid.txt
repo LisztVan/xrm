@@ -1,0 +1,40 @@
+ XRM  Overview  Profiles  Modules [Subscriptions] Nodes  Logs  Config
+ Subscriptions  1 source / node inventory
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   Source                   Nodes   Result          Auto    Bound                 ╭──────────────────────────────────╮
+ ─────────────────────────────────────────────────────────────────────────────────┤ i Info                           ├─
+ ▸ Local fixture            1       Updated         on      yes                   │ Refreshing Subscriptions…        │
+                                                                                  ╰──────────────────────────────────╯
+                                                                                  ╭──────────────────────────────────╮
+                                                                                  │ ! Warning                        │
+                                                                                  │ Refresh incomplete; cached data  │
+                                                                                  │ retained. Check the connection   │
+                                                                                  │ in Help.                         │
+                                                                                  ╰──────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Viewing: Lab Home · Next: Lab Home · Module Edit: Lab Home · Running: unknown
+ Highlighted Local fixture · Updated · 1 nodes
+ xrmd disconnected · cached data · Page content (Content)                                             F1 Help & actions

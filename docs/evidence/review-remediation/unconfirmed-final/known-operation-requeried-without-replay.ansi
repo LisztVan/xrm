@@ -1,0 +1,24 @@
+ [1mXRM [0;2m Overview  Profiles  Modules [0;1m[Subscriptions][0;2m Nodes  Logs  Config [0m          
+ [1mSubscriptions[0;2m  1 source / node inventory                                      [0m 
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+   [1mSource                  [0m [1mNodes  [0m [1mResul [0m╭──────────────────────────────────╮  
+ [2m─────────────────────────────────────────[0m┤ [1m! Warning · history in Help     [0m ├[2m─[0m 
+ [1;7m▸ Loopback failed update   0       Failed[0m│ Update Loopback failed update:   │  
+                                          │ partially completed; inspect     │  
+                                          │ source result                    │  
+                                          ╰──────────────────────────────────╯  
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ [2m──────────────────────────────────────────────────────────────────────────────[0m 
+ [2mView Unconfirmed… · Use Unconfirmed… · Edit Unconfirmed… · Run none           [0m 
+ Highlighted Loopback failed update · Failed · 0 nodes                          
+ [2mxrmd ready · Content                                         [0mF1 Help & actions 

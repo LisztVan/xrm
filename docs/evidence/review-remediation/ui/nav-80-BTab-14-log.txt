@@ -1,0 +1,24 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config           
+    log  dns  inbounds  outbounds  routing  observatory  api             › 1/15 
+ log  SOURCE · READ ONLY · Visual                                               
+ ────────────────────────────────────────────────────────────────────────────── 
+ >   Xray logging                                                               
+                                                                                
+ Xray logging  Read only                                                        
+ log                                                                            
+ ────────────────────────────────────────────────────────────────────────────── 
+ loglevel                warning                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+ View Alpha · Use Alpha · Edit none · Run Alpha                                 
+ log · Source read-only · Visual · excluded                                     
+ xrmd ready · SecondaryNav · modules/00_log.json              F1 Help & actions 

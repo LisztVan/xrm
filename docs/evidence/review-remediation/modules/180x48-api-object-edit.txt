@@ -1,0 +1,48 @@
+ XRM  Overview  Profiles [Modules] Subscriptions  Nodes  Logs  Config                     
+    log  dns  inbounds  outbounds  routing  observatory  api  metrics  stats  policy  fakedns  geodata  env  version  burstObservatory                                         7/15 
+ api  SOURCE · EDIT · Visual                                                                                                                                                        
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ >   Xray API                     Xray API  Draft                                                                                                                                   
+                                  api                                                                                                                                               
+                                  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+                                  tag                     control                                                                                                                   
+                                  services                StatsService                                                                                                              
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                       ╭────────────────────────────────────────────────────────────────────────────────────────────────────╮                                       
+                                       │ Xray API  EDIT · field 1/3                                                                         │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │ > tag                     [x] Set value  Explicit value                                            │                                       
+                                       │                           [ control                                                             ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   Listen address:port     [ ] Set value  Not set · field omitted                                   │                                       
+                                       │                           [ Enter value                                                         ]  │                                       
+                                       │                                                                                                    │                                       
+                                       │   services                                                                                         │                                       
+                                       │   [x] Set value  Explicit value                                                                    │                                       
+                                       │   [ ] HandlerService                                                                               │                                       
+                                       │   [ ] LoggerService                                                                                │                                       
+                                       │   [x] StatsService                                                                                 │                                       
+                                       │   [ ] RoutingService                                                                               │                                       
+                                       │   [ ] ReflectionService                                                                            │                                       
+                                       │   [ ] ObservatoryService                                                                           │                                       
+                                       │                                                                                                    │                                       
+                                       │ ────────────────────────────────────────────────────────────────────────────────────────────────── │                                       
+                                       │  [ Add to draft ]  [ Cancel ]                                                                      │                                       
+                                       ╰────────────────────────────────────────────────────────────────────────────────────────────────────╯                                       
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+                                                                                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+ View Module review · Use Module review · Edit Module review · Run none                                                                                                             
+ api · Source editable · Visual · excluded                                                
+ xrmd ready · Content · modules/06_api.json                                                                                                                       F1 Help & actions 
